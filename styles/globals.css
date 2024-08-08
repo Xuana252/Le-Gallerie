@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.Input_box {
+    @apply bg-white flex rounded-full border-2 justify-between grow h-fit text-xl px-1
+}
+.Nav_bar {
+  @apply  grid grid-rows-2 w-full h-[110px] bg-white  shadow-md transition ease-in-out duration-300;
+}
+
+.Buttons_container {
+  @apply flex h-full w-fit justify-end items-center
+}
+
+.Icon {
+    @apply size-11 rounded-full
+}
+
+@font-face {
+  font-family: "AppLogo";
+  src: url("../Fonts/icomoon.ttf") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "AppName";
+  src: url("../Fonts/PlaywriteBEVLG-VariableFont_wght.ttf") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
