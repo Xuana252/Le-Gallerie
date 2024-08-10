@@ -2,10 +2,11 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { faGithub, faGoogle } from "@fortawesome/free-brands-svg-icons";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { getProviders, signIn } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
+import validator from "validator";
 
 const providerIcons: Record<string, any> = {
   github: faGithub,
@@ -13,6 +14,7 @@ const providerIcons: Record<string, any> = {
 };
 
 export default function SingIn() {
+  const fileInput = useRef<HTMLInputElement>(null);
   const [isSignUp, setIsSignUp] = useState(false);
   const [providers, setProviders] = useState<string[]>([]);
   const [signUpCredentials, setSignUpCredentials] = useState({
@@ -35,19 +37,21 @@ export default function SingIn() {
       email: "",
       username: "",
       password: "",
-      image: "https://cdn.usdairy.com/optimize/getmedia/b5108b6f-59c3-4cc4-b1d5-4b9b0d1e0c54/swiss.jpg.jpg.aspx?format=webp",
+      image: "",
     });
   }, [isSignUp]);
 
   const handleSignUpCredentialsChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
+    e.target.classList.remove("Invalid_input");
     const { name, value } = e.target;
     setSignUpCredentials((c) => ({ ...c, [name]: value }));
   };
   const handleSignInCredentialsChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
+    e.target.classList.remove("Invalid_input");
     const { name, value } = e.target;
     setSignInCredentials((c) => ({ ...c, [name]: value }));
   };
@@ -66,51 +70,95 @@ export default function SingIn() {
     fetchProviders();
   }, []);
 
+  const handleInvalid = (names: string[]) => {
+    names.forEach((name) => {
+      console.log(name);
+      // Get all elements with the given name
+      const invalidInputs = document.getElementsByName(name);
+      // Loop through NodeList and handle each input
+      invalidInputs.forEach((input) => {
+        if (input instanceof HTMLInputElement) {
+          input.classList.add("Invalid_input");
+        }
+      });
+    });
+  };
   const handleSignIn = (provider: string) => {
     signIn(provider, { callbackUrl: "/" });
   };
 
-  const handleCredentialsSignIn = () => {
-    signIn("credentials", {
-      email: signInCredentials.email,
-      password: signInCredentials.password,
-      callbackUrl: "/",
-    });
-  };
+  const handleCredentialsSignIn = (e: React.FormEvent) => {
+    e.preventDefault();
+    const invalidInputs = Object.entries(signUpCredentials)
+      .filter(([key, value]) => {
+        if (key === "image") return false; // Skip image field
+        if (key === "email") return !validator.isEmail(value); // Validate email format
+        return value.trim() === ""; // Check for empty fields
+      })
+      .map(([key]) => key);
 
-  const handleSignUp = async () => {
-    alert(JSON.stringify(signUpCredentials))
-    try {
-      const response = await fetch("api/users/new", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(
-          signUpCredentials,
-        ),
+    if (invalidInputs.length > 0) {
+      handleInvalid(invalidInputs);
+    } else {
+      signIn("credentials", {
+        email: signInCredentials.email,
+        password: signInCredentials.password,
+        callbackUrl: "/",
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        signIn("credentials", {
-          email: data.email,
-          password: data.password,
-          callbackUrl: "/",
-        });
-      } else {
-        const errorData = await response.json();
-        console.error("Error:", errorData.message);
-      }
-    } catch (error) {
-      console.log(error);
     }
   };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const invalidInputs = Object.entries(signUpCredentials)
+      .filter(([key, value]) => {
+        if (key === "image") return false; // Skip image field
+        if (key === "email") return !validator.isEmail(value); // Validate email format
+        return value.trim() === ""; // Check for empty fields
+      })
+      .map(([key]) => key);
+
+    if (invalidInputs.length > 0) {
+      handleInvalid(invalidInputs);
+    } else {
+      try {
+        const response = await fetch("api/users/new", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(signUpCredentials),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          signIn("credentials", {
+            email: signUpCredentials.email,
+            password: signUpCredentials.password,
+            callbackUrl: "/",
+          });
+        } else {
+          const errorData = await response.json();
+          console.error("Error:", errorData.message);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+  const handleImageChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if(file&&file.type === 'image/jpeg') {
+      const imageURL = URL.createObjectURL(file)
+      setSignUpCredentials((prev) => ({ ...prev, image: imageURL }));
+    }
+  }
 
   const Slider = <div className="size-full bg-orange-300"></div>;
   return (
     <div className="Form overflow-hidden h-[70%] text-xl relative">
-      <Link 
+      <Link
         href={"/"}
         className={`absolute top-[10px] ${
           isSignUp ? "left-[10px]" : "right-[10px]"
@@ -120,9 +168,20 @@ export default function SingIn() {
       </Link>
       {/* sign-up form */}
       {isSignUp ? (
-        <div  className="flex flex-col items-center justify-center gap-2">
-          <div className="flex flex-col p-2 gap-4 items-center">
-            <div className="my-4 flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center justify-center gap-2">
+          <form
+            onSubmit={handleSignUp}
+            className="flex flex-col p-2 gap-4 items-center"
+          >
+            <input
+              type="file"
+              accept="image/jpeg"
+              name="image"
+              onChange={handleImageChange}
+              ref={fileInput}
+              className="hidden"
+            />
+            <div className="my-4 flex flex-col items-center gap-4" onClick={()=>{fileInput.current?.click()}}>
               <div className="size-28 bg-white rounded-full relative overflow-hidden border-black border-2 pt-2">
                 {signUpCredentials.image ? (
                   <Image
@@ -145,15 +204,15 @@ export default function SingIn() {
               className="Input_box_variant_1"
               name="username"
               type="text"
-              placeholder="type your username here..."
+              placeholder="username..."
               value={signUpCredentials.username}
               onChange={handleSignUpCredentialsChange}
             />
             <input
               className="Input_box_variant_1"
               name="email"
-              type="email"
-              placeholder="type your email here..."
+              type="text"
+              placeholder="email..."
               value={signUpCredentials.email}
               onChange={handleSignUpCredentialsChange}
             />
@@ -162,7 +221,7 @@ export default function SingIn() {
               name="password"
               type="password"
               autoComplete="new-password"
-              placeholder="add a password..."
+              placeholder="password..."
               value={signUpCredentials.password}
               onChange={handleSignUpCredentialsChange}
             />
@@ -171,13 +230,13 @@ export default function SingIn() {
               name="repeatedPassword"
               type="password"
               autoComplete="new-password"
-              placeholder="one more time..."
+              placeholder="password..."
             />
             {/* Add sign up logic later */}
-            <button className="Button" onClick={handleSignUp}>
+            <button type="submit" className="Button">
               Sign up
             </button>
-          </div>
+          </form>
           <h1 className="text-lg">
             Already had an account?{" "}
             <span
@@ -194,13 +253,16 @@ export default function SingIn() {
 
       {/* sign-in form */}
       {!isSignUp ? (
-        <div  className="flex flex-col items-center justify-center gap-4">
-          <div className="flex flex-col p-2 gap-6 items-center">
+        <div className="flex flex-col items-center justify-center gap-4">
+          <form
+            onSubmit={handleCredentialsSignIn}
+            className="flex flex-col p-2 gap-6 items-center"
+          >
             <input
               className="Input_box_variant_1"
               name="email"
               type="text"
-              placeholder="type your email here..."
+              placeholder="email..."
               value={signInCredentials.email}
               onChange={handleSignInCredentialsChange}
             />
@@ -209,15 +271,15 @@ export default function SingIn() {
               name="password"
               type="password"
               autoComplete="new-password"
-              placeholder="and the password..."
+              placeholder="password..."
               value={signInCredentials.password}
               onChange={handleSignInCredentialsChange}
             />
             {/* Add sign up logic later */}
-            <button onClick={handleCredentialsSignIn} className="Button">
+            <button type="submit" className="Button">
               Sign in
             </button>
-          </div>
+          </form>
 
           {/* Ask for sign up */}
           <h1>
@@ -235,7 +297,8 @@ export default function SingIn() {
             {providers.map((provider) => {
               if (provider !== "credentials")
                 return (
-                  <li key={provider}
+                  <li
+                    key={provider}
                     className="Button cursor-pointer"
                     onClick={() => handleSignIn(provider)}
                   >

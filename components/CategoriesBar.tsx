@@ -63,7 +63,8 @@ export default function CategoryBar() {
       ref={listRef}
     >
       {categories.map((category) => (
-          <div
+          <div 
+            key={category.id}
             className={`h-fit w-fit my-2 text-center rounded-full py-1 px-3 text-cate font-bold select-none transition ease-in-out duration-300 ${
               !category.state
                 ? "bg-secondary-1 border-2 border-accent text-accent"

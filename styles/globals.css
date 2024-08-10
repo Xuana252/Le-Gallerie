@@ -17,6 +17,10 @@
   @apply bg-transparent outline-none border-b-2 pb-2 text-xl px-1
 }
 
+.Invalid_input {
+  @apply placeholder:text-red-500 text-red-500 shadow-md
+}
+
 .Input_box {
     @apply bg-white flex rounded-2xl grow outline-none border-2 justify-between  text-lg px-1
 }
@@ -29,7 +33,7 @@
 }
 
 .Icon {
-    @apply size-11 rounded-full
+    @apply size-11 rounded-full overflow-hidden
 }
 
 .no-scrollbar::-webkit-scrollbar {

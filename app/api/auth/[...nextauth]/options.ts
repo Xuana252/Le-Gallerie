@@ -30,20 +30,21 @@ export const options: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
-          
           if (!credentials?.email || !credentials?.password) {
             return null;
           }
 
           await connectToDB();
 
-
           const user = await User.findOne({ email: credentials?.email });
 
-          console.log(user.email,user.password,credentials?.password)
+          console.log(user.email, user.password, credentials?.password);
 
           if (user && user.password) {
-            const isMatch = await bcrypt.compare(credentials?.password, user.password);
+            const isMatch = await bcrypt.compare(
+              credentials?.password,
+              user.password
+            );
             if (isMatch) {
               return user;
             }
@@ -57,12 +58,46 @@ export const options: NextAuthOptions = {
   ],
   pages: {
     signIn: "/sign-in", // Use your custom sign-in page
+    signOut: "/",
+    error: "/",
   },
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
-      // Here you can determine if the user should be allowed to sign in
-      // You can also set session or token properties if needed
-      return true; // Return true to allow sign-in, or false to deny
+      if(credentials) return true
+      try {
+        await connectToDB();
+
+        const userExists = await User.findOne({
+          email: profile?.email,
+        });
+
+        if (!userExists) {
+          //create a random string then hash it
+          const characters =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+          let result = "";
+          const charactersLength = 8;
+          for (let i = 0; i < charactersLength; i++) {
+            result += characters.charAt(
+              Math.floor(Math.random() * charactersLength)
+            );
+          }
+
+          const hashedPassword = await bcrypt.hash(result,10)
+
+          await User.create({
+            username: profile?.name,
+            email: profile?.email,
+            password: hashedPassword,
+            image: profile?.image,
+          });
+        }
+        return true;
+        
+      } catch (error) {
+        console.log("Failed to check for user exists",error);
+        return false
+      }
     },
     async redirect({ url, baseUrl }) {
       // Allows relative callback URLs
@@ -72,7 +107,11 @@ export const options: NextAuthOptions = {
       return baseUrl;
     },
     async session({ session, token }) {
-      // You can modify session here if needed
+      if (session?.user) {
+        const sessionUser = await User.findOne({ email: session.user.email });
+
+        session.user.name = sessionUser.username.toString();
+      }
       return session;
     },
   },

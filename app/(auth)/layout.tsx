@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@styles/globals.css";
-
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -17,7 +16,7 @@ export default function NoNavLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="h-[100vh] flex bg-gradient-to-b from-white to-blue-200">{children}</div>
+          <div className="h-[100vh] flex bg-gradient-to-b from-white to-blue-200">{children}</div>
       </body>
     </html>
   );

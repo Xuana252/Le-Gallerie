@@ -27,7 +27,7 @@ export const POST = async (req: Request) => {
       image,
     });
 
-    return NextResponse.json({...newUser,password:password}, { status: 201 });
+    return NextResponse.json({message: 'Account created successfully!!!'}, { status: 201 });
 
   } catch (error) {
     console.error('Error creating user:', error);

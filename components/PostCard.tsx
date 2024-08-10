@@ -14,7 +14,7 @@ export default function PostCard({data}:{data:Post}) {
         <p className="text-left font-bold text-xl h-fit w-full">{data.title}</p>
         <ul className="flex overflow-x-scroll no-scrollbar h-fit gap-2 text-lg w-full">
           {data.categories.map((category) => (
-            <li>{category}</li>
+            <li key={category}>{category}</li>
           ))}
         </ul>
       </div>

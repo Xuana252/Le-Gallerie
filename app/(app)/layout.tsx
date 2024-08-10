@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@styles/globals.css";
 import Nav from "@components/Nav";
-
+import Provider from "@context/Provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -18,10 +18,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-       
-        <div className="translate-y-[60px]">{children}</div>
-        {/* Nav will appear on top  */}
-        <Nav></Nav>
+       <Provider>
+          <div className="translate-y-[60px]">{children}</div>
+          {/* Nav will appear on top  */}
+          <Nav></Nav>
+       </Provider>
 
       </body>
     </html>
