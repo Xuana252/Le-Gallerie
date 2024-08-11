@@ -5,21 +5,7 @@ import PostCard from './PostCard';
 
 
 export default function Feed() {
-  const [posts,setPosts] = useState([{
-    _id:'123',
-    creator: 'Xuan',
-    title: 'TestCard',
-    description: 'Hey',
-    categories: ['Food','Animal'],
-    image: 'https://www.cnet.com/a/img/resize/36e8e8fe542ad9af413eb03f3fbd1d0e2322f0b2/hub/2023/02/03/afedd3ee-671d-4189-bf39-4f312248fb27/gettyimages-1042132904.jpg?auto=webp&fit=crop&height=1200&width=1200'
-  },{
-    _id:'456',
-    creator: 'Xuan',
-    title: 'TestCard',
-    description: 'Hey',
-    categories: ['Food','Animal'],
-    image: 'https://hungrybynature.com/wp-content/uploads/2017/09/pinch-of-yum-workshop-19.jpg'
-  },])
+  const [posts,setPosts] = useState([])
 
   // const fetchPosts = async () => {
   //   const response  = await fetch('api/posts')
@@ -43,7 +29,7 @@ export default function Feed() {
     className="my-masonry-grid w-full  "
     columnClassName="my-masonry-grid_column"
   >
-    {posts.map((post)=> <PostCard key={post._id} data={post} />)}
+    {posts.map((post)=> <PostCard key={post} data={post} />)}
   </Masonry>
   );
 };

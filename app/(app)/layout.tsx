@@ -19,7 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
        <Provider>
-          <div className="translate-y-[60px]">{children}</div>
+          <div className="translate-y-[60px] h-full">{children}</div>
           {/* Nav will appear on top  */}
           <Nav></Nav>
        </Provider>

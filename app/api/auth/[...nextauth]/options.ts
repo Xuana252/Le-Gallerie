@@ -1,5 +1,6 @@
-import { NextAuthOptions } from "next-auth";
-import GithubProvider from "next-auth/providers/github";
+import { NextAuthOptions, Session } from "next-auth";
+import GoogleProvider, { GoogleProfile } from "next-auth/providers/google";
+import GithubProvider, { GithubProfile } from "next-auth/providers/github";
 import { connectToDB } from "@utils/database";
 import User from "@models/userModel";
 import CredentialsProvider, {
@@ -9,9 +10,13 @@ import bcrypt from "bcrypt";
 
 export const options: NextAuthOptions = {
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENTID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    }),
     GithubProvider({
       clientId: process.env.GITHUB_CLIENTID as string,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET as string, 
     }),
     CredentialsProvider({
       name: "Credentials",
@@ -38,7 +43,6 @@ export const options: NextAuthOptions = {
 
           const user = await User.findOne({ email: credentials?.email });
 
-          console.log(user.email, user.password, credentials?.password);
 
           if (user && user.password) {
             const isMatch = await bcrypt.compare(
@@ -65,10 +69,12 @@ export const options: NextAuthOptions = {
     async signIn({ user, account, profile, email, credentials }) {
       if(credentials) return true
       try {
+
+        
         await connectToDB();
 
         const userExists = await User.findOne({
-          email: profile?.email,
+          email: user.email, 
         });
 
         if (!userExists) {
@@ -84,12 +90,14 @@ export const options: NextAuthOptions = {
           }
 
           const hashedPassword = await bcrypt.hash(result,10)
+          
+          const imageURL = profile?.sub
 
           await User.create({
-            username: profile?.name,
-            email: profile?.email,
+            username: user.name?? 'unknown',
+            email: user.email,
             password: hashedPassword,
-            image: profile?.image,
+            image: user.image||'',
           });
         }
         return true;
@@ -107,12 +115,19 @@ export const options: NextAuthOptions = {
       return baseUrl;
     },
     async session({ session, token }) {
-      if (session?.user) {
-        const sessionUser = await User.findOne({ email: session.user.email });
-
-        session.user.name = sessionUser.username.toString();
+      if (session?.user?.email) {
+        try {
+          const sessionUser = await User.findOne({ email: session.user.email });
+          if (sessionUser) {
+            session.user.name = sessionUser.username || '';
+            session.user.image = sessionUser.image || '';
+            session.user.id = sessionUser._id;
+          }
+        } catch (error) {
+          console.log('Error fetching user for session:', error);
+        }
       }
-      return session;
+      return session
     },
   },
 };

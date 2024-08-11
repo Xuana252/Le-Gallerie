@@ -8,11 +8,7 @@ export default function CategoryBar() {
   const [startClientX, setStartClientX] = useState(0);
   const [mouseDownCoordX, setMouseDownCoordX] = useState(0);
   const [mouseUpCoordX, setMouseUpCoordX] = useState(0);
-  const [categories, setCategories] = useState([{
-    id:1,
-    name:'Food',
-    state:false
-  }]);
+  const [categories, setCategories] = useState([]);
 
   const fetchCategories = async () => {
     const response = await fetch('/api/categories')
@@ -62,7 +58,7 @@ export default function CategoryBar() {
       onMouseLeave={handleMouseLeave}
       ref={listRef}
     >
-      {categories.map((category) => (
+      {/* {categories.map((category) => (
           <div 
             key={category.id}
             className={`h-fit w-fit my-2 text-center rounded-full py-1 px-3 text-cate font-bold select-none transition ease-in-out duration-300 ${
@@ -74,7 +70,7 @@ export default function CategoryBar() {
           >
             {category.name}
           </div>
-        ))}
+        ))} */}
     </ul>
   );
 }

@@ -9,8 +9,6 @@ const UserSchema = new Schema ({
     username: {
         type:String,
         required: [true, 'Username is required!'],
-
-        unique: [true, 'Username already exists!']
     },
     password: {
         type: String,
@@ -18,6 +16,7 @@ const UserSchema = new Schema ({
     },
     image: {
         type:String,
+        required: false
     }
 },
 {

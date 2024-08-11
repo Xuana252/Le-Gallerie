@@ -1,4 +1,7 @@
 "use client";
+import '@fortawesome/fontawesome-svg-core/styles.css';
+import { config } from '@fortawesome/fontawesome-svg-core';
+config.autoAddCss = false;
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -69,7 +72,7 @@ export default function Nav() {
               <FontAwesomeIcon icon={faRightFromBracket} size="xl" />
             </button>
           ) : (
-            <Link href={"/profile"}>
+            <Link href={"/profile"} className='Icon'>
               <button className="Icon relative">
                 {session?.user?.image ? (
                   <Image

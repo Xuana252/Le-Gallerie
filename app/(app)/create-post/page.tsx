@@ -1,21 +1,36 @@
 'use client'
-import React, { FormEvent, useState } from 'react';
+import React, { FormEvent, useEffect, useState } from 'react';
 import Form from '@components/Form';
 import { useRouter } from 'next/navigation';
+import { type Category, type Post } from '@lib/types';
+import { useSession } from 'next-auth/react';
 
-type Post = {
-  title: string,
-  image: string,
-  categories: string[]
-}
-
-export default function CreatePost() {
+export default function CreatePost() { 
   const router =useRouter()
+  const {data:session} = useSession()
+  const [categories,setCategories] = useState<Category[]>([])
   const [post,setPost] = useState<Post>({
-    title: '',
+  creator: session?.user.id||'',
+  title: '',
   image: '',
-  categories: []
+  categories: [],
+  description: ''
   })
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('api/categories')
+      const data = await response.json()
+
+      setCategories(data)
+    } catch (error) {
+      console.log('Error while fetching for categories: ',error)
+    }
+  }
+
+  useEffect(()=>{
+    fetchCategories()
+  },[])
 
   const handleCreatePost = (e:FormEvent) =>{
     e.preventDefault();
@@ -24,8 +39,8 @@ export default function CreatePost() {
 
   }
   return (
-     <section className='mt-4'>
-      <Form type='Create' setPost={setPost} handleSubmit={handleCreatePost}></Form>
+     <section className='flex flex-col items-center justify-center h-full'>
+      <Form type='Create' categories={categories} post={post} setPost={setPost} handleSubmit={handleCreatePost}></Form>
      </section>
   );
 };

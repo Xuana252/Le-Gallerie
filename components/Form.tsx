@@ -1,57 +1,140 @@
-'use client'
-import React, { FormEvent } from "react";
+"use client";
+import React, { FormEvent, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import InputBox from "./InputBox";
-
-
-type Post = {
-  title: string;
-  image: string;
-  categories: string[];
-};
+import { type Post, type Category } from "@lib/types";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faX, faImage,faCheck } from "@fortawesome/free-solid-svg-icons";
 
 type FormProps = {
-   type:'Create'|'Edit'
+  type: "Create" | "Edit";
+  post: Post;
+  categories: Category[];
   setPost: React.Dispatch<React.SetStateAction<Post>>;
   handleSubmit: (e: FormEvent) => void;
 };
-export default function Form({type,setPost, handleSubmit }: FormProps) {
+export default function Form({
+  type,
+  post,
+  categories,
+  setPost,
+  handleSubmit,
+}: FormProps) {
   const router = useRouter();
+  const imageInput = useRef<HTMLInputElement>(null)
+  const [imageInputVisibility,setImageInputVisibility] = useState<Boolean>(false)
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
-   e.preventDefault();
-   router.back(); 
- }
+    e.preventDefault();
+    router.back();
+  };
+
+  const handleCategoryAdd = (name: string) => {
+    setPost((p) => ({
+      ...p,
+      categories: [...p.categories,name],
+    }));
+  };
+
+  const handleCategoryRemove = (name: string) => {
+    setPost((p) => ({
+      ...p,
+      categories: p.categories.filter((category) => category !== name),
+    }));
+  };
+
+  const handleImageChange = () => {
+    setPost((p) => ({ ...p, image: imageInput.current?imageInput.current.value:'' }));
+    setImageInputVisibility(false)
+  };
+
+  const handleImageError = () => {
+    setPost((p) => ({ ...p, image: "" }));
+  };
+
+  const handleTextChange = (
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setPost(p=>({...p,[name]: value}))
+  };
 
   return (
     <section>
-      <h1>{type} your post</h1>
       <form onSubmit={handleSubmit} className="Form">
-        <div className="flex items-center size-full sm:rounded-l-3xl sm:rounded-tr-none rounded-t-3xl overflow-hidden relative">
-          <Image src={'https://hungrybynature.com/wp-content/uploads/2017/09/pinch-of-yum-workshop-19.jpg'} alt="Post Image" width={0} height={0} layout='responsive' />
+        <div className="flex items-center justify-center size-full sm:rounded-l-3xl sm:rounded-tr-none rounded-t-3xl overflow-hidden relative">
+          <div  onClick={()=>setImageInputVisibility(true)}>
+            {post.image ? (
+              <img
+                src={post.image}
+                alt="Post Image"
+                style={{ objectFit: "cover" }}
+                onError={handleImageError}
+              />
+            ) : (
+              <FontAwesomeIcon icon={faImage} className="text-7xl" />
+            )}
+          </div>
+          {imageInputVisibility && (
+                <div className="Input_box absolute bottom-2">
+                  <input
+                    ref={imageInput}
+                    name="image"
+                    placeholder="Image URL..."
+                    className="pl-2 outline-none"
+                  />{" "}
+                  <div className="p-1" onClick={handleImageChange}>
+                    <FontAwesomeIcon icon={faCheck} />
+                  </div>
+                </div>
+              )}
         </div>
         <div className="size-full p-4 flex flex-col gap-2">
           <div>
-             <h3>Title</h3>
-               <InputBox type='Input'>add some cool title...</InputBox>
+            <h3>Title</h3>
+            <InputBox
+              onTextChange={handleTextChange}
+              name="title"
+              type="Input"
+              value={post.title}
+            >
+              add some cool title...
+            </InputBox>
           </div>
           <div>
-             <h3>Categories</h3>
-             <InputBox type='Input'>what about categories... </InputBox>
+            <h3>Categories</h3>
+            <ul className="Cate_box relative">
+              {categories.map((category) => (
+                <li className="Cate_tag" key={category._id}>
+                  {category.name}
+                  <FontAwesomeIcon
+                    icon={faX}
+                    size="sm"
+                    onClick={() => handleCategoryRemove(category.name)}
+                  />{" "}
+                </li>
+              ))}
+            </ul>
           </div>
           <div className="h-full">
-             <h3>Description</h3>
-             <textarea placeholder="tell us something about your post..." className="Input_box p-2 w-full h-[80%]" />
+            <h3>Description</h3>
+            <textarea
+              name="description"
+              value={post.description}
+              placeholder="tell us something about your post..."
+              className="Input_box p-2 w-full h-[80%]"
+              onChange={handleTextChange}
+            />
           </div>
           <div className="flex justify-end gap-3 mt-auto">
-            <button
-              onClick={handleCancel}
-              className="Button"
-            >
+            <button onClick={handleCancel} className="Button">
               Cancel
             </button>
-            <button type="submit" className="Button">{type} Post</button>
+            <button type="submit" className="Button">
+              {type} Post
+            </button>
           </div>
         </div>
       </form>

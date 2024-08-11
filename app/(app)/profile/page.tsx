@@ -15,8 +15,6 @@ export default async function MyProfile() {
     redirect("/sign-in");
   }
 
-  console.log(session);
-
   return (
     <section>
       <div className="flex size-fit gap-5 p-5 items-center">

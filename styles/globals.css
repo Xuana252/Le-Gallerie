@@ -22,18 +22,25 @@
 }
 
 .Input_box {
-    @apply bg-white flex rounded-2xl grow outline-none border-2 justify-between  text-lg px-1
+    @apply bg-white flex rounded-2xl items-center grow outline-none border-2 justify-between  text-lg px-1 overflow-hidden
+}
+
+.Cate_box {
+    @apply bg-white flex rounded-2xl items-center grow outline-none border-2 justify-start gap-2   text-lg p-1 overflow-hidden
+}
+.Cate_tag {
+  @apply flex items-center justify-center px-2 py-1 border-2 rounded-xl gap-2
 }
 .Nav_bar {
   @apply  fixed top-0 left-0 w-full h-[60px] bg-white  shadow-md transition ease-in-out duration-300;
 }
 
 .Buttons_container {
-  @apply flex h-full w-fit justify-end items-center
+  @apply flex h-full w-fit justify-end items-center gap-2
 }
 
 .Icon {
-    @apply size-11 rounded-full overflow-hidden
+    @apply size-11 rounded-full overflow-hidden bg-slate-200
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -74,4 +81,9 @@
   src: url("../Fonts/PlaywriteBEVLG-VariableFont_wght.ttf") format("woff2");
   font-weight: normal;
   font-style: normal;
+}
+
+body {
+  min-height: 90vh;
+  height: 90vh;
 }
