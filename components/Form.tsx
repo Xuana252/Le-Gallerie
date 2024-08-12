@@ -4,7 +4,54 @@ import { useRouter } from "next/navigation";
 import InputBox from "./InputBox";
 import { type Post, type Category } from "@lib/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faX, faImage,faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faX, faImage, faCheck } from "@fortawesome/free-solid-svg-icons";
+
+type CategoriesSelectorProps = {
+  selectedCategories: Category[];
+  categories: Category[];
+  onSelected: (category: Category) => void;
+  onRemoved: (category: Category) => void;
+};
+export function CategoriesSelector({
+  selectedCategories,
+  categories,
+  onSelected,
+  onRemoved,
+}: CategoriesSelectorProps) {
+  const [isSelecting, setIsSelecting] = useState(false);
+  return (
+    <div>
+      <ul className={` Cate_box min-h-14 relative ${isSelecting?'bg-slate-100':''}`} onClick={()=>setIsSelecting(true)}>
+        {selectedCategories.map((category) => (
+          <li className="Cate_tag" key={category._id}>
+            {category.name}
+            <FontAwesomeIcon
+              icon={faX}
+              size="sm"
+              onClick={() => onRemoved(category)}
+            />{" "}
+          </li>
+        ))}
+      </ul>
+      {isSelecting && (
+        <div>
+          <div onClick={()=>setIsSelecting(false)}>close</div>
+          <ul className="flex flex-wrap gap-2">
+            {categories.map((category) => (
+              <li
+                className="Cate_tag"
+                key={category._id}
+                onClick={() => onSelected(category)}
+              >
+                {category.name}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
 
 type FormProps = {
   type: "Create" | "Edit";
@@ -21,31 +68,37 @@ export default function Form({
   handleSubmit,
 }: FormProps) {
   const router = useRouter();
-  const imageInput = useRef<HTMLInputElement>(null)
-  const [imageInputVisibility,setImageInputVisibility] = useState<Boolean>(false)
+  const imageInput = useRef<HTMLInputElement>(null);
+  const [imageInputVisibility, setImageInputVisibility] =
+    useState<Boolean>(false);
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     router.back();
   };
-
-  const handleCategoryAdd = (name: string) => {
-    setPost((p) => ({
-      ...p,
-      categories: [...p.categories,name],
-    }));
+  console.log(post)
+  const handleCategoryAdd = (category: Category) => {
+    if(!post.categories.includes(category)){
+      setPost((p) => ({
+        ...p,
+        categories: [...p.categories, category],
+      }));
+    }
   };
 
-  const handleCategoryRemove = (name: string) => {
+  const handleCategoryRemove = (category: Category) => {
     setPost((p) => ({
       ...p,
-      categories: p.categories.filter((category) => category !== name),
+      categories: p.categories.filter((c) => c !== category),
     }));
   };
 
   const handleImageChange = () => {
-    setPost((p) => ({ ...p, image: imageInput.current?imageInput.current.value:'' }));
-    setImageInputVisibility(false)
+    setPost((p) => ({
+      ...p,
+      image: imageInput.current ? imageInput.current.value : "",
+    }));
+    setImageInputVisibility(false);
   };
 
   const handleImageError = () => {
@@ -58,14 +111,13 @@ export default function Form({
       | React.ChangeEvent<HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setPost(p=>({...p,[name]: value}))
+    setPost((p) => ({ ...p, [name]: value }));
   };
 
   return (
-    <section>
       <form onSubmit={handleSubmit} className="Form">
         <div className="flex items-center justify-center size-full sm:rounded-l-3xl sm:rounded-tr-none rounded-t-3xl overflow-hidden relative">
-          <div  onClick={()=>setImageInputVisibility(true)}>
+          <div onClick={() => setImageInputVisibility(true)}>
             {post.image ? (
               <img
                 src={post.image}
@@ -78,18 +130,18 @@ export default function Form({
             )}
           </div>
           {imageInputVisibility && (
-                <div className="Input_box absolute bottom-2">
-                  <input
-                    ref={imageInput}
-                    name="image"
-                    placeholder="Image URL..."
-                    className="pl-2 outline-none"
-                  />{" "}
-                  <div className="p-1" onClick={handleImageChange}>
-                    <FontAwesomeIcon icon={faCheck} />
-                  </div>
-                </div>
-              )}
+            <div className="Input_box absolute bottom-2">
+              <input
+                ref={imageInput}
+                name="image"
+                placeholder="Image URL..."
+                className="pl-2 outline-none"
+              />{" "}
+              <div className="p-1" onClick={handleImageChange}>
+                <FontAwesomeIcon icon={faCheck} />
+              </div>
+            </div>
+          )}
         </div>
         <div className="size-full p-4 flex flex-col gap-2">
           <div>
@@ -105,18 +157,12 @@ export default function Form({
           </div>
           <div>
             <h3>Categories</h3>
-            <ul className="Cate_box relative">
-              {categories.map((category) => (
-                <li className="Cate_tag" key={category._id}>
-                  {category.name}
-                  <FontAwesomeIcon
-                    icon={faX}
-                    size="sm"
-                    onClick={() => handleCategoryRemove(category.name)}
-                  />{" "}
-                </li>
-              ))}
-            </ul>
+            <CategoriesSelector
+              selectedCategories={post.categories}
+              categories={categories}
+              onSelected={handleCategoryAdd}
+              onRemoved={handleCategoryRemove}
+            />
           </div>
           <div className="h-full">
             <h3>Description</h3>
@@ -138,6 +184,5 @@ export default function Form({
           </div>
         </div>
       </form>
-    </section>
   );
 }

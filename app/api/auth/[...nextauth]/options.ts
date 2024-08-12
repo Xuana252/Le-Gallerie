@@ -121,7 +121,7 @@ export const options: NextAuthOptions = {
           if (sessionUser) {
             session.user.name = sessionUser.username || '';
             session.user.image = sessionUser.image || '';
-            session.user.id = sessionUser._id;
+            session.user.id = sessionUser._id.toString();
           }
         } catch (error) {
           console.log('Error fetching user for session:', error);

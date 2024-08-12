@@ -2,20 +2,21 @@
 import React, { useEffect, useState } from 'react';
 import Masonry from 'react-masonry-css'
 import PostCard from './PostCard';
+import { type Post } from '@lib/types';
 
 
 export default function Feed() {
-  const [posts,setPosts] = useState([])
+  const [posts,setPosts] = useState<Post[]>([])
 
-  // const fetchPosts = async () => {
-  //   const response  = await fetch('api/posts')
-  //   const data = await response.json()
-  //   setPosts(data)
-  // }
+  const fetchPosts = async () => {
+    const response  = await fetch('/api/posts')
+    const data = await response.json()
+    setPosts(data)
+  }
 
-  // useEffect(()=>{
-  //   fetchPosts()
-  // },[])
+  useEffect(()=>{
+    fetchPosts()
+  },[])
 
     const breakpointColumnsObj = {
         default: 5,
@@ -29,7 +30,7 @@ export default function Feed() {
     className="my-masonry-grid w-full  "
     columnClassName="my-masonry-grid_column"
   >
-    {posts.map((post)=> <PostCard key={post} data={post} />)}
+    {posts.map((post)=> <PostCard key={post._id} post={post} />)}
   </Masonry>
   );
 };

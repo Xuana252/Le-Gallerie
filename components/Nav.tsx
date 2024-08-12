@@ -49,7 +49,7 @@ export default function Nav() {
 
         <div className="Buttons_container">
           {session?.user && (
-            <Link href={"/create-post"}>
+            <Link href={"/post/create"}>
               <button className="Icon">
                 <FontAwesomeIcon icon={faPen} size="xl"/>
               </button>

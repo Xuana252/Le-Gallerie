@@ -10,15 +10,20 @@ declare module 'next-auth' {
     user: User;
   }
 }
-
+export type User = {
+  _id:string,
+  email?:string,
+  username?:string,
+  image?:string,
+}
 export type Post = {
-    creator: string,
+    _id?: string,
+    creator: User,
     title: string,
     description: string,
-    categories: string[],
+    categories: Category[],
     image: string
 }
-
 export type Category = {
     _id: string,
     name:string,
