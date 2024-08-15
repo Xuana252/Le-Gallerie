@@ -19,7 +19,18 @@ const config: Config = {
         AppName: 'AppName',
         AppLogo: 'AppLogo'
       },
+      colors: {
+        primary: 'rgba(var(--primary))',
+        secondary: {
+          1: 'rgba(var(--secondary))',
+          2: 'rgba(var(--secondary-variant-1))',
+        },
+        accent: 'rgba(var(--accent))',
+      },
     },
+    fontFamily: {
+      AppLogo: 'AppLogo'
+    }
   },
   plugins: [nextui()],
 };

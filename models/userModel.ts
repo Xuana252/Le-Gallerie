@@ -17,7 +17,11 @@ const UserSchema = new Schema ({
     image: {
         type:String,
         required: false
-    }
+    },
+    bio: {
+        type:String,
+        required: false
+    },
 },
 {
     timestamps:true,

@@ -24,6 +24,7 @@ export const POST = async (req: Request) => {
       email,
       password: hashedPassword,
       image,
+      bio: ''
     });
 
     return NextResponse.json({message: 'Account created successfully!!!'}, { status: 201 });

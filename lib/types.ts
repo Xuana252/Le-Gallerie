@@ -3,18 +3,23 @@ import { DefaultUser } from 'next-auth';
 
 declare module 'next-auth' {
   interface User extends DefaultUser {
-    id?: string; // Add `id` field to the `User` type
+    id?: string;
+    bio?: string
   }
 
   interface Session {
     user: User;
   }
 }
+
+export type SubmitButtonState = 'Succeeded'|'Failed'|'Processing'|''
+
 export type User = {
   _id:string,
   email?:string,
   username?:string,
   image?:string,
+  bio?:string,
 }
 export type Post = {
     _id?: string,

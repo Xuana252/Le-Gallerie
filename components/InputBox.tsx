@@ -9,10 +9,12 @@ type InputProps = {
   children?:string,
   value?:string,
   name?:string,
+  styleVariant?:string
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>)=> void,
   onTextChange?:(e: React.ChangeEvent<HTMLInputElement>) => void
   onClear?:()=>void
 };
-export default function InputBox({name, type,style,children,value,onTextChange,onClear }: InputProps) {
+export default function InputBox({name, type,style,children,value,styleVariant='Input_box_variant_1',onTextChange,onKeyDown,onClear }: InputProps) {
   const inputBar = useRef<HTMLInputElement>(null); 
   const handleClearText = (e: React.MouseEvent) =>{
     e.preventDefault()
@@ -24,7 +26,7 @@ export default function InputBox({name, type,style,children,value,onTextChange,o
   }
   return (
     <div
-      className="Input_box"
+      className={`${styleVariant}`}
       style={style}
       onClick={() => {
         inputBar.current ? inputBar.current.focus() : {};
@@ -40,9 +42,10 @@ export default function InputBox({name, type,style,children,value,onTextChange,o
         name={name?name:''}
         value={value}
         onChange={(e) =>onTextChange&& onTextChange(e)}
+        onKeyDown={onKeyDown}
         type="text"
         spellCheck='false'
-        className="bg-transparent outline-none w-full px-2"
+        className="bg-transparent placeholder:text-inherit outline-none w-full px-2"
         placeholder={children?children:'add text here...'}
       />
       <div className="flex items-center size-8 justify-center ">

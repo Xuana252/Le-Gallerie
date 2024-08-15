@@ -2,11 +2,14 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faCheck } from "@fortawesome/free-solid-svg-icons";
 import { faGithub, faGoogle } from "@fortawesome/free-brands-svg-icons";
+import SubmitButton from "@components/SubmitButton";
 import React, { useEffect, useRef, useState } from "react";
 import { getProviders, signIn } from "next-auth/react";
 import Link from "next/link";
-import Image from "next/image";
 import validator from "validator";
+import { SubmitButtonState } from "@lib/types";
+import { useRouter } from "next/navigation";
+import Loader from "@components/Loader";
 
 const providerIcons: Record<string, any> = {
   github: faGithub,
@@ -14,10 +17,14 @@ const providerIcons: Record<string, any> = {
 };
 
 export default function SingIn() {
+  const router = useRouter();
   const imageInput = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState("");
+  const [submitState, setSubmitState] = useState<SubmitButtonState>("");
   const [imageInputVisibility, setImageInputVisibility] =
     useState<boolean>(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isLoading,setIsLoading] = useState(true)
   const [providers, setProviders] = useState<string[]>([]);
   const [signUpCredentials, setSignUpCredentials] = useState({
     email: "",
@@ -30,6 +37,18 @@ export default function SingIn() {
     email: "",
     password: "",
   });
+
+  const alertError = (error: string) => {
+    setError(error);
+    setTimeout(() => setError(""), 1500);
+  };
+
+  useEffect(() => {
+    const storedTheme = localStorage.getItem("Theme");
+    if (storedTheme !== null) {
+      document.body.className = storedTheme;
+    }
+  }, []);
 
   useEffect(() => {
     setSignInCredentials({
@@ -65,6 +84,7 @@ export default function SingIn() {
       const response = await getProviders();
       if (response) {
         setProviders(Object.keys(response));
+        setIsLoading(false)
       }
     } catch (error) {
       console.log("failed to fetch for providers");
@@ -91,8 +111,9 @@ export default function SingIn() {
     signIn(provider, { callbackUrl: "/" });
   };
 
-  const handleCredentialsSignIn = (e: React.FormEvent) => {
+  const handleCredentialsSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitState("Processing");
     const invalidInputs = Object.entries(signInCredentials)
       .filter(([key, value]) => {
         if (key === "image") return false; // Skip image field
@@ -103,17 +124,32 @@ export default function SingIn() {
 
     if (invalidInputs.length > 0) {
       handleInvalid(invalidInputs);
+      setSubmitState("Failed");
     } else {
-      signIn("credentials", {
-        email: signInCredentials.email,
-        password: signInCredentials.password,
-        callbackUrl: "/",
-      });
+      try {
+        const response = await signIn("credentials", {
+          email: signInCredentials.email,
+          password: signInCredentials.password,
+          redirect: false,
+        });
+        if (response?.error) {
+          setSubmitState("Failed");
+          console.log(response.error);
+          alertError(response.error);
+        } else if (response?.ok) {
+          setSubmitState("Succeeded");
+          setTimeout(() => router.push("/"));
+        }
+      } catch (error) {
+        console.log(error);
+        setSubmitState("Failed");
+      }
     }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitState("Processing");
     const invalidInputs = Object.entries(signUpCredentials)
       .filter(([key, value]) => {
         if (key === "image") return false; // Skip image field
@@ -126,30 +162,35 @@ export default function SingIn() {
 
     if (invalidInputs.length > 0) {
       handleInvalid(invalidInputs);
-      return;
-    }
-    try {
-      const response = await fetch("api/users/new", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(signUpCredentials),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        signIn("credentials", {
-          email: signUpCredentials.email,
-          password: signUpCredentials.password,
-          callbackUrl: "/",
+      setSubmitState("Failed");
+    } else {
+      try {
+        const response = await fetch("api/users/new", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(signUpCredentials),
         });
-      } else {
-        const errorData = await response.json();
-        console.error("Error:", errorData.message);
+        const data = await response.json();
+        if (response.ok) {
+          setSubmitState("Succeeded");
+          setTimeout(() => {
+            signIn("credentials", {
+              email: signUpCredentials.email,
+              password: signUpCredentials.password,
+              callbackUrl: "/",
+            });
+          }, 1000);
+        } else {
+          setSubmitState("Failed");
+          console.log(data.message);
+          alertError(data.message);
+        }
+      } catch (error) {
+        setSubmitState("Failed");
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
     }
   };
 
@@ -167,7 +208,7 @@ export default function SingIn() {
 
   const Slider = <div className="size-full bg-orange-300"></div>;
   return (
-    <div className="Form overflow-hidden h-[70%] text-xl relative">
+    <div className="Form overflow-hidden h-[70%] relative">
       <Link
         href={"/"}
         className={`absolute top-[10px] ${
@@ -178,29 +219,25 @@ export default function SingIn() {
       </Link>
       {/* sign-up form */}
       {isSignUp ? (
-        <div className="flex flex-col items-center justify-center gap-2">
+        <div className="flex flex-col items-center justify-around gap-2">
           <form
             onSubmit={handleSignUp}
             className="flex flex-col p-2 gap-4 items-center"
           >
-            <div className="my-4 flex flex-col items-center gap-4">
+            <div className=" flex flex-col items-center gap-4">
               <div
-                className="size-28 bg-white rounded-full relative overflow-hidden border-black border-2 text-7xl"
+                className="size-28 bg-primary rounded-full relative overflow-hidden border-accent text-7xl"
                 onClick={() => {
                   setImageInputVisibility(true);
                 }}
               >
                 {signUpCredentials.image ? (
-                  // <OptimizedImageWithFallback
-                  //   src={signUpCredentials.image}
-                  //   alt="sign up image"
-                  //   fallBackSrc="/"
-                  // />
                   <img
                     src={signUpCredentials.image}
                     alt="sign up image"
                     style={{ objectFit: "cover" }}
                     onError={handleImageError}
+                    className="size-full"
                   />
                 ) : (
                   <FontAwesomeIcon
@@ -211,22 +248,26 @@ export default function SingIn() {
                 )}
               </div>
               {imageInputVisibility && (
-                <div className="Input_box">
+                <div className="Input_box_variant_1">
                   <input
                     ref={imageInput}
                     name="image"
                     placeholder="Image URL..."
-                    className="pl-2 outline-none"
+                    className="pl-2 outline-none bg-transparent placeholder:text-inherit"
                   />{" "}
                   <div className="p-1" onClick={handleImageChange}>
                     <FontAwesomeIcon icon={faCheck} />
                   </div>
                 </div>
               )}
-              <h1 className="text-medium">{signUpCredentials.image?'Looking good there':'Add Profile picture'}</h1>
+              <h1 className="text-medium">
+                {signUpCredentials.image
+                  ? "Looking good there"
+                  : "Add Profile picture"}
+              </h1>
             </div>
             <input
-              className="Input_box_variant_1"
+              className="Input_box_variant_2"
               name="username"
               type="text"
               placeholder="username..."
@@ -234,7 +275,7 @@ export default function SingIn() {
               onChange={handleSignUpCredentialsChange}
             />
             <input
-              className="Input_box_variant_1"
+              className="Input_box_variant_2"
               name="email"
               type="text"
               placeholder="email..."
@@ -242,7 +283,7 @@ export default function SingIn() {
               onChange={handleSignUpCredentialsChange}
             />
             <input
-              className="Input_box_variant_1"
+              className="Input_box_variant_2"
               name="password"
               type="password"
               autoComplete="new-password"
@@ -251,7 +292,7 @@ export default function SingIn() {
               onChange={handleSignUpCredentialsChange}
             />
             <input
-              className="Input_box_variant_1"
+              className="Input_box_variant_2"
               name="repeatedPassword"
               type="password"
               autoComplete="new-password"
@@ -260,9 +301,11 @@ export default function SingIn() {
               onChange={handleSignUpCredentialsChange}
             />
             {/* Add sign up logic later */}
-            <button type="submit" className="Button">
+
+            <SubmitButton state={submitState} changeState={setSubmitState}>
               Sign up
-            </button>
+            </SubmitButton>
+            {error && <div>{error}</div>}
           </form>
           <h1 className="text-lg">
             Already had an account?{" "}
@@ -286,7 +329,7 @@ export default function SingIn() {
             className="flex flex-col p-2 gap-6 items-center"
           >
             <input
-              className="Input_box_variant_1"
+              className="Input_box_variant_2"
               name="email"
               type="text"
               placeholder="email..."
@@ -294,7 +337,7 @@ export default function SingIn() {
               onChange={handleSignInCredentialsChange}
             />
             <input
-              className="Input_box_variant_1"
+              className="Input_box_variant_2"
               name="password"
               type="password"
               autoComplete="new-password"
@@ -303,9 +346,10 @@ export default function SingIn() {
               onChange={handleSignInCredentialsChange}
             />
             {/* Add sign up logic later */}
-            <button type="submit" className="Button">
+            <SubmitButton state={submitState} changeState={setSubmitState}>
               Sign in
-            </button>
+            </SubmitButton>
+            {error && <div>{error}</div>}
           </form>
 
           {/* Ask for sign up */}
@@ -319,22 +363,24 @@ export default function SingIn() {
             </span>
           </h1>
           <h1>or</h1>
-          {/* other Sign in methods */}
-          <ul className="flex flex-col gap-2">
-            {providers.map((provider) => {
-              if (provider !== "credentials")
-                return (
-                  <li
-                    key={provider}
-                    className="Button cursor-pointer flex gap-3"
-                    onClick={() => handleSignIn(provider)}
-                  >
-                    {"Sign in with "}
-                    <FontAwesomeIcon icon={providerIcons[provider]} size="lg" />
-                  </li>
-                );
-            })}
-          </ul>
+          {/* other Sign in methods */}<div>
+            
+            {isLoading?<Loader></Loader>:<ul className="flex flex-col gap-2">
+              {providers.map((provider) => {
+                if (provider !== "credentials")
+                  return (
+                    <li
+                      key={provider}
+                      className="Button_variant_1 rounded-lg px-4 py-2 cursor-pointer flex gap-3"
+                      onClick={() => handleSignIn(provider)}
+                    >
+                      {"Sign in with "}
+                      <FontAwesomeIcon icon={providerIcons[provider]} size="lg" />
+                    </li>
+                  );
+              })}
+            </ul>}
+          </div>
         </div>
       ) : (
         Slider

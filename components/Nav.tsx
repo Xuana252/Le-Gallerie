@@ -10,30 +10,44 @@ import {
   faUser,
   faCircleHalfStroke,
   faRightFromBracket,
-  faPen
+  faImage,
 } from "@fortawesome/free-solid-svg-icons";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import InputBox from "./InputBox";
 import Image from "next/image";
 import DropDownButton from "./DropDownButton";
 import { signOut, useSession, getProviders } from "next-auth/react";
-import { useEffect, useState } from "react";
-import { image } from "@nextui-org/theme";
+import { ChangeEvent, useEffect, useState } from "react";
+import UserProfileIcon from './UserProfileIcon';
+import { createContext } from 'react';
+import ThemeList from './ThemesList';
 
-export default function Nav() {
+export const SearchContext = createContext('')
+export default function Nav({children}:{children:React.ReactNode}) {
   const { data: session } = useSession();
+  const router = useRouter()
+  const [pendingText,setPendingText] = useState('')
+  const [searchText, setSearchText] = useState('')
 
-  const ListItem = (
-    <ul>
-      <div>A</div>
-      <div>B</div>
-      <div>C</div>
-      <div>C</div>
-    </ul>
-  );
+
+  const handleSearchTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPendingText(e.target.value)
+  }
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if(e.key === "Enter") {
+      const finalText = pendingText.trim()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+      localStorage.setItem('searchText',finalText)
+      setSearchText(finalText)
+      router.push('/')
+    }
+  }
 
   const pathName = usePathname();
   return (
+    <>
     <nav className="Nav_bar">
       <div className="justify-between pointer-events-auto h-full w-full gap-1 px-2 items-center flex">
         <div className="flex items-center">
@@ -45,50 +59,41 @@ export default function Nav() {
           </Link>
         </div>
 
-        {pathName === "/" && <InputBox type="SearchBox" style={{ flex: 1 }}>Search for titles...</InputBox>}
+        {pathName === "/" && <InputBox onTextChange={handleSearchTextChange} onKeyDown={handleSearchKeyPress} value={pendingText} type="SearchBox">Search for titles...</InputBox>}
 
         <div className="Buttons_container">
           {session?.user && (
             <Link href={"/post/create"}>
               <button className="Icon">
-                <FontAwesomeIcon icon={faPen} size="xl"/>
+                <FontAwesomeIcon icon={faImage}/>
               </button>
             </Link>)}
 
 
-          <DropDownButton dropDownList={ListItem}>
-            <FontAwesomeIcon icon={faCircleHalfStroke} size="xl" />
+          <DropDownButton dropDownList={<ThemeList/>}>
+            <FontAwesomeIcon icon={faCircleHalfStroke} />
           </DropDownButton>
 
           <button className="Icon">
-            <FontAwesomeIcon icon={faBell} size="xl" />
+            <FontAwesomeIcon icon={faBell} />
           </button>
           <button className="Icon">
-            <FontAwesomeIcon icon={faCommentDots} size="xl" />
+            <FontAwesomeIcon icon={faCommentDots} />
           </button>
 
           {pathName === "/profile" ? (
             <button className="Icon relative" onClick={() => signOut()}>
-              <FontAwesomeIcon icon={faRightFromBracket} size="xl" />
+              <FontAwesomeIcon icon={faRightFromBracket} />
             </button>
           ) : (
-            <Link href={"/profile"} className='Icon'>
-              <button className="Icon relative">
-                {session?.user?.image ? (
-                  <Image
-                    src={session?.user.image}
-                    alt="profle picture"
-                    fill
-                    style={{ objectFit: "cover" }}
-                  ></Image>
-                ) : (
-                  <FontAwesomeIcon icon={faUser} size="xl" />
-                )}
-              </button>
-            </Link>
+            <UserProfileIcon currentUser={true}/>
           )}
         </div>
       </div>
     </nav>
+    <SearchContext.Provider value={searchText}>
+      {children}
+    </SearchContext.Provider>
+    </>
   );
 }

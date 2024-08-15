@@ -15,7 +15,7 @@ export default function DropDownButton({children, dropDownList}:DropDownButtonPr
             }
          </button>
              { toggleDropDown&&
-            <div className='absolute rounded-xl bg-slate-100  shadow-xl right-0  size-48 p-2'>
+            <div className='absolute rounded-xl bg-secondary-2/50 mt-4  shadow-xl right-0  w-40 h-fit p-2'>
                 {dropDownList}
             </div>
            }
