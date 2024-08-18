@@ -15,7 +15,7 @@ export function Spinner() {
 export function AppLogoLoader() {
   return (
     <div className="size-full flex justify-center relative">
-      <div className="logoLoader absolute top-[40px] font-AppLogo text-5xl">AppLogo</div>
+      <div className="logoLoader absolute font-AppLogo text-5xl">AppLogo</div>
     </div>
   );
 }

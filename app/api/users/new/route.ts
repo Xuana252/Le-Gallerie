@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@utils/database";
 import User from "@models/userModel";
 import bcrypt from "bcrypt";
+import { NextApiRequest } from "next";
 
-export const POST = async (req: Request) => {
+export const POST = async (req: NextRequest) => {
   
   try {
     const { username, email, password, image } = await req.json();

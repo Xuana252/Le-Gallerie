@@ -14,12 +14,11 @@
     "@fortawesome/free-regular-svg-icons": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
-    "@nextui-org/input": "^2.2.4",
-    "@nextui-org/system": "^2.2.5",
-    "@nextui-org/theme": "^2.2.9",
-    "@nextui-org/tooltip": "^2.0.39",
+    "@react-spring/web": "^9.7.4",
     "@types/validator": "^13.12.0",
+    "autoprefixer": "^10.4.20",
     "bcrypt": "^5.1.1",
+    "cookie": "^0.6.0",
     "framer-motion": "^11.3.24",
     "mongodb": "^6.8.0",
     "mongoose": "^8.5.2",
@@ -27,7 +26,6 @@
     "next-auth": "^4.24.7",
     "react": "^18",
     "react-dom": "^18",
-    "react-masonry-css": "^1.0.16",
     "validator": "^13.12.0"
   },
   "devDependencies": {

@@ -1,3 +1,6 @@
+import '@fortawesome/fontawesome-svg-core/styles.css';
+import { config } from '@fortawesome/fontawesome-svg-core';
+config.autoAddCss = false;
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@styles/globals.css";
@@ -23,13 +26,14 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
        <Provider>
-        <ThemeManager></ThemeManager>
+        <ThemeManager>
           <div className="min-h-[100vh] h-fit flex flex-col">
             {/* Nav will appear on top  */}
             <Nav>
             <>{children}</>
             </Nav>
           </div>
+          </ThemeManager>
        </Provider>
       </body>
     </html>

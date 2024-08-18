@@ -1,6 +1,6 @@
 
 import React, { FormEvent, useEffect, useState } from "react";
-import PostForm from "@components/PostForm";
+import PostForm from "@components/Forms/PostForm";
 import { useRouter } from "next/navigation";
 import { SubmitButtonState, type Category, type Post } from "@lib/types";
 import { useSession } from "next-auth/react";

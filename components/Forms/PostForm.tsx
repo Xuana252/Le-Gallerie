@@ -1,12 +1,14 @@
 "use client";
 import React, { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import InputBox from "./InputBox";
+import InputBox from "../Input/InputBox";
 import { type Post, type Category, SubmitButtonState } from "@lib/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faX, faImage, faCheck } from "@fortawesome/free-solid-svg-icons";
-import SubmitButton from "./SubmitButton";
+import { faX} from "@fortawesome/free-solid-svg-icons";
+import SubmitButton from "@components/Input/SubmitButton";
 import { useSession } from "next-auth/react";
+import { useTransition, animated } from "@react-spring/web";
+import ImageInput from "@components/Input/ImageInput";
 
 type CategoriesSelectorProps = {
   selectedCategories: Category[];
@@ -26,7 +28,40 @@ export function CategoriesSelector({
   const [mouseDownCoordX, setMouseDownCoordX] = useState(0);
   const [mouseDownCoordY, setMouseDownCoordY] = useState(0);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [isSelecting, setIsSelecting] = useState(false);
+  const [isSelecting, setIsSelecting] = useState<Boolean>(false);
+  const categoryItemListTransition = useTransition(selectedCategories, {
+    keys: item  => item._id,
+    from: { opacity: 0, transform: 'translateY(20px)' }, // Starting state
+    enter: { opacity: 1, transform: 'translateY(0px)' }, // End state when the item appears
+    leave: { opacity: 0, transform: 'translateY(20px)' }, // End state when the item disappears
+    config: { duration: 300 }, // Transition duration
+  })
+  const selectBoxTransition = useTransition(isSelecting, {
+    from: {
+      clipPath: "polygon( 0% 17%,100% 17% , 100% 17% ,0% 17%)",
+      transform: "translateY(-20%)",
+      opacity: 1,
+    },
+    enter: [
+      {
+        opacity: 1,
+        transform: "translateY(0px)",
+        clipPath: "polygon(0% 0%, 100% 0%,100% 17% ,0% 17%)",
+      },
+      { clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)" },
+    ],
+    leave: [
+      { clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)" },
+      { clipPath: "polygon(0% 0%, 100% 0%, 100% 17%,0% 17%)" },
+      { clipPath: "polygon(0% 0%, 100% 0%, 100% 17%,0% 17%)" },
+      {
+        opacity: 1,
+        transform: "translateY(-30%)",
+        clipPath: "polygon( 0% 17%,100% 17% , 100% 17% ,0% 17%)",
+      },
+    ],
+    config: { duration: 300,easing: t => t * (2 - t) },
+  });
 
   const handleMouseDown = (e: React.MouseEvent<HTMLUListElement>) => {
     setMouseDownCoordX(e.clientX);
@@ -35,15 +70,23 @@ export function CategoriesSelector({
     setStartClientX(e.clientX);
     setStartClientY(e.clientY);
   };
+  useEffect(()=>{
+    if (selectedList.current) {
+      selectedList.current.scrollTo({left:selectedList.current.scrollWidth  ,behavior:'smooth'});
+    }
+  },[selectedCategories])
 
-  const handleMouseMove = (ref:React.RefObject<HTMLUListElement>,e: React.MouseEvent<HTMLUListElement>) => {
+  const handleMouseMove = (
+    ref: React.RefObject<HTMLUListElement>,
+    e: React.MouseEvent<HTMLUListElement>
+  ) => {
     if (isDragging && ref.current) {
       const scrollLeftAmount = startClientX - e.clientX;
       const scrollTopAmount = startClientY - e.clientY;
       ref.current.scrollLeft += scrollLeftAmount;
-      ref.current.scrollTop += scrollTopAmount
+      ref.current.scrollTop += scrollTopAmount;
       setStartClientX(e.clientX);
-      setStartClientY(e.clientY)
+      setStartClientY(e.clientY);
     }
   };
 
@@ -57,10 +100,9 @@ export function CategoriesSelector({
     }
   };
 
-  const handleCateSelect =(e:React.MouseEvent,category:Category) => {
-    if(mouseDownCoordY===e.clientY)
-      onSelected(category)
-  }
+  const handleCateSelect = (e: React.MouseEvent, category: Category) => {
+    if (mouseDownCoordY === e.clientY) onSelected(category);
+  };
 
   const fetchCategories = async () => {
     try {
@@ -77,62 +119,74 @@ export function CategoriesSelector({
     fetchCategories();
   }, []);
 
+  const categorySelectBox = (
+    <>
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          setIsSelecting(false);
+        }}
+        className="bg-accent text-primary w-full h-[28px] text-center font-semibold"
+      >
+        ▲
+      </button>
+      <ul
+        onMouseDown={handleMouseDown}
+        onMouseMove={(e) => handleMouseMove(selectingList, e)}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        className="z-30 pointer-events-auto size-full flex flex-wrap justify-center p-2 gap-2  overflow-y-scroll no-scrollbar bg-secondary-2"
+        ref={selectingList}
+      >
+        {categories.map((category) =>
+          !selectedCategories.some((s) => s.name === category.name) ? (
+            <li
+              className="Cate_tag"
+              key={category._id}
+              onMouseUp={(e) => handleCateSelect(e, category)}
+            >
+              {category.name}
+            </li>
+          ) : null
+        )}
+      </ul>
+    </>
+  );
+
   return (
     <div className="relative">
       <ul
         onMouseDown={handleMouseDown}
-        onMouseMove={e=>handleMouseMove(selectedList,e)}
+        onMouseMove={(e) => handleMouseMove(selectedList, e)}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
         ref={selectedList}
-        className={` Cate_box min-h-14 relative ${
-          isSelecting ? "" : "bg-primary"
-        }`}
+        className={`Cate_box min-h-14 relative ${isSelecting?'bg-secondary-2':'bg-primary'}`}
       >
-        {selectedCategories.length > 0 ? (
-          selectedCategories.map((category) => (
-            <li className="Cate_tag" key={category._id}>
-              <span className="select-none">{category.name}</span>
+        
+          {categoryItemListTransition((style,item)=> item? (
+            <animated.div style={{...style}} className="Cate_tag" key={item._id} >
+              <span className="select-none">{item.name}</span>
               <FontAwesomeIcon
                 icon={faX}
                 size="sm"
-                onClick={() => onRemoved(category)}
+                onClick={() => onRemoved(item)}
               />{" "}
-            </li>
-          ))
-        ) : (
-          <div>click here to add categories...</div>
-        )}
+            </animated.div>
+          ):null)}
+          {!(selectedCategories.length > 0)&&<div>click here to add categories...</div>}
       </ul>
-      {isSelecting && (
-        <div className="w-full flex flex-col rounded-lg overflow-hidden items-center mt-2 h-[160px] absolute bg-primary">
-          <div
-            onClick={() => setIsSelecting(false)}
-            className="bg-accent text-primary w-full text-center font-semibold"
+      {selectBoxTransition((style, item) =>
+        item ? (
+          <animated.div
+            style={{
+              ...style,
+            }}
+            className="origin-top z-10 border-4 border-accent w-full flex flex-col rounded-lg overflow-hidden items-center mt-2 h-[160px] absolute bg-primary"
           >
-            ▲
-          </div>
-            <ul
-              onMouseDown={handleMouseDown}
-              onMouseMove={e=>handleMouseMove(selectingList,e)}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseLeave}
-              className="pointer-events-auto size-full flex flex-wrap justify-center p-2 gap-2  overflow-y-scroll no-scrollbar bg-secondary-2"
-              ref={selectingList}
-            >
-              {categories.map((category) =>
-                !selectedCategories.some((s) => s.name === category.name) ? (
-                  <li
-                    className="Cate_tag"
-                    key={category._id}
-                    onMouseUp={(e)=>handleCateSelect(e,category)}
-                  >
-                    {category.name}
-                  </li>
-                ) : null
-              )}
-            </ul>
-          </div>
+            {categorySelectBox}
+          </animated.div>
+        ) : null
       )}
     </div>
   );
@@ -156,10 +210,10 @@ type PostFormProps = CreatePostForm | EditPostForm;
 export default function PostForm({ type, editPost }: PostFormProps) {
   const { data: session } = useSession();
   const router = useRouter();
-  const imageInput = useRef<HTMLInputElement>(null);
+
   const [submitState, setSubmitState] = useState<SubmitButtonState>("");
-  const [imageInputVisibility, setImageInputVisibility] =
     useState<Boolean>(false);
+  
   const [post, setPost] = useState<Post>(
     editPost || {
       creator: { _id: session?.user.id || "" },
@@ -235,18 +289,14 @@ export default function PostForm({ type, editPost }: PostFormProps) {
     }));
   };
 
-  const handleImageChange = () => {
+  const handleImageChange = (image:string) => {
     setPost((p) => ({
       ...p,
-      image: imageInput.current ? imageInput.current.value : "",
+      image: image,
     }));
-    setImageInputVisibility(false);
   };
 
-  const handleImageError = () => {
-    setPost((p) => ({ ...p, image: "" }));
-  };
-
+ 
   const handleTextChange = (
     e:
       | React.ChangeEvent<HTMLInputElement>
@@ -258,36 +308,7 @@ export default function PostForm({ type, editPost }: PostFormProps) {
 
   return (
     <form onSubmit={handleFormSubmit} className="Form">
-      <div className="size-full flex items-center justify-center sm:rounded-l-3xl sm:rounded-tr-none rounded-t-3xl overflow-hidden relative">
-        <div
-          className="size-full bg-secondary-2 flex items-center justify-center"
-          onClick={() => setImageInputVisibility(true)}
-        >
-          {post.image ? (
-            <img
-              src={post.image}
-              alt="Post Image"
-              className="w-full"
-              onError={handleImageError}
-            />
-          ) : (
-            <FontAwesomeIcon icon={faImage} className="text-7xl" />
-          )}
-        </div>
-        {imageInputVisibility && (
-          <div className="Input_box_variant_1 absolute bottom-2 m-auto">
-            <input
-              ref={imageInput}
-              name="image"
-              placeholder="Image URL..."
-              className="pl-2 outline-none bg-transparent placeholder:text-inherit"
-            />{" "}
-            <div className="p-1" onClick={handleImageChange}>
-              <FontAwesomeIcon icon={faCheck} />
-            </div>
-          </div>
-        )}
-      </div>
+      <ImageInput image={post.image} setImage={handleImageChange}/>
       <div className="size-full p-4 flex flex-col gap-2">
         <div>
           <h3>Title</h3>

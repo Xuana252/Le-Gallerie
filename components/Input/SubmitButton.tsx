@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react';
-import { Spinner } from './Loader';
+import { Spinner } from '@components/Loader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faTriangleExclamation, faX } from '@fortawesome/free-solid-svg-icons';
 import { type SubmitButtonState } from '@lib/types';

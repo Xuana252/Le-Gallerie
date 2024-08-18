@@ -1,7 +1,8 @@
 import { connectToDB } from "@utils/database";
 import Post from "@models/postModels";
+import { NextRequest, NextResponse } from "next/server";
 
-export const POST = async (req: Request, res: Response) => {
+export const POST = async (req: NextRequest, res: NextResponse) => {
   const { creator, title, description, categories, image } = await req.json();
 
   try {
@@ -13,13 +14,14 @@ export const POST = async (req: Request, res: Response) => {
       description: description,
       categories: categories,
       image: image,
+      likes: 0,
     });
 
     await newPost.save();
 
-    return Response.json(newPost, { status: 200 });
+    return NextResponse.json(newPost, { status: 200 });
   } catch (error) {
 
-    return Response.json({message: 'Failed to create new post'},{status:500})
+    return NextResponse.json({message: 'Failed to create new post'},{status:500})
   }
 };

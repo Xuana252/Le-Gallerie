@@ -8,11 +8,12 @@ import {
   faPenToSquare,
   faShare,
   faTrash,
+  faHeart as solidHeart,
 } from "@fortawesome/free-solid-svg-icons";
+import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import { useRouter } from "next/navigation";
 import Feed from "@components/Feed";
-import InputBox from "@components/InputBox";
-import Link from "next/link";
+import InputBox from "@components/Input/InputBox";
 import { type Post } from "@lib/types";
 import { useSession } from "next-auth/react";
 import UserProfileIcon from "@components/UserProfileIcon";
@@ -21,6 +22,9 @@ export default function Post({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
   const [postRendered, setPostRendered] = useState<boolean>(false);
   const router = useRouter();
+  const [likeTimeOut, setLikeTimeOut] = useState(true);
+  const [postLikes, setPostLikes] = useState<number>(0);
+  const [likedState, setLikedState] = useState<boolean>(false);
   const [post, setPost] = useState<Post>({
     _id: "",
     creator: { _id: "" },
@@ -28,7 +32,55 @@ export default function Post({ params }: { params: { id: string } }) {
     description: "",
     categories: [],
     image: "",
+    likes: 0,
   });
+
+  const checkUserHasLiked = async () => {
+    if (session?.user) {
+      try {
+        const response = await fetch(
+          `/api/users/${session?.user.id}/has-liked/${params.id}`
+        );
+        const data = await response.json();
+        response.ok ? setLikedState(data.liked) : "";
+      } catch (error) {
+        console.log("Failed to check user has liked post");
+      } finally {
+        setTimeout(()=>setLikeTimeOut(false),2000);
+      }
+    }
+  };
+
+  const handleLikes = async () => {
+    if (session?.user) {
+      try {
+        await fetch(`/api/posts/${params.id}/likes`, {
+          method: "POST",
+          body: JSON.stringify({
+            userId: session?.user.id,
+          }),
+        });
+      } catch (error) {
+        console.error("Failed to update post likes", error);
+      }
+    }
+  };
+
+  const handleSetLikedState = async (
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    e.preventDefault();
+    if (likeTimeOut) return;
+
+    setLikeTimeOut(true);
+    setPostLikes((prevLikes) => (likedState ? prevLikes - 1 : prevLikes + 1));
+    setLikedState((prev) => !prev);
+    await handleLikes();
+
+    setTimeout(() => {
+      setLikeTimeOut(false);
+    }, 1000);
+  };
 
   const fetchPost = async () => {
     const response = await fetch(`/api/posts/${params.id}`);
@@ -36,6 +88,7 @@ export default function Post({ params }: { params: { id: string } }) {
 
     if (JSON.stringify(data) !== JSON.stringify(post)) {
       setPost(data);
+      setPostLikes(data.likes);
     }
     setPostRendered(true);
   };
@@ -82,10 +135,14 @@ export default function Post({ params }: { params: { id: string } }) {
     }
   };
 
-  const handleEditButtonClick = () =>{
+  const handleEditButtonClick = () => {
     localStorage.setItem("post", JSON.stringify(post));
-    router.push(`edit?id=${post?._id}`)
-  }
+    router.push(`edit?id=${post?._id}`);
+  };
+
+  useEffect(() => {
+    session ? checkUserHasLiked() : null;
+  }, [session]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -98,10 +155,11 @@ export default function Post({ params }: { params: { id: string } }) {
       if (storePost) {
         const post = JSON.parse(storePost);
         setPost(post);
+        setPostLikes(post.likes);
+        setLikedState(post.liked);
         localStorage.removeItem("post"); // Remove after setting state
       }
     };
-  
     handleLocalStorage();
   }, []);
 
@@ -109,7 +167,7 @@ export default function Post({ params }: { params: { id: string } }) {
     <section className="min-h-screen text-accent">
       <div className="mt-4">
         <button
-          className="hidden fixed sm:block top-[70px] left-4 Icon_big bg-secondary-1 z-40 over-"
+          className="fixed top-[110px] left-4 Icon_big shadow-lg bg-secondary-1 z-40 over-"
           onClick={() => {
             router.back();
           }}
@@ -125,32 +183,53 @@ export default function Post({ params }: { params: { id: string } }) {
 
           <div className="w-full p-4 flex flex-col gap-0">
             <div className="h-fit w-full grow ">
-              <div className="flex-row justify-end p-2 h-fit z-10 flex sticky bg-secondary-1 top-[60px] gap-2">
-                {session?.user && session?.user.id === post?.creator._id && (
-                  <>
+              <div className="flex-row p-2 h-fit z-10 flex sticky bg-secondary-1 top-[60px] gap-2">
+                {session?.user && (
+                  <div className="flex justify-start items-center">
                     <button
-                      className="hover:bg-secondary-2 Icon_small "
-                      onClick={() => handleDeletePost(post?._id)}
+                      className="Icon_small"
+                      disabled={likeTimeOut}
+                      onClick={handleSetLikedState}
                     >
-                      <FontAwesomeIcon icon={faTrash} />
+                      {likedState ? (
+                        <FontAwesomeIcon icon={solidHeart} />
+                      ) : (
+                        <FontAwesomeIcon icon={regularHeart} />
+                      )}
                     </button>
-                    <button className="hover:bg-secondary-2 Icon_small" onClick={handleEditButtonClick}>
-                      <FontAwesomeIcon icon={faPenToSquare} />
-                    </button>
-                  </>
+                    <span>{postLikes} likes</span>
+                  </div>
                 )}
-                <button
-                  className="hover:bg-secondary-2 Icon_small "
-                  onClick={handleDownload}
-                >
-                  <FontAwesomeIcon icon={faDownload} />
-                </button>
-                <button
-                  className="hover:bg-secondary-2 Icon_small "
-                  onClick={handleShare}
-                >
-                  <FontAwesomeIcon icon={faShare} />
-                </button>
+                <div className="flex-row flex ml-auto justify-end">
+                  {session?.user && session?.user.id === post?.creator._id && (
+                    <>
+                      <button
+                        className="hover:bg-secondary-2 Icon_small "
+                        onClick={() => handleDeletePost(post?._id)}
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                      <button
+                        className="hover:bg-secondary-2 Icon_small"
+                        onClick={handleEditButtonClick}
+                      >
+                        <FontAwesomeIcon icon={faPenToSquare} />
+                      </button>
+                    </>
+                  )}
+                  <button
+                    className="hover:bg-secondary-2 Icon_small "
+                    onClick={handleDownload}
+                  >
+                    <FontAwesomeIcon icon={faDownload} />
+                  </button>
+                  <button
+                    className="hover:bg-secondary-2 Icon_small "
+                    onClick={handleShare}
+                  >
+                    <FontAwesomeIcon icon={faShare} />
+                  </button>
+                </div>
               </div>
               <div className="grow flex-col flex gap-2">
                 <div className="flex items-center gap-2">

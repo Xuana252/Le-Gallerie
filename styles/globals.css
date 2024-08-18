@@ -2,81 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  .theme1 {
-    --primary:              255, 255, 255;
-    --secondary:            224, 224, 224;
-    --secondary-variant-1:  166, 166, 166;
-    --accent:               0, 0, 0;
-    background-color: rgb(var(--primary));
-  }
 
-  .theme2 {
-    --primary:              40, 40, 40;
-    --secondary:            81, 81, 81;
-    --secondary-variant-1:  108, 108, 108;
-    --accent:               208, 208, 208;
-    background-color: rgb(var(--primary));
+  .Theme_list {
+    @apply flex flex-wrap gap-2  h-48 w-[150px] rounded-lg overflow-y-scroll no-scrollbar;
   }
-  .theme3 {
-    --primary:              26, 54, 54;
-    --secondary:            64, 83, 76;
-    --secondary-variant-1:  103, 125, 106;
-    --accent:               214, 189, 152;
-    background-color: rgb(var(--primary));
+  .Theme_item {
+    @apply cursor-pointer w-full h-8 grid grid-cols-4  rounded-lg overflow-hidden;
   }
-  .theme4 {
-    --primary:              82, 34, 88;
-    --secondary:            140, 48, 97;
-    --secondary-variant-1:  198, 60, 81;
-    --accent:               217, 95, 89;
-    background-color: rgb(var(--primary));
-  }
-  .theme5 {
-    --primary:              255, 233, 208;
-    --secondary:            255, 254, 211;
-    --secondary-variant-1:  187, 233, 255;
-    --accent:               177, 175, 255;
-    background-color: rgb(var(--primary));
-  }
-  .theme6 {
-    --primary:              90, 99, 156;
-    --secondary:            119, 118, 179;
-    --secondary-variant-1:  155, 134, 189;
-    --accent:               226, 187, 233;
-    background-color: rgb(var(--primary));
-  }
-  .theme7 {
-    --primary:              0, 103, 105;
-    --secondary:            64, 165, 120;
-    --secondary-variant-1:  157, 222, 139;
-    --accent:               230, 255, 148;
-    background-color: rgb(var(--primary));
-  }
-  .theme8 {
-    --primary:              64, 46, 122;
-    --secondary:            76, 59, 207;
-    --secondary-variant-1:  75, 112, 245;
-    --accent:               61, 194, 236;
-    background-color: rgb(var(--primary));
-  }
-  .theme9 {
-    --primary:              255, 245, 224;
-    --secondary:            141, 236, 180;
-    --secondary-variant-1:  65, 176, 110;
-    --accent:               20, 30, 70;
-    background-color: rgb(var(--primary));
-  }
-  .theme10 {
-    --primary:              201, 218, 191;
-    --secondary:            156, 169, 134;
-    --secondary-variant-1:  128, 141, 124;
-    --accent:               95, 111, 101;
-    background-color: rgb(var(--primary));
-  }
-  ::selection {
-    background-color: rgb(var(--accent));
-    color: rgb(var(--primary));
+  .Theme_list_scroll_border {
+    @apply w-full h-5 bg-secondary-2 absolute text-accent flex items-center justify-center
   }
   .User_Profile_Layout {
     @apply flex flex-col sm:flex-row sm:justify-start justify-center w-full gap-5 p-5 items-center text-accent;
@@ -90,30 +24,46 @@
   .User_Profile_Page_Bio {
     @apply text-xl text-center sm:text-left;
   }
-  
+
   .Category {
     font-style: italic;
+    white-space: nowrap;
   }
   .Category::before {
     content: "#";
   }
-  
-  
+
   .Form {
     @apply text-accent grid grid-cols-1 sm:grid-cols-2 rounded-3xl w-full max-w-[1080px] min-h-[400px] h-[700px] shadow-lg m-auto bg-secondary-1;
   }
-  
-  .Sign_In_Form {
-    @apply grid grid-cols-1 sm:grid-cols-2 rounded-3xl w-full max-w-[1080px] min-h-[400px] shadow-lg m-auto backdrop-blur-2xl bg-white/30 border-white border-2;
+  .Sign_In_Form_Desktop {
+    @apply hidden;
+  }
+  @screen sm {
+    .Sign_In_Form_Desktop {
+      @apply text-accent grid grid-cols-2 rounded-3xl w-full max-w-[1080px] min-h-[400px] shadow-lg m-auto bg-secondary-1 overflow-hidden h-[80%]  relative;
+    }
+  }
+
+  .Sign_In_Form_Mobile {
+    @apply size-full grid grid-rows-2 text-accent rounded-3xl relative overflow-hidden shadow-lg bg-secondary-1
+  }
+  @screen sm {
+    .Sign_In_Form_Mobile {
+      @apply hidden
+    }
+  }
+
+  .Button_base {
+    @apply rounded-full font-semibold py-1 px-2;
   }
   .Button_variant_1 {
-    @apply rounded-full font-semibold py-1 px-2 bg-accent min-h-fit text-primary hover:bg-secondary-2;
+    @apply Button_base bg-accent min-h-fit text-primary hover:bg-secondary-2;
   }
   .Button_variant_2 {
-    @apply rounded-full font-semibold py-1 px-2 text-accent hover:bg-secondary-2;
+    @apply Button_base text-accent hover:bg-secondary-2;
   }
-  
-  
+
   .Invalid_input {
     @apply placeholder:text-red-500 text-red-500 shadow-md;
   }
@@ -121,27 +71,32 @@
   .Input_box_variant_2 {
     @apply bg-transparent outline-none placeholder:text-inherit placeholder:opacity-50 border-primary  border-b-2 pb-2 text-xl px-1;
   }
-  
+
   .Input_box_variant_1 {
     @apply bg-primary flex rounded-2xl border-2 border-accent placeholder:text-accent placeholder:opacity-50  items-center grow outline-none justify-between  text-lg px-1 overflow-hidden;
   }
-  
+
   .Cate_box {
-    @apply bg-secondary-2 flex rounded-2xl items-center outline-none border-2 border-accent justify-start gap-2   text-lg p-2 overflow-hidden;
+    @apply flex rounded-2xl items-center outline-none border-2 border-accent justify-start gap-2   text-lg p-2 overflow-hidden;
   }
   .Cate_tag {
     @apply flex select-none items-center justify-center px-2 py-1 bg-accent text-primary font-semibold rounded-xl gap-2 whitespace-nowrap;
   }
   .Nav_bar {
-    @apply sticky z-20 top-0 left-0 w-full h-[60px] bg-secondary-1 text-accent  shadow-md transition ease-in-out duration-300;
+    @apply sticky z-20 top-0 left-0 w-full h-[60px] bg-secondary-1 text-accent  shadow-md;
   }
-  
+
   .Buttons_container {
-    @apply flex h-full w-fit justify-end items-center gap-2;
+    @apply hidden;
   }
-  
+  @screen sm {
+    .Buttons_container {
+      @apply flex h-full w-fit justify-end items-center gap-2;
+    }
+  }
+
   .Icon {
-    @apply flex items-center justify-center size-10 text-2xl rounded-full overflow-hidden hover:bg-secondary-2 text-accent ;
+    @apply flex items-center justify-center size-10 text-2xl rounded-full overflow-hidden hover:bg-secondary-2 text-accent;
   }
   .Icon_small {
     @apply flex items-center justify-center size-9 text-lg rounded-full overflow-hidden hover:bg-secondary-2 text-accent;
@@ -149,7 +104,9 @@
   .Icon_big {
     @apply flex items-center justify-center size-12 text-xl rounded-full overflow-hidden hover:bg-secondary-2 text-accent;
   }
-  
+
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -158,28 +115,7 @@
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
-  
-  .my-masonry-grid {
-    background-color: transparent;
-    display: -webkit-box; /* Not needed if autoprefixing */
-    display: -ms-flexbox; /* Not needed if autoprefixing */
-    display: flex;
-    margin-left: -16px; /* gutter size offset */
-    width: auto;
-  }
-  .my-masonry-grid_column {
-    padding-left: 16px; /* gutter size */
-    background-clip: padding-box;
-  }
-  
-  /* Style your items */
-  .my-masonry-grid_column > * {
-    /* change div to reference your elements you put in <Masonry> */
-    background: grey;
-    margin-bottom: 16px;
-  }
 }
-
 
 @font-face {
   font-family: "AppLogo";
@@ -194,20 +130,22 @@
   font-style: normal;
 }
 
-
-
-* {
-  box-sizing: border-box;
-}
-
 /* HTML: <div class="loader"></div> */
 .loader {
   background-color: transparent;
   width: 40px;
   aspect-ratio: 1;
   --c: linear-gradient(rgb(var(--accent)) 0 0);
-  --r1: radial-gradient(farthest-side at bottom, rgb(var(--accent)) 93%, rgb(var(--accent)));
-  --r2: radial-gradient(farthest-side at top, rgb(var(--accent)) 93%, rgb(var(--accent)));
+  --r1: radial-gradient(
+    farthest-side at bottom,
+    rgb(var(--accent)) 93%,
+    rgb(var(--accent))
+  );
+  --r2: radial-gradient(
+    farthest-side at top,
+    rgb(var(--accent)) 93%,
+    rgb(var(--accent))
+  );
   background: var(--c), var(--r1), var(--r2), var(--c), var(--r1), var(--r2),
     var(--c), var(--r1), var(--r2);
   background-repeat: no-repeat;
@@ -247,18 +185,18 @@
 }
 
 .logoLoader {
-  animation: AppLogo-Load 700ms infinite ;
+  animation: AppLogo-Load 700ms infinite;
 }
 
 @keyframes AppLogo-Load {
   0% {
-    clip-path: polygon(0% 0%,100% 0%,100% 100%,0% 100%);
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
   }
   50% {
     clip-path: polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%);
   }
   100% {
-    clip-path: polygon(0% 0%,100% 0%,100% 100%,0% 100%);
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
   }
 }
 
@@ -354,4 +292,76 @@
   100% {
     transform: scaleY(-1) rotate(-135deg);
   }
+}
+
+.theme1 {
+  --primary: 255, 255, 255;
+  --secondary: 224, 224, 224;
+  --secondary-variant-1: 166, 166, 166;
+  --accent: 0, 0, 0;
+  background-color: rgb(var(--primary));
+}
+
+.theme2 {
+  --primary: 40, 40, 40;
+  --secondary: 81, 81, 81;
+  --secondary-variant-1: 108, 108, 108;
+  --accent: 208, 208, 208;
+  background-color: rgb(var(--primary));
+}
+.theme3 {
+  --primary: 26, 54, 54;
+  --secondary: 64, 83, 76;
+  --secondary-variant-1: 103, 125, 106;
+  --accent: 214, 189, 152;
+  background-color: rgb(var(--primary));
+}
+.theme4 {
+  --primary: 82, 34, 88;
+  --secondary: 140, 48, 97;
+  --secondary-variant-1: 198, 60, 81;
+  --accent: 217, 95, 89;
+  background-color: rgb(var(--primary));
+}
+.theme5 {
+  --primary: 255, 233, 208;
+  --secondary: 255, 254, 211;
+  --secondary-variant-1: 187, 233, 255;
+  --accent: 177, 175, 255;
+  background-color: rgb(var(--primary));
+}
+.theme6 {
+  --primary: 90, 99, 156;
+  --secondary: 119, 118, 179;
+  --secondary-variant-1: 155, 134, 189;
+  --accent: 226, 187, 233;
+  background-color: rgb(var(--primary));
+}
+.theme7 {
+  --primary: 0, 103, 105;
+  --secondary: 64, 165, 120;
+  --secondary-variant-1: 157, 222, 139;
+  --accent: 230, 255, 148;
+  background-color: rgb(var(--primary));
+}
+.theme8 {
+  --primary: 64, 46, 122;
+  --secondary: 76, 59, 207;
+  --secondary-variant-1: 75, 112, 245;
+  --accent: 61, 194, 236;
+  background-color: rgb(var(--primary));
+}
+.theme9 {
+  --primary: 255, 245, 224;
+  --secondary: 141, 236, 180;
+  --secondary-variant-1: 65, 176, 110;
+  --accent: 20, 30, 70;
+  background-color: rgb(var(--primary));
+}
+.theme10 {
+  --primary: 201, 218, 191;
+  --secondary: 156, 169, 134;
+  --secondary-variant-1: 128, 141, 124;
+  --accent: 95, 111, 101;
+  background-color: rgb(var(--primary));
 }

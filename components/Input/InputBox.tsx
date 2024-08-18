@@ -48,7 +48,7 @@ export default function InputBox({name, type,style,children,value,styleVariant='
         className="bg-transparent placeholder:text-inherit outline-none w-full px-2"
         placeholder={children?children:'add text here...'}
       />
-      <div className="flex items-center size-8 justify-center ">
+      <div className="flex items-center size-8 justify-center Input_box_base">
         {value !== "" && (
           <FontAwesomeIcon
             icon={faX}

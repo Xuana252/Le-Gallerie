@@ -4,12 +4,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { NextApiRequest } from "next";
 
 export const GET = async (
-  req: NextApiRequest,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) => {
   try {
     await connectToDB();
-    const post = await Post.findById(params.id).select('_id creator title categories description image')
+    const post = await Post.findById(params.id).select('_id creator title categories description image likes')
       .populate({ path: "creator", select: "_id username bio image" })
       .populate("categories");
 
@@ -54,7 +54,7 @@ export const PATCH = async (
 };
 
 export const DELETE = async (
-  req: NextApiRequest,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) => {
   try {

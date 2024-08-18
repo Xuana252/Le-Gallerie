@@ -27,7 +27,8 @@ export type Post = {
     title: string,
     description: string,
     categories: Category[],
-    image: string
+    image: string,
+    likes?:number,
 }
 export type Category = {
     _id: string,

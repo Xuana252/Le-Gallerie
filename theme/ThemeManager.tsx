@@ -1,19 +1,26 @@
 // components/ThemeManager.tsx
-"use client";
+"use server";
+import { cookies } from "next/headers";
 
-import { useEffect } from "react";
+export async function changeTheme(theme: string) {
+  cookies().set("Theme", theme);
+}
 
-const ThemeManager = () => {
-  useEffect(() => {
-    const storedTheme = localStorage.getItem("Theme");
-    if (storedTheme) {
-      document.documentElement.className = storedTheme;
-    } else {
-      document.documentElement.className = "light"; // Default theme
-    }
-  }, []);
+export async function getStoredTheme() {
+  const storedTheme = cookies().get("Theme");
+  return storedTheme
+    ? storedTheme.value
+    : window.matchMedia("(prefers-color-scheme: dark)")
+    ? "theme2"
+    : "theme1";
+}
 
-  return null; // This component does not render anything
-};
+export default async function ThemeManager({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const theme = await getStoredTheme();
 
-export default ThemeManager;
+  return <div className={`${theme}`}>{children}</div>;
+}

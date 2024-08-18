@@ -1,13 +1,15 @@
 "use client";
-import React, { useActionState, useContext, useEffect, useState } from "react";
-import Masonry from "react-masonry-css";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import PostCard from "./PostCard";
 import { type Category, type Post } from "@lib/types";
 import Loader from "./Loader";
 import CategoryBar from "./CategoriesBar";
 import { SearchContext } from "./Nav";
-import { usePathname} from "next/navigation";
-import { AppLogoLoader } from "./Loader";
+import { usePathname } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlassMinus } from "@fortawesome/free-solid-svg-icons";
 type FeedProps = {
@@ -15,15 +17,16 @@ type FeedProps = {
   categoryFilter?: Category[];
 };
 
-export default function Feed({ userIdFilter, categoryFilter=[]}: FeedProps) {
+export default function Feed({ userIdFilter, categoryFilter = [] }: FeedProps) {
   const pathName = usePathname();
+  const searchText = useContext(SearchContext);
   const [categoriesFilter, setCategoriesFilter] =
     useState<Category[]>(categoryFilter);
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>();
-  const [filterText , setFilterText]  = useState<string>('')
-  const searchText = useContext(SearchContext);
+  const [filteredPost, setFilteredPosts] = useState<Post[]>([]);
+  const [isEmpty,setIsEmpty] = useState(false)
 
   const fetchPosts = async () => {
     try {
@@ -33,9 +36,6 @@ export default function Feed({ userIdFilter, categoryFilter=[]}: FeedProps) {
       if (response.ok) {
         const data = await response.json();
         setPosts(data);
-        setTimeout(() => {
-          setLoading(false);
-        }, 500);
       } else {
         console.log("Some thing went wrong while fetching for posts");
       }
@@ -56,72 +56,120 @@ export default function Feed({ userIdFilter, categoryFilter=[]}: FeedProps) {
   };
 
   const handleCategoriesFilerChange = (categories: Category[]) => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 700);
     setCategoriesFilter(categories);
   };
 
   useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setFilterText(searchText)
-      setLoading(false);
-    }, 500);
-  }, [searchText]);
+    setLoading(true)
+    const finalPosts = posts.filter((post) => {
+      if (searchText.trim() === "" || pathName !== "/") {
+        return categoriesFilter.every((category) =>
+          post.categories.map((cat) => cat._id).includes(category._id)
+        );
+      }
 
-  const filteredPosts = posts.filter((post) => {
-    
-
-    // Skip filtering if search text is empty or is not on the home page
-    if (filterText.trim() === "" || pathName !== "/") {
-      return categoriesFilter.every((category) =>
-        post.categories.map((cat) => cat._id).includes(category._id)
+      const searchPattern = new RegExp(
+        searchText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), // Escape special characters
+        "i" // Case-insensitive search
       );
-    }
 
-    const searchPattern = new RegExp(
-      filterText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), // Escape special characters
-      "i" // Case-insensitive search
-    );
+      const postCategoryIds = new Set(post.categories.map((cat) => cat._id));
 
-    const postCategoryIds = new Set(post.categories.map((cat) => cat._id));
+      return (
+        categoriesFilter.every((category) =>
+          postCategoryIds.has(category._id)
+        ) &&
+        (searchPattern.test(post.title) ||
+          searchPattern.test(post.creator.username || "") ||
+          post.categories.some((c) => searchPattern.test(c.name)))
+      );
+    });
+    if(finalPosts.length>0)
+      setIsEmpty(false)
+    else
+      setIsEmpty(true)
+    setFilteredPosts(finalPosts);
+    setTimeout(()=>setLoading(false),2000)
+  }, [posts, searchText, categoriesFilter, pathName]);
 
-    return (
-      categoriesFilter.every((category) => postCategoryIds.has(category._id)) &&
-      (searchPattern.test(post.title) ||
-        searchPattern.test(post.creator.username || "") ||
-        post.categories.some((c) => searchPattern.test(c.name)))
-    );
-  });
+  const [gridColStyle, setGridColStyle] = useState("grid-colds-1");
+  const [colsNum, setColsNum] = useState(1);
+  useEffect(() => {
+    // Function to handle resizing
+    const handleResize = () => {
+      if (window.innerWidth > 1600) {
+        setGridColStyle("grid-cols-7");
+        setColsNum(7);
+      } else if (window.innerWidth > 1280) {
+        setGridColStyle("grid-cols-6");
+        setColsNum(6);
+      } else if (window.innerWidth > 900) {
+        setGridColStyle("grid-cols-5");
+        setColsNum(5);
+      } else if (window.innerWidth > 720) {
+        setGridColStyle("grid-cols-4");
+        setColsNum(4);
+      } else if (window.innerWidth > 480) {
+        setGridColStyle("grid-cols-3");
+        setColsNum(3);
+      } else {
+        setGridColStyle("grid-cols-2");
+        setColsNum(2);
+      }
+    };
+
+    // Initial check
+    handleResize();
+
+    // Add event listener
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup event listener
+    return () => window.removeEventListener("resize", handleResize);
+  }, []); // Empty dependency array means this effect runs once, on mount
 
   return (
     <section className="size-full min-h-[400px]">
-      <CategoryBar
-        onCategoriesChange={handleCategoriesFilerChange}
-        selected={categoriesFilter}
-      />
-      {isLoading ? (
-        <Loader></Loader>
-      ) : error ? (
-        <div>{error}</div>
-      ) : (
-        <Masonry
-          breakpointCols={breakpointColumnsObj}
-          className="my-masonry-grid w-full p-4"
-          columnClassName="my-masonry-grid_column"
-        >
-          {filteredPosts.map((post) => (
-            <PostCard key={post._id} post={post} />
-          ))}
-        </Masonry> )
-      // ) : (
-      //   <div className="size-full flex justify-center text-7xl pt-3 text-accent items-center">
-      //     <FontAwesomeIcon icon={faMagnifyingGlassMinus}  />
-      //   </div>
-      // )
-        }
+        <CategoryBar
+          onCategoriesChange={handleCategoriesFilerChange}
+          selected={categoriesFilter}
+        />
+      {
+        isLoading ? (
+          <Loader></Loader>
+        ) : error ? (
+          <div>{error}</div>
+        ) : isEmpty? (
+          <div className="size-full flex flex-col gap-3 justify-center   pt-3 text-accent items-center">
+            <FontAwesomeIcon icon={faMagnifyingGlassMinus} className="text-7xl" />
+            <h1 className="text-xl">No related posts found:/</h1>
+          </div>
+        ):(
+          <ul
+            className={`grid ${gridColStyle} gap-x-3 bg-primary min-h-screen min-w-full p-5 justify-center `}
+          >
+            {Array.from(Array(colsNum).keys()).map((columnIndex) => (
+              <div
+                key={columnIndex}
+                className="flex flex-col w-full h-fit gap-3 "
+              >
+                {filteredPost.map((post, index) => {
+                  if (index % colsNum === columnIndex) {
+                    return (
+                      <PostCard
+                        key={post._id}
+                        post={post}
+                      />
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+            ))}
+          </ul>
+        )
+        
+      }
     </section>
   );
 }

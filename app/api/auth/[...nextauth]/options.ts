@@ -8,6 +8,7 @@ import CredentialsProvider, {
 } from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
+import { JWT } from "next-auth/jwt";
 
 export const options: NextAuthOptions = {
   providers: [

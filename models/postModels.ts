@@ -20,12 +20,17 @@ const PostSchema = new Schema(
       type: String,
       required: [true, "image is required"],
     },
+    likes: {
+      type: Number,
+      required: false,
+      default: 0,
+    }
   },
   {
     timestamps: true,
   }
 );
 
-const Post = models.Post||model('Post',PostSchema)
 
+const Post = models.Post||model('Post',PostSchema)
 export default Post

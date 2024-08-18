@@ -1,6 +1,6 @@
 "use client";
 import React, { FormEvent, useEffect, useState } from "react";
-import PostForm from "@components/PostForm";
+import PostForm from "@components/Forms/PostForm";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SubmitButtonState, type Category, type Post } from "@lib/types";
 import { useSession } from "next-auth/react";
@@ -50,7 +50,7 @@ export default function EditPost() {
   }, []);
 
   return (
-    <section className="mt-4">
+    <section className="flex flex-col items-center justify-center  grow">
       {postRendered&&<PostForm
         type="Edit"
         editPost={post}

@@ -21,7 +21,7 @@ export function CategoryItem({ category,selected=false, onSelected }: CategoryIt
     <div
     onMouseDown={e=>setMouseDownCoordX(e.clientX)}
     onMouseUp={handleCateSelect}
-      className={`h-fit w-fit my-2 text-center rounded-full py-1 px-3 text-cate font-bold select-none transition ease-in-out duration-300 ${
+      className={`h-fit w-fit my-2 text-center rounded-full py-1 px-3 text-cate font-bold select-none ${
         !isSelected
           ? "bg-secondary-1 border-2 border-accent text-accent"
           : "bg-accent border-2 border-accent text-primary"
@@ -94,7 +94,7 @@ export default function CategoryBar({ selected=[],onCategoriesChange }: Category
     onCategoriesChange(updatedSelectedCategories);
   };
   return (
-    <div className="sticky top-[60px] z-10 bg-primary flex justify-center">
+    <div className="sticky top-[60px] z-10 bg-primary h-[50px] flex justify-center animate-fadeIn">
       <ul
         className="pointer-events-auto flex px-2 justify-start w-full h-fit gap-2 overflow-x-scroll no-scrollbar"
         onMouseDown={handleMouseDown}

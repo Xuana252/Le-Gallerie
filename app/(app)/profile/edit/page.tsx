@@ -1,6 +1,6 @@
 "use client";
-import InputBox from "@components/InputBox";
-import SubmitButton from "@components/SubmitButton";
+import InputBox from "@components/Input/InputBox";
+import SubmitButton from "@components/Input/SubmitButton";
 import { faCheck, faL, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { User } from "@lib/types";
@@ -95,7 +95,6 @@ export default function EditPage() {
               <img
                 src={updateInfo.image}
                 alt="sign up image"
-                style={{ objectFit: "cover" }}
                 onError={handleImageError}
                 className="size-full"
               />
