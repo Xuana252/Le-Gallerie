@@ -2,108 +2,118 @@
 @tailwind components;
 @tailwind utilities;
 
+.Theme_list {
+  @apply flex flex-wrap gap-2  h-48 w-[150px] rounded-lg overflow-y-scroll no-scrollbar;
+}
+.Theme_item {
+  @apply cursor-pointer w-full h-8 grid grid-cols-4  rounded-lg overflow-hidden;
+}
+.Theme_list_scroll_border {
+  @apply w-full h-5 bg-secondary-2 absolute text-accent flex items-center justify-center;
+}
+.User_Profile_Layout {
+  @apply flex flex-col sm:flex-row sm:justify-start justify-center w-full gap-5 p-5 items-center text-accent;
+}
+.User_Profile_Page_Picture {
+  @apply flex rounded-full size-44 overflow-hidden relative shadow-xl text-9xl pt-2;
+}
+.User_Profile_Page_Username {
+  @apply text-4xl text-center sm:text-left font-bold;
+}
+.User_Profile_Page_Bio {
+  @apply text-xl text-center sm:text-left;
+}
 
-  .Theme_list {
-    @apply flex flex-wrap gap-2  h-48 w-[150px] rounded-lg overflow-y-scroll no-scrollbar;
-  }
-  .Theme_item {
-    @apply cursor-pointer w-full h-8 grid grid-cols-4  rounded-lg overflow-hidden;
-  }
-  .Theme_list_scroll_border {
-    @apply w-full h-5 bg-secondary-2 absolute text-accent flex items-center justify-center
-  }
-  .User_Profile_Layout {
-    @apply flex flex-col sm:flex-row sm:justify-start justify-center w-full gap-5 p-5 items-center text-accent;
-  }
-  .User_Profile_Page_Picture {
-    @apply flex rounded-full size-44 overflow-hidden relative shadow-xl text-9xl pt-2;
-  }
-  .User_Profile_Page_Username {
-    @apply text-4xl text-center sm:text-left font-bold;
-  }
-  .User_Profile_Page_Bio {
-    @apply text-xl text-center sm:text-left;
-  }
+.Category {
+  font-style: italic;
+  white-space: nowrap;
+}
+.Category::before {
+  content: "#";
+}
 
-  .Category {
-    font-style: italic;
-    white-space: nowrap;
-  }
-  .Category::before {
-    content: "#";
-  }
+.Notification_view_toggle_button {
+  @apply bg-secondary-2 mb-[-10px] text-primary rounded-lg p-2 pb-3 font-bold
+}
 
-  .Form {
-    @apply text-accent grid grid-cols-1 sm:grid-cols-2 rounded-3xl w-full max-w-[1080px] min-h-[400px] h-[700px] shadow-lg m-auto bg-secondary-1;
-  }
+.Notification_list {
+  @apply h-[400px] w-[350px] overflow-y-scroll no-scrollbar flex flex-col gap-2 p-2 bg-secondary-2 rounded-lg ;
+}
+.Notification_item {
+  @apply flex gap-2 items-center p-2 rounded-xl bg-accent h-fit w-full text-primary select-none cursor-pointer;
+}
+
+.Form {
+  @apply text-accent grid grid-cols-1 sm:grid-cols-2 rounded-3xl w-full max-w-[1080px] min-h-[400px] h-[700px] shadow-lg m-auto bg-secondary-1;
+}
+.Sign_In_Form_Desktop {
+  @apply hidden;
+}
+@screen sm {
   .Sign_In_Form_Desktop {
-    @apply hidden;
+    @apply text-accent grid grid-cols-2 rounded-3xl w-full max-w-[1080px] min-h-[400px] shadow-lg m-auto bg-secondary-1 overflow-hidden h-[80%]  relative;
   }
-  @screen sm {
-    .Sign_In_Form_Desktop {
-      @apply text-accent grid grid-cols-2 rounded-3xl w-full max-w-[1080px] min-h-[400px] shadow-lg m-auto bg-secondary-1 overflow-hidden h-[80%]  relative;
-    }
-  }
+}
 
+.Sign_In_Form_Mobile {
+  @apply size-full grid grid-rows-2 text-accent rounded-3xl relative overflow-hidden shadow-lg bg-secondary-1;
+}
+@screen sm {
   .Sign_In_Form_Mobile {
-    @apply size-full grid grid-rows-2 text-accent rounded-3xl relative overflow-hidden shadow-lg bg-secondary-1
-  }
-  @screen sm {
-    .Sign_In_Form_Mobile {
-      @apply hidden
-    }
-  }
-
-  .Button_base {
-    @apply rounded-full font-semibold py-1 px-2;
-  }
-  .Button_variant_1 {
-    @apply Button_base bg-accent min-h-fit text-primary hover:bg-secondary-2;
-  }
-  .Button_variant_2 {
-    @apply Button_base text-accent hover:bg-secondary-2;
-  }
-
-  .Invalid_input {
-    @apply placeholder:text-red-500 text-red-500 shadow-md;
-  }
-
-  .Input_box_variant_2 {
-    @apply bg-transparent outline-none placeholder:text-inherit placeholder:opacity-50 border-primary  border-b-2 pb-2 text-xl px-1;
-  }
-
-  .Input_box_variant_1 {
-    @apply bg-primary flex rounded-2xl border-2 border-accent placeholder:text-accent placeholder:opacity-50  items-center grow outline-none justify-between  text-lg px-1 overflow-hidden;
-  }
-
-  .Cate_box {
-    @apply flex rounded-2xl items-center outline-none border-2 border-accent justify-start gap-2   text-lg p-2 overflow-hidden;
-  }
-  .Cate_tag {
-    @apply flex select-none items-center justify-center px-2 py-1 bg-accent text-primary font-semibold rounded-xl gap-2 whitespace-nowrap;
-  }
-  .Nav_bar {
-    @apply sticky z-20 top-0 left-0 w-full h-[60px] bg-secondary-1 text-accent  shadow-md;
-  }
-
-  .Buttons_container {
     @apply hidden;
   }
-  @screen sm {
-    .Buttons_container {
-      @apply flex h-full w-fit justify-end items-center gap-2;
-    }
-  }
+}
 
-  .Icon {
-    @apply flex items-center justify-center size-10 text-2xl rounded-full overflow-hidden hover:bg-secondary-2 text-accent;
+.Button_base {
+  @apply rounded-full font-semibold py-1 px-2 select-none;
+}
+.Button_variant_1 {
+  @apply Button_base border-2 border-accent  bg-accent min-h-fit text-primary hover:bg-secondary-2 active:text-accent active:bg-primary;
+}
+.Button_variant_2 {
+  @apply Button_base text-accent hover:bg-secondary-2;
+}
+
+.Invalid_input {
+  @apply placeholder:text-red-500 text-red-500 shadow-md;
+}
+
+.Input_box_variant_2 {
+  @apply bg-transparent outline-none placeholder:text-inherit placeholder:opacity-50 border-primary  border-b-2 pb-2 text-xl px-1;
+}
+
+.Input_box_variant_1 {
+  @apply bg-primary flex rounded-2xl border-2 border-accent placeholder:text-accent placeholder:opacity-50  items-center grow outline-none justify-between  text-lg px-1 overflow-hidden;
+}
+
+.Cate_box {
+  @apply flex rounded-2xl items-center outline-none border-2 border-accent justify-start gap-2   text-lg p-2 overflow-hidden;
+}
+.Cate_tag {
+  @apply flex select-none items-center justify-center px-2 py-1 bg-accent text-primary font-semibold rounded-xl gap-2 whitespace-nowrap;
+}
+.Nav_bar {
+  @apply sticky z-20 top-0 left-0 w-full h-[60px] bg-secondary-1 text-accent  shadow-md;
+}
+
+.Buttons_container {
+  @apply hidden;
+}
+@screen sm {
+  .Buttons_container {
+    @apply flex h-full w-fit justify-end items-center gap-2;
   }
-  .Icon_small {
-    @apply flex items-center justify-center size-9 text-lg rounded-full overflow-hidden hover:bg-secondary-2 text-accent;
-  }
-  .Icon_big {
-    @apply flex items-center justify-center size-12 text-xl rounded-full overflow-hidden hover:bg-secondary-2 text-accent;
-  }
+}
+
+.Icon {
+  @apply flex items-center justify-center size-10 text-2xl rounded-full overflow-hidden hover:bg-secondary-2 text-accent;
+}
+.Icon_small {
+  @apply flex items-center justify-center size-9 text-lg rounded-full overflow-hidden hover:bg-secondary-2 text-accent;
+}
+.Icon_big {
+  @apply flex items-center justify-center size-12 text-xl rounded-full overflow-hidden hover:bg-secondary-2 text-accent;
+}
 
 @layer utilities {
   /* Hide scrollbar for Chrome, Safari and Opera */

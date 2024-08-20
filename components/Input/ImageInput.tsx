@@ -5,16 +5,22 @@ import {
   faImage,
   faCheck,
   faGhost,
+  faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { useTransition, animated } from "@react-spring/web";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { AppLogoLoader } from "@components/Loader";
+import { AppLogoLoader } from "@components/UI/Loader";
 
 type ImageInputProps = {
   image: string;
+  type?: "ProfileImage" | "PostImage";
   setImage: (image: string) => void;
 };
-export default function ImageInput({ image, setImage }: ImageInputProps) {
+export default function ImageInput({
+  image,
+  type = "PostImage",
+  setImage,
+}: ImageInputProps) {
   const imageInput = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -57,17 +63,19 @@ export default function ImageInput({ image, setImage }: ImageInputProps) {
     setImageInputVisibility(false);
   };
   const handleClearImage = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
-    setImage('')
-
-  }
-
-  return (
+    e.preventDefault();
+    setImage("");
+  };
+  const PostImage = (
     <div className="size-full min-h-48 flex items-center justify-center sm:rounded-l-3xl sm:rounded-tr-none rounded-t-3xl overflow-hidden relative">
-       {!isLoading&&image&&!error&&<button className="rounded-full size-6 bg-secondary-1 absolute top-4 right-4 text-base"
-        onClick={handleClearImage}>
-            <FontAwesomeIcon icon={faX}/>
-        </button>}
+      {!isLoading && image && !error && (
+        <button
+          className="rounded-full size-6 bg-secondary-1 absolute top-4 right-4 text-base"
+          onClick={handleClearImage}
+        >
+          <FontAwesomeIcon icon={faX} />
+        </button>
+      )}
       <div
         className="size-full bg-secondary-2 flex items-center justify-center"
         onClick={() => setImageInputVisibility(true)}
@@ -108,4 +116,61 @@ export default function ImageInput({ image, setImage }: ImageInputProps) {
       )}
     </div>
   );
+  const ProfileImage = (
+    <div className="my-4 h-44 w-full overflow-hidden relative flex flex-col items-center gap-4">
+      <div
+        className="size-28 flex justify-center items-center bg-secondary-2 rounded-full relative overflow-hidden border-accent border-2"
+        onClick={() => {
+          setImageInputVisibility(true);
+        }}
+      >
+        {isLoading ? (
+            <AppLogoLoader />
+        ) : error ? (
+          <FontAwesomeIcon icon={faGhost} className="text-7xl" />
+        ) : image ? (
+          <img src={image} alt="sign up image" className="size-full" />
+        ) : (
+          <FontAwesomeIcon
+            icon={faUser}
+            size="xl"
+            className="size-full mt-2 text-7xl"
+          />
+        )}
+      </div>
+      {imageInputTransition((style, item) =>
+        item ? (
+          <animated.div
+            style={{ ...style }}
+            className="Input_box_variant_1 absolute bottom-2 m-auto"
+          >
+            <input
+              ref={imageInput}
+              name="image"
+              placeholder="Image URL..."
+              className="pl-2 outline-none bg-transparent placeholder:text-inherit"
+            />
+            <button className="p-1" onClick={handleImageChange}>
+              <FontAwesomeIcon icon={faCheck} />
+            </button>
+          </animated.div>
+        ) : null
+      )}
+      <h1 className="text-medium">
+        {image ? "Looking good there" : "Add Profile picture"}
+      </h1>
+    </div>
+  );
+
+  const renderImageInput = () => {
+    switch (type) {
+      case "ProfileImage":
+        return ProfileImage;
+      case "PostImage":
+        return PostImage;
+      default:
+        return PostImage;
+    }
+  };
+  return renderImageInput();
 }

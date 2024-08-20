@@ -1,5 +1,6 @@
 import { connectToDB } from "@utils/database";
 import Post from "@models/postModels";
+import Like from "@models/likesModels";
 import { NextRequest, NextResponse } from "next/server";
 import { NextApiRequest } from "next";
 
@@ -59,7 +60,12 @@ export const DELETE = async (
 ) => {
   try {
     await connectToDB();
-    const post = await Post.findByIdAndDelete(params.id, req.body);
+    const post = await Post.findByIdAndDelete(params.id);
+    if (!post) {
+      return NextResponse.json({ message: "Post not found" }, { status: 404 })
+    }
+
+    await Like.deleteMany({post:params.id})
 
     return NextResponse.json({ message: "Post deleted" }, { status: 200 });
   } catch (error) {

@@ -10,6 +10,8 @@ import validator from "validator";
 import { SubmitButtonState } from "@lib/types";
 import { useRouter } from "next/navigation";
 import { useSpring, animated, useTransition } from "@react-spring/web";
+import { signUp } from "@server/accountActions";
+import ImageInput from "@components/Input/ImageInput";
 
 const providerIcons: Record<string, any> = {
   github: faGithub,
@@ -21,8 +23,6 @@ export default function SignInForm({ providers }: { providers: string[] }) {
   const imageInput = useRef<HTMLInputElement>(null);
   const [error, setError] = useState("");
   const [submitState, setSubmitState] = useState<SubmitButtonState>("");
-  const [imageInputVisibility, setImageInputVisibility] =
-    useState<boolean>(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [signUpCredentials, setSignUpCredentials] = useState({
     email: "",
@@ -182,15 +182,8 @@ export default function SignInForm({ providers }: { providers: string[] }) {
       setSubmitState("Failed");
     } else {
       try {
-        const response = await fetch("api/users/new", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(signUpCredentials),
-        });
-        const data = await response.json();
-        if (response.ok) {
+        const response = await signUp(signUpCredentials)
+        if (response.status) {
           setSubmitState("Succeeded");
           setTimeout(() => {
             signIn("credentials", {
@@ -201,8 +194,8 @@ export default function SignInForm({ providers }: { providers: string[] }) {
           }, 1000);
         } else {
           setSubmitState("Failed");
-          console.log(data.message);
-          alertError(data.message);
+          console.log(response.message);
+          alertError(response.message);
         }
       } catch (error) {
         setSubmitState("Failed");
@@ -211,16 +204,11 @@ export default function SignInForm({ providers }: { providers: string[] }) {
     }
   };
 
-  const handleImageChange = () => {
+  const handleImageChange = (image:string) => {
     setSignUpCredentials((s) => ({
       ...s,
-      image: imageInput.current ? imageInput.current.value : "",
+      image: image,
     }));
-    setImageInputVisibility(false);
-  };
-
-  const handleImageError = () => {
-    setSignUpCredentials((s) => ({ ...s, image: "" }));
   };
 
   const Slider = (
@@ -262,7 +250,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
     <>
       <form
         onSubmit={handleCredentialsSignIn}
-        className="flex flex-col p-2 gap-6 items-center"
+        className="flex flex-col w-full p-2 gap-6 items-center"
       >
         <input
           className="Input_box_variant_2"
@@ -297,7 +285,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
               return (
                 <li
                   key={provider}
-                  className="Button_variant_1 rounded-lg px-4 py-2 cursor-pointer flex gap-3"
+                  className="Button_variant_1 cursor-pointer flex gap-3"
                   onClick={() => handleSignIn(provider)}
                 >
                   {"Sign in with "}
@@ -314,50 +302,9 @@ export default function SignInForm({ providers }: { providers: string[] }) {
     <>
       <form
         onSubmit={handleSignUp}
-        className="flex flex-col p-2 gap-4 items-center"
+        className="flex flex-col w-full p-2 gap-4 items-center"
       >
-        <div className=" flex flex-col items-center gap-4">
-          <div
-            className="size-28 bg-primary rounded-full relative overflow-hidden border-accent text-7xl"
-            onClick={() => {
-              setImageInputVisibility(true);
-            }}
-          >
-            {signUpCredentials.image ? (
-              <img
-                src={signUpCredentials.image}
-                alt="sign up image"
-                style={{ objectFit: "cover" }}
-                onError={handleImageError}
-                className="size-full"
-              />
-            ) : (
-              <FontAwesomeIcon
-                icon={faUser}
-                size="xl"
-                className="size-full mt-2"
-              />
-            )}
-          </div>
-          {imageInputVisibility && (
-            <div className="Input_box_variant_1">
-              <input
-                ref={imageInput}
-                name="image"
-                placeholder="Image URL..."
-                className="pl-2 outline-none bg-transparent placeholder:text-inherit"
-              />{" "}
-              <div className="p-1" onClick={handleImageChange}>
-                <FontAwesomeIcon icon={faCheck} />
-              </div>
-            </div>
-          )}
-          <h1 className="text-medium">
-            {signUpCredentials.image
-              ? "Looking good there"
-              : "Add Profile picture"}
-          </h1>
-        </div>
+        <ImageInput type='ProfileImage' image={signUpCredentials.image} setImage={handleImageChange}/>
         <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-col items-center">
           <input
             className="Input_box_variant_2"

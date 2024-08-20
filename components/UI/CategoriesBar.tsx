@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { type Category } from "@lib/types";
+import { getCategories } from "@server/categoriesActions";
 
 type CategoryItemProps = {
   category: Category;
@@ -47,10 +48,9 @@ export default function CategoryBar({ selected=[],onCategoriesChange }: Category
   const [categories, setCategories] = useState<Category[]>([]);
 
   const fetchCategories = async () => {
-    const response = await fetch("/api/categories");
-    const data = await response.json();
+    const response = await getCategories();
 
-    setCategories(data);
+    setCategories(response);
   };
 
   useEffect(() => {

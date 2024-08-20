@@ -1,19 +1,22 @@
 "use client";
 import { useTransition, animated } from "@react-spring/web";
-import React, { ReactNode, useMemo, useState } from "react";
+import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 type DropDownButtonProps = {
   dropDirection?: "left" | "right" | "top" | "bottom";
   children: ReactNode;
   dropDownList: ReactNode;
+  Zindex?: number;
 };
 export default function DropDownButton({
   children,
   dropDownList,
   dropDirection = "bottom",
+  Zindex = 10,
 }: DropDownButtonProps) {
   const [toggleDropDown, setToggleDropDown] = useState(false);
-
+  const dropDownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const dropDownBoxTransition = useTransition(toggleDropDown, {
     from: {
       opacity: 0,
@@ -21,20 +24,40 @@ export default function DropDownButton({
     },
     enter: {
       opacity: 1,
-      transform: getTransform("enter",dropDirection)
+      transform: getTransform("enter", dropDirection),
     },
     leave: {
       opacity: 0,
       transform: getTransform("leave", dropDirection),
     },
-    config: { duration: 300, easing: t => t * (2 - t)},
+    config: { duration: 300, easing: (t) => t * (2 - t) },
     // Adjust the duration as needed
   });
 
   const handleToggle = (e: React.MouseEvent) => {
     e.preventDefault();
-    setToggleDropDown((t) => !t);
+    setToggleDropDown((prev) => !prev);
   };
+
+  const handleClickOutside = (e: MouseEvent) => {
+    if (
+      dropDownRef.current &&
+      !dropDownRef.current.contains(e.target as Node)&&
+      !buttonRef.current?.contains(e.target as Node)
+    ) {
+      setToggleDropDown(false);
+    }
+  };
+
+  useEffect(() => {
+    // Add event listener
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Clean up the event listener
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   function getTransform(phase: "from" | "enter" | "leave", direction: string) {
     switch (direction) {
@@ -81,8 +104,8 @@ export default function DropDownButton({
     }
   }, [dropDirection]);
   return (
-    <div className={`relative flex z-100`}>
-      <button className="Icon" onClick={handleToggle}>
+    <div className={`relative flex z-${Zindex.toString()}`}>
+      <button className="Icon" onClick={handleToggle} ref={buttonRef}>
         {children}
       </button>
       {dropDownBoxTransition((style, item) =>
@@ -94,6 +117,7 @@ export default function DropDownButton({
               ...dropStyle,
               boxSizing: "border-box",
             }}
+            ref={dropDownRef}
             className="rounded-xl bg-secondary-1 shadow-xl size-fit p-2"
           >
             {dropDownList}

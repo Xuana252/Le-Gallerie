@@ -10,8 +10,6 @@ export async function getStoredTheme() {
   const storedTheme = cookies().get("Theme");
   return storedTheme
     ? storedTheme.value
-    : window.matchMedia("(prefers-color-scheme: dark)")
-    ? "theme2"
     : "theme1";
 }
 

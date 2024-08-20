@@ -12,17 +12,18 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import { useRouter } from "next/navigation";
-import Feed from "@components/Feed";
+import Feed from "@components/UI/Feed";
 import InputBox from "@components/Input/InputBox";
 import { type Post } from "@lib/types";
 import { useSession } from "next-auth/react";
-import UserProfileIcon from "@components/UserProfileIcon";
+import UserProfileIcon from "@components/UI/UserProfileIcon";
+import { checkUserHasLiked, deletePost, fetchPostWithId, handleLike } from "@server/postActions";
 
 export default function Post({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
   const [postRendered, setPostRendered] = useState<boolean>(false);
   const router = useRouter();
-  const [likeTimeOut, setLikeTimeOut] = useState(true);
+  const [likeTimeOut, setLikeTimeOut] = useState(false);
   const [postLikes, setPostLikes] = useState<number>(0);
   const [likedState, setLikedState] = useState<boolean>(false);
   const [post, setPost] = useState<Post>({
@@ -35,37 +36,6 @@ export default function Post({ params }: { params: { id: string } }) {
     likes: 0,
   });
 
-  const checkUserHasLiked = async () => {
-    if (session?.user) {
-      try {
-        const response = await fetch(
-          `/api/users/${session?.user.id}/has-liked/${params.id}`
-        );
-        const data = await response.json();
-        response.ok ? setLikedState(data.liked) : "";
-      } catch (error) {
-        console.log("Failed to check user has liked post");
-      } finally {
-        setTimeout(()=>setLikeTimeOut(false),2000);
-      }
-    }
-  };
-
-  const handleLikes = async () => {
-    if (session?.user) {
-      try {
-        await fetch(`/api/posts/${params.id}/likes`, {
-          method: "POST",
-          body: JSON.stringify({
-            userId: session?.user.id,
-          }),
-        });
-      } catch (error) {
-        console.error("Failed to update post likes", error);
-      }
-    }
-  };
-
   const handleSetLikedState = async (
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
@@ -75,18 +45,16 @@ export default function Post({ params }: { params: { id: string } }) {
     setLikeTimeOut(true);
     setPostLikes((prevLikes) => (likedState ? prevLikes - 1 : prevLikes + 1));
     setLikedState((prev) => !prev);
-    await handleLikes();
-
+    if (session?.user.id) await handleLike(session?.user.id, params.id);
     setTimeout(() => {
       setLikeTimeOut(false);
     }, 1000);
   };
 
   const fetchPost = async () => {
-    const response = await fetch(`/api/posts/${params.id}`);
-    const data = await response.json();
+    const data = await fetchPostWithId(params.id)
 
-    if (JSON.stringify(data) !== JSON.stringify(post)) {
+    if (data&&JSON.stringify(data) !== JSON.stringify(post)) {
       setPost(data);
       setPostLikes(data.likes);
     }
@@ -119,14 +87,12 @@ export default function Post({ params }: { params: { id: string } }) {
     }
   };
 
-  const handleDeletePost = async (postId: string | undefined) => {
+  const handleDeletePost = async () => {
     const hasConfirmed = confirm("Are you sure you want to delete this post?");
 
     if (hasConfirmed) {
       try {
-        await fetch(`/api/posts/${postId}`, {
-          method: "DELETE",
-        });
+        await deletePost(params.id)
         console.log("Post deleted");
         router.back();
       } catch (error) {
@@ -141,13 +107,20 @@ export default function Post({ params }: { params: { id: string } }) {
   };
 
   useEffect(() => {
-    session ? checkUserHasLiked() : null;
-  }, [session]);
-
-  useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+    const fetchLikeStatus = async () => {
+      if (session?.user.id) {
+        try {
+          const result = await checkUserHasLiked(session.user.id, params.id);
+          setLikedState(result);
+        } catch (error) {
+          console.error("Failed to check if user has liked post", error);
+        }
+      }
+    };
+    fetchLikeStatus();
     fetchPost();
-  }, [params.id]);
+  }, [params.id, session]);
 
   useEffect(() => {
     const handleLocalStorage = () => {
@@ -184,28 +157,27 @@ export default function Post({ params }: { params: { id: string } }) {
           <div className="w-full p-4 flex flex-col gap-0">
             <div className="h-fit w-full grow ">
               <div className="flex-row p-2 h-fit z-10 flex sticky bg-secondary-1 top-[60px] gap-2">
-                {session?.user && (
-                  <div className="flex justify-start items-center">
-                    <button
-                      className="Icon_small"
-                      disabled={likeTimeOut}
-                      onClick={handleSetLikedState}
-                    >
-                      {likedState ? (
-                        <FontAwesomeIcon icon={solidHeart} />
-                      ) : (
-                        <FontAwesomeIcon icon={regularHeart} />
-                      )}
-                    </button>
-                    <span>{postLikes} likes</span>
-                  </div>
-                )}
+                {postRendered&&<div className="flex justify-start items-center">
+                  <button
+                    className="Icon_small"
+                    disabled={likeTimeOut}
+                    onClick={handleSetLikedState}
+                  >
+                    {likedState ? (
+                      <FontAwesomeIcon icon={solidHeart} />
+                    ) : (
+                      <FontAwesomeIcon icon={regularHeart} />
+                    )}
+                  </button>
+                  <span>{postLikes} likes</span>
+                </div>}
+
                 <div className="flex-row flex ml-auto justify-end">
                   {session?.user && session?.user.id === post?.creator._id && (
                     <>
                       <button
                         className="hover:bg-secondary-2 Icon_small "
-                        onClick={() => handleDeletePost(post?._id)}
+                        onClick={() => handleDeletePost()}
                       >
                         <FontAwesomeIcon icon={faTrash} />
                       </button>

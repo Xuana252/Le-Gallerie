@@ -9,6 +9,8 @@ import SubmitButton from "@components/Input/SubmitButton";
 import { useSession } from "next-auth/react";
 import { useTransition, animated } from "@react-spring/web";
 import ImageInput from "@components/Input/ImageInput";
+import { createPost, updatePost } from "@server/postActions";
+import { getCategories } from "@server/categoriesActions";
 
 type CategoriesSelectorProps = {
   selectedCategories: Category[];
@@ -106,9 +108,7 @@ export function CategoriesSelector({
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch("/api/categories");
-      const data = await response.json();
-
+      const data = await getCategories()
       setCategories(data);
     } catch (error) {
       console.log("Error while fetching for categories: ", error);
@@ -226,25 +226,19 @@ export default function PostForm({ type, editPost }: PostFormProps) {
 
   const handleFormSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (post?.image) {
+    if (post?.image &&session?.user.id) {
       try {
         setSubmitState("Processing");
         let response;
         switch (type) {
           case "Create":
-            response = await fetch("/api/posts/new", {
-              method: "POST",
-              body: JSON.stringify({ ...post, creator: session?.user.id }),
-            });
+            response = await createPost(post,session?.user.id)
             break;
           case "Edit":
-            response = await fetch(`/api/posts/${post._id}`, {
-              method: "PATCH",
-              body: JSON.stringify(post),
-            });
+            response = await updatePost(post)
             break;
         }
-        if (response.ok) {
+        if (response) {
           setTimeout(() => {
             setSubmitState("Succeeded");
             console.log(`Attempted to ${type} successfully`);
@@ -257,7 +251,7 @@ export default function PostForm({ type, editPost }: PostFormProps) {
           }, 500);
         } else {
           setSubmitState("Failed");
-          console.log(response);
+          console.log(`Failed to ${type} post`);
         }
       } catch (error) {
         setSubmitState("Failed");

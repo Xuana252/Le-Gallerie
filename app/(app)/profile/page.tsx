@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import Feed from "@components/Feed";
+import Feed from "@components/UI/Feed";
 import { getServerSession } from "next-auth";
 import { options } from "@app/api/auth/[...nextauth]/options";
 import { redirect } from "next/navigation";

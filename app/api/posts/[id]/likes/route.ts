@@ -1,7 +1,11 @@
 import Post from "@models/postModels";
 import Like from "@models/likesModels";
+import User from "@models/userModel";
 import { connectToDB } from "@utils/database";
 import { NextRequest, NextResponse } from "next/server";
+import { Knock } from "@knocklabs/node";
+
+const knock = new Knock(process.env.KNOCK_API_SECRET);
 
 export const GET = async (
   req: NextRequest,
@@ -21,7 +25,7 @@ export const GET = async (
     }
 };
 
-export const POST = async (
+export const PATCH = async (
   req: NextRequest,
   { params }: { params: { id: string } }
 ) => {
@@ -31,7 +35,7 @@ export const POST = async (
 
     const post = await Post.findById(params.id);
     const liked = await Like.findOne({post:params.id,user:userId})
-
+    const creator = await User.findOne({_id:post.creator._id})
     if (!post) {
       return NextResponse.json({ message: "Post not found" }, { status: 400 });
     }
@@ -43,6 +47,22 @@ export const POST = async (
       const like = new Like({ post: params.id, user: userId });
       await like.save();
       post.likes += 1;
+      if(userId!==post.creator._id.toString()) {
+        await knock.workflows.trigger('post-like',{
+          actor: userId,
+          data: {
+            postId: post._id,
+          },
+          recipients: [
+            {
+              id:creator._id.toString(),
+              name:creator.username,
+              email:creator.email,
+              avatar:creator.image||null,
+            }
+          ]
+        })
+      }
     }
 
     await post.save();

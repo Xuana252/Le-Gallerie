@@ -10,14 +10,15 @@ import {
   faEllipsisVertical,
 } from "@fortawesome/free-solid-svg-icons";
 import { usePathname, useRouter } from "next/navigation";
-import InputBox from "./Input/InputBox";
-import DropDownButton from "./Input/DropDownButton";
+import InputBox from "../Input/InputBox";
+import DropDownButton from "../Input/DropDownButton";
 import { signOut, useSession } from "next-auth/react";
 import { useState } from "react";
 import UserProfileIcon from "./UserProfileIcon";
 import { createContext } from "react";
 import ThemeList from "@theme/ThemesList";
-
+import NotificationFeed from "@components/NotificationDefault";
+import NotificationButton from "@components/Notification";
 export const SearchContext = createContext("");
 
 export default function Nav({ children }: { children: React.ReactNode }) {
@@ -44,23 +45,21 @@ export default function Nav({ children }: { children: React.ReactNode }) {
 
   const ButtonSet = (
     <>
-      {session?.user && (<>
-        
-        <Link href={"/post/create"}>
+      {session?.user && (
+        <>
+          <Link href={"/post/create"}>
+            <button className="Icon">
+              <FontAwesomeIcon icon={faImage} />
+            </button>
+          </Link>
           <button className="Icon">
-            <FontAwesomeIcon icon={faImage} />
+            <FontAwesomeIcon icon={faCommentDots} />
           </button>
-        </Link>
-        <button className="Icon">
-          <FontAwesomeIcon icon={faBell} />
-        </button>
-        <button className="Icon">
-          <FontAwesomeIcon icon={faCommentDots} />
-        </button>
-      </>
+          <NotificationButton />
+        </>
       )}
-      <DropDownButton dropDownList={<ThemeList />} dropDirection="left">
-        <FontAwesomeIcon icon={faCircleHalfStroke} />
+      <DropDownButton dropDownList={<ThemeList />} Zindex={30}>
+        <FontAwesomeIcon icon={faCircleHalfStroke}/>
       </DropDownButton>
       {pathName === "/profile" ? (
         <button className="Icon relative" onClick={() => signOut()}>
@@ -92,39 +91,14 @@ export default function Nav({ children }: { children: React.ReactNode }) {
               value={pendingText}
               type="SearchBox"
             >
-              Search for titles...
+              Search for posts...
             </InputBox>
           )}
 
           {/* On desktop */}
           <div className="Buttons_container">
-            {session?.user && (
-              <>
-                <Link href={"/post/create"}>
-                  <button className="Icon">
-                    <FontAwesomeIcon icon={faImage} />
-                  </button>
-                </Link>
-                <button className="Icon">
-                  <FontAwesomeIcon icon={faBell} />
-                </button>
-                <button className="Icon">
-                  <FontAwesomeIcon icon={faCommentDots} />
-                </button>
-              </>
-            )}
-
-            <DropDownButton dropDownList={<ThemeList />}>
-              <FontAwesomeIcon icon={faCircleHalfStroke} />
-            </DropDownButton>
-
-            {pathName === "/profile" ? (
-              <button className="Icon relative" onClick={() => signOut()}>
-                <FontAwesomeIcon icon={faRightFromBracket} />
-              </button>
-            ) : (
-              <UserProfileIcon currentUser={true} />
-            )}
+            <NotificationFeed />
+            {ButtonSet}
           </div>
 
           {/* On mobile */}

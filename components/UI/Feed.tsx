@@ -1,9 +1,5 @@
 "use client";
-import React, {
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { useContext, useEffect, useState } from "react";
 import PostCard from "./PostCard";
 import { type Category, type Post } from "@lib/types";
 import Loader from "./Loader";
@@ -12,6 +8,7 @@ import { SearchContext } from "./Nav";
 import { usePathname } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlassMinus } from "@fortawesome/free-solid-svg-icons";
+import { fetchAllPost, fetchUserPost } from "@server/postActions";
 type FeedProps = {
   userIdFilter?: string;
   categoryFilter?: Category[];
@@ -26,19 +23,14 @@ export default function Feed({ userIdFilter, categoryFilter = [] }: FeedProps) {
   const [isLoading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>();
   const [filteredPost, setFilteredPosts] = useState<Post[]>([]);
-  const [isEmpty,setIsEmpty] = useState(false)
+  const [isEmpty, setIsEmpty] = useState(false);
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch(
-        userIdFilter ? `/api/users/${userIdFilter}/posts` : "/api/posts"
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setPosts(data);
-      } else {
-        console.log("Some thing went wrong while fetching for posts");
-      }
+      const response = userIdFilter
+        ? await fetchUserPost(userIdFilter)
+        : await fetchAllPost();
+      setPosts(response);
     } catch (error) {
       setError("Failed to fetch for post");
     }
@@ -60,7 +52,7 @@ export default function Feed({ userIdFilter, categoryFilter = [] }: FeedProps) {
   };
 
   useEffect(() => {
-    setLoading(true)
+    setLoading(true);
     const finalPosts = posts.filter((post) => {
       if (searchText.trim() === "" || pathName !== "/") {
         return categoriesFilter.every((category) =>
@@ -84,12 +76,10 @@ export default function Feed({ userIdFilter, categoryFilter = [] }: FeedProps) {
           post.categories.some((c) => searchPattern.test(c.name)))
       );
     });
-    if(finalPosts.length>0)
-      setIsEmpty(false)
-    else
-      setIsEmpty(true)
+    if (finalPosts.length > 0) setIsEmpty(false);
+    else setIsEmpty(true);
     setFilteredPosts(finalPosts);
-    setTimeout(()=>setLoading(false),2000)
+    setTimeout(() => setLoading(false), 2000);
   }, [posts, searchText, categoriesFilter, pathName]);
 
   const [gridColStyle, setGridColStyle] = useState("grid-colds-1");
@@ -130,46 +120,38 @@ export default function Feed({ userIdFilter, categoryFilter = [] }: FeedProps) {
 
   return (
     <section className="size-full min-h-[400px]">
-        <CategoryBar
-          onCategoriesChange={handleCategoriesFilerChange}
-          selected={categoriesFilter}
-        />
-      {
-        isLoading ? (
-          <Loader></Loader>
-        ) : error ? (
-          <div>{error}</div>
-        ) : isEmpty? (
-          <div className="size-full flex flex-col gap-3 justify-center   pt-3 text-accent items-center">
-            <FontAwesomeIcon icon={faMagnifyingGlassMinus} className="text-7xl" />
-            <h1 className="text-xl">No related posts found:/</h1>
-          </div>
-        ):(
-          <ul
-            className={`grid ${gridColStyle} gap-x-3 bg-primary min-h-screen min-w-full p-5 justify-center `}
-          >
-            {Array.from(Array(colsNum).keys()).map((columnIndex) => (
-              <div
-                key={columnIndex}
-                className="flex flex-col w-full h-fit gap-3 "
-              >
-                {filteredPost.map((post, index) => {
-                  if (index % colsNum === columnIndex) {
-                    return (
-                      <PostCard
-                        key={post._id}
-                        post={post}
-                      />
-                    );
-                  }
-                  return null;
-                })}
-              </div>
-            ))}
-          </ul>
-        )
-        
-      }
+      <CategoryBar
+        onCategoriesChange={handleCategoriesFilerChange}
+        selected={categoriesFilter}
+      />
+      {isLoading ? (
+        <Loader></Loader>
+      ) : error ? (
+        <div>{error}</div>
+      ) : isEmpty ? (
+        <div className="size-full flex flex-col gap-3 justify-center   pt-3 text-accent items-center">
+          <FontAwesomeIcon icon={faMagnifyingGlassMinus} className="text-7xl" />
+          <h1 className="text-xl">No related posts found:/</h1>
+        </div>
+      ) : (
+        <ul
+          className={`grid ${gridColStyle} gap-x-3 bg-primary min-h-screen min-w-full p-5 justify-center `}
+        >
+          {Array.from(Array(colsNum).keys()).map((columnIndex) => (
+            <div
+              key={columnIndex}
+              className="flex flex-col w-full h-fit gap-3 "
+            >
+              {filteredPost.map((post, index) => {
+                if (index % colsNum === columnIndex) {
+                  return <PostCard key={post._id} post={post} />;
+                }
+                return null;
+              })}
+            </div>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
