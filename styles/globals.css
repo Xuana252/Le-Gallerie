@@ -33,14 +33,17 @@
 }
 
 .Notification_view_toggle_button {
-  @apply bg-secondary-2 mb-[-10px] text-primary rounded-lg p-2 pb-3 font-bold
+  @apply bg-secondary-2 mb-[-10px] text-primary rounded-lg pt-1 pb-3 font-bold
 }
 
 .Notification_list {
-  @apply h-[400px] w-[350px] overflow-y-scroll no-scrollbar flex flex-col gap-2 p-2 bg-secondary-2 rounded-lg ;
+  @apply h-[400px] w-[350px] overflow-y-scroll no-scrollbar flex flex-col gap-2 p-2 bg-secondary-2 rounded-lg  ;
 }
 .Notification_item {
   @apply flex gap-2 items-center p-2 rounded-xl bg-accent h-fit w-full text-primary select-none cursor-pointer;
+}
+.Toast_item {
+  @apply flex gap-2 items-center p-2 rounded-xl bg-accent h-fit w-[350px] text-primary select-none cursor-pointer;
 }
 
 .Form {
@@ -75,7 +78,7 @@
 }
 
 .Invalid_input {
-  @apply placeholder:text-red-500 text-red-500 shadow-md;
+  @apply placeholder:text-red-500 text-red-500 shadow-md ;
 }
 
 .Input_box_variant_2 {

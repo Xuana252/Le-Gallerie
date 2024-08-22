@@ -11,7 +11,7 @@ export default function PostCard({ post }: { post: Post}) {
     <Link
         href={`/post/${post._id}`}
         onClick={handlePostCardClick}
-        className="animate-slide-up-animation relative w-full h-fit grid grid-cols-1  gap-2  rounded-xl overflow-hidden cursor-zoom-in z-0 animate-slideUp"
+        className="animate-slide-up-animation relative w-full h-fit grid grid-cols-1  gap-2  rounded-xl overflow-hidden cursor-pointer z-0 animate-slideUp"
       >
         <img src={post.image} alt={post.title} className='size-full'/>
         <div

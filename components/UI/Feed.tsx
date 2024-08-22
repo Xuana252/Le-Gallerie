@@ -16,7 +16,7 @@ type FeedProps = {
 
 export default function Feed({ userIdFilter, categoryFilter = [] }: FeedProps) {
   const pathName = usePathname();
-  const searchText = useContext(SearchContext);
+  const {searchText} = useContext(SearchContext);
   const [categoriesFilter, setCategoriesFilter] =
     useState<Category[]>(categoryFilter);
   const [posts, setPosts] = useState<Post[]>([]);

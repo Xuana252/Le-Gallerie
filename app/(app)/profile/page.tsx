@@ -13,9 +13,6 @@ import { useSession } from "next-auth/react";
 export default function MyProfile() {
   const { data: session } = useSession();
 
-  if (!session?.user) {
-    redirect("/sign-in");
-  }
 
   return (
     <section className="text-accent">

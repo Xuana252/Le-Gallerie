@@ -4,13 +4,15 @@ import { useRouter } from "next/navigation";
 import InputBox from "../Input/InputBox";
 import { type Post, type Category, SubmitButtonState } from "@lib/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faX} from "@fortawesome/free-solid-svg-icons";
+import { faX } from "@fortawesome/free-solid-svg-icons";
 import SubmitButton from "@components/Input/SubmitButton";
 import { useSession } from "next-auth/react";
 import { useTransition, animated } from "@react-spring/web";
 import ImageInput from "@components/Input/ImageInput";
 import { createPost, updatePost } from "@server/postActions";
 import { getCategories } from "@server/categoriesActions";
+import { checkPostRateLimit } from "@server/checkRateLimit";
+import toastError from "@components/Notification/Toaster";
 
 type CategoriesSelectorProps = {
   selectedCategories: Category[];
@@ -32,12 +34,12 @@ export function CategoriesSelector({
   const [categories, setCategories] = useState<Category[]>([]);
   const [isSelecting, setIsSelecting] = useState<Boolean>(false);
   const categoryItemListTransition = useTransition(selectedCategories, {
-    keys: item  => item._id,
-    from: { opacity: 0, transform: 'translateY(20px)' }, // Starting state
-    enter: { opacity: 1, transform: 'translateY(0px)' }, // End state when the item appears
-    leave: { opacity: 0, transform: 'translateY(20px)' }, // End state when the item disappears
+    keys: (item) => item._id,
+    from: { opacity: 0, transform: "translateY(20px)" }, // Starting state
+    enter: { opacity: 1, transform: "translateY(0px)" }, // End state when the item appears
+    leave: { opacity: 0, transform: "translateY(20px)" }, // End state when the item disappears
     config: { duration: 300 }, // Transition duration
-  })
+  });
   const selectBoxTransition = useTransition(isSelecting, {
     from: {
       clipPath: "polygon( 0% 17%,100% 17% , 100% 17% ,0% 17%)",
@@ -62,7 +64,7 @@ export function CategoriesSelector({
         clipPath: "polygon( 0% 17%,100% 17% , 100% 17% ,0% 17%)",
       },
     ],
-    config: { duration: 300,easing: t => t * (2 - t) },
+    config: { duration: 300, easing: (t) => t * (2 - t) },
   });
 
   const handleMouseDown = (e: React.MouseEvent<HTMLUListElement>) => {
@@ -72,11 +74,14 @@ export function CategoriesSelector({
     setStartClientX(e.clientX);
     setStartClientY(e.clientY);
   };
-  useEffect(()=>{
+  useEffect(() => {
     if (selectedList.current) {
-      selectedList.current.scrollTo({left:selectedList.current.scrollWidth  ,behavior:'smooth'});
+      selectedList.current.scrollTo({
+        left: selectedList.current.scrollWidth,
+        behavior: "smooth",
+      });
     }
-  },[selectedCategories])
+  }, [selectedCategories]);
 
   const handleMouseMove = (
     ref: React.RefObject<HTMLUListElement>,
@@ -108,9 +113,10 @@ export function CategoriesSelector({
 
   const fetchCategories = async () => {
     try {
-      const data = await getCategories()
+      const data = await getCategories();
       setCategories(data);
-    } catch (error) {
+    } catch (error:any) {
+      toastError(error.toString())
       console.log("Error while fetching for categories: ", error);
     }
   };
@@ -161,11 +167,17 @@ export function CategoriesSelector({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
         ref={selectedList}
-        className={`Cate_box min-h-14 relative ${isSelecting?'bg-secondary-2':'bg-primary'}`}
+        className={`Cate_box min-h-14 relative ${
+          isSelecting ? "bg-secondary-2" : "bg-primary"
+        }`}
       >
-        
-          {categoryItemListTransition((style,item)=> item? (
-            <animated.div style={{...style}} className="Cate_tag" key={item._id} >
+        {categoryItemListTransition((style, item) =>
+          item ? (
+            <animated.div
+              style={{ ...style }}
+              className="Cate_tag"
+              key={item._id}
+            >
               <span className="select-none">{item.name}</span>
               <FontAwesomeIcon
                 icon={faX}
@@ -173,8 +185,11 @@ export function CategoriesSelector({
                 onClick={() => onRemoved(item)}
               />{" "}
             </animated.div>
-          ):null)}
-          {!(selectedCategories.length > 0)&&<div>click here to add categories...</div>}
+          ) : null
+        )}
+        {!(selectedCategories.length > 0) && (
+          <div>click here to add categories...</div>
+        )}
       </ul>
       {selectBoxTransition((style, item) =>
         item ? (
@@ -212,8 +227,8 @@ export default function PostForm({ type, editPost }: PostFormProps) {
   const router = useRouter();
 
   const [submitState, setSubmitState] = useState<SubmitButtonState>("");
-    useState<Boolean>(false);
-  
+  useState<Boolean>(false);
+
   const [post, setPost] = useState<Post>(
     editPost || {
       creator: { _id: session?.user.id || "" },
@@ -226,16 +241,20 @@ export default function PostForm({ type, editPost }: PostFormProps) {
 
   const handleFormSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (post?.image &&session?.user.id) {
+    if (post?.image && session?.user.id) {
       try {
         setSubmitState("Processing");
+        const isRateLimited = await checkPostRateLimit();
+        if (isRateLimited) {
+          throw new Error("one post request per minute. please wait");
+        }
         let response;
         switch (type) {
           case "Create":
-            response = await createPost(post,session?.user.id)
+            response = await createPost(post, session?.user.id);
             break;
           case "Edit":
-            response = await updatePost(post)
+            response = await updatePost(post);
             break;
         }
         if (response) {
@@ -253,12 +272,13 @@ export default function PostForm({ type, editPost }: PostFormProps) {
           setSubmitState("Failed");
           console.log(`Failed to ${type} post`);
         }
-      } catch (error) {
+      } catch (error:any) {
         setSubmitState("Failed");
+        toastError(error.toString());
         console.log(`Something went wrong while trying to ${type} post`, error);
       }
     } else {
-      alert("Make sure you added an Image URL");
+      toastError("Make sure you added an Image");
     }
   };
 
@@ -283,14 +303,13 @@ export default function PostForm({ type, editPost }: PostFormProps) {
     }));
   };
 
-  const handleImageChange = (image:string) => {
+  const handleImageChange = (image: string) => {
     setPost((p) => ({
       ...p,
       image: image,
     }));
   };
 
- 
   const handleTextChange = (
     e:
       | React.ChangeEvent<HTMLInputElement>
@@ -302,7 +321,7 @@ export default function PostForm({ type, editPost }: PostFormProps) {
 
   return (
     <form onSubmit={handleFormSubmit} className="Form">
-      <ImageInput image={post.image} setImage={handleImageChange}/>
+      <ImageInput image={post.image} setImage={handleImageChange} />
       <div className="size-full p-4 flex flex-col gap-2">
         <div>
           <h3>Title</h3>

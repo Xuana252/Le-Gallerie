@@ -14,6 +14,16 @@ declare module 'next-auth' {
 
 export type SubmitButtonState = 'Succeeded'|'Failed'|'Processing'|''
 
+export type RateLimitObject = {
+  windowStart: any,
+  windowDuration: number, 
+  maxRequests: number,
+} 
+export type Like = {
+  _id:string,
+  user:User,
+  post:Post,
+}
 export type User = {
   _id:string,
   email?:string,

@@ -1,6 +1,6 @@
 "use client";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faCheck, faLessThanEqual } from "@fortawesome/free-solid-svg-icons";
 import { faGithub, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import SubmitButton from "@components/Input/SubmitButton";
 import React, { useEffect, useRef, useState } from "react";
@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useSpring, animated, useTransition } from "@react-spring/web";
 import { signUp } from "@server/accountActions";
 import ImageInput from "@components/Input/ImageInput";
+import { checkAuthRateLimit } from "@server/checkRateLimit";
 
 const providerIcons: Record<string, any> = {
   github: faGithub,
@@ -42,7 +43,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
     config: { duration: 400, easing: (t) => t * (2 - t) }, // Duration of the animation
   });
   const MobileSliderAnimation = useSpring({
-    transform: isSignUp ? "translateY(100%)" : "translateY(0%)",
+    transform: isSignUp ? "translateY(150%)" : "translateY(0%)",
     zIndex: 1,
     config: { duration: 400, easing: (t) => t * (2 - t) }, // Duration of the animation
   });
@@ -71,14 +72,14 @@ export default function SignInForm({ providers }: { providers: string[] }) {
     },
     enter: { transform: "translateY(0px)", opacity: 1 },
     leave: {
-      transform: isSignUp ? "translateY(-60%)" : "translateY(60%)",
+      transform: isSignUp ? "translateY(-80%)" : "translateY(80%)",
       opacity: 0,
     },
     config: { duration: 500, easing: (t) => t * (2 - t) },
   });
 
   const alertError = (error: string) => {
-    setError(error);
+    setError(error.replace(/\n/g, "<br>"));
     setTimeout(() => setError(""), 1500);
   };
 
@@ -113,7 +114,6 @@ export default function SignInForm({ providers }: { providers: string[] }) {
 
   const handleInvalid = (names: string[]) => {
     names.forEach((name) => {
-      console.log(name);
       // Get all elements with the given name
       const invalidInputs = document.getElementsByName(name);
       // Loop through NodeList and handle each input
@@ -167,22 +167,51 @@ export default function SignInForm({ providers }: { providers: string[] }) {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitState("Processing");
+    let invalidLog = "";
     const invalidInputs = Object.entries(signUpCredentials)
       .filter(([key, value]) => {
+        let isInvalid = false
+        let errorMessage=''
         if (key === "image") return false; // Skip image field
-        if (key === "email") return !validator.isEmail(value);
-        if (key === "repeatedPassword")
-          return value !== signUpCredentials.password; // Validate email format
+        if (key === "email") {
+          if(!validator.isEmail(value)) {
+            errorMessage='invalid email'
+            isInvalid=true
+          }
+        }
+        if (key === "password") {
+         if(signUpCredentials.password.length < 8) {
+          errorMessage='password must be at least 8 letters long'
+          isInvalid = true
+         }
+        }
+        if (key === "repeatedPassword") {
+          if(value !== signUpCredentials.password) {
+            errorMessage='repeated password does not match'
+            isInvalid = true
+          }
+        } // Validate email format
+        if(isInvalid) {
+          invalidLog += `\n${errorMessage}`
+        }
         return value.trim() === ""; // Check for empty fields
       })
       .map(([key]) => key);
 
     if (invalidInputs.length > 0) {
+      invalidLog?alertError(invalidLog):''
       handleInvalid(invalidInputs);
       setSubmitState("Failed");
     } else {
+      const isRateLimited = await checkAuthRateLimit();
+      if (isRateLimited) {
+        setSubmitState("Failed");
+        alertError("Sign up limit exceeded please return in an hour");
+        console.log("Sign up limit exceeded please return in an hour");
+        return;
+      }
       try {
-        const response = await signUp(signUpCredentials)
+        const response = await signUp(signUpCredentials);
         if (response.status) {
           setSubmitState("Succeeded");
           setTimeout(() => {
@@ -204,7 +233,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
     }
   };
 
-  const handleImageChange = (image:string) => {
+  const handleImageChange = (image: string) => {
     setSignUpCredentials((s) => ({
       ...s,
       image: image,
@@ -212,10 +241,10 @@ export default function SignInForm({ providers }: { providers: string[] }) {
   };
 
   const Slider = (
-    <div className=" size-full bg-secondary-2 py-5 flex flex-col items-center justify-center">
-          <Link href={"/"} className="font-AppLogo text-7xl">
-            AppLogo
-          </Link>
+    <div className=" bg-secondary-2 py-5 flex flex-col items-center justify-center h-1/2 sm:h-full">
+      <Link href={"/"} className="font-AppLogo text-7xl">
+        AppLogo
+      </Link>
       {isSignUp ? (
         <>
           <h1 className="text-2xl text-center">
@@ -273,7 +302,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
         <SubmitButton state={submitState} changeState={setSubmitState}>
           Sign in
         </SubmitButton>
-        {error && <div>{error}</div>}
+        <div className="h-20 overflow-y-scroll no-scrollbar">{error && <div dangerouslySetInnerHTML={{ __html: error }} />}</div>
       </form>
       {/* Ask for sign up */}
       <h1>or</h1>
@@ -304,7 +333,11 @@ export default function SignInForm({ providers }: { providers: string[] }) {
         onSubmit={handleSignUp}
         className="flex flex-col w-full p-2 gap-4 items-center"
       >
-        <ImageInput type='ProfileImage' image={signUpCredentials.image} setImage={handleImageChange}/>
+        <ImageInput
+          type="ProfileImage"
+          image={signUpCredentials.image}
+          setImage={handleImageChange}
+        />
         <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-col items-center">
           <input
             className="Input_box_variant_2"
@@ -346,7 +379,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
         <SubmitButton state={submitState} changeState={setSubmitState}>
           Sign up
         </SubmitButton>
-        {error && <div>{error}</div>}
+        <div className="h-20 overflow-y-scroll no-scrollbar">{error && <div dangerouslySetInnerHTML={{ __html: error }} />}</div>
       </form>
     </>
   );
@@ -430,10 +463,10 @@ export default function SignInForm({ providers }: { providers: string[] }) {
                 ...style,
                 position: "absolute",
                 width: "100%",
-                height: "50%",
+                height: "75%",
                 top: 0,
               }}
-               className="flex flex-col items-center justify-around gap-2 py-2 size-full"
+              className="flex flex-col items-center justify-around gap-2 py-2 size-full "
             >
               {SignUpForm}
             </animated.div>
@@ -443,10 +476,10 @@ export default function SignInForm({ providers }: { providers: string[] }) {
                 ...style,
                 position: "absolute",
                 width: "100%",
-                height: "50%",
+                height: "75%",
                 bottom: 0,
               }}
-              className="flex flex-col size-full items-center justify-center gap-4"
+              className="flex flex-col size-full items-center justify-center gap-4 "
             >
               {SignInForm}
             </animated.div>

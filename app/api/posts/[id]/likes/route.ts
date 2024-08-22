@@ -14,7 +14,7 @@ export const GET = async (
     try {
         await connectToDB()
 
-        const postLikes = await Like.find({post:params.id})
+        const postLikes = await Like.find({post:params.id}).populate({ path: "user", select: "_id username bio image" })
         return NextResponse.json(postLikes,{status:200})
     } catch(error) {
         console.log('Failed to fetch for post likes',error)

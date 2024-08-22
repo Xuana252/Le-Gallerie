@@ -15,7 +15,7 @@ import { type User } from "@lib/types";
 // Define the base type for the props
 type BaseUserProfileIconProps = {
   currentUser: boolean;
-  size?: string;
+  size?: 'Icon'|'Icon_small'|'Icon_big';
 };
 
 // Define the type for when currentUser is false
@@ -36,7 +36,7 @@ type UserProfileIconProps =
 export default function UserProfileIcon({
   currentUser,
   user,
-  size,
+  size = 'Icon',
 }: UserProfileIconProps) {
   const router = useRouter();
   const { data: session } = useSession();
@@ -53,7 +53,7 @@ export default function UserProfileIcon({
   const profileImage = currentUser ? session?.user.image : user.image;
 
   return (
-    <button className={`${size ? size : "Icon"}`} onClick={handleClick}>
+    <button className={`${size}`} onClick={handleClick}>
       {profileImage ? (
         <img src={profileImage} alt="profile picture" className="size-full"></img>
       ) : (

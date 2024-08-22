@@ -5,10 +5,12 @@ import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 type DropDownButtonProps = {
   dropDirection?: "left" | "right" | "top" | "bottom";
   children: ReactNode;
+  hover?: boolean,
   dropDownList: ReactNode;
   Zindex?: number;
 };
 export default function DropDownButton({
+  hover,
   children,
   dropDownList,
   dropDirection = "bottom",
@@ -86,26 +88,26 @@ export default function DropDownButton({
           ? ` translateY(-20%)`
           : `translateY(0px)`;
       default:
-        return ` translateY(0)`;
+        return ` translateY(0px)`;
     }
   }
   const dropStyle = useMemo(() => {
     switch (dropDirection) {
       case "left":
-        return { right: "100%", top: "0", marginRight: "16px" };
+        return { right: "100%", top: "0" };
       case "right":
-        return { left: "100%", top: "0", marginLeft: "16px" };
+        return { left: "100%", top: "0" };
       case "top":
-        return { left: "0", bottom: "100%", marginBottom: "16px" };
+        return { left: "0", bottom: "100%" };
       case "bottom":
-        return { right: "0", top: "100%", marginTop: "16px" };
+        return { right: "0", top: "100%" };
       default:
-        return { right: "0", top: "100%", marginTop: "16px" };
+        return { right: "0", top: "100%" };
     }
   }, [dropDirection]);
   return (
-    <div className={`relative flex z-${Zindex.toString()}`}>
-      <button className="Icon" onClick={handleToggle} ref={buttonRef}>
+    <div onMouseEnter={hover?handleToggle:()=>{}} onMouseLeave={hover?handleToggle:()=>{}} className={`relative flex z-${Zindex.toString()}`}>
+      <button  onClick={handleToggle}  ref={buttonRef}>
         {children}
       </button>
       {dropDownBoxTransition((style, item) =>
@@ -118,7 +120,7 @@ export default function DropDownButton({
               boxSizing: "border-box",
             }}
             ref={dropDownRef}
-            className="rounded-xl bg-secondary-1 shadow-xl size-fit p-2"
+            className="rounded-xl bg-secondary-2/75 border-spacing-2 border-accent shadow-xl size-fit p-2"
           >
             {dropDownList}
           </animated.div>
