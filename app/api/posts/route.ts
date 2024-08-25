@@ -1,5 +1,5 @@
 import { connectToDB } from "@utils/database";
-import Post from "@models/postModels";
+import Post from "@models/postModel";
 
 export const GET = async () => {
   try {

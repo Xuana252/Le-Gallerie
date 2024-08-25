@@ -1,5 +1,5 @@
 import { connectToDB } from "@utils/database";
-import Post from "@models/postModels";
+import Post from "@models/postModel";
 import { NextRequest, NextResponse } from "next/server";
 import { NextApiRequest } from "next";
 

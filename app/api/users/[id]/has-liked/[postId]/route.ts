@@ -1,4 +1,4 @@
-import Like from "@models/likesModels";
+import Like from "@models/likesModel";
 import { connectToDB } from "@utils/database";
 import { NextRequest, NextResponse } from "next/server";
 

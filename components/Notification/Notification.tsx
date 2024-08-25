@@ -15,7 +15,7 @@ import "@knocklabs/react/dist/index.css";
 import { useSession } from "next-auth/react";
 import DropDownButton from "../Input/DropDownButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell } from "@fortawesome/free-solid-svg-icons";
+import { faBell, faUser } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -73,47 +73,7 @@ function NotificationList() {
     };
   }, [draggingItem]);
 
-
-  const onNotificationsReceived=({ items }:{items:any})=>{
-    const audio = document.createElement('audio');
-    audio.src = '/audios/notiPopSound.mp3';
-    audio.volume= 0.3
-    audio.preload = 'auto';
-
-    // Append the audio element to the body
-    document.body.appendChild(audio);
-
-    // Play the sound
-    audio.play();
-
-    // Remove the audio element after it ends
-    audio.addEventListener('ended', () => {
-      document.body.removeChild(audio) });
-
-    items.forEach((item:any)=>{
-      feedClient.markAsSeen(item)
-      toast.custom((t)=><div className="Toast_item">
-      
-      {item? <>
-        <img
-          src={item.actors[0].avatar}
-          alt="profile picture"
-          className="Icon_small select-none pointer-events-none"
-        />
-        <div className="flex flex-col text-sm grow">
-          <p>
-            <b>{item.actors[0].name}</b> {item.blocks[0].content}
-          </p>
-          <p className="text-xs text-secondary-1">
-            {formatTimeAgo(item.inserted_at)}
-          </p>
-        </div>
-      </>:'you have 1 notification'}
-    </div>
-    ) 
-    })
-   
-  }
+  
   const formatTimeAgo = (timestamp: string): string => {
     const now = new Date();
     const then = new Date(timestamp);
@@ -127,7 +87,6 @@ function NotificationList() {
     return `${Math.floor(interval / 1440)} days ago`;
   };
 
-
   const getNotificationList = () => {
     switch (notificationView) {
       case "All":
@@ -140,9 +99,58 @@ function NotificationList() {
   };
 
   const finalList = getNotificationList().slice(0, 20);
+
+  const onNotificationsReceived = ({ items }: { items: any }) => {
+    const audio = document.createElement("audio");
+    audio.src = "/audios/notiPopSound.mp3";
+    audio.volume = 0.3;
+    audio.preload = "auto";
+
+    // Append the audio element to the body
+    document.body.appendChild(audio);
+
+    // Play the sound
+    audio.play();
+
+    // Remove the audio element after it ends
+    audio.addEventListener("ended", () => {
+      document.body.removeChild(audio);
+    });
+
+    items.forEach((item: any) => {
+      feedClient.markAsSeen(item);
+      toast.custom((t) => (
+        <div className="Toast_item">
+          {item ? (
+            <>
+               {item.actors[0].avatar?<img
+                    src={item.actors[0].avatar}
+                    alt="profile picture"
+                    className="Icon_small select-none pointer-events-none"
+                  />:<div className="Icon_small bg-secondary-2 pointer-events-none">
+                    <FontAwesomeIcon icon={faUser} />
+                  </div>}
+              <div className="flex flex-col text-sm grow">
+                <p>
+                  <b>{item.actors[0].name}</b> {item.blocks[0].content}
+                </p>
+                <p className="text-xs text-secondary-1">
+                  {formatTimeAgo(item.inserted_at)}
+                </p>
+              </div>
+            </>
+          ) : (
+            "you have 1 notification"
+          )}
+        </div>
+      ));
+    });
+  };
+  
+
   useEffect(() => {
     feedClient.fetch();
-    feedClient.on("items.received.realtime", onNotificationsReceived);
+    feedClient.on('items.received.realtime', onNotificationsReceived);
     return () =>
       feedClient.off("items.received.realtime", onNotificationsReceived);
   }, [feedClient]);
@@ -153,7 +161,6 @@ function NotificationList() {
   ) => {
     e.preventDefault();
     if (e.clientX !== dragOffSet) return;
-    console.log(item);
     feedClient.markAsRead(item);
     switch (item.source.key) {
       case "post-like":
@@ -172,7 +179,7 @@ function NotificationList() {
   };
 
   const notificationList = (
-    <>
+    <div>
       <h1 className="font-bold text-xl">Notification</h1>
       <div className="grid grid-cols-2">
         <button
@@ -219,11 +226,13 @@ function NotificationList() {
             >
               {item.actors[0] ? (
                 <div className="Notification_item">
-                  <img
+                  {item.actors[0].avatar?<img
                     src={item.actors[0].avatar}
                     alt="profile picture"
                     className="Icon_small select-none pointer-events-none"
-                  />
+                  />:<div className="Icon_small bg-secondary-2 pointer-events-none">
+                    <FontAwesomeIcon icon={faUser} />
+                  </div>}
                   <div className="flex flex-col text-sm grow">
                     <p>
                       <b>{item.actors[0].name}</b> {item.blocks[0].content}
@@ -242,7 +251,7 @@ function NotificationList() {
             </li>
           ))}
       </ul>
-    </>
+    </div>
   );
 
   return (
@@ -251,7 +260,7 @@ function NotificationList() {
         <div
           className={`${
             metadata.unseen_count > 0 ? "" : "hidden"
-          } absolute top-0 right-0 rounded-full size-4 bg-primary text-accent text-xs font-bold `}
+          } absolute top-1 right-1 rounded-full size-4 bg-primary text-accent text-xs font-bold `}
         >
           {metadata.unseen_count}
         </div>

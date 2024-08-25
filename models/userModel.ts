@@ -1,4 +1,4 @@
-import { Schema,model,models } from "mongoose";
+import mongoose, { Schema,model,models } from "mongoose";
 
 const UserSchema = new Schema ({
     email: {
@@ -22,11 +22,18 @@ const UserSchema = new Schema ({
         type:String,
         required: false
     },
+    follower: {
+        type:Number,
+        required: false
+    },
+    following: {
+        type:Number,
+        required: false
+    }
 },
 {
     timestamps:true,
 })
-
 
 const User  = models.User||model('User',UserSchema)
 

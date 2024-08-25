@@ -1,18 +1,25 @@
 "use client";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faCheck, faLessThanEqual } from "@fortawesome/free-solid-svg-icons";
+import {
+  faUser,
+  faCheck,
+  faLessThanEqual,
+} from "@fortawesome/free-solid-svg-icons";
 import { faGithub, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import SubmitButton from "@components/Input/SubmitButton";
 import React, { useEffect, useRef, useState } from "react";
 import { getProviders, signIn } from "next-auth/react";
 import Link from "next/link";
 import validator from "validator";
-import { SubmitButtonState } from "@lib/types";
+import { SignUpCredentials, SubmitButtonState, UploadUser } from "@lib/types";
 import { useRouter } from "next/navigation";
 import { useSpring, animated, useTransition } from "@react-spring/web";
 import { signUp } from "@server/accountActions";
 import ImageInput from "@components/Input/ImageInput";
 import { checkAuthRateLimit } from "@server/checkRateLimit";
+import InputBox from "@components/Input/InputBox";
+import { uploadImage } from "@lib/upload";
+import toastError from "@components/Notification/Toaster";
 
 const providerIcons: Record<string, any> = {
   github: faGithub,
@@ -21,17 +28,20 @@ const providerIcons: Record<string, any> = {
 
 export default function SignInForm({ providers }: { providers: string[] }) {
   const router = useRouter();
-  const imageInput = useRef<HTMLInputElement>(null);
-  const [error, setError] = useState("");
   const [submitState, setSubmitState] = useState<SubmitButtonState>("");
   const [isSignUp, setIsSignUp] = useState(false);
-  const [signUpCredentials, setSignUpCredentials] = useState({
-    email: "",
-    username: "",
-    password: "",
-    repeatedPassword: "",
-    image: "",
-  });
+  const [signUpCredentials, setSignUpCredentials] = useState<SignUpCredentials>(
+    {
+      email: "",
+      username: "",
+      password: "",
+      repeatedPassword: "",
+      image: {
+        file: null,
+        url: "",
+      },
+    }
+  );
   const [signInCredentials, setSignInCredentials] = useState({
     email: "",
     password: "",
@@ -78,9 +88,8 @@ export default function SignInForm({ providers }: { providers: string[] }) {
     config: { duration: 500, easing: (t) => t * (2 - t) },
   });
 
-  const alertError = (error: string) => {
-    setError(error.replace(/\n/g, "<br>"));
-    setTimeout(() => setError(""), 1500);
+  const alertError = (error: string[]) => {
+    error.forEach(error=>toastError(error))
   };
 
   useEffect(() => {
@@ -93,7 +102,10 @@ export default function SignInForm({ providers }: { providers: string[] }) {
       username: "",
       password: "",
       repeatedPassword: "",
-      image: "",
+      image: {
+        file: null,
+        url: "",
+      },
     });
   }, [isSignUp]);
 
@@ -124,6 +136,47 @@ export default function SignInForm({ providers }: { providers: string[] }) {
       });
     });
   };
+
+  const checkInvalidInput = () => {
+    let invalidLog: string[] = [];
+    const invalidInputs = Object.entries(signUpCredentials)
+      .filter(([key, value]) => {
+        let isInvalid = false;
+        let errorMessage = "";
+        if (key === "image") return false; // Skip image field
+        if (typeof value === "string") {
+          if (key === "email") {
+            if (!validator.isEmail(value)) {
+              errorMessage = "Invalid email";
+              isInvalid = true;
+            }
+          } else if (key === "password") {
+            if (value.length < 8) {
+              errorMessage = "Password must be at least 8 letters long";
+              isInvalid = true;
+            }
+          } else if (key === "repeatedPassword") {
+            if (value !== signUpCredentials.password) {
+              errorMessage = "Repeated password does not match";
+              isInvalid = true;
+            }
+          }
+          if (value.trim() === "") {
+            isInvalid = true;
+          }
+        } else {
+          return false;
+        }
+        if (isInvalid) {
+          errorMessage!==''?invalidLog.push(errorMessage):'';
+        }
+        return value.trim() === ""; // Check for empty fields
+      })
+      .map(([key]) => key);
+    invalidLog ? alertError(invalidLog) : "";
+    return invalidInputs;
+  };
+
   const handleSignIn = (provider: string) => {
     signIn(provider, { callbackUrl: "/" });
   };
@@ -131,14 +184,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
   const handleCredentialsSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitState("Processing");
-    const invalidInputs = Object.entries(signInCredentials)
-      .filter(([key, value]) => {
-        if (key === "image") return false; // Skip image field
-        if (key === "email") return !validator.isEmail(value); // Validate email format
-        return value.trim() === ""; // Check for empty fields
-      })
-      .map(([key]) => key);
-
+    const invalidInputs = checkInvalidInput();
     if (invalidInputs.length > 0) {
       handleInvalid(invalidInputs);
       setSubmitState("Failed");
@@ -152,7 +198,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
         if (response?.error) {
           setSubmitState("Failed");
           console.log(response.error);
-          alertError(response.error);
+          alertError([response.error]);
         } else if (response?.ok) {
           setSubmitState("Succeeded");
           setTimeout(() => router.push("/"));
@@ -167,51 +213,31 @@ export default function SignInForm({ providers }: { providers: string[] }) {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitState("Processing");
-    let invalidLog = "";
-    const invalidInputs = Object.entries(signUpCredentials)
-      .filter(([key, value]) => {
-        let isInvalid = false
-        let errorMessage=''
-        if (key === "image") return false; // Skip image field
-        if (key === "email") {
-          if(!validator.isEmail(value)) {
-            errorMessage='invalid email'
-            isInvalid=true
-          }
-        }
-        if (key === "password") {
-         if(signUpCredentials.password.length < 8) {
-          errorMessage='password must be at least 8 letters long'
-          isInvalid = true
-         }
-        }
-        if (key === "repeatedPassword") {
-          if(value !== signUpCredentials.password) {
-            errorMessage='repeated password does not match'
-            isInvalid = true
-          }
-        } // Validate email format
-        if(isInvalid) {
-          invalidLog += `\n${errorMessage}`
-        }
-        return value.trim() === ""; // Check for empty fields
-      })
-      .map(([key]) => key);
+    const invalidInputs = checkInvalidInput();
 
     if (invalidInputs.length > 0) {
-      invalidLog?alertError(invalidLog):''
       handleInvalid(invalidInputs);
       setSubmitState("Failed");
     } else {
       const isRateLimited = await checkAuthRateLimit();
       if (isRateLimited) {
         setSubmitState("Failed");
-        alertError("Sign up limit exceeded please return in an hour");
+        alertError(["Sign up limit exceeded please return in an hour"]);
         console.log("Sign up limit exceeded please return in an hour");
         return;
       }
       try {
-        const response = await signUp(signUpCredentials);
+        let imageUrl = "";
+        if (signUpCredentials.image.file && signUpCredentials.image.url) {
+          imageUrl = await uploadImage(signUpCredentials.image.file);
+        }
+        const newUser = {
+          email: signUpCredentials.email,
+          username: signUpCredentials.username,
+          password: signUpCredentials.password,
+          image: imageUrl,
+        };
+        const response = await signUp(newUser);
         if (response.status) {
           setSubmitState("Succeeded");
           setTimeout(() => {
@@ -233,10 +259,10 @@ export default function SignInForm({ providers }: { providers: string[] }) {
     }
   };
 
-  const handleImageChange = (image: string) => {
+  const handleImageChange = (image: { file: File | null; url: string }) => {
     setSignUpCredentials((s) => ({
       ...s,
-      image: image,
+      image,
     }));
   };
 
@@ -281,28 +307,30 @@ export default function SignInForm({ providers }: { providers: string[] }) {
         onSubmit={handleCredentialsSignIn}
         className="flex flex-col w-full p-2 gap-6 items-center"
       >
-        <input
-          className="Input_box_variant_2"
-          name="email"
-          type="text"
-          placeholder="email..."
-          value={signInCredentials.email}
-          onChange={handleSignInCredentialsChange}
-        />
-        <input
-          className="Input_box_variant_2"
-          name="password"
-          type="password"
-          autoComplete="new-password"
-          placeholder="password..."
-          value={signInCredentials.password}
-          onChange={handleSignInCredentialsChange}
-        />
+        <div className="grid grid-cols-1">
+          <InputBox
+            name="email"
+            type="Input"
+            value={signInCredentials.email}
+            onTextChange={handleSignInCredentialsChange}
+            styleVariant="Input_box_variant_2"
+          >
+            email...
+          </InputBox>
+          <InputBox
+            name="password"
+            type="Password"
+            value={signInCredentials.password}
+            onTextChange={handleSignInCredentialsChange}
+            styleVariant="Input_box_variant_2"
+          >
+            password...
+          </InputBox>
+        </div>
         {/* Add sign up logic later */}
         <SubmitButton state={submitState} changeState={setSubmitState}>
           Sign in
         </SubmitButton>
-        <div className="h-20 overflow-y-scroll no-scrollbar">{error && <div dangerouslySetInnerHTML={{ __html: error }} />}</div>
       </form>
       {/* Ask for sign up */}
       <h1>or</h1>
@@ -335,51 +363,54 @@ export default function SignInForm({ providers }: { providers: string[] }) {
       >
         <ImageInput
           type="ProfileImage"
-          image={signUpCredentials.image}
+          image={signUpCredentials.image.url}
           setImage={handleImageChange}
         />
-        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-col items-center">
-          <input
-            className="Input_box_variant_2"
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-1 items-center">
+          <InputBox
+            styleVariant={"Input_box_variant_2"}
             name="username"
-            type="text"
-            placeholder="username..."
             value={signUpCredentials.username}
-            onChange={handleSignUpCredentialsChange}
-          />
-          <input
-            className="Input_box_variant_2"
+            onTextChange={handleSignUpCredentialsChange}
+            type={"Input"}
+          >
+            username...
+          </InputBox>
+          <InputBox
+            styleVariant={"Input_box_variant_2"}
             name="email"
-            type="text"
-            placeholder="email..."
             value={signUpCredentials.email}
-            onChange={handleSignUpCredentialsChange}
-          />
-          <input
-            className="Input_box_variant_2"
+            onTextChange={handleSignUpCredentialsChange}
+            type={"Input"}
+          >
+            email...
+          </InputBox>
+          <InputBox
+            styleVariant={"Input_box_variant_2"}
             name="password"
-            type="password"
-            autoComplete="new-password"
-            placeholder="password..."
             value={signUpCredentials.password}
-            onChange={handleSignUpCredentialsChange}
-          />
-          <input
-            className="Input_box_variant_2"
+            onTextChange={handleSignUpCredentialsChange}
+            type={"Password"}
+          >
+            password...
+          </InputBox>
+          <InputBox
+            styleVariant={"Input_box_variant_2"}
             name="repeatedPassword"
-            type="password"
-            autoComplete="new-password"
-            placeholder="password..."
             value={signUpCredentials.repeatedPassword}
-            onChange={handleSignUpCredentialsChange}
-          />
+            onTextChange={handleSignUpCredentialsChange}
+            type={"Password"}
+          >
+            password...
+          </InputBox>
         </div>
         {/* Add sign up logic later */}
 
         <SubmitButton state={submitState} changeState={setSubmitState}>
           Sign up
         </SubmitButton>
-        <div className="h-20 overflow-y-scroll no-scrollbar">{error && <div dangerouslySetInnerHTML={{ __html: error }} />}</div>
+        <div className="h-20 overflow-y-scroll no-scrollbar">
+        </div>
       </form>
     </>
   );

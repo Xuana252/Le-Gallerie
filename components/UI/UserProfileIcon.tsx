@@ -53,7 +53,7 @@ export default function UserProfileIcon({
   const profileImage = currentUser ? session?.user.image : user.image;
 
   return (
-    <button className={`${size}`} onClick={handleClick}>
+    <button className={`bg-secondary-2 ${size}`} onClick={handleClick}>
       {profileImage ? (
         <img src={profileImage} alt="profile picture" className="size-full"></img>
       ) : (

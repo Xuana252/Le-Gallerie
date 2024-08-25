@@ -118,9 +118,10 @@ export default function DropDownButton({
               position: "absolute",
               ...dropStyle,
               boxSizing: "border-box",
+               zIndex: Zindex + 1,
             }}
             ref={dropDownRef}
-            className="rounded-xl bg-secondary-2/75 border-spacing-2 border-accent shadow-xl size-fit p-2"
+            className="rounded-xl bg-secondary-1/50 backdrop-blur-md border-[1.5px] border-accent shadow-2xl size-fit p-2"
           >
             {dropDownList}
           </animated.div>

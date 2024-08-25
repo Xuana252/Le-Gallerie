@@ -1,6 +1,6 @@
 import { connectToDB } from "@utils/database";
-import Post from "@models/postModels";
-import Like from "@models/likesModels";
+import Post from "@models/postModel";
+import Like from "@models/likesModel";
 import { NextRequest, NextResponse } from "next/server";
 import { NextApiRequest } from "next";
 

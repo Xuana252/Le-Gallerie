@@ -14,7 +14,7 @@ import { AppLogoLoader } from "@components/UI/Loader";
 type ImageInputProps = {
   image: string;
   type?: "ProfileImage" | "PostImage";
-  setImage: (image: string) => void;
+  setImage: (image: { file: File|null; url: string; }) => void;
 };
 export default function ImageInput({
   image,
@@ -24,13 +24,6 @@ export default function ImageInput({
   const imageInput = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [imageInputVisibility, setImageInputVisibility] = useState(false);
-  const imageInputTransition = useTransition(imageInputVisibility, {
-    from: { transform: "translateY(150%)" },
-    enter: { transform: "translateY(0%)" },
-    leave: { transform: "translateY(150%)" },
-    config: { duration: 200, easing: (t) => t * (2 - t) },
-  });
 
   const testImageUrl = (url: string) => {
     return new Promise<boolean>((resolve) => {
@@ -41,14 +34,21 @@ export default function ImageInput({
     });
   };
 
-  const handleImageChange = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  const handleImageClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    imageInput.current?.click()
+    
+  }
+
+  const handleImageChange: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
     setIsLoading(true);
-    if (imageInput.current) {
-      const url = imageInput.current.value;
-      const isValidURL = await testImageUrl(url);
+    
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const objectUrl = URL.createObjectURL(file);
+      const isValidURL = await testImageUrl(objectUrl);
       if (isValidURL) {
-        setImage(url);
+        setImage({file:file,url:objectUrl});
         setError(false);
       } else {
         setError(true);
@@ -59,12 +59,19 @@ export default function ImageInput({
       setTimeout(() => {
         setIsLoading(false);
       }, 1000);
+    } else {
+      setError(true);
+      setTimeout(() => {
+        setError(false);
+      }, 2000);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
     }
-    setImageInputVisibility(false);
   };
   const handleClearImage = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setImage("");
+    setImage({file:null,url:''});
   };
   const PostImage = (
     <div className="size-full min-h-48 flex items-center justify-center sm:rounded-l-3xl sm:rounded-tr-none rounded-t-3xl overflow-hidden relative">
@@ -78,7 +85,7 @@ export default function ImageInput({
       )}
       <div
         className="size-full bg-secondary-2 flex items-center justify-center"
-        onClick={() => setImageInputVisibility(true)}
+        onClick={handleImageClick}
       >
         {isLoading ? (
           <div className="flex flex-col justify-center items-center">
@@ -90,72 +97,46 @@ export default function ImageInput({
             <h1>Invalid URL</h1>
           </div>
         ) : image ? (
-          <img src={image} alt="Post Image" className="w-full" />
+          <img src={image} alt="Selected preview" className="w-full" />
         ) : (
           <FontAwesomeIcon icon={faImage} className="text-7xl" />
         )}
       </div>
-
-      {imageInputTransition((style, item) =>
-        item ? (
-          <animated.div
-            style={{ ...style }}
-            className="Input_box_variant_1 absolute bottom-2 m-auto"
-          >
-            <input
-              ref={imageInput}
-              name="image"
-              placeholder="Image URL..."
-              className="pl-2 outline-none bg-transparent placeholder:text-inherit"
-            />
-            <button className="p-1" onClick={handleImageChange}>
-              <FontAwesomeIcon icon={faCheck} />
-            </button>
-          </animated.div>
-        ) : null
-      )}
+      <input ref={imageInput} type="file" disabled={isLoading} className="absolute invisible size-1" onChange={handleImageChange} accept="image/*"/>
     </div>
   );
   const ProfileImage = (
-    <div className="my-4 h-44 w-full overflow-hidden relative flex flex-col items-center gap-4">
-      <div
-        className="size-28 flex justify-center items-center bg-secondary-2 rounded-full relative overflow-hidden border-accent border-2"
-        onClick={() => {
-          setImageInputVisibility(true);
-        }}
-      >
-        {isLoading ? (
-            <AppLogoLoader />
-        ) : error ? (
-          <FontAwesomeIcon icon={faGhost} className="text-7xl" />
-        ) : image ? (
-          <img src={image} alt="sign up image" className="size-full" />
-        ) : (
-          <FontAwesomeIcon
-            icon={faUser}
-            size="xl"
-            className="size-full mt-2 text-7xl"
-          />
-        )}
-      </div>
-      {imageInputTransition((style, item) =>
-        item ? (
-          <animated.div
-            style={{ ...style }}
-            className="Input_box_variant_1 absolute bottom-2 m-auto"
-          >
-            <input
-              ref={imageInput}
-              name="image"
-              placeholder="Image URL..."
-              className="pl-2 outline-none bg-transparent placeholder:text-inherit"
-            />
-            <button className="p-1" onClick={handleImageChange}>
-              <FontAwesomeIcon icon={faCheck} />
-            </button>
-          </animated.div>
-        ) : null
+    <div className="my-4 h-44 w-full relative flex flex-col items-center gap-4">
+      <div className=" relative ">
+      {!isLoading && image && !error && (
+        <button
+          className="rounded-full size-8 bg-primary absolute bottom-0 right-0 text-base z-10"
+          onClick={handleClearImage}
+        >
+          <FontAwesomeIcon icon={faX} />
+        </button>
       )}
+        <div
+          className="size-28 flex justify-center items-center bg-secondary-2 rounded-full relative overflow-hidden border-accent border-2"
+          onClick={handleImageClick}
+        >
+          {isLoading ? (
+              <AppLogoLoader />
+          ) : error ? (
+            <FontAwesomeIcon icon={faGhost} className="text-7xl" />
+          ) : image ? (
+            <img src={image} alt="Selected preview" className="size-full" />
+          ) : (
+            <FontAwesomeIcon
+              icon={faUser}
+              size="xl"
+              className="size-full mt-2 text-7xl"
+            />
+          )}
+        
+        </div>
+      </div>
+      <input ref={imageInput} type="file"  disabled={isLoading} className="hidden" onChange={handleImageChange} accept="image/*"/>
       <h1 className="text-medium">
         {image ? "Looking good there" : "Add Profile picture"}
       </h1>

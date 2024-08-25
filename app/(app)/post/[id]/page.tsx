@@ -28,6 +28,7 @@ import {
 import { SearchContext } from "@components/UI/Nav";
 import { confirm } from "@components/Notification/Toaster";
 import DropDownButton from "@components/Input/DropDownButton";
+import { removeImage } from "@lib/upload";
 
 export default function Post({ params }: { params: { id: string } }) {
   const { handleSearch } = useContext(SearchContext);
@@ -106,9 +107,10 @@ export default function Post({ params }: { params: { id: string } }) {
 
     if (hasConfirmed) {
       try {
+        await removeImage(post.image)
         await deletePost(params.id);
-        console.log("Post deleted");
         router.back();
+        console.log("Post deleted");
       } catch (error) {
         console.log(error);
       }
@@ -136,7 +138,6 @@ export default function Post({ params }: { params: { id: string } }) {
     const fetchLikesUsers = async () => {
       try {
         const response = await fetchPostLikedUser(params.id)
-        console.log(response)
         setLikes(response)
       } catch (error) {
         console.error("Failed to fetch users that has liked post", error);
@@ -168,7 +169,7 @@ export default function Post({ params }: { params: { id: string } }) {
 
   const likedUser = <div className="h-fit w-52">
     <span className="font-bold">Liked by</span>
-    <ul className="flex flex-col gap-2 p-1 bg-secondary-1 h-48 rounded-xl overflow-y-scroll no-scrollbar">
+    <ul className="flex flex-col gap-2 p-1 bg-secondary-2/50 h-48 rounded-xl overflow-y-scroll no-scrollbar">
       {likes.map((like,index) =>
         <label key={index} className="flex items-center gap-2">
           {session?.user?.id === like.user._id ? (

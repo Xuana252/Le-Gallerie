@@ -2,7 +2,12 @@
 import React, { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import InputBox from "../Input/InputBox";
-import { type Post, type Category, SubmitButtonState } from "@lib/types";
+import {
+  type Post,
+  type Category,
+  SubmitButtonState,
+  UploadPost,
+} from "@lib/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faX } from "@fortawesome/free-solid-svg-icons";
 import SubmitButton from "@components/Input/SubmitButton";
@@ -13,6 +18,8 @@ import { createPost, updatePost } from "@server/postActions";
 import { getCategories } from "@server/categoriesActions";
 import { checkPostRateLimit } from "@server/checkRateLimit";
 import toastError from "@components/Notification/Toaster";
+import {uploadImage,updateImage} from "@lib/upload";
+import withAuth from "@middleware";
 
 type CategoriesSelectorProps = {
   selectedCategories: Category[];
@@ -115,8 +122,8 @@ export function CategoriesSelector({
     try {
       const data = await getCategories();
       setCategories(data);
-    } catch (error:any) {
-      toastError(error.toString())
+    } catch (error: any) {
+      toastError(error.toString());
       console.log("Error while fetching for categories: ", error);
     }
   };
@@ -209,7 +216,7 @@ export function CategoriesSelector({
 
 type BasePostFormProps = {
   type: "Create" | "Edit";
-  editPost?: Post;
+  editPost?: UploadPost;
 };
 
 type CreatePostForm = BasePostFormProps & {
@@ -217,31 +224,36 @@ type CreatePostForm = BasePostFormProps & {
 };
 type EditPostForm = BasePostFormProps & {
   type: "Edit";
-  editPost: Post;
+  editPost: UploadPost;
 };
 
 type PostFormProps = CreatePostForm | EditPostForm;
 
 export default function PostForm({ type, editPost }: PostFormProps) {
-  const { data: session } = useSession();
+  const { data: session,update } = useSession();
   const router = useRouter();
 
   const [submitState, setSubmitState] = useState<SubmitButtonState>("");
   useState<Boolean>(false);
+  const [imageToUpdate, setUpdateInfo] = useState(editPost?.image.url || "");
 
-  const [post, setPost] = useState<Post>(
+  const [post, setPost] = useState<UploadPost>(
     editPost || {
       creator: { _id: session?.user.id || "" },
       title: "",
       description: "",
       categories: [],
-      image: "",
+      image: {
+        file: null,
+        url: "",
+      },
     }
   );
 
+
   const handleFormSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (post?.image && session?.user.id) {
+    if (post.image.url && session?.user.id) {
       try {
         setSubmitState("Processing");
         const isRateLimited = await checkPostRateLimit();
@@ -249,12 +261,36 @@ export default function PostForm({ type, editPost }: PostFormProps) {
           throw new Error("one post request per minute. please wait");
         }
         let response;
+        let imageUrl = ''
+        if(post.image.file) {
+          switch(type) {
+            case "Create":
+               imageUrl = await uploadImage(post.image.file);
+               break
+            case "Edit":
+              imageUrl = await updateImage(post.image.file,imageToUpdate);
+              break
+          } 
+        } else {
+          imageUrl=post.image.url
+        }
+        
+        const postToUpload: Post = {
+          _id:post._id,
+          creator: post.creator,
+          title: post.title,
+          description: post.description,
+          categories: post.categories,
+          image: imageUrl,
+        };
         switch (type) {
           case "Create":
-            response = await createPost(post, session?.user.id);
+           
+            response = await createPost(postToUpload, session?.user.id);
             break;
           case "Edit":
-            response = await updatePost(post);
+           
+            response = await updatePost(postToUpload);
             break;
         }
         if (response) {
@@ -272,14 +308,14 @@ export default function PostForm({ type, editPost }: PostFormProps) {
           setSubmitState("Failed");
           console.log(`Failed to ${type} post`);
         }
-      } catch (error:any) {
+      } catch (error: any) {
         setSubmitState("Failed");
         toastError(error.toString());
         console.log(`Something went wrong while trying to ${type} post`, error);
       }
     } else {
       toastError("Make sure you added an Image");
-    }
+    } 
   };
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -303,10 +339,10 @@ export default function PostForm({ type, editPost }: PostFormProps) {
     }));
   };
 
-  const handleImageChange = (image: string) => {
+  const handleImageChange = (image: { file: File | null; url: string }) => {
     setPost((p) => ({
       ...p,
-      image: image,
+      image,
     }));
   };
 
@@ -321,7 +357,7 @@ export default function PostForm({ type, editPost }: PostFormProps) {
 
   return (
     <form onSubmit={handleFormSubmit} className="Form">
-      <ImageInput image={post.image} setImage={handleImageChange} />
+      <ImageInput image={post.image.url} setImage={handleImageChange} />
       <div className="size-full p-4 flex flex-col gap-2">
         <div>
           <h3>Title</h3>

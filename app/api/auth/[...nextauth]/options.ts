@@ -7,8 +7,9 @@ import CredentialsProvider, {
   CredentialInput,
 } from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
-import { NextResponse } from "next/server";
-import { JWT } from "next-auth/jwt";
+import {db} from '@lib/firebase'
+import { setDoc,doc } from "firebase/firestore";
+import { knock } from "@lib/knock";
 
 export const options: NextAuthOptions = {
   providers: [
@@ -105,14 +106,23 @@ export const options: NextAuthOptions = {
 
           const hashedPassword = await bcrypt.hash(result, 10);
 
-          const imageURL = profile?.sub;
-
-          await User.create({
+          const newUser = await User.create({
             username: user.name ?? "unknown",
             email: user.email,
             password: hashedPassword,
-            image: user.image || "",
+            image: "",
             bio: "",
+            follower:0,
+            following:0,
+          });
+
+          const knockUser = await knock.users.identify(newUser._id.toString(),{
+            name:user.name||'',
+            email:user.email||'',
+          })
+
+          await setDoc(doc(db, 'usersChat', newUser._id.toString()), {
+            chat: []
           });
         }
         return true;

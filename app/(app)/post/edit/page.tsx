@@ -10,12 +10,15 @@ export default function EditPost() {
   const postId = searchParams.get("id");
   const [postRendered,setPostRendered]  = useState<boolean>(false)
   const { data: session } = useSession();
-  const [post, setPost] = useState<Post>({
+  const [post, setPost] = useState({
     creator: { _id: session?.user.id ||'' },
     title: "",
     description: "",
     categories: [],
-    image: "",
+    image: {
+      file: null,
+      url:'',
+    },
   });
 
   useEffect(() => {
@@ -27,7 +30,14 @@ export default function EditPost() {
       const storePost = localStorage.getItem("post");
       if (storePost) {
         const post = JSON.parse(storePost);
-        setPost(post);
+        const editPost = {
+          ...post,
+          image: {
+            file:null,
+            url:post.image,
+          }
+        }
+        setPost(editPost);
         setPostRendered(true) 
       }
     };

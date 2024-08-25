@@ -3,6 +3,9 @@ import { connectToDB } from "@utils/database";
 import User from "@models/userModel";
 import bcrypt from "bcrypt";
 import { NextApiRequest } from "next";
+import { db } from "@lib/firebase";
+import { setDoc,doc } from "firebase/firestore";
+import { knock } from "@lib/knock";
 
 export const POST = async (req: NextRequest) => {
   
@@ -25,7 +28,19 @@ export const POST = async (req: NextRequest) => {
       email,
       password: hashedPassword,
       image,
-      bio: ''
+      bio: '',
+      follower:0,
+      following:0,
+    });
+
+    const knockUser = await knock.users.identify(newUser._id.toString(),{
+      name:username,
+      email:email,
+      avatar:image||null,
+    })
+
+    await setDoc(doc(db, 'usersChat', newUser._id.toString()), {
+      chat: []
     });
 
     return NextResponse.json({message: 'Account created successfully!!!'}, { status: 201 });

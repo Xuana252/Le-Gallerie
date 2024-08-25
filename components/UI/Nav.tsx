@@ -18,30 +18,35 @@ import UserProfileIcon from "./UserProfileIcon";
 import { createContext, Dispatch } from "react";
 import ThemeList from "@theme/ThemesList";
 import NotificationButton from "@components/Notification/Notification";
+import ChatButton from "@components/Chat/ChatButton";
+
 
 type SearchContextType = {
   searchText: string;
-  handleSearch: (text:string)=>void;
-}
+  handleSearch: (text: string) => void;
+};
 export const SearchContext = createContext<SearchContextType>({
-  searchText: '',
-  handleSearch: ()=>{}
+  searchText: "",
+  handleSearch: () => {},
 });
 
 export default function Nav({ children }: { children: React.ReactNode }) {
+
   const { data: session } = useSession();
   const [pendingText, setPendingText] = useState("");
   const [searchText, setSearchText] = useState("");
-  const router = useRouter()
+  const router = useRouter();
 
   const handleSearchTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPendingText(e.target.value);
   };
 
-  const handleSearch= (text:string) => {
-    setPendingText(text)
+
+
+  const handleSearch = (text: string) => {
+    setPendingText(text);
     setSearchText(text);
-  }
+  };
   const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       const finalText = pendingText
@@ -56,7 +61,7 @@ export default function Nav({ children }: { children: React.ReactNode }) {
 
   const pathName = usePathname();
 
-  useEffect(()=>{},[searchText])
+  useEffect(() => {}, [searchText]);
 
   const ButtonSet = (
     <>
@@ -67,15 +72,13 @@ export default function Nav({ children }: { children: React.ReactNode }) {
               <FontAwesomeIcon icon={faImage} />
             </button>
           </Link>
-          <button className="Icon">
-            <FontAwesomeIcon icon={faCommentDots} />
-          </button>
+          <ChatButton/>
           <NotificationButton />
         </>
       )}
-      <DropDownButton dropDownList={<ThemeList />} Zindex={30}>
+      <DropDownButton dropDownList={<ThemeList />}>
         <div className="Icon">
-          <FontAwesomeIcon icon={faCircleHalfStroke}/>
+          <FontAwesomeIcon icon={faCircleHalfStroke} />
         </div>
       </DropDownButton>
       {pathName === "/profile" ? (
@@ -93,7 +96,12 @@ export default function Nav({ children }: { children: React.ReactNode }) {
       <nav className="Nav_bar">
         <div className="justify-between pointer-events-auto h-full w-full gap-1 px-2 items-center flex">
           <div className="flex items-center">
-            <button className="flex gap-2 items-center px-2" onClick={()=>{router.push('/'), handleSearch('')}}>
+            <button
+              className="flex gap-2 items-center px-2"
+              onClick={() => {
+                router.push("/"), handleSearch("");
+              }}
+            >
               <div className="font-AppLogo text-3xl">AppLogo</div>
               <div className="hidden lg:block font-AppName h-full">
                 Le Gallerie
@@ -113,13 +121,11 @@ export default function Nav({ children }: { children: React.ReactNode }) {
           )}
 
           {/* On desktop */}
-          <div className="Buttons_container">
-            {ButtonSet}
-          </div>
+          <div className="Buttons_container">{ButtonSet}</div>
 
           {/* On mobile */}
           <div className="sm:hidden">
-            <DropDownButton dropDownList={ButtonSet}>
+            <DropDownButton dropDownList={ButtonSet} Zindex={10}>
               <div className="Icon">
                 <FontAwesomeIcon icon={faEllipsisVertical} />
               </div>
@@ -127,7 +133,7 @@ export default function Nav({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </nav>
-      <SearchContext.Provider value={{searchText,handleSearch}}>
+      <SearchContext.Provider value={{ searchText, handleSearch }}>
         {children}
       </SearchContext.Provider>
     </>

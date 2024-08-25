@@ -22,6 +22,7 @@ export const fetchUserPost = async (user: string) => {
 };
 
 export const createPost = async (post: Post, user: string) => {
+
   const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts/new`, {
     method: "POST",
     body: JSON.stringify({ ...post, creator: user }),

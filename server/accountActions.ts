@@ -2,7 +2,9 @@
 
 import { User } from "@lib/types";
 
-export const signUp = async (user:{}) => {
+export const signUp = async (user:any) => {
+
+
     const response = await fetch(`${process.env.DOMAIN_NAME}/api/users/new`, {
         method: "POST",
         headers: {

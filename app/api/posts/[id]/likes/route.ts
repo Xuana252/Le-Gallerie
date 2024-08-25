@@ -1,5 +1,5 @@
-import Post from "@models/postModels";
-import Like from "@models/likesModels";
+import Post from "@models/postModel";
+import Like from "@models/likesModel";
 import User from "@models/userModel";
 import { connectToDB } from "@utils/database";
 import { NextRequest, NextResponse } from "next/server";
