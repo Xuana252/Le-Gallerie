@@ -46,7 +46,15 @@ export const uploadImage = async (file: File): Promise<string> => {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          resolve(downloadURL);
+          // `url` is the download URL for 'images/stars.jpg'
+          
+          // Replace the firebase URL with ImageKit.io URL endpoint
+          downloadURL = downloadURL.replace("https://firebasestorage.googleapis.com",process.env.NEXT_PUBLIC_URL_ENDPOINT as string);
+          resolve(downloadURL)
+          // This can be downloaded directly:
+        }).catch(function(error) {
+          console.error("Error while upload image" + error);
+          rejects("Error while upload image" + error);
         });
       }
     );
@@ -72,7 +80,15 @@ export const  updateImage = async (file: File,url:string): Promise<string> => {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          resolve(downloadURL);
+          // `url` is the download URL for 'images/stars.jpg'
+          
+          // Replace the firebase URL with ImageKit.io URL endpoint
+          downloadURL = downloadURL.replace("https://firebasestorage.googleapis.com",process.env.NEXT_PUBLIC_URL_ENDPOINT as string);
+          resolve(downloadURL)
+          // This can be downloaded directly:
+        }).catch(function(error) {
+          console.error("Error while upload image" + error);
+          rejects("Error while upload image" + error);
         });
       }
     );

@@ -2,6 +2,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { changeTheme } from "@theme/ThemeManager";
 
+const themeCategories = [
+  { name: "System", list: ["theme1", "theme2"] },
+  { name: "Retro", list: ["theme3", "theme4", "theme5"] },
+  { name: "Vintage", list: ["theme6","theme7","theme8","theme9"] },
+  { name: "Space", list: ["theme10","theme11","theme12","theme13"] },
+  { name: "Pastel", list: ["theme14", "theme15", "theme16"] },
+];
 const themes = [
   "theme1",
   "theme2",
@@ -13,6 +20,12 @@ const themes = [
   "theme8",
   "theme9",
   "theme10",
+  "theme11",
+  "theme12",
+  "theme13",
+  "theme14",
+  "theme15",
+  "theme16",
 ];
 
 export default function ThemeList() {
@@ -39,11 +52,11 @@ export default function ThemeList() {
   const handleScrollToTop = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     themeList.current
-    ? themeList.current.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      })
-    : "";
+      ? themeList.current.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        })
+      : "";
   };
   const handleScrollToBottom = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -57,9 +70,9 @@ export default function ThemeList() {
 
   return (
     <div className="relative">
-      {isScrollable && !isScrolledToTop && (
+      {/* {isScrollable && !isScrolledToTop && (
         <button
-          className="Theme_list_scroll_border top-0"
+          className="Theme_list_scroll_border top-0 rounded-t-lg"
           onClick={handleScrollToTop}
         >
           ▲
@@ -67,25 +80,33 @@ export default function ThemeList() {
       )}
       {isScrollable && !isScrolledToBottom && (
         <button
-          className="Theme_list_scroll_border bottom-0"
+          className="Theme_list_scroll_border bottom-0 rounded-b-lg"
           onClick={handleScrollToBottom}
         >
           ▼
         </button>
-      )}
-      <ul className={`Theme_list`} ref={themeList} onScroll={handleScroll}>
-        {themes.map((theme) => (
-          <div
-            key={theme}
-            className={`Theme_item ${theme}`}
-            onClick={async () => {
-              changeTheme(theme);
-            }}
-          >
-            <div className={` bg-primary`}></div>
-            <div className={` bg-secondary-1`}></div>
-            <div className={` bg-secondary-2`}></div>
-            <div className={` bg-accent`}></div>
+      )} */}
+      <ul className={`Theme_list `} ref={themeList} onScroll={handleScroll}>
+        {themeCategories.map((category) => (
+          <div className="w-full">
+            <div className="sticky top-0 bg-accent text-primary my-2 font-bold px-2 pb-1">{category.name}</div>
+            <div className="flex flex-wrap gap-2">
+              {
+                category.list.map((theme) =>
+                  <div
+                key={theme}
+                className={`Theme_item  ${theme}`}
+                onClick={async () => {
+                  changeTheme(theme);
+                }}
+              >
+                <div className={` bg-primary`}></div>
+                <div className={` bg-secondary-1`}></div>
+                <div className={` bg-secondary-2`}></div>
+                <div className={` bg-accent`}></div>
+              </div>)
+              }
+            </div>
           </div>
         ))}
       </ul>

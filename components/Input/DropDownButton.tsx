@@ -1,11 +1,11 @@
 "use client";
-import { useTransition, animated } from "@react-spring/web";
+import { useTransition, animated, useSpring } from "@react-spring/web";
 import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 type DropDownButtonProps = {
   dropDirection?: "left" | "right" | "top" | "bottom";
   children: ReactNode;
-  hover?: boolean,
+  hover?: boolean;
   dropDownList: ReactNode;
   Zindex?: number;
 };
@@ -19,6 +19,12 @@ export default function DropDownButton({
   const [toggleDropDown, setToggleDropDown] = useState(false);
   const dropDownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const springProps = useSpring({
+    display: "inline-block",
+    opacity: toggleDropDown ? 1 : 0,
+    transform: getAnimation(toggleDropDown,dropDirection),
+    config: { duration: 300, easing: (t) => t * (2 - t) },
+  });
   const dropDownBoxTransition = useTransition(toggleDropDown, {
     from: {
       opacity: 0,
@@ -44,7 +50,7 @@ export default function DropDownButton({
   const handleClickOutside = (e: MouseEvent) => {
     if (
       dropDownRef.current &&
-      !dropDownRef.current.contains(e.target as Node)&&
+      !dropDownRef.current.contains(e.target as Node) &&
       !buttonRef.current?.contains(e.target as Node)
     ) {
       setToggleDropDown(false);
@@ -61,6 +67,20 @@ export default function DropDownButton({
     };
   }, []);
 
+  function getAnimation(flag: boolean, direction: string) {
+    switch (direction) {
+      case "left":
+        return flag ? "translateX(-20px)" : "translateX(20px)";
+      case "right":
+        return flag ? "translateX(20px)" : "translateX(-20px)";
+      case "top":
+        return flag ? "translateY(-20px)" : "translateY(20px)";
+      case "bottom":
+        return flag ? "translateY(20px)" : "translateY(-20px)";
+      default:
+        return ` translateY(0px)`;
+    }
+  }
   function getTransform(phase: "from" | "enter" | "leave", direction: string) {
     switch (direction) {
       case "left":
@@ -106,27 +126,27 @@ export default function DropDownButton({
     }
   }, [dropDirection]);
   return (
-    <div onMouseEnter={hover?handleToggle:()=>{}} onMouseLeave={hover?handleToggle:()=>{}} className={`relative flex z-${Zindex.toString()}`}>
-      <button  onClick={handleToggle}  ref={buttonRef}>
+    <div
+      onMouseEnter={hover ? handleToggle : () => {}}
+      onMouseLeave={hover ? handleToggle : () => {}}
+      className={`relative flex z-${Zindex.toString()}`}
+    >
+      <button onClick={handleToggle} ref={buttonRef}>
         {children}
       </button>
-      {dropDownBoxTransition((style, item) =>
-        item ? (
-          <animated.div
-            style={{
-              ...style,
-              position: "absolute",
-              ...dropStyle,
-              boxSizing: "border-box",
-               zIndex: Zindex + 1,
-            }}
-            ref={dropDownRef}
-            className="rounded-xl bg-secondary-1/50 backdrop-blur-md border-[1.5px] border-accent shadow-2xl size-fit p-2"
-          >
-            {dropDownList}
-          </animated.div>
-        ) : null
-      )}
+      <animated.div
+        style={{
+          ...springProps,
+          ...dropStyle,
+          boxSizing: "border-box",
+          position: "absolute",
+          pointerEvents: toggleDropDown ? "auto" : "none",
+        }}
+        ref={dropDownRef}
+        className="rounded-xl bg-secondary-1/50 backdrop-blur-md border-[1.5px] border-accent shadow-2xl size-fit p-2"
+      >
+        {dropDownList}
+      </animated.div>
     </div>
   );
 }

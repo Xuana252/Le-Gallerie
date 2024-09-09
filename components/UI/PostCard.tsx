@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { type Post } from "@lib/types";
+import Image from "./Image";
 
 export default function PostCard({ post }: { post: Post}) {
   const [isError,setError] = useState(false)
@@ -14,12 +15,19 @@ export default function PostCard({ post }: { post: Post}) {
         onClick={handlePostCardClick}
         className="animate-slide-up-animation relative w-full h-fit grid grid-cols-1 gap-2 rounded-xl overflow-hidden cursor-pointer z-0 animate-slideUp"
       >
-       {!isError? <img
-          src={post.image}
-          alt={post.title}
-          onError={() => setError(true)}
-          className="size-full"
-        />
+       {!isError? <div>
+         <Image
+            src={post.image}
+            alt={post.title}
+            // onError={() => setError(true)}
+            className='size-full'
+            width={0}
+            height={0}
+            transformation={[{quality:10  }]}
+            style={{ objectFit: 'cover' }}
+            loading='lazy'
+          />
+       </div>
         :<div className="w-full h-60 flex items-center justify-center bg-secondary-1 text-accent rounded-xl">Error loading image:(</div>}
         <div
           className="flex items-end flex-wrap hover:opacity-100 opacity-0 absolute p-2 bottom-0 left-0 bg-gradient-to-t from-black to-transparent text-white size-full"

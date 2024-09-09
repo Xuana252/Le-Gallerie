@@ -11,7 +11,7 @@ export const GET = async (
   try {
     await connectToDB();
     const post = await Post.findById(params.id).select('_id creator title categories description image likes')
-      .populate({ path: "creator", select: "_id username bio image" })
+      .populate({ path: "creator", select: "_id username bio image follower following" })
       .populate("categories");
 
     if (!post) {

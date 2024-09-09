@@ -148,13 +148,13 @@ export function CategoriesSelector({
         onMouseMove={(e) => handleMouseMove(selectingList, e)}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
-        className="z-30 pointer-events-auto size-full flex flex-wrap justify-center p-2 gap-2  overflow-y-scroll no-scrollbar bg-secondary-2"
+        className="z-30 snap-y pointer-events-auto size-full flex flex-wrap justify-center p-2 gap-2  overflow-y-scroll no-scrollbar bg-secondary-2"
         ref={selectingList}
       >
         {categories.map((category) =>
           !selectedCategories.some((s) => s.name === category.name) ? (
             <li
-              className="Cate_tag"
+              className="Cate_tag snap-start"
               key={category._id}
               onMouseUp={(e) => handleCateSelect(e, category)}
             >
@@ -195,7 +195,7 @@ export function CategoriesSelector({
           ) : null
         )}
         {!(selectedCategories.length > 0) && (
-          <div>click here to add categories...</div>
+          <div className="absolute">click here to add categories...</div>
         )}
       </ul>
       {selectBoxTransition((style, item) =>
@@ -357,8 +357,10 @@ export default function PostForm({ type, editPost }: PostFormProps) {
 
   return (
     <form onSubmit={handleFormSubmit} className="Form">
-      <ImageInput image={post.image.url} setImage={handleImageChange} />
-      <div className="size-full p-4 flex flex-col gap-2">
+      <div>
+        <ImageInput image={post.image.url} setImage={handleImageChange} />
+      </div>
+      <div className=" p-4 flex flex-col gap-2">
         <div>
           <h3>Title</h3>
           <InputBox
@@ -378,12 +380,12 @@ export default function PostForm({ type, editPost }: PostFormProps) {
             onRemoved={handleCategoryRemove}
           />
         </div>
-        <div className="h-full">
+        <div className="grow">
           <h3>Description</h3>
           <textarea
             name="description"
             value={post.description}
-            placeholder="tell us something about your post..."
+            placeholder=" tell us something about your post..."
             className="Input_box_variant_1 p-2 w-full h-[80%]"
             onChange={handleTextChange}
             spellCheck={false}

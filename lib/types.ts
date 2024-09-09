@@ -1,3 +1,4 @@
+import { Date } from 'mongoose';
 import NextAuth from 'next-auth';
 import { DefaultUser } from 'next-auth';
 
@@ -5,6 +6,8 @@ declare module 'next-auth' {
   interface User extends DefaultUser {
     id?: string;
     bio?: string
+    follower?:number,
+    following?:number,
   }
 
   interface Session {
@@ -19,6 +22,16 @@ export type RateLimitObject = {
   windowDuration: number, 
   maxRequests: number,
 } 
+
+export type Comment = {
+  _id:string,
+  post:Post,
+  user:User,
+  content:string,
+  parent?:Comment,
+  likes:number,
+  createdAt?:Date,
+}
 export type Like = {
   _id:string,
   user:User,
@@ -30,6 +43,9 @@ export type User = {
   username?:string,
   image?:string,
   bio?:string,
+  follower?:number,
+  following?:number,
+  followed?:boolean,
 }
 export type UploadUser = {
   _id:string,

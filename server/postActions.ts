@@ -1,5 +1,5 @@
 "use server";
-import { type Post } from "@lib/types";
+import { Comment, type Post } from "@lib/types";
 import { checkLikeRateLimit } from "./checkRateLimit";
 
 export const fetchAllPost = async () => {
@@ -22,7 +22,6 @@ export const fetchUserPost = async (user: string) => {
 };
 
 export const createPost = async (post: Post, user: string) => {
-
   const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts/new`, {
     method: "POST",
     body: JSON.stringify({ ...post, creator: user }),
@@ -83,12 +82,14 @@ export const handleLike = async (user: string, post: string) => {
 
 export const fetchPostLikedUser = async (post: string) => {
   try {
-    const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}/likes`)
-    const data = await response.json()
-    return data
+    const response = await fetch(
+      `${process.env.DOMAIN_NAME}/api/posts/${post}/likes`
+    );
+    const data = await response.json();
+    return data;
   } catch (error) {
     console.error("Failed to update post likes", error);
-    return []
+    return [];
   }
 };
 
@@ -96,4 +97,38 @@ export const deletePost = async (post: string) => {
   await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}`, {
     method: "DELETE",
   });
+};
+
+export const fetchPostComment = async (post: string) => {
+  try {
+    const response = await fetch(
+      `${process.env.DOMAIN_NAME}/api/posts/${post}/comment`
+    );
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Failed to fetch for post comments", error);
+    return [];
+  }
+};
+
+export const handleComment = async (
+  post: string,
+  user: string,
+  parent: string,
+  content: string
+) => {
+  try {
+    await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}/comment/new`, {
+      method: "POST",
+      body: JSON.stringify({
+        post,
+        user,
+        parent,
+        content,
+      }),
+    });
+  } catch (error) {
+    console.error("Failed to post comments", error);
+  }
 };

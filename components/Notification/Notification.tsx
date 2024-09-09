@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, Dispatch, SetStateAction } from "react";
 import {
   KnockProvider,
   KnockFeedProvider,
@@ -15,11 +15,11 @@ import "@knocklabs/react/dist/index.css";
 import { useSession } from "next-auth/react";
 import DropDownButton from "../Input/DropDownButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faBell, faUser, faX } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-function NotificationList() {
+function NotificationList({returnUnseenCount}:{returnUnseenCount:Dispatch<SetStateAction<number>>}) {
   const knockClient = useKnockClient();
   const feedClient = useNotifications(
     knockClient,
@@ -27,7 +27,7 @@ function NotificationList() {
   );
   const { items, metadata } = useNotificationStore(feedClient);
   const router = useRouter();
-  const [notificationView, setNotificationView] = useState<string>("Unread");
+  const [notificationView, setNotificationView] = useState<string>("All");
   const [draggingItem, setDraggingIndex] = useState<any>(null);
   const [x, setX] = useState(0);
   const [dragOffSet, setDragOffSet] = useState(0);
@@ -73,7 +73,16 @@ function NotificationList() {
     };
   }, [draggingItem]);
 
-  
+  const playNotificationSound = () => {
+    const audio = new Audio("/audios/notiPopSound.mp3");
+    audio.volume = 0.3;
+    audio
+      .play()
+      .catch((error) =>
+        console.error("Failed to play notification sound:", error)
+      );
+  };
+
   const formatTimeAgo = (timestamp: string): string => {
     const now = new Date();
     const then = new Date(timestamp);
@@ -101,35 +110,25 @@ function NotificationList() {
   const finalList = getNotificationList().slice(0, 20);
 
   const onNotificationsReceived = ({ items }: { items: any }) => {
-    const audio = document.createElement("audio");
-    audio.src = "/audios/notiPopSound.mp3";
-    audio.volume = 0.3;
-    audio.preload = "auto";
-
-    // Append the audio element to the body
-    document.body.appendChild(audio);
-
-    // Play the sound
-    audio.play();
-
-    // Remove the audio element after it ends
-    audio.addEventListener("ended", () => {
-      document.body.removeChild(audio);
-    });
+    feedClient.markAsSeen(items);
+    playNotificationSound();
 
     items.forEach((item: any) => {
-      feedClient.markAsSeen(item);
       toast.custom((t) => (
         <div className="Toast_item">
           {item ? (
             <>
-               {item.actors[0].avatar?<img
-                    src={item.actors[0].avatar}
-                    alt="profile picture"
-                    className="Icon_small select-none pointer-events-none"
-                  />:<div className="Icon_small bg-secondary-2 pointer-events-none">
-                    <FontAwesomeIcon icon={faUser} />
-                  </div>}
+              {item.actors[0].avatar ? (
+                <img
+                  src={item.actors[0].avatar}
+                  alt="profile picture"
+                  className="Icon_small select-none pointer-events-none"
+                />
+              ) : (
+                <div className="Icon_small bg-secondary-2 pointer-events-none">
+                  <FontAwesomeIcon icon={faUser} />
+                </div>
+              )}
               <div className="flex flex-col text-sm grow">
                 <p>
                   <b>{item.actors[0].name}</b> {item.blocks[0].content}
@@ -138,6 +137,16 @@ function NotificationList() {
                   {formatTimeAgo(item.inserted_at)}
                 </p>
               </div>
+              <button
+                onClick={() => {
+                  toast.dismiss(t);
+                }}
+              >
+                <FontAwesomeIcon
+                  icon={faX}
+                  className="rounded-full size-5 p-1 hover:bg-primary hover:text-accent"
+                />
+              </button>
             </>
           ) : (
             "you have 1 notification"
@@ -146,13 +155,17 @@ function NotificationList() {
       ));
     });
   };
-  
+
+  useEffect(() => {returnUnseenCount(metadata.unseen_count)},[metadata.unseen_count]);
 
   useEffect(() => {
+    console.log('Setting up notification listener');
     feedClient.fetch();
-    feedClient.on('items.received.realtime', onNotificationsReceived);
-    return () =>
+    feedClient.on("items.received.realtime", onNotificationsReceived);
+    return () =>{
+      console.log('Setting up notification listener');
       feedClient.off("items.received.realtime", onNotificationsReceived);
+    }
   }, [feedClient]);
 
   const handleNotificationItemInteraction = (
@@ -165,6 +178,9 @@ function NotificationList() {
     switch (item.source.key) {
       case "post-like":
         router.push(`/post/${item.data.postId}`);
+        break;
+      case "user-follow":
+        router.push(`/profile/${item.data.userId}`);
         break;
       default:
         return;
@@ -226,14 +242,18 @@ function NotificationList() {
             >
               {item.actors[0] ? (
                 <div className="Notification_item">
-                  {item.actors[0].avatar?<img
-                    src={item.actors[0].avatar}
-                    alt="profile picture"
-                    className="Icon_small select-none pointer-events-none"
-                  />:<div className="Icon_small bg-secondary-2 pointer-events-none">
-                    <FontAwesomeIcon icon={faUser} />
-                  </div>}
-                  <div className="flex flex-col text-sm grow">
+                  {item.actors[0].avatar ? (
+                    <img
+                      src={item.actors[0].avatar}
+                      alt="profile picture"
+                      className="Icon_small select-none pointer-events-none"
+                    />
+                  ) : (
+                    <div className="Icon_small bg-secondary-2 pointer-events-none">
+                      <FontAwesomeIcon icon={faUser} />
+                    </div>
+                  )}
+                  <div className="flex flex-col text-sm w-[70%]">
                     <p>
                       <b>{item.actors[0].name}</b> {item.blocks[0].content}
                     </p>
@@ -241,7 +261,7 @@ function NotificationList() {
                       {formatTimeAgo(item.inserted_at)}
                     </p>
                   </div>
-                  <div className="w-7 h-[100%] flex items-center justify-center">
+                  <div className="w-7 h-[100%] ml-auto flex items-center justify-center">
                     {item.read_at ? null : (
                       <div className="size-3 rounded-full bg-primary"></div>
                     )}
@@ -270,7 +290,7 @@ function NotificationList() {
   );
 }
 
-export default function NotificationButton() {
+export default function NotificationButton({returnUnseenCount}:{returnUnseenCount:Dispatch<SetStateAction<number>>}) {
   const { data: session } = useSession();
 
   if (!session) return;
@@ -280,7 +300,7 @@ export default function NotificationButton() {
       apiKey={process.env.NEXT_PUBLIC_KNOCK_API_KEY as string}
       userId={session.user.id || ""}
     >
-      <NotificationList />
+      <NotificationList returnUnseenCount={returnUnseenCount} />
     </KnockProvider>
   );
 }

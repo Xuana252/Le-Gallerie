@@ -74,7 +74,7 @@ export default function InputBox({
       />
       <div className="flex items-center size-8 justify-center Input_box_base cursor-pointer">
         {type === "Password" ? (
-          <button onClick={handleShowPassword}>
+          <button onClick={handleShowPassword} tabIndex={-1}>
             {showPassword ? (
               <FontAwesomeIcon icon={faUnlock} />
             ) : (
@@ -83,7 +83,7 @@ export default function InputBox({
           </button>
         ) : (
           value !== "" && (
-            <button onClick={handleClearText}>
+            <button onClick={handleClearText} tabIndex={-1}>
               <FontAwesomeIcon icon={faX} size="sm" />
             </button>
           )

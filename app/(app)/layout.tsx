@@ -9,6 +9,7 @@ import Provider from "@context/Provider";
 import ThemeManager from "@theme/ThemeManager";
 const inter = Inter({ subsets: ["latin"] });
 import { Toaster } from 'sonner';
+import ChatBox from "@components/Chat/ChatBox";
 
 export const metadata: Metadata = {
   title: "Le Gallerie",
@@ -28,13 +29,13 @@ export default function RootLayout({
       <body className={inter.className}>
         <Provider>
           <ThemeManager>
-            <div className="min-h-[100vh] h-fit flex flex-col">
+            <div className="min-h-[100vh] flex flex-col">
               {/* Nav will appear on top  */}
               <Nav>
                 <>{children}</>
               </Nav>
             </div>
-            <Toaster richColors position='bottom-right'/>
+            <Toaster richColors position='top-left'/>
           </ThemeManager>
         </Provider>
       </body>

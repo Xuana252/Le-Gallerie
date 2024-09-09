@@ -10,11 +10,11 @@ export const GET = async (
   try {
     connectToDB();
 
-    const posts = await Post.find({ creator: params.id })
+    const posts = await Post.find({ creator: params.id }).sort({ createdAt: -1 })
       .select("_id creator title categories description image likes")
       .populate({
         path: "creator",
-        select: "_id username email bio image",
+        select: "_id username bio image follower following",
       })
       .populate("categories");
 

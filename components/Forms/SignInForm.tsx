@@ -53,7 +53,8 @@ export default function SignInForm({ providers }: { providers: string[] }) {
     config: { duration: 400, easing: (t) => t * (2 - t) }, // Duration of the animation
   });
   const MobileSliderAnimation = useSpring({
-    transform: isSignUp ? "translateY(150%)" : "translateY(0%)",
+    height:'fit-content',
+    transform: isSignUp ? "translateY(250%)" : "translateY(0%)",
     zIndex: 1,
     config: { duration: 400, easing: (t) => t * (2 - t) }, // Duration of the animation
   });
@@ -139,7 +140,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
 
   const checkInvalidInput = () => {
     let invalidLog: string[] = [];
-    const invalidInputs = Object.entries(signUpCredentials)
+    const invalidInputs = Object.entries(isSignUp?signUpCredentials:signInCredentials)
       .filter(([key, value]) => {
         let isInvalid = false;
         let errorMessage = "";
@@ -267,7 +268,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
   };
 
   const Slider = (
-    <div className=" bg-secondary-2 py-5 flex flex-col items-center justify-center h-1/2 sm:h-full">
+    <div className=" bg-secondary-2 py-5 flex flex-col items-center justify-center h-1/4 sm:h-full">
       <Link href={"/"} className="font-AppLogo text-7xl">
         AppLogo
       </Link>

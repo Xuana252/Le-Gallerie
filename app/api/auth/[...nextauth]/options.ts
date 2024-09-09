@@ -140,6 +140,8 @@ export const options: NextAuthOptions = {
             session.user.image = sessionUser.image || "";
             session.user.id = sessionUser._id.toString();
             session.user.bio = sessionUser.bio || "";
+            session.user.follower = sessionUser.follower||0;
+            session.user.following = sessionUser.following||0;
           }
         } catch (error) {
           console.log("Error fetching user for session:", error);

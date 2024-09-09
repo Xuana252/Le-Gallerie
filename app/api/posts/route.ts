@@ -4,9 +4,9 @@ import Post from "@models/postModel";
 export const GET = async () => {
   try {
     await connectToDB;
-    const posts = await Post.find({})
+    const posts = await Post.find({}).sort({ createdAt: -1 })
       .select("_id creator title categories description image likes")
-      .populate({ path: "creator", select: "_id username bio image" })
+      .populate({ path: "creator", select: "_id username bio image follower following" })
       .populate("categories");
     return Response.json(posts, { status: 200 });
   } catch (error) {

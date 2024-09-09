@@ -19,29 +19,106 @@ import { createContext, Dispatch } from "react";
 import ThemeList from "@theme/ThemesList";
 import NotificationButton from "@components/Notification/Notification";
 import ChatButton from "@components/Chat/ChatButton";
+import NotificationFeed from "@components/Notification/NotificationDefault";
+import ChatBox from "@components/Chat/ChatBox";
 
+export const ButtonSet = () => {
+  const { data: session } = useSession();
+  const pathName = usePathname();
+  const [windowSize, setSize] = useState(9999);
+  const [unseenMessageCount,setUnseenMessageCount] = useState(0)
+  const [unseenNotificationCount,setUnseenNotificationCount] = useState(0)
 
+  useEffect(() => {
+    const handleResize = () => setSize(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const ButtonSet = (
+    <>
+      {session?.user && (
+        <>
+          <Link href={"/post/create"}>
+            <button className="Icon">
+              <FontAwesomeIcon icon={faImage} />
+            </button>
+          </Link>
+          <ChatButton returnUnseenCount={setUnseenMessageCount} />
+          <NotificationButton  returnUnseenCount={setUnseenNotificationCount} />
+        </>
+      )}
+      <DropDownButton dropDownList={<ThemeList />}>
+        <div className="Icon">
+          <FontAwesomeIcon icon={faCircleHalfStroke} />
+        </div>
+      </DropDownButton>
+      {pathName === "/profile" ? (
+        <button className="Icon relative" onClick={() => signOut()}>
+          <FontAwesomeIcon icon={faRightFromBracket} />
+        </button>
+      ) : (
+        <UserProfileIcon currentUser={true} />
+      )}
+    </>
+  );
+  return (
+    <>
+      {windowSize >= 640 ? (
+        <div className="Buttons_container">{ButtonSet}</div>
+      ) : (
+        <DropDownButton dropDownList={ButtonSet} Zindex={10}>
+          <div className="Icon relative">
+            <div
+              className={`${
+                unseenMessageCount+unseenNotificationCount > 0 ? "" : "hidden"
+              } absolute top-1 right-1 rounded-full size-4 bg-primary text-accent text-xs font-bold `}
+            >
+              {unseenMessageCount+unseenNotificationCount}
+            </div>
+            <FontAwesomeIcon icon={faEllipsisVertical} />
+          </div>
+        </DropDownButton>
+      )}
+    </>
+  );
+};
 type SearchContextType = {
   searchText: string;
   handleSearch: (text: string) => void;
+};
+
+type ChatContextType = {
+  chatInfo: any;
+  setChatInfo: (chat: any) => void;
 };
 export const SearchContext = createContext<SearchContextType>({
   searchText: "",
   handleSearch: () => {},
 });
 
-export default function Nav({ children }: { children: React.ReactNode }) {
+export const ChatContext = createContext<ChatContextType>({
+  chatInfo: null,
+  setChatInfo: () => {},
+});
 
-  const { data: session } = useSession();
+export default function Nav({ children }: { children: React.ReactNode }) {
   const [pendingText, setPendingText] = useState("");
   const [searchText, setSearchText] = useState("");
+  const [chatInfo, setChat] = useState(null);
+
+  const pathName = usePathname();
   const router = useRouter();
 
   const handleSearchTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPendingText(e.target.value);
   };
 
-
+  const setChatInfo = (chat: any) => {
+    setChat(chat);
+  };
 
   const handleSearch = (text: string) => {
     setPendingText(text);
@@ -59,83 +136,44 @@ export default function Nav({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const pathName = usePathname();
-
-  useEffect(() => {}, [searchText]);
-
-  const ButtonSet = (
-    <>
-      {session?.user && (
-        <>
-          <Link href={"/post/create"}>
-            <button className="Icon">
-              <FontAwesomeIcon icon={faImage} />
-            </button>
-          </Link>
-          <ChatButton/>
-          <NotificationButton />
-        </>
-      )}
-      <DropDownButton dropDownList={<ThemeList />}>
-        <div className="Icon">
-          <FontAwesomeIcon icon={faCircleHalfStroke} />
-        </div>
-      </DropDownButton>
-      {pathName === "/profile" ? (
-        <button className="Icon relative" onClick={() => signOut()}>
-          <FontAwesomeIcon icon={faRightFromBracket} />
-        </button>
-      ) : (
-        <UserProfileIcon currentUser={true} />
-      )}
-    </>
-  );
-
   return (
     <>
-      <nav className="Nav_bar">
-        <div className="justify-between pointer-events-auto h-full w-full gap-1 px-2 items-center flex">
-          <div className="flex items-center">
-            <button
-              className="flex gap-2 items-center px-2"
-              onClick={() => {
-                router.push("/"), handleSearch("");
-              }}
-            >
-              <div className="font-AppLogo text-3xl">AppLogo</div>
-              <div className="hidden lg:block font-AppName h-full">
-                Le Gallerie
+      <ChatContext.Provider value={{ chatInfo, setChatInfo }}>
+        <SearchContext.Provider value={{ searchText, handleSearch }}>
+          <nav className="Nav_bar">
+            <div className="justify-between pointer-events-auto h-full w-full gap-1 px-2 items-center flex">
+              <div className="flex items-center">
+                <button
+                  className="flex gap-2 items-center px-2"
+                  onClick={() => {
+                    router.push("/"), handleSearch("");
+                  }}
+                >
+                  <div className="font-AppLogo text-3xl">AppLogo</div>
+                  <div className="hidden lg:block font-AppName h-full">
+                    Le Gallerie
+                  </div>
+                </button>
               </div>
-            </button>
-          </div>
 
-          {pathName === "/" && (
-            <InputBox
-              onTextChange={handleSearchTextChange}
-              onKeyDown={handleSearchKeyPress}
-              value={pendingText}
-              type="SearchBox"
-            >
-              Search for posts...
-            </InputBox>
-          )}
+              {pathName === "/" && (
+                <InputBox
+                  onTextChange={handleSearchTextChange}
+                  onKeyDown={handleSearchKeyPress}
+                  value={pendingText}
+                  type="SearchBox"
+                >
+                  Search for posts...
+                </InputBox>
+              )}
 
-          {/* On desktop */}
-          <div className="Buttons_container">{ButtonSet}</div>
-
-          {/* On mobile */}
-          <div className="sm:hidden">
-            <DropDownButton dropDownList={ButtonSet} Zindex={10}>
-              <div className="Icon">
-                <FontAwesomeIcon icon={faEllipsisVertical} />
-              </div>
-            </DropDownButton>
-          </div>
-        </div>
-      </nav>
-      <SearchContext.Provider value={{ searchText, handleSearch }}>
-        {children}
-      </SearchContext.Provider>
+              <ButtonSet />
+            </div>
+          </nav>
+          {children}
+          {chatInfo && <ChatBox />}
+        </SearchContext.Provider>
+      </ChatContext.Provider>
     </>
   );
 }

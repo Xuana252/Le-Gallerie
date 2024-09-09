@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
 import PostCard from "./PostCard";
 import { type Category, type Post } from "@lib/types";
 import Loader from "./Loader";
@@ -12,9 +12,11 @@ import { fetchAllPost, fetchUserPost } from "@server/postActions";
 type FeedProps = {
   userIdFilter?: string;
   categoryFilter?: Category[];
+  setPostCount?:Dispatch<SetStateAction<number>>
+  showCateBar?:boolean;
 };
 
-export default function Feed({ userIdFilter, categoryFilter = [] }: FeedProps) {
+export default function Feed({ userIdFilter, categoryFilter = [],showCateBar=true,setPostCount }: FeedProps) {
   const pathName = usePathname();
   const {searchText} = useContext(SearchContext);
   const [categoriesFilter, setCategoriesFilter] =
@@ -79,8 +81,9 @@ export default function Feed({ userIdFilter, categoryFilter = [] }: FeedProps) {
     if (finalPosts.length > 0) setIsEmpty(false);
     else setIsEmpty(true);
     setFilteredPosts(finalPosts);
+    setPostCount&&setPostCount(finalPosts.length)
     setTimeout(() => setLoading(false), 2000);
-  }, [posts, searchText, categoriesFilter, pathName]);
+  }, [posts, searchText, categoriesFilter]);
 
   const [gridColStyle, setGridColStyle] = useState("grid-colds-1");
   const [colsNum, setColsNum] = useState(1);
@@ -99,13 +102,13 @@ export default function Feed({ userIdFilter, categoryFilter = [] }: FeedProps) {
       } else if (window.innerWidth > 720) {
         setGridColStyle("grid-cols-4");
         setColsNum(4);
-      } else if (window.innerWidth > 480) {
+      } else if (window.innerWidth > 600) {
         setGridColStyle("grid-cols-3");
         setColsNum(3);
       } else {
         setGridColStyle("grid-cols-2");
         setColsNum(2);
-      }
+      } 
     };
 
     // Initial check
@@ -120,10 +123,10 @@ export default function Feed({ userIdFilter, categoryFilter = [] }: FeedProps) {
 
   return (
     <section className="size-full min-h-[400px]">
-      <CategoryBar
+      {showCateBar&&<CategoryBar
         onCategoriesChange={handleCategoriesFilerChange}
         selected={categoriesFilter}
-      />
+      />}
       {isLoading ? (
         <Loader></Loader>
       ) : error ? (
@@ -135,7 +138,7 @@ export default function Feed({ userIdFilter, categoryFilter = [] }: FeedProps) {
         </div>
       ) : (
         <ul
-          className={`grid ${gridColStyle} gap-x-3 bg-primary min-h-screen min-w-full p-5 justify-center `}
+          className={`grid ${gridColStyle} gap-x-3 min-h-screen min-w-full p-5 justify-center `}
         >
           {Array.from(Array(colsNum).keys()).map((columnIndex) => (
             <div
