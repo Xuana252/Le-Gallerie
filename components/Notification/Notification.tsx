@@ -1,5 +1,11 @@
 "use client";
-import React, { useState, useRef, useEffect, Dispatch, SetStateAction } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+} from "react";
 import {
   KnockProvider,
   KnockFeedProvider,
@@ -18,8 +24,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faUser, faX } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { formatTimeAgo } from "@lib/dateFormat";
 
-function NotificationList({returnUnseenCount}:{returnUnseenCount:Dispatch<SetStateAction<number>>}) {
+function NotificationList({
+  returnUnseenCount,
+}: {
+  returnUnseenCount: Dispatch<SetStateAction<number>>;
+}) {
   const knockClient = useKnockClient();
   const feedClient = useNotifications(
     knockClient,
@@ -83,19 +94,6 @@ function NotificationList({returnUnseenCount}:{returnUnseenCount:Dispatch<SetSta
       );
   };
 
-  const formatTimeAgo = (timestamp: string): string => {
-    const now = new Date();
-    const then = new Date(timestamp);
-    const seconds = Math.floor((now.getTime() - then.getTime()) / 1000);
-    const interval = Math.floor(seconds / 60);
-
-    if (interval < 1) return `${seconds < 0 ? 0 : seconds} seconds ago`;
-    if (interval < 60) return `${interval} minutes ago`;
-    if (interval < 1440) return `${Math.floor(interval / 60)} hours ago`;
-    if (interval < 2880) return `yesterday`;
-    return `${Math.floor(interval / 1440)} days ago`;
-  };
-
   const getNotificationList = () => {
     switch (notificationView) {
       case "All":
@@ -118,17 +116,13 @@ function NotificationList({returnUnseenCount}:{returnUnseenCount:Dispatch<SetSta
         <div className="Toast_item">
           {item ? (
             <>
-              {item.actors[0].avatar ? (
-                <img
-                  src={item.actors[0].avatar}
-                  alt="profile picture"
-                  className="Icon_small select-none pointer-events-none"
-                />
-              ) : (
-                <div className="Icon_small bg-secondary-2 pointer-events-none">
-                  <FontAwesomeIcon icon={faUser} />
-                </div>
-              )}
+              <div className="Icon_small bg-secondary-2 select-none pointer-events-none">
+                {item.actors[0].avatar ? (
+                  <img src={item.actors[0].avatar} alt="profile picture" />
+                ) : (
+                  <FontAwesomeIcon icon={faUser} className="m-0" />
+                )}
+              </div>
               <div className="flex flex-col text-sm grow">
                 <p>
                   <b>{item.actors[0].name}</b> {item.blocks[0].content}
@@ -144,7 +138,7 @@ function NotificationList({returnUnseenCount}:{returnUnseenCount:Dispatch<SetSta
               >
                 <FontAwesomeIcon
                   icon={faX}
-                  className="rounded-full size-5 p-1 hover:bg-primary hover:text-accent"
+                  className="rounded-full size-3 p-1 hover:bg-primary hover:text-accent"
                 />
               </button>
             </>
@@ -156,16 +150,18 @@ function NotificationList({returnUnseenCount}:{returnUnseenCount:Dispatch<SetSta
     });
   };
 
-  useEffect(() => {returnUnseenCount(metadata.unseen_count)},[metadata.unseen_count]);
+  useEffect(() => {
+    returnUnseenCount(metadata.unseen_count);
+  }, [metadata.unseen_count]);
 
   useEffect(() => {
-    console.log('Setting up notification listener');
+    console.log("Setting up notification listener");
     feedClient.fetch();
     feedClient.on("items.received.realtime", onNotificationsReceived);
-    return () =>{
-      console.log('Setting up notification listener');
+    return () => {
+      console.log("Setting up notification listener");
       feedClient.off("items.received.realtime", onNotificationsReceived);
-    }
+    };
   }, [feedClient]);
 
   const handleNotificationItemInteraction = (
@@ -181,6 +177,14 @@ function NotificationList({returnUnseenCount}:{returnUnseenCount:Dispatch<SetSta
         break;
       case "user-follow":
         router.push(`/profile/${item.data.userId}`);
+        break;
+      case "comment-like":
+        break;
+      case "comment-reply":
+        router.push(`/post/${item.data.postId}?parentId=${item.data.parentId}&replyId=${item.data.replyId}`);
+        break;
+      case "post-comment":
+        router.push(`/post/${item.data.postId}?commentId=${item.data.commentId}`);
         break;
       default:
         return;
@@ -290,7 +294,11 @@ function NotificationList({returnUnseenCount}:{returnUnseenCount:Dispatch<SetSta
   );
 }
 
-export default function NotificationButton({returnUnseenCount}:{returnUnseenCount:Dispatch<SetStateAction<number>>}) {
+export default function NotificationButton({
+  returnUnseenCount,
+}: {
+  returnUnseenCount: Dispatch<SetStateAction<number>>;
+}) {
   const { data: session } = useSession();
 
   if (!session) return;

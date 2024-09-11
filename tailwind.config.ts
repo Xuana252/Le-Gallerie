@@ -23,9 +23,18 @@ const config: Config = {
       },
       animation: {
         fadeIn: "fadeIn 0.7s ease-in-out ",
-        slideUp: 'slideUp 0.7s ease-in-out'
+        slideUp: 'slideUp 0.7s ease-in-out',
+        highlight: 'highlighted 2s ease-in-out',
       },
       keyframes: {
+        highlighted: {
+          "20%": {
+            background:  "rgba(var(--primary),0.5)",
+          },
+          "100%": {
+            background:  "transparent",
+          },
+        },
         slideUp: {
           from: {
             transform: "translateY(30px)",

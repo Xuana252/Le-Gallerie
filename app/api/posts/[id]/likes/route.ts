@@ -35,11 +35,11 @@ export const PATCH = async (
     await connectToDB();
 
     const post = await Post.findById(params.id);
-    const liked = await Like.findOne({post:params.id,user:userId})
-    const creator = await User.findOne({_id:post.creator._id})
     if (!post) {
       return NextResponse.json({ message: "Post not found" }, { status: 400 });
     }
+    const liked = await Like.findOne({post:params.id,user:userId})
+    const creator = await User.findOne({_id:post.creator._id})
 
     if (liked) {
       await Like.findOneAndDelete({ post: params.id, user: userId });

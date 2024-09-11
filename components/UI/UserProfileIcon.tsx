@@ -17,7 +17,7 @@ import Image from "./Image";
 // Define the base type for the props
 type BaseUserProfileIconProps = {
   currentUser: boolean;
-  size?: "Icon" | "Icon_small" | "Icon_big";
+  size?: "Icon" | "Icon_small" | "Icon_big" | "Icon_smaller";
 };
 
 // Define the type for when currentUser is false
@@ -68,11 +68,11 @@ export default function UserProfileIcon({
             className="size-full"
             width={0}
             height={0}
-            transformation={[{ quality: 30 }]}
+            transformation={[{ quality: 10 }]}
             style={{ objectFit: "cover" }}
           ></Image>
       ) : (
-        <FontAwesomeIcon icon={faUser} />
+        <FontAwesomeIcon icon={faUser} className="m-0" />
       )}
     </button>
   );

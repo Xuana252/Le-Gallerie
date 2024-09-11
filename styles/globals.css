@@ -58,7 +58,7 @@
   @apply flex gap-2 items-center p-2 rounded-xl bg-accent h-fit w-full text-primary select-none cursor-pointer;
 }
 .Toast_item {
-  @apply flex gap-2 items-center p-2 rounded-xl bg-accent h-fit w-[350px] text-primary select-none cursor-pointer;
+  @apply flex gap-2 items-center p-2 rounded-xl bg-accent h-fit min-w-[350px] text-primary select-none cursor-pointer;
 }
 
 .Form {
@@ -107,6 +107,10 @@
   @apply bg-primary/50 flex rounded-2xl border-2 border-accent placeholder:text-accent placeholder:opacity-50  items-center grow outline-none justify-between  text-lg px-1 overflow-hidden;
 }
 
+.Input_box_variant_3 {
+  @apply bg-secondary-2 rounded-lg outline-none placeholder:text-accent placeholder:opacity-50 text-sm p-2 ;
+}
+
 .Cate_box {
   @apply flex rounded-2xl items-center outline-none border-2 border-accent justify-start gap-2   text-lg p-2 overflow-hidden;
 }
@@ -125,17 +129,25 @@
     @apply flex h-full w-fit justify-end items-center gap-2;
   }
 }
-
+.Icon_base {
+  @apply flex items-center justify-center rounded-full overflow-hidden hover:bg-secondary-2 text-accent;
+}
 .Icon {
-  @apply flex items-center justify-center size-10 text-2xl rounded-full overflow-hidden hover:bg-secondary-2 text-accent;
+  @apply Icon_base size-10 text-2xl ;
 }
 .Icon_small {
-  @apply flex items-center justify-center size-9 text-lg rounded-full overflow-hidden hover:bg-secondary-2 text-accent;
+  @apply Icon_base  size-9 text-xl ;
+}
+.Icon_smaller {
+  @apply  Icon_base size-6 text-base ;
 }
 .Icon_big {
-  @apply flex items-center justify-center size-12 text-3xl rounded-full overflow-hidden hover:bg-secondary-2 text-accent;
+  @apply Icon_base size-12 text-3xl ;
 }
 
+.Highlighted {
+  @apply animate-highlight rounded-lg
+}
 
 @layer base {
   /* Hide scrollbar for Chrome, Safari and Opera */

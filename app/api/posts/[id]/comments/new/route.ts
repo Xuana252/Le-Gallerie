@@ -15,58 +15,71 @@ export const POST = async (
   try {
     await connectToDB();
 
-    
+    var repliedComment = null;
+
+    if (parent) {
+      repliedComment = await Comment.findById(parent);
+    }
+
+    var finalParent = !repliedComment
+      ? null
+      : repliedComment.parent
+      ? repliedComment.parent
+      : repliedComment;
+
     const newComment = new Comment({
       post: post,
-      parent: parent ? parent : null,
+      parent: finalParent,
       user: user,
       content: content,
       likes: 0,
     });
 
-    await newComment.save();
+    const originalPost = await Post.findById(post);
 
-    const originalPost = await Post.findById(post)
+    await newComment.save();
 
     const promises = [
       // Always include the post-comment trigger
-      knock.workflows.trigger("post-comment", {
-        actor: user,
-        data: {
-          postId: post,
-          commentId: newComment,
-        },
-        recipients: [
-          {
-            id: originalPost.creator._id.toString(),
-            name: originalPost.creator.username,
-            email: originalPost.creator.email,
-            avatar: originalPost.creator.image || null,
-          },
-        ],
-      }),
     ];
 
-    // Conditionally include the comment-reply trigger
-    if (parent) {
+    if (originalPost.creator.toString() !== user) {
       promises.push(
-        knock.workflows.trigger("comment-reply", {
+        knock.workflows.trigger("post-comment", {
           actor: user,
           data: {
             postId: post,
-            parentId: parent,
-            replyId: newComment,
+            commentId: newComment._id,
           },
           recipients: [
             {
-              id: originalPost.creator._id.toString(),
-              name: originalPost.creator.username,
-              email: originalPost.creator.email,
-              avatar: originalPost.creator.image || null,
+              id: originalPost.creator.toString(),
             },
           ],
         })
       );
+    }
+
+    // Conditionally include the comment-reply trigger
+    if (repliedComment) {
+      console.log(repliedComment.user);
+      if (repliedComment.user.toString() !== user) {
+        promises.push(
+          knock.workflows.trigger("comment-reply", {
+            actor: user,
+            data: {
+              postId: post,
+              parentId: finalParent._id,
+              replyId: newComment._id,
+            },
+            recipients: [
+              {
+                id: repliedComment.user.toString(),
+              },
+            ],
+          })
+        );
+      }
     }
 
     // Wait for all promises to complete

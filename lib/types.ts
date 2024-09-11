@@ -30,7 +30,7 @@ export type Comment = {
   content:string,
   parent?:Comment,
   likes:number,
-  createdAt?:Date,
+  createdAt:Date,
 }
 export type Like = {
   _id:string,

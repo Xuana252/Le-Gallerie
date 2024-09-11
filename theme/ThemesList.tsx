@@ -87,8 +87,8 @@ export default function ThemeList() {
         </button>
       )} */}
       <ul className={`Theme_list `} ref={themeList} onScroll={handleScroll}>
-        {themeCategories.map((category) => (
-          <div className="w-full">
+        {themeCategories.map((category,index) => (
+          <div key={index} className="w-full">
             <div className="sticky top-0 bg-accent text-primary my-2 font-bold px-2 pb-1">{category.name}</div>
             <div className="flex flex-wrap gap-2">
               {

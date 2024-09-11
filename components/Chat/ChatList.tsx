@@ -7,24 +7,14 @@ import ChatBox from "./ChatBox";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@lib/firebase";
 import { ChatContext } from "@components/UI/Nav";
+import { formatTimeAgo } from "@lib/dateFormat";
 
 export default function ChatList({ chatList }: { chatList: any }) {
   const { data: session } = useSession();
   const { setChatInfo } = useContext(ChatContext);
   const [selectedChat, setSelectedChat] = useState<any>(null);
 
-  const formatTimeAgo = (timestamp: string): string => {
-    const now = new Date();
-    const then = new Date(timestamp);
-    const seconds = Math.floor((now.getTime() - then.getTime()) / 1000);
-    const interval = Math.floor(seconds / 60);
 
-    if (interval < 1) return `${seconds < 0 ? 0 : seconds} seconds ago`;
-    if (interval < 60) return `${interval} minutes ago`;
-    if (interval < 1440) return `${Math.floor(interval / 60)} hours ago`;
-    if (interval < 2880) return `yesterday`;
-    return `${Math.floor(interval / 1440)} days ago`;
-  };
 
   const handleSelectChat = async (chat: any) => {
     if (!session) return;

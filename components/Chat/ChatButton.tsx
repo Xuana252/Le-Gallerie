@@ -20,13 +20,13 @@ export default function ChatButton({returnUnseenCount}:{returnUnseenCount:Dispat
       async (res) => {
         const items = res.data()?.chat;
         let count = 0
-        const promises = items.map(async (item:any)=>{
+        const promises = items?.map(async (item:any)=>{
           const user = await fetchUserWithId(item.receiverId)
           if(!item.isSeen)
             count++;
           return {...item,user}
         })
-        const chatData = await Promise.all(promises)
+        const chatData = promises?await Promise.all(promises):[]
         setUnseenMessageCount(count)
         returnUnseenCount(count)
         setChats(chatData.sort((a,b)=>b.updatedAt - a.updatedAt))

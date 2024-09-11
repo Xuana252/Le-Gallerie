@@ -114,7 +114,7 @@ export default function Post({ params }: { params: { id: string } }) {
       navigator
         .share({
           title: post.title,
-          text: "Check out this photo!",
+          text: "check out this photo",
           url: post.image,
         })
         .catch((error) => console.error("Error sharing:", error));
