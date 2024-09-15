@@ -86,3 +86,20 @@ export const fetchUserFollowing = async (user:string) => {
     return null
   }
 }
+
+export const blockUser = async (user:string, blockUser:string) => {
+  try {
+    const response = await fetch(`${process.env.DOMAIN_NAME}/api/users/${user}/blocks/${blockUser}`,{
+      method:"PATCH",
+      body: JSON.stringify({
+       
+      })
+    })
+    if(response.ok)
+      return true
+    return false
+  } catch (error) {
+    console.log('Failed to block user',error)
+    return false
+  }
+}

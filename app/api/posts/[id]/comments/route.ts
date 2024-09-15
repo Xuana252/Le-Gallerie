@@ -10,7 +10,7 @@ export const GET = async (
         await connectToDB()
 
         const comments = await Comment.find({post:params.id})
-        .populate({ path: "user", select: "_id username bio image follower following" })
+        .populate({ path: "user", select: "-email -password -createdAt -updatedAt -__v" })
         .populate({ path: "post", select: "_id"})
 
         return NextResponse.json(comments,{status:200})

@@ -50,17 +50,17 @@ export const fetchPostWithId = async (post: string) => {
   return null;
 };
 
-export const checkUserHasLiked = async (user: string, post: string) => {
+export const checkUserHasLiked = async (user: string, id: string,type:"comment"|"post") => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users/${user}/has-liked/${post}`
+      `${process.env.DOMAIN_NAME}/api/users/${user}/has-liked/${id}/${type}`
     );
     const data = await response.json();
     if (response.ok) {
       return data.liked ?? false;
     }
   } catch (error) {
-    console.log("Failed to check user has liked post");
+    console.log("Failed to check user has liked");
     return false;
   }
 };

@@ -2,11 +2,11 @@ import Like from "@models/likesModel";
 import { connectToDB } from "@utils/database";
 import { NextRequest, NextResponse } from "next/server";
 
-export const GET = async (req:NextRequest,{params}:{params:{ id: string,postId:string }})=>{
+export const GET = async (req:NextRequest,{params}:{params:{ id: string,checkId:string }})=>{
     try {
         await connectToDB()
         
-        const hasLiked = await Like.findOne({user:params.id,post:params.postId})
+        const hasLiked = await Like.findOne({user:params.id,post:params.checkId})
         
         if(!hasLiked) 
             return NextResponse.json({liked:false},{status:200})

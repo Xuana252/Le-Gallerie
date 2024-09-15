@@ -21,10 +21,17 @@ import "@knocklabs/react/dist/index.css";
 import { useSession } from "next-auth/react";
 import DropDownButton from "../Input/DropDownButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell, faUser, faX } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBell,
+  faEye,
+  faTrash,
+  faUser,
+  faX,
+} from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { formatTimeAgo } from "@lib/dateFormat";
+import CustomImage from "@components/UI/Image";
 
 function NotificationList({
   returnUnseenCount,
@@ -118,7 +125,15 @@ function NotificationList({
             <>
               <div className="Icon_small bg-secondary-2 select-none pointer-events-none">
                 {item.actors[0].avatar ? (
-                  <img src={item.actors[0].avatar} alt="profile picture" />
+                  <CustomImage
+                    src={item.actors[0].avatar}
+                    alt="profile picture"
+                    className="size-full"
+                    width={0}
+                    height={0}
+                    transformation={[{ quality: 10 }]}
+                    style={{ objectFit: "cover" }}
+                  />
                 ) : (
                   <FontAwesomeIcon icon={faUser} className="m-0" />
                 )}
@@ -179,12 +194,19 @@ function NotificationList({
         router.push(`/profile/${item.data.userId}`);
         break;
       case "comment-like":
+        router.push(
+          `/post/${item.data.postId}?commentId=${item.data.commentId}`
+        );
         break;
       case "comment-reply":
-        router.push(`/post/${item.data.postId}?parentId=${item.data.parentId}&replyId=${item.data.replyId}`);
+        router.push(
+          `/post/${item.data.postId}?parentId=${item.data.parentId}&replyId=${item.data.replyId}`
+        );
         break;
       case "post-comment":
-        router.push(`/post/${item.data.postId}?commentId=${item.data.commentId}`);
+        router.push(
+          `/post/${item.data.postId}?commentId=${item.data.commentId}`
+        );
         break;
       default:
         return;
@@ -231,6 +253,27 @@ function NotificationList({
         </button>
       </div>
       <ul ref={dragList} className="Notification_list">
+        <div className="sticky top-0 z-10 h-fit">
+          <div className="flex flex-row backdrop-blur-sm bg-secondary-2 py-1 justify-end gap-2">
+            <button
+              className="Icon_smaller"
+              onClick={() => {
+                feedClient.markAsRead(finalList);
+              }}
+            >
+              <FontAwesomeIcon icon={faEye} />
+            </button>
+            <button
+              className="Icon_smaller"
+              onClick={() => {
+                feedClient.markAsArchived(finalList);
+              }}
+            >
+              <FontAwesomeIcon icon={faTrash} />
+            </button>
+          </div>
+          <hr className="border-0 bg-secondary-1 h-1" />
+        </div>
         {finalList.length > 0 &&
           finalList.map((item: any, index) => (
             <li
@@ -247,11 +290,17 @@ function NotificationList({
               {item.actors[0] ? (
                 <div className="Notification_item">
                   {item.actors[0].avatar ? (
-                    <img
-                      src={item.actors[0].avatar}
-                      alt="profile picture"
-                      className="Icon_small select-none pointer-events-none"
-                    />
+                    <div className="Icon_small">
+                      <CustomImage
+                        src={item.actors[0].avatar}
+                        alt="profile picture"
+                        className="size-full"
+                        width={0}
+                        height={0}
+                        transformation={[{ quality: 10 }]}
+                        style={{ objectFit: "cover" }}
+                      />
+                    </div>
                   ) : (
                     <div className="Icon_small bg-secondary-2 pointer-events-none">
                       <FontAwesomeIcon icon={faUser} />

@@ -3,6 +3,8 @@
 import { faUber } from "@fortawesome/free-brands-svg-icons";
 import { faHeart as RegularHeart } from "@fortawesome/free-regular-svg-icons";
 import {
+  faAngleDown,
+  faAngleUp,
   faFaceSmile,
   faHeart as SolidHeart,
 } from "@fortawesome/free-solid-svg-icons";
@@ -10,19 +12,21 @@ import { faPaperPlane, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { type Comment } from "@lib/types";
 import {
+  checkUserHasLiked,
   fetchCommentReplies,
   fetchPostComment,
   fetchPostWithId,
   handleComment,
   handleLikeComment,
 } from "@server/postActions";
-import { RefObject, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import UserProfileIcon from "./UserProfileIcon";
 import { useSession } from "next-auth/react";
 import { formatTimeAgoWithoutAgo } from "@lib/dateFormat";
 import InputBox from "@components/Input/InputBox";
-import { useSearchParams } from "next/navigation";
-import EmojiPicker from "emoji-picker-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import EmojiInput from "@components/Input/EmojiInput";
+import ButtonWithTimeOut from "@components/Input/ButtonWithTimeOut";
 
 export const CommentItem = ({
   comment,
@@ -33,14 +37,12 @@ export const CommentItem = ({
 }) => {
   const { data: session } = useSession();
   const commentRef = useRef<HTMLDivElement>(null);
-  const replyRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const commentId = searchParams.get("commentId");
   const parentId = searchParams.get("parentId");
   const replyId = searchParams.get("replyId");
   const content = useRef<HTMLParagraphElement>(null);
   const replyBlock = useRef<HTMLTextAreaElement>(null);
-  const [likeTimeOut, setLikeTimeOut] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(comment.likes);
   const [replies, setReplies] = useState<Comment[]>([]);
@@ -52,17 +54,26 @@ export const CommentItem = ({
     !!(replyId && [commentId, parentId].includes(comment._id))
   );
 
-  const handleLikeState = async () => {
-    if (likeTimeOut) return;
+  const fetchLikeStatus = async () => {
+    if (session?.user.id) {
+      try {
+        const result = await checkUserHasLiked(
+          session.user.id,
+          comment._id,
+          "comment"
+        );
+        setIsLiked(result);
+      } catch (error) {
+        console.error("Failed to check if user has liked post", error);
+      }
+    }
+  };
 
-    setLikeTimeOut(true);
+  const handleLikeState = async () => {
     setLikesCount((prevLikes) => (isLiked ? prevLikes - 1 : prevLikes + 1));
     setIsLiked((prev) => !prev);
     if (session?.user.id)
       await handleLikeComment(comment._id, session?.user.id);
-    setTimeout(() => {
-      setLikeTimeOut(false);
-    }, 1000);
   };
 
   const fetchReplies = async () => {
@@ -100,32 +111,19 @@ export const CommentItem = ({
   }, [isReplying]);
 
   useEffect(() => {
+    fetchLikeStatus();
+    fetchReplies();
     setIsRepliesView(
       !!(replyId && [commentId, parentId].includes(comment._id))
     );
-    if (commentId || parentId) {
+    if (commentId || replyId) {
       commentRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
-      if (commentId) {
-        commentRef.current?.classList.remove("Highlighted");
-        commentRef.current?.classList.add("Highlighted");
-        setTimeout(() => {
-          commentRef.current?.classList.remove("Highlighted");
-        }, 2000);
-      }
-    }
-    if (replyId && replyRef.current) {
-      replyRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-      replyRef.current?.classList.remove("Highlighted");
-      replyRef.current?.classList.add("Highlighted");
-
+      commentRef.current?.classList.add("Highlighted");
       setTimeout(() => {
-        replyRef.current?.classList.remove("Highlighted");
+        commentRef.current?.classList.remove("Highlighted");
       }, 2000);
     }
   }, [parentId, commentId, replyId]);
@@ -136,18 +134,11 @@ export const CommentItem = ({
         content.current.scrollHeight > content.current.clientHeight
       );
     }
-    fetchReplies();
   }, []);
   return (
     <div
       className="flex items-start gap-2 p-1"
-      ref={
-        [commentId, parentId].includes(comment._id)
-          ? commentRef
-          : replyId === comment._id
-          ? replyRef
-          : null
-      }
+      ref={[commentId, replyId].includes(comment._id) ? commentRef : null}
     >
       {session?.user.id === comment.user._id ? (
         <UserProfileIcon currentUser={true} size={`Icon_${size}`} />
@@ -170,7 +161,7 @@ export const CommentItem = ({
           <div className="relative">
             <p
               className={`max-h-[100px] whitespace-break-spaces overflow-ellipsis overflow-y-hidden break-words  ${
-                size === "small" ? "text-xs" : "text-[0.9em]"
+                size === "small" ? "text-sm" : "text-xs"
               }  ${isExpanded ? "max-h-fit" : "line-clamp-4"}`}
               ref={content}
             >
@@ -216,18 +207,11 @@ export const CommentItem = ({
               <button className="Icon_smaller" onClick={handleReply}>
                 <FontAwesomeIcon icon={faPaperPlane} />
               </button>
-              <div className="relative">
-                {/* <div className="absolute bottom-full right-0">
-                  <EmojiPicker
-                    height={"350px"}
-                    onEmojiClick={handleEmojiSelect}
-                    open={isEmojiPickerOpen}
-                  />
-                </div> */}
-                <button className="Icon_smaller">
-                  <FontAwesomeIcon icon={faFaceSmile} />
-                </button>
-              </div>
+              <EmojiInput
+                setEmoji={setReplyContent}
+                size="smaller"
+                direction="bottom"
+              />
             </div>
           </div>
         )}
@@ -257,17 +241,17 @@ export const CommentItem = ({
         )}
       </div>
       <div className="flex flex-col items-center">
-        <button
+        <ButtonWithTimeOut
+          timeOut={1000}
           className="Icon_smaller"
           onClick={handleLikeState}
-          disabled={likeTimeOut}
         >
           {isLiked ? (
             <FontAwesomeIcon icon={SolidHeart} />
           ) : (
             <FontAwesomeIcon icon={RegularHeart} />
           )}
-        </button>
+        </ButtonWithTimeOut>
         <span className="text-xs">{likesCount}</span>
       </div>
     </div>
@@ -275,6 +259,7 @@ export const CommentItem = ({
 };
 
 export const CommentSection = ({ postId }: { postId: string }) => {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const commentId = searchParams.get("commentId");
   const parentId = searchParams.get("parentId");
@@ -287,6 +272,14 @@ export const CommentSection = ({ postId }: { postId: string }) => {
 
   const fetchComments = async () => {
     const response = await fetchPostComment(postId);
+    const replyComment = response.find(
+      (comment: any) => comment._id.toString() === commentId && comment.parent
+    );
+    if (replyComment) {
+      router.replace(
+        `/post/${postId}?parentId=${replyComment.parent.toString()}&replyId=${replyComment._id.toString()}`
+      );
+    }
     setComments(response);
   };
 
@@ -304,23 +297,26 @@ export const CommentSection = ({ postId }: { postId: string }) => {
 
   useEffect(() => {
     fetchComments();
-  }, [postId]);
+  }, [postId, commentId]);
 
   return (
     <div className="flex flex-col items-center ">
       <div className="text-center">{comments.length} Comments</div>
       <button className="" onClick={() => setIsMinimize((prev) => !prev)}>
-        {isMinimize ? "▼" : "▲"}
+        {isMinimize ? (
+          <FontAwesomeIcon icon={faAngleUp} />
+        ) : (
+          <FontAwesomeIcon icon={faAngleDown} />
+        )}
       </button>
-      {!isMinimize ? (
-        <ul className="max-h-[400px] w-full bg-secondary-2/20 flex flex-col gap-6 overflow-y-scroll no-scrollbar p-2 border-t-2 border-accent rounded-lg">
+      <div className={`${isMinimize ? "hidden" : "inline-block"} w-full`}>
+        <ul className="max-h-[400px]  w-full bg-secondary-2/20 flex flex-col gap-6 overflow-y-scroll no-scrollbar p-2 shadow-inner rounded-lg overscroll-none">
           {comments
             .filter((comment) => comment.parent === null)
             .sort((a, b) => {
               // Convert ISO strings to Date objects
               const dateA = new Date(a.createdAt.toString());
               const dateB = new Date(b.createdAt.toString());
-
               // Compare the Date objects
               return dateB.getTime() - dateA.getTime();
             })
@@ -330,7 +326,7 @@ export const CommentSection = ({ postId }: { postId: string }) => {
               </div>
             ))}
         </ul>
-      ) : null}
+      </div>
       {session?.user && (
         <div className="bg-secondary-1 py-2 flex flex-row items-center justify-between  w-full h-[60px] gap-2">
           <UserProfileIcon currentUser={true} />

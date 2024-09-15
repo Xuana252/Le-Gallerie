@@ -28,9 +28,10 @@ import toastError, { confirm } from "@components/Notification/Toaster";
 import { useRouter } from "next/navigation";
 import PopupButton from "@components/Input/PopupButton";
 import UserProfileIcon from "@components/UI/UserProfileIcon";
-import Image from "@components/UI/Image";
+import CustomImage from "@components/UI/Image";
 
 export default function UserProfile({ params }: { params: { id: string } }) {
+  const TIME_OUT_TIME = 1000;
   const { data: session } = useSession();
   const [interactFlag, setInteractFlag] = useState<number>(0);
   const [followers, setFollowers] = useState<User[]>();
@@ -38,10 +39,13 @@ export default function UserProfile({ params }: { params: { id: string } }) {
   const [following, setFollowing] = useState<User[]>();
   const [followingCount, setFollowingCount] = useState<number>(0);
   const [curUserFollowers, setCurUserFollowers] = useState<User[]>();
+  const [followTimeOut, setFollowTimeout] = useState(false);
   const [curUserFollowing, setCurUserFollowing] = useState<User[]>();
   const [postCount, setPostCount] = useState<number>(0);
   const [isFollowed, setIsFollowed] = useState(false);
   const router = useRouter();
+  const [isBlocked, setIsBlocked] = useState<boolean>(false); //from the other user
+  const [blocked, setBlocked] = useState<boolean>(false); //us blocking the other user
   const { setChatInfo } = useContext(ChatContext);
   const [followType, setFollowType] = useState<"Followers" | "Following">(
     "Followers"
@@ -53,14 +57,41 @@ export default function UserProfile({ params }: { params: { id: string } }) {
     bio: "",
   });
 
-  const handleUnfollow = async (user: User) => {
+  const fetchFollowers = async () => {
+    const response = await fetchUserFollowers(params.id);
+    if (session?.user.id) {
+      const curUserFollowers = await fetchUserFollowers(session.user.id);
+      setCurUserFollowers(curUserFollowers?.users);
+    }
+    setFollowers(response?.users);
+    setFollowersCount(response?.length);
+  };
+  const fetchFollowing = async () => {
+    const response = await fetchUserFollowing(params.id);
+    if (session?.user.id) {
+      const curUserFollowing = await fetchUserFollowing(session.user.id);
+      setCurUserFollowing(curUserFollowing?.users);
+    }
+    setFollowing(response?.users);
+    setFollowingCount(response?.length);
+  };
+  const fetchFollowState = async () => {
     if (!session?.user.id) return;
+    const response = await checkFollowState(params.id, session?.user.id);
+    setIsFollowed(response);
+  };
+
+  const handleUnfollow = async (user: User) => {
+    if (!session?.user.id || followTimeOut) return;
+    setFollowTimeout(true);
 
     const unfollowConfirmation = await confirm(
       `You do want to unfollow ${user.username}?`
     );
     if (unfollowConfirmation) {
-      setInteractFlag((c) => c + 1);
+      setCurUserFollowing((prev) =>
+        prev ? prev.filter((u) => u._id !== user._id) : []
+      );
     } else {
       return;
     }
@@ -69,9 +100,14 @@ export default function UserProfile({ params }: { params: { id: string } }) {
     } catch (error) {
       console.log("Failed to update user follows");
     }
+    setTimeout(() => {
+      setFollowTimeout(false);
+    }, TIME_OUT_TIME);
   };
 
   const handleFollow = async (user: User) => {
+    if (followTimeOut) return;
+    setFollowTimeout(true);
     if (!session?.user.id) {
       const loginConfirm = await confirm("you need to login first");
       if (loginConfirm) {
@@ -80,16 +116,21 @@ export default function UserProfile({ params }: { params: { id: string } }) {
       return;
     }
 
-    setInteractFlag((c) => c + 1);
+    setCurUserFollowing((prev) => [...(prev ? prev : []), user]);
 
     try {
       await followUser(user._id, session.user.id);
     } catch (error) {
       console.log("Failed to update user follows");
     }
+    setTimeout(() => {
+      setFollowTimeout(false);
+    }, TIME_OUT_TIME);
   };
 
   const handleChangeFollowState = async () => {
+    if (followTimeOut) return;
+    setFollowTimeout(true);
     if (!session?.user.id) {
       const loginConfirm = await confirm("you need to login first");
       if (loginConfirm) {
@@ -114,43 +155,37 @@ export default function UserProfile({ params }: { params: { id: string } }) {
 
     try {
       await followUser(params.id, session.user.id);
+      setInteractFlag((c) => c + 1);
     } catch (error) {
       console.log("Failed to update user follows");
     }
+    setTimeout(() => {
+      setFollowTimeout(false);
+    }, TIME_OUT_TIME);
   };
 
   const fetchUser = async () => {
     try {
+      
       const data = await fetchUserWithId(params.id);
-      if (JSON.stringify(data) !== JSON.stringify(user)) setUser(data);
+      console.log(session?.user.blocked)
+      const blockedByUser = !!(
+        data.blocked &&
+        data.blocked.find((userId: string) => userId === session?.user.id)
+      );
+      const blockedUser = !!(
+        session?.user.blocked &&
+        session?.user.blocked.find((userId) => userId === data._id)
+      );
+      if (blockedByUser || blockedUser) {
+        setIsBlocked(blockedByUser);
+        setBlocked(blockedUser);
+      } else if (JSON.stringify(data) !== JSON.stringify(user)) setUser(data);
     } catch (error) {
       console.log("Failed to fetch for user info");
     }
   };
   useEffect(() => {
-    const fetchFollowers = async () => {
-      const response = await fetchUserFollowers(params.id);
-      if (session?.user.id) {
-        const curUserFollowers = await fetchUserFollowers(session.user.id);
-        setCurUserFollowers(curUserFollowers?.users);
-      }
-      setFollowers(response?.users);
-      setFollowersCount(response?.length);
-    };
-    const fetchFollowing = async () => {
-      const response = await fetchUserFollowing(params.id);
-      if (session?.user.id) {
-        const curUserFollowing = await fetchUserFollowing(session.user.id);
-        setCurUserFollowing(curUserFollowing?.users);
-      }
-      setFollowing(response?.users);
-      setFollowingCount(response?.length);
-    };
-    const fetchFollowState = async () => {
-      if (!session?.user.id) return;
-      const response = await checkFollowState(params.id, session?.user.id);
-      setIsFollowed(response);
-    };
     fetchFollowers();
     fetchFollowing();
     fetchFollowState();
@@ -160,8 +195,23 @@ export default function UserProfile({ params }: { params: { id: string } }) {
     const storeUser = localStorage.getItem("user");
     if (storeUser) {
       const user = JSON.parse(storeUser);
-      setUser(user);
-      setIsFollowed(user.followed);
+      const blockedByUser = !!(
+        user.blocked &&
+        user.blocked.find((userId: string) => userId === session?.user.id)
+      );
+      const blockedUser = !!(
+        session?.user.blocked &&
+        session?.user.blocked.find((userId) => userId === user._id)
+      );
+      if (blockedByUser || blockedUser) {
+        setIsBlocked(blockedByUser);
+        setBlocked(blockedUser);
+      } else {
+        setUser(user);
+        setIsFollowed(user.followed);
+        setFollowersCount(user.follower);
+        setFollowingCount(user.following);
+      }
     }
     fetchUser();
   }, []);
@@ -269,7 +319,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
         </div>
         <ul className="bg-secondary-1 w-[300px] h-[400px] sm:w-[400px] sm:h-[500px] rounded-lg py-4 px-2 flex flex-col gap-2">
           {list.map((item) => (
-            <div className="flex items-center">
+            <div key={item._id} className="flex items-center">
               <label className="flex items-center gap-2 cursor-pointer">
                 {item._id === session?.user.id ? (
                   <UserProfileIcon currentUser={true} />
@@ -284,6 +334,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                 <button
                   className="Button_variant_1 ml-auto"
                   onClick={() => handleUnfollow(item)}
+                  disabled={followTimeOut}
                 >
                   Unfollow
                 </button>
@@ -293,6 +344,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                 <button
                   className="Button_variant_1 ml-auto"
                   onClick={() => handleFollow(item)}
+                  disabled={followTimeOut}
                 >
                   Follow back
                 </button>
@@ -300,6 +352,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                 <button
                   className="Button_variant_1 ml-auto"
                   onClick={() => handleFollow(item)}
+                  disabled={followTimeOut}
                 >
                   Follow
                 </button>
@@ -315,7 +368,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
       <div className="User_Profile_Layout">
         <div className=" User_Profile_Page_Picture ">
           {user.image ? (
-            <Image
+            <CustomImage
               src={user.image}
               alt={"profile picture"}
               className="size-full"

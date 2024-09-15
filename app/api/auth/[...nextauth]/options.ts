@@ -114,6 +114,7 @@ export const options: NextAuthOptions = {
             bio: "",
             follower:0,
             following:0,
+            blocked:[],
           });
 
           const knockUser = await knock.users.identify(newUser._id.toString(),{
@@ -142,6 +143,7 @@ export const options: NextAuthOptions = {
             session.user.bio = sessionUser.bio || "";
             session.user.follower = sessionUser.follower||0;
             session.user.following = sessionUser.following||0;
+            session.user.blocked = sessionUser.blocked.map((user:any)=>user.toString())||[];
           }
         } catch (error) {
           console.log("Error fetching user for session:", error);

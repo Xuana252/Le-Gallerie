@@ -8,6 +8,7 @@ declare module 'next-auth' {
     bio?: string
     follower?:number,
     following?:number,
+    blocked?:string[],
   }
 
   interface Session {

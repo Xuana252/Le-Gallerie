@@ -14,7 +14,7 @@ export const GET = async (
       .select("_id creator title categories description image likes")
       .populate({
         path: "creator",
-        select: "_id username bio image follower following",
+        select: "-email -password -createdAt -updatedAt -__v",
       })
       .populate("categories");
 

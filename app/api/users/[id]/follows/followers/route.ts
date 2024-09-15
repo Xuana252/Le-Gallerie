@@ -6,7 +6,7 @@ export const GET = async (req:NextRequest,{params}:{params:{ id: string }})=>{
     try {
         await connectToDB()
 
-        const followers = await Follow.find({user:params.id}).populate({ path: "follower", select: "_id username bio image follower following" })
+        const followers = await Follow.find({user:params.id}).populate({ path: "follower", select: "-email -password -createdAt -updatedAt -__v" })
         const users = followers.map(follower=>follower.follower)
         return NextResponse.json({users:users,length:users.length},{status:200})
     } catch(error) {

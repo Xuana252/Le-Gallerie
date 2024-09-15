@@ -16,7 +16,7 @@ export const PATCH = async (
 
     const comment = await Comment.findById(params.id);
     if (!comment) {
-      return NextResponse.json({ message: "Post not found" }, { status: 400 });
+      return NextResponse.json({ message: "comment not found" }, { status: 400 });
     }
 
     const liked = await CommentLike.findOne({
@@ -34,6 +34,7 @@ export const PATCH = async (
         await knock.workflows.trigger("comment-like", {
           actor: userId,
           data: {
+            postId: comment.post.toString(),
             commentId: params.id,
           },
           recipients: [

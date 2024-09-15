@@ -38,16 +38,18 @@ export default function Feed({ userIdFilter, categoryFilter = [],showCateBar=tru
     }
   };
 
+
+
   useEffect(() => {
     fetchPosts();
   }, [userIdFilter]);
 
-  const breakpointColumnsObj = {
-    default: 5,
-    1100: 3,
-    700: 2,
-    500: 1,
-  };
+  // const breakpointColumnsObj = {
+  //   default: 5,
+  //   1100: 3,
+  //   700: 2,
+  //   500: 1,
+  // };
 
   const handleCategoriesFilerChange = (categories: Category[]) => {
     setCategoriesFilter(categories);
@@ -82,7 +84,7 @@ export default function Feed({ userIdFilter, categoryFilter = [],showCateBar=tru
     else setIsEmpty(true);
     setFilteredPosts(finalPosts);
     setPostCount&&setPostCount(finalPosts.length)
-    setTimeout(() => setLoading(false), 2000);
+    setTimeout(() => setLoading(false), 1000);
   }, [posts, searchText, categoriesFilter]);
 
   const [gridColStyle, setGridColStyle] = useState("grid-colds-1");

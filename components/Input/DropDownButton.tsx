@@ -1,6 +1,7 @@
 "use client";
 import { useTransition, animated, useSpring } from "@react-spring/web";
 import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { setTimeout } from "timers/promises";
 
 type DropDownButtonProps = {
   dropDirection?: "left" | "right" | "top" | "bottom";
@@ -25,6 +26,7 @@ export default function DropDownButton({
     transform: getAnimation(toggleDropDown,dropDirection),
     config: { duration: 300, easing: (t) => t * (2 - t) },
   });
+  const hoverTimeout = useRef<number|null >(null)
   const dropDownBoxTransition = useTransition(toggleDropDown, {
     from: {
       opacity: 0,
@@ -42,9 +44,17 @@ export default function DropDownButton({
     // Adjust the duration as needed
   });
 
-  const handleToggle = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setToggleDropDown((prev) => !prev);
+  const handleMouseEnter = () => {
+    if (hoverTimeout.current) {
+      clearTimeout(hoverTimeout.current); // Clear any existing timeout
+    }
+    setToggleDropDown(true); // Show the dropdown
+  };
+
+  const handleMouseLeave = () => {
+    hoverTimeout.current = window.setTimeout(() => {
+      setToggleDropDown(false); // Hide the dropdown after 1 second
+    }, 500);
   };
 
   const handleClickOutside = (e: MouseEvent) => {
@@ -127,11 +137,11 @@ export default function DropDownButton({
   }, [dropDirection]);
   return (
     <div
-      onMouseEnter={hover ? handleToggle : () => {}}
-      onMouseLeave={hover ? handleToggle : () => {}}
+      onMouseEnter={hover ? handleMouseEnter  : () => {}}
+      onMouseLeave={hover ? handleMouseLeave  : () => {}}
       className={`relative flex z-${Zindex.toString()}`}
     >
-      <button onClick={handleToggle} ref={buttonRef}>
+      <button onClick={hover?()=>{}:() => setToggleDropDown((prev) => !prev)} ref={buttonRef}>
         {children}
       </button>
       <animated.div

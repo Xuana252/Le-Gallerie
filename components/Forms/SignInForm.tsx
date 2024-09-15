@@ -146,30 +146,24 @@ export default function SignInForm({ providers }: { providers: string[] }) {
         let errorMessage = "";
         if (key === "image") return false; // Skip image field
         if (typeof value === "string") {
-          if (key === "email") {
-            if (!validator.isEmail(value)) {
+          if(value.trim()==="") {
+              isInvalid = true;
+          } else if (key === "email" && !validator.isEmail(value)) {
               errorMessage = "Invalid email";
               isInvalid = true;
-            }
-          } else if (key === "password") {
-            if (value.length < 8) {
+          } else if (key === "password"&&value.length < 8) {
               errorMessage = "Password must be at least 8 letters long";
               isInvalid = true;
-            }
-          } else if (key === "repeatedPassword") {
-            if (value !== signUpCredentials.password) {
+          } else if (key === "repeatedPassword" && value !== signUpCredentials.password) {
               errorMessage = "Repeated password does not match";
               isInvalid = true;
-            }
-          }
-          if (value.trim() === "") {
-            isInvalid = true;
           }
         } else {
           return false;
         }
         if (isInvalid) {
           errorMessage!==''?invalidLog.push(errorMessage):'';
+          return true
         }
         return value.trim() === ""; // Check for empty fields
       })
@@ -189,6 +183,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
     if (invalidInputs.length > 0) {
       handleInvalid(invalidInputs);
       setSubmitState("Failed");
+      return
     } else {
       try {
         const response = await signIn("credentials", {
@@ -219,6 +214,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
     if (invalidInputs.length > 0) {
       handleInvalid(invalidInputs);
       setSubmitState("Failed");
+      return;
     } else {
       const isRateLimited = await checkAuthRateLimit();
       if (isRateLimited) {

@@ -12,7 +12,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { type User } from "@lib/types";
 import { checkFollowState } from "@server/accountActions";
-import Image from "./Image";
+import CustomImage from "./Image";
 
 // Define the base type for the props
 type BaseUserProfileIconProps = {
@@ -62,7 +62,7 @@ export default function UserProfileIcon({
   return (
     <button className={`bg-secondary-2 relative ${size}`} onClick={handleClick}>
       {profileImage ? (
-          <Image
+          <CustomImage
             src={profileImage}
             alt="profile picture"
             className="size-full"
@@ -70,7 +70,7 @@ export default function UserProfileIcon({
             height={0}
             transformation={[{ quality: 10 }]}
             style={{ objectFit: "cover" }}
-          ></Image>
+          />
       ) : (
         <FontAwesomeIcon icon={faUser} className="m-0" />
       )}

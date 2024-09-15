@@ -29,7 +29,7 @@ export const GET =async (req:Request,{params}:{params:{id:string}}) => {
     try {
         connectToDB()
 
-        const user = await User.findById(params.id).select("_id username bio image")
+        const user = await User.findById(params.id).select("-email -password -createdAt -updatedAt -__v")
         if(!user)
             return NextResponse.json({message: 'User not found'},{status:404})
         return NextResponse.json(user,{status:200})

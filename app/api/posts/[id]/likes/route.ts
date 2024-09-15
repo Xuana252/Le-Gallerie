@@ -14,7 +14,7 @@ export const GET = async (
     try {
         await connectToDB()
 
-        const postLikes = await Like.find({post:params.id}).populate({ path: "user", select: "_id username bio image follower following" })
+        const postLikes = await Like.find({post:params.id}).populate({ path: "user", select: "-email -password -createdAt -updatedAt -__v" })
         const users = postLikes.map(like => like.user);
         return NextResponse.json(users,{status:200})
     } catch(error) {

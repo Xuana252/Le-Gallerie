@@ -80,6 +80,7 @@ export default function ImageInput({
         setIsLoading(false);
       }, 1000);
     }
+    imageInput.current?imageInput.current.value='':null
   };
   const handleClearImage = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();

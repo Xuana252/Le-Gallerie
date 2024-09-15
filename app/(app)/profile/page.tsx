@@ -2,9 +2,6 @@
 import React, { useEffect, useState } from "react";
 import Image from "@components/UI/Image";
 import Feed from "@components/UI/Feed";
-import { getServerSession } from "next-auth";
-import { options } from "@app/api/auth/[...nextauth]/options";
-import { redirect } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faPen } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
@@ -18,11 +15,15 @@ import {
 import UserProfileIcon from "@components/UI/UserProfileIcon";
 import { User } from "@lib/types";
 import { confirm } from "@components/Notification/Toaster";
+import ButtonWithTimeOut from "@components/Input/ButtonWithTimeOut";
+import CustomImage from "@components/UI/Image";
 
 export default function MyProfile() {
+  const TIME_OUT_TIME = 1000;
   const { data: session,update } = useSession();
   const [followers, setFollowers] = useState<User[]>();
   const [followerCount, setFollowersCount] = useState<number>(0);
+  const [followTimeOut,setFollowTimeout] = useState(false)
   const [following, setFollowing] = useState<User[]>();
   const [followingCount, setFollowingCount] = useState<number>(0);
   const [postCount, setPostCount] = useState<number>(0);
@@ -30,14 +31,26 @@ export default function MyProfile() {
     "Followers"
   );
 
-  const handleUnfollow = async (user: User) => {
-    if (!session?.user.id) return;
+  const fetchFollowers = async () => {
+    const response = await fetchUserFollowers(session?.user.id || "");
+    setFollowers(response?.users || []);
+    setFollowersCount(response?.users.length || 0);
+  };
+  const fetchFollowing = async () => {
+    const response = await fetchUserFollowing(session?.user.id || "");
+    setFollowing(response?.users || []);
+    setFollowingCount(response?.users.length || 0);
+  };
 
+  const handleUnfollow = async (user: User) => {
+    if (!session?.user.id||followTimeOut) return;
+    setFollowTimeout(true)
     const unfollowConfirmation = await confirm(
       `You do want to unfollow ${user.username}?`
     );
     if (unfollowConfirmation) {
       setFollowingCount((c) => c - 1);
+      setFollowing(prev=> prev ? prev.filter((u) => u._id !== user._id) : [])
     } else {
       return;
     }
@@ -46,35 +59,33 @@ export default function MyProfile() {
     } catch (error) {
       console.log("Failed to update user follows");
     }
+    setTimeout(()=>{
+      setFollowTimeout(false)
+    },TIME_OUT_TIME)
   };
 
   const handleFollow = async (user: User) => {
-    if (!session?.user.id) return;
+    if (!session?.user.id||followTimeOut) return;
+    setFollowTimeout(true)
 
     setFollowingCount((c) => c + 1);
+    setFollowing((prev) => [...prev?prev:[], user])
 
     try {
       await followUser(user._id, session.user.id);
     } catch (error) {
       console.log("Failed to update user follows");
     }
+    setTimeout(()=>{
+      setFollowTimeout(false)
+    },TIME_OUT_TIME)
   };
 
 
   useEffect(() => {
-    const fetchFollowers = async () => {
-      const response = await fetchUserFollowers(session?.user.id || "");
-      setFollowers(response?.users || []);
-      setFollowersCount(response?.users.length || 0);
-    };
-    const fetchFollowing = async () => {
-      const response = await fetchUserFollowing(session?.user.id || "");
-      setFollowing(response?.users || []);
-      setFollowingCount(response?.users.length || 0);
-    };
     fetchFollowers();
     fetchFollowing();
-  }, [session,followerCount,followingCount]);
+  }, [session?.user.id]);
 
   const FollowList = () => {
     const list = (followType === "Followers" ? followers : following) || [];
@@ -104,7 +115,7 @@ export default function MyProfile() {
         </div>
         <ul className="bg-secondary-1 w-[300px] h-[400px] sm:w-[400px] sm:h-[500px] rounded-lg py-4 px-2 flex flex-col gap-2">
           {list.map((item) => (
-            <div className="flex items-center">
+            <div key={item._id} className="flex items-center">
               <label className="flex items-center gap-2 cursor-pointer">
                 <UserProfileIcon currentUser={false} user={item} />
                 {item.username}
@@ -113,14 +124,16 @@ export default function MyProfile() {
               following?.find((follow) => follow._id === item._id) ? (
                 <button
                   className="Button_variant_1 ml-auto"
-                  onClick={() => handleUnfollow(item)}
+                  onClick={()=>handleUnfollow(item)}
+                  disabled={followTimeOut}
                 >
                   Unfollow
                 </button>
               ) : (
                 <button
                   className="Button_variant_1 ml-auto"
-                  onClick={() => handleFollow(item)}
+                  onClick={()=>handleFollow(item)}
+                  disabled={followTimeOut}
                 >
                   Follow back
                 </button>
@@ -138,7 +151,7 @@ export default function MyProfile() {
         <div className="relative">
           <div className="User_Profile_Page_Picture ">
             {session?.user?.image ? (
-             <Image
+             <CustomImage
              src={session.user.image}
              alt={'profile picture'}
              className='size-full'

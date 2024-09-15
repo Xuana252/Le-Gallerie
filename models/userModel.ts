@@ -29,11 +29,17 @@ const UserSchema = new Schema ({
     following: {
         type:Number,
         required: false
-    }
+    },
+    blocked: [{
+        type: Schema.Types.ObjectId,
+        required: false,
+    }]
 },
 {
     timestamps:true,
 })
+
+delete models.User
 
 const User  = models.User||model('User',UserSchema)
 

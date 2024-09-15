@@ -299,7 +299,7 @@ export default function PostForm({ type, editPost }: PostFormProps) {
             console.log(`Attempted to ${type} successfully`);
 
             type === "Edit"
-              ? localStorage.setItem("post", JSON.stringify(post))
+              ? localStorage.setItem("post", JSON.stringify({...post,image:post.image.url}))
               : null;
 
             setTimeout(() => router.back(), 1000);
