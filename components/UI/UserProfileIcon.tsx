@@ -52,8 +52,9 @@ export default function UserProfileIcon({
       if (session?.user.id) {
         const followed = await checkFollowState(user?._id, session?.user.id);
         storeUser = { ...user, followed: followed };
+        if(!(!!user.blocked?.find(userId=>userId===session.user.id))&&!(!!(session.user.blocked?.find(userId=>userId===user._id))))
+          localStorage.setItem("user", JSON.stringify(storeUser));
       }
-      localStorage.setItem("user", JSON.stringify(storeUser));
       router.push(`/profile/${user._id}`);
     }
   };

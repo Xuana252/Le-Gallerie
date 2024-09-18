@@ -2,9 +2,16 @@
 import React, { useContext, useEffect, useState } from "react";
 import Feed from "@components/UI/Feed";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faComment, faUser } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBorderAll,
+  faComment,
+  faLineChart,
+  faLinesLeaning,
+  faUser,
+} from "@fortawesome/free-solid-svg-icons";
 import { User } from "@lib/types";
 import {
+  blockUser,
   checkFollowState,
   fetchUserFollowers,
   fetchUserFollowing,
@@ -22,17 +29,19 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "@lib/firebase";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { ChatContext } from "@components/UI/Nav";
 import toastError, { confirm } from "@components/Notification/Toaster";
 import { useRouter } from "next/navigation";
 import PopupButton from "@components/Input/PopupButton";
 import UserProfileIcon from "@components/UI/UserProfileIcon";
 import CustomImage from "@components/UI/Image";
+import MultipleOptionsButton from "@components/Input/MultipleOptionsButton";
+import { faHeart } from "@fortawesome/free-regular-svg-icons";
 
 export default function UserProfile({ params }: { params: { id: string } }) {
   const TIME_OUT_TIME = 1000;
-  const { data: session } = useSession();
+  const { data: session, status, update } = useSession();
   const [interactFlag, setInteractFlag] = useState<number>(0);
   const [followers, setFollowers] = useState<User[]>();
   const [followerCount, setFollowersCount] = useState<number>(0);
@@ -50,9 +59,10 @@ export default function UserProfile({ params }: { params: { id: string } }) {
   const [followType, setFollowType] = useState<"Followers" | "Following">(
     "Followers"
   );
-  const [user, setUser] = useState<User>({
+  const [view, setView] = useState<"AllPosts" | "LikedPosts">("AllPosts");
+  const [user, setUser] = useState<User | null>({
     _id: "",
-    username: "unknown",
+    username: "",
     image: "",
     bio: "",
   });
@@ -128,6 +138,31 @@ export default function UserProfile({ params }: { params: { id: string } }) {
     }, TIME_OUT_TIME);
   };
 
+  const handleChangeBlockState = async (userId: string) => {
+    if (!session?.user.id) {
+      const loginConfirm = await confirm("you need to login first");
+      if (loginConfirm) {
+        router.push("/sign-in");
+      }
+      return;
+    }
+    const result = await confirm(`Do you want to block ${user?.username}`);
+    if (result) {
+      setBlocked(true);
+    } else {
+      return;
+    }
+    try {
+      const response = await blockUser(session.user.id, userId);
+      const newSession = await getSession();
+      await update(newSession);
+      if (!response) {
+        setBlocked((prev) => !prev);
+      }
+    } catch (error) {
+      toastError("Error");
+    }
+  };
   const handleChangeFollowState = async () => {
     if (followTimeOut) return;
     setFollowTimeout(true);
@@ -140,12 +175,15 @@ export default function UserProfile({ params }: { params: { id: string } }) {
     }
     if (isFollowed) {
       const unfollowConfirmation = await confirm(
-        `You do want to unfollow ${user.username}?`
+        `You do want to unfollow ${user?.username}?`
       );
       if (unfollowConfirmation) {
         setIsFollowed(false);
         setFollowersCount((c) => c - 1);
       } else {
+        setTimeout(() => {
+          setFollowTimeout(false);
+        }, TIME_OUT_TIME);
         return;
       }
     } else {
@@ -166,34 +204,47 @@ export default function UserProfile({ params }: { params: { id: string } }) {
 
   const fetchUser = async () => {
     try {
-      
       const data = await fetchUserWithId(params.id);
-      console.log(session?.user.blocked)
-      const blockedByUser = !!(
-        data.blocked &&
-        data.blocked.find((userId: string) => userId === session?.user.id)
-      );
-      const blockedUser = !!(
-        session?.user.blocked &&
-        session?.user.blocked.find((userId) => userId === data._id)
-      );
-      if (blockedByUser || blockedUser) {
+      if (session?.user?.id) {
+        const blockedByUser = !!(
+          data.blocked &&
+          data.blocked.find((userId: string) => userId === session?.user.id)
+        );
+        const blockedUser = !!(
+          session?.user.blocked &&
+          session?.user.blocked.find((userId) => userId === data._id)
+        );
         setIsBlocked(blockedByUser);
         setBlocked(blockedUser);
-      } else if (JSON.stringify(data) !== JSON.stringify(user)) setUser(data);
+        if (blockedByUser || blockedUser) {
+          setFollowers([]);
+          setFollowing([]);
+          setUser(null);
+        } else if (JSON.stringify(data) !== JSON.stringify(user)) {
+          setUser(data);
+          fetchFollowers();
+          fetchFollowing();
+          fetchFollowState();
+        }
+      } else if (JSON.stringify(data) !== JSON.stringify(user)) {
+        setUser(data);
+        fetchFollowers();
+        fetchFollowing();
+        fetchFollowState();
+      }
     } catch (error) {
       console.log("Failed to fetch for user info");
     }
   };
   useEffect(() => {
-    fetchFollowers();
-    fetchFollowing();
-    fetchFollowState();
+    if (status !== "loading") {
+      fetchUser();
+    }
   }, [params.id, session, interactFlag]);
 
   useEffect(() => {
     const storeUser = localStorage.getItem("user");
-    if (storeUser) {
+    if (storeUser && JSON.parse(storeUser)._id === params.id) {
       const user = JSON.parse(storeUser);
       const blockedByUser = !!(
         user.blocked &&
@@ -212,8 +263,8 @@ export default function UserProfile({ params }: { params: { id: string } }) {
         setFollowersCount(user.follower);
         setFollowingCount(user.following);
       }
+      localStorage.removeItem("user");
     }
-    fetchUser();
   }, []);
 
   const startChat = async () => {
@@ -364,78 +415,178 @@ export default function UserProfile({ params }: { params: { id: string } }) {
     );
   };
   return (
-    <section className="text-accent">
-      <div className="User_Profile_Layout">
-        <div className=" User_Profile_Page_Picture ">
-          {user.image ? (
-            <CustomImage
-              src={user.image}
-              alt={"profile picture"}
-              className="size-full"
-              width={0}
-              height={0}
-              style={{ objectFit: "cover" }}
-              transformation={[{ quality: 80 }]}
-              lqip={{ active: true, quality: 20 }}
-            />
-          ) : (
-            <FontAwesomeIcon icon={faUser} size="xl" className="size-full" />
-          )}
-        </div>
-        <div>
-          <div className="flex">
-            <h1 className="User_Profile_Page_Username">{user.username}</h1>
+    <>
+      {status === "loading" || blocked || isBlocked || !user?._id ? (
+        <section className="text-accent">
+          <div className="User_Profile_Layout">
+            <div className=" User_Profile_Page_Picture ">
+              <FontAwesomeIcon icon={faUser} size="xl" className="size-full" />
+            </div>
+            <div>
+              <div className="flex">
+                <h1 className="User_Profile_Page_Username">username</h1>
+              </div>
+              <br />
+              <h2 className="User_Profile_Page_Bio">user bio</h2>
+            </div>
+            <div className="User_Profile_Page_Stat_Bar">
+              <>
+                <h1
+                  className="flex flex-col items-center justify-start"
+                  onClick={() => setFollowType("Followers")}
+                >
+                  <span className="font-semibold">0</span>
+                  Followers
+                </h1>
+              </>
+              <>
+                <h1
+                  className="flex flex-col items-center justify-start"
+                  onClick={() => setFollowType("Following")}
+                >
+                  <span className="font-semibold">0</span>
+                  Following
+                </h1>
+              </>
+              <h1 className="flex flex-col items-center justify-start">
+                <span className="font-semibold">0</span>Posts
+              </h1>
+            </div>
           </div>
-          <br />
-          <h2 className="User_Profile_Page_Bio">{user.bio}</h2>
-        </div>
-        <div className="User_Profile_Page_Stat_Bar">
-          <PopupButton popupItem={<FollowList />}>
-            <h1
-              className="flex flex-col items-center justify-start"
-              onClick={() => setFollowType("Followers")}
+          <div className="User_Profile_Page_Interactive_Bar">
+            <button
+              className={`Button_variant_1_5
+              `}
             >
-              <span className="font-semibold">{followerCount}</span>
-              Followers
-            </h1>
-          </PopupButton>
-          <PopupButton popupItem={<FollowList />}>
-            <h1
-              className="flex flex-col items-center justify-start"
-              onClick={() => setFollowType("Following")}
-            >
-              <span className="font-semibold">{followingCount}</span>
-              Following
-            </h1>
-          </PopupButton>
-          <h1 className="flex flex-col items-center justify-start">
-            <span className="font-semibold">{postCount}</span>Posts
-          </h1>
-        </div>
-      </div>
-      <div className="User_Profile_Page_Interactive_Bar">
-        <button
-          className={`${
-            isFollowed ? "Button_variant_1" : "Button_variant_1_5"
-          }`}
-          onClick={handleChangeFollowState}
-        >
-          {isFollowed ? "Unfollow" : "Follow"} {user.username}
-        </button>
-        <button className="Button_variant_1" onClick={startChat}>
-          Message {user.username} <FontAwesomeIcon icon={faComment} />
-        </button>
-      </div>
-      <h1 className="text-center text-xl my-4 ">See {user.username}'s posts</h1>
-      <div className="shadow-inner bg-secondary-2/20 rounded-xl">
-        {user._id && (
-          <Feed
-            userIdFilter={user._id}
-            showCateBar={false}
-            setPostCount={setPostCount}
-          ></Feed>
-        )}
-      </div>
-    </section>
+              {"Follow"}
+            </button>
+            <button className="Button_variant_1">
+              Message <FontAwesomeIcon icon={faComment} />
+            </button>
+          </div>
+          <h1 className="text-center text-xl my-4 ">See posts</h1>
+          <div className="shadow-inner bg-secondary-2/20 rounded-xl">
+            {isBlocked || blocked ? (
+              <div className="text-4xl font-semibold text-center">
+                You're not allowed to view this user profile
+              </div>
+            ) : (
+              <div className="h-[500px]"></div>
+            )}
+          </div>
+        </section>
+      ) : (
+        <section className="text-accent">
+          <div className="User_Profile_Layout">
+            <div className=" User_Profile_Page_Picture ">
+              {user?.image ? (
+                <CustomImage
+                  src={user.image}
+                  alt={"profile picture"}
+                  className="size-full"
+                  width={0}
+                  height={0}
+                  style={{ objectFit: "cover" }}
+                  transformation={[{ quality: 80 }]}
+                  lqip={{ active: true, quality: 20 }}
+                />
+              ) : (
+                <FontAwesomeIcon
+                  icon={faUser}
+                  size="xl"
+                  className="size-full"
+                />
+              )}
+            </div>
+            <div>
+              <div className="flex">
+                <h1 className="User_Profile_Page_Username">{user?.username}</h1>
+              </div>
+              <br />
+              <h2 className="User_Profile_Page_Bio">{user?.bio}</h2>
+            </div>
+            <div className="User_Profile_Page_Stat_Bar">
+              <PopupButton popupItem={<FollowList />}>
+                <h1
+                  className="flex flex-col items-center justify-start"
+                  onClick={() => setFollowType("Followers")}
+                >
+                  <span className="font-semibold">{followerCount}</span>
+                  Followers
+                </h1>
+              </PopupButton>
+              <PopupButton popupItem={<FollowList />}>
+                <h1
+                  className="flex flex-col items-center justify-start"
+                  onClick={() => setFollowType("Following")}
+                >
+                  <span className="font-semibold">{followingCount}</span>
+                  Following
+                </h1>
+              </PopupButton>
+              <h1 className="flex flex-col items-center justify-start">
+                <span className="font-semibold">{postCount}</span>Posts
+              </h1>
+            </div>
+          </div>
+          <div className="User_Profile_Page_Interactive_Bar">
+            <>
+              <MultipleOptionsButton>
+                <button
+                  className={`size-full font-bold px-2 py-1`}
+                  onClick={handleChangeFollowState}
+                >
+                  {isFollowed ? "Unfollow" : "Follow"}
+                </button>
+                <button
+                  className={`size-full font-bold px-2 py-1`}
+                  onClick={() => {
+                    user?._id && handleChangeBlockState(user._id);
+                  }}
+                >
+                  Block
+                </button>
+              </MultipleOptionsButton>
+              <button className="Button_variant_1" onClick={startChat}>
+                Message <FontAwesomeIcon icon={faComment} />
+              </button>
+            </>
+          </div>
+          <div className="w-full flex flex-col">
+            <div className="w-full flex flex-row justify-center items-center gap-6 h-fit  ">
+              <button
+                className={`${
+                  view === "AllPosts"
+                    ? "text-accent border-b-4 border-accent"
+                    : "text-secondary-2"
+                } text-3xl  hover:text-accent size-12`}
+                onClick={() => setView("AllPosts")}
+              >
+                <FontAwesomeIcon icon={faLinesLeaning} />
+              </button>
+              <button
+                className={`${
+                  view === "LikedPosts"
+                    ? "text-accent border-b-4 border-accent"
+                    : "text-secondary-2"
+                } text-3xl  hover:text-accent size-12`}
+                onClick={() => setView("LikedPosts")}
+              >
+                <FontAwesomeIcon icon={faHeart} />
+              </button>
+            </div>
+            <div className="shadow-inner bg-secondary-2/20 rounded-xl">
+              {user?._id && (
+                <Feed
+                  userIdFilter={user._id}
+                  showCateBar={false}
+                  setPostCount={setPostCount}
+                ></Feed>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+    </>
   );
 }

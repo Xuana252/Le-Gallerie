@@ -19,7 +19,6 @@ import { createContext, Dispatch } from "react";
 import ThemeList from "@theme/ThemesList";
 import NotificationButton from "@components/Notification/Notification";
 import ChatButton from "@components/Chat/ChatButton";
-import NotificationFeed from "@components/Notification/NotificationDefault";
 import ChatBox from "@components/Chat/ChatBox";
 
 export const ButtonSet = () => {

@@ -31,7 +31,7 @@ import {
   onSnapshot,
   updateDoc,
 } from "firebase/firestore";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import React, {
   Dispatch,
   SetStateAction,
@@ -50,6 +50,7 @@ import toastError, { confirm } from "@components/Notification/Toaster";
 import CustomImage from "@components/UI/Image";
 import { blockUser, fetchUserWithId } from "@server/accountActions";
 import { AppLogoLoader, Spinner } from "@components/UI/Loader";
+import { formatTimeAgo, formatTimeAgoWithoutAgo } from "@lib/dateFormat";
 
 export default function ChatBox({}: {}) {
   const router = useRouter();
@@ -61,19 +62,24 @@ export default function ChatBox({}: {}) {
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const [chat, setChat] = useState<any>([]);
   const [text, setText] = useState("");
-  const { data: session } = useSession();
-  const lastMessageRef = useRef<HTMLDivElement>(null);
+  const { data: session,update } = useSession();
+  const messageListRef = useRef<HTMLUListElement>(null);
   const [isBlocked, setIsBlocked] = useState<boolean>(false); //from the other user
   const [blocked, setBlocked] = useState<boolean>(false); //us blocking the other user
 
   const checkChatUserBLock = async (userId: string) => {
+    if(!session?.user.id) return 
     try {
-      const response = await fetchUserWithId(userId);
-      const checkResult = response.blocked.find(
+      const user = await fetchUserWithId(userId);
+      const userBlock = !!user.blocked.find(
         (userId: string) => userId === session?.user.id
       );
-      setIsBlocked(checkResult);
-      return checkResult;
+      const blockUser = !!session.user.blocked?.find(
+        (blockedId: string) => userId === blockedId
+      );
+      setIsBlocked(userBlock);
+      setBlocked(blockUser);
+      return userBlock || blockUser;
     } catch (error) {
       console.log("Error while checking block state", error);
       return false;
@@ -121,6 +127,8 @@ export default function ChatBox({}: {}) {
     }
     try {
       const response = await blockUser(session.user.id, userId);
+      const newSession = await getSession();
+      await update(newSession)
       if (!response) {
         setBlocked((prev) => !prev);
       }
@@ -228,11 +236,10 @@ export default function ChatBox({}: {}) {
   };
 
   useEffect(() => {
-    lastMessageRef.current &&
-      lastMessageRef.current.scrollIntoView({
-        block: "center",
-        behavior: "smooth",
-      });
+    messageListRef.current?.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   }, [chat?.message?.length, chatInfo]);
 
   useEffect(() => {
@@ -260,6 +267,8 @@ export default function ChatBox({}: {}) {
     };
   }, [chatInfo]);
 
+  useEffect(()=>{checkChatUserBLock(chatInfo.user._id)},[session])
+
   const MediaView = (
     <div
       className={`${
@@ -282,7 +291,7 @@ export default function ChatBox({}: {}) {
           message.image ? (
             <div key={index} className="aspect-square cursor-zoom-in size-full">
               <CustomImage
-                src={blocked||isBlocked?"":message.image}
+                src={blocked || isBlocked ? "" : message.image}
                 alt="picture"
                 className="size-full"
                 onerror
@@ -383,51 +392,69 @@ export default function ChatBox({}: {}) {
 
   const ChatBoxView = (
     <>
-      <ul className="h-[400px] w-full bg-secondary-2/50 flex flex-col justify-items-end gap-2 py-4 px-2 overflow-y-scroll no-scrollbar">
-        {chat?.message?.map((message: any, index: number) => (
-          <div
-            ref={index === chat.message.length - 1 ? lastMessageRef : null}
-            key={index}
-            className={`${
-              message.senderId === session?.user.id
-                ? "My_message"
-                : "Other_message"
-            }`}
-          >
-            <div>
-              {message.image && (
-                <CustomImage
-                  src={message.image}
-                  alt="message image"
-                  className="size-full"
-                  width={0}
-                  height={0}
-                  transformation={[{ quality: 10 }]}
-                  style={{ objectFit: "cover" }}
-                />
+      <ul
+        ref={messageListRef}
+        className="h-[400px] w-full bg-secondary-2/50 flex flex-col-reverse justify-items-end gap-2 py-4 px-2 overflow-y-scroll no-scrollbar"
+      >
+        {chat?.message
+          ?.sort((a: any, b: any) => b.createdAt - a.createdAt)
+          .map((message: any, index: number) => (
+            <div className="flex flex-col">
+              <div
+                key={index}
+                className={`${
+                  message.senderId === session?.user.id
+                    ? "My_message"
+                    : "Other_message"
+                }`}
+              >
+                <div>
+                  {message.image && (
+                    <CustomImage
+                      src={message.image}
+                      alt="message image"
+                      className="size-full"
+                      width={0}
+                      height={0}
+                      transformation={[{ quality: 10 }]}
+                      style={{ objectFit: "cover" }}
+                    />
+                  )}
+                  <p>{message.text}</p>
+                </div>
+              </div>
+              {index === 0 && (
+                <span
+                  className={`${
+                    message.senderId === session?.user.id
+                      ? "text-right"
+                      : "text-left"
+                  } text-xs`}
+                >
+                  {formatTimeAgoWithoutAgo(message.createdAt.toDate())}
+                </span>
               )}
-              <p>{message.text}</p>
-              <span>{message.updateAt}</span>
             </div>
-          </div>
-        ))}
+          ))}
       </ul>
       <div className="flex items-center bg-secondary-2/70 p-1 h-[50px] shadow-md gap-2">
-        {!(isBlocked||blocked)&&<>
-          <ImageInput image="" type="TextImage" setImage={handleSend} />
-          <InputBox
-            value={text}
-            style={{ border: "none" }}
-            onTextChange={handleTextChange}
-            type="Input"
-          >
-            Say something
-          </InputBox>
-          <EmojiInput setEmoji={setText} />
-          <button className="Icon_small" onClick={handleSendClick}>
-            <FontAwesomeIcon icon={faPaperPlane} />
-          </button>
-        </>}
+        {!(isBlocked || blocked) && (
+          <>
+            <ImageInput image="" type="TextImage" setImage={handleSend} />
+            <InputBox
+              value={text}
+              style={{ border: "none" }}
+              onTextChange={handleTextChange}
+              type="Input"
+            >
+              Say something
+            </InputBox>
+            <EmojiInput setEmoji={setText} />
+            <button className="Icon_small" onClick={handleSendClick}>
+              <FontAwesomeIcon icon={faPaperPlane} />
+            </button>
+          </>
+        )}
       </div>
     </>
   );

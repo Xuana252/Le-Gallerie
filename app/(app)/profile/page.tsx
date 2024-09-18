@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Image from "@components/UI/Image";
 import Feed from "@components/UI/Feed";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faPen } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faPen, faBorderAll } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { getSession, useSession } from "next-auth/react";
 import PopupButton from "@components/Input/PopupButton";
@@ -17,19 +17,21 @@ import { User } from "@lib/types";
 import { confirm } from "@components/Notification/Toaster";
 import ButtonWithTimeOut from "@components/Input/ButtonWithTimeOut";
 import CustomImage from "@components/UI/Image";
+import { faHeart } from "@fortawesome/free-regular-svg-icons";
 
 export default function MyProfile() {
   const TIME_OUT_TIME = 1000;
-  const { data: session,update } = useSession();
+  const { data: session, update } = useSession();
   const [followers, setFollowers] = useState<User[]>();
   const [followerCount, setFollowersCount] = useState<number>(0);
-  const [followTimeOut,setFollowTimeout] = useState(false)
+  const [followTimeOut, setFollowTimeout] = useState(false);
   const [following, setFollowing] = useState<User[]>();
   const [followingCount, setFollowingCount] = useState<number>(0);
   const [postCount, setPostCount] = useState<number>(0);
   const [followType, setFollowType] = useState<"Followers" | "Following">(
     "Followers"
   );
+  const [view,setView] = useState<"AllPosts"|"LikedPosts">("AllPosts")
 
   const fetchFollowers = async () => {
     const response = await fetchUserFollowers(session?.user.id || "");
@@ -43,14 +45,16 @@ export default function MyProfile() {
   };
 
   const handleUnfollow = async (user: User) => {
-    if (!session?.user.id||followTimeOut) return;
-    setFollowTimeout(true)
+    if (!session?.user.id || followTimeOut) return;
+    setFollowTimeout(true);
     const unfollowConfirmation = await confirm(
       `You do want to unfollow ${user.username}?`
     );
     if (unfollowConfirmation) {
       setFollowingCount((c) => c - 1);
-      setFollowing(prev=> prev ? prev.filter((u) => u._id !== user._id) : [])
+      setFollowing((prev) =>
+        prev ? prev.filter((u) => u._id !== user._id) : []
+      );
     } else {
       return;
     }
@@ -59,28 +63,27 @@ export default function MyProfile() {
     } catch (error) {
       console.log("Failed to update user follows");
     }
-    setTimeout(()=>{
-      setFollowTimeout(false)
-    },TIME_OUT_TIME)
+    setTimeout(() => {
+      setFollowTimeout(false);
+    }, TIME_OUT_TIME);
   };
 
   const handleFollow = async (user: User) => {
-    if (!session?.user.id||followTimeOut) return;
-    setFollowTimeout(true)
+    if (!session?.user.id || followTimeOut) return;
+    setFollowTimeout(true);
 
     setFollowingCount((c) => c + 1);
-    setFollowing((prev) => [...prev?prev:[], user])
+    setFollowing((prev) => [...(prev ? prev : []), user]);
 
     try {
       await followUser(user._id, session.user.id);
     } catch (error) {
       console.log("Failed to update user follows");
     }
-    setTimeout(()=>{
-      setFollowTimeout(false)
-    },TIME_OUT_TIME)
+    setTimeout(() => {
+      setFollowTimeout(false);
+    }, TIME_OUT_TIME);
   };
-
 
   useEffect(() => {
     fetchFollowers();
@@ -124,7 +127,7 @@ export default function MyProfile() {
               following?.find((follow) => follow._id === item._id) ? (
                 <button
                   className="Button_variant_1 ml-auto"
-                  onClick={()=>handleUnfollow(item)}
+                  onClick={() => handleUnfollow(item)}
                   disabled={followTimeOut}
                 >
                   Unfollow
@@ -132,7 +135,7 @@ export default function MyProfile() {
               ) : (
                 <button
                   className="Button_variant_1 ml-auto"
-                  onClick={()=>handleFollow(item)}
+                  onClick={() => handleFollow(item)}
                   disabled={followTimeOut}
                 >
                   Follow back
@@ -151,16 +154,16 @@ export default function MyProfile() {
         <div className="relative">
           <div className="User_Profile_Page_Picture ">
             {session?.user?.image ? (
-             <CustomImage
-             src={session.user.image}
-             alt={'profile picture'}
-             className='size-full'
-             width={0}
-             height={0}
-             style={{ objectFit: "cover" }}
-             transformation={[{quality:80}]}
-             lqip={{active:true,quality:20}}
-             />
+              <CustomImage
+                src={session.user.image}
+                alt={"profile picture"}
+                className="size-full"
+                width={0}
+                height={0}
+                style={{ objectFit: "cover" }}
+                transformation={[{ quality: 80 }]}
+                lqip={{ active: true, quality: 20 }}
+              />
             ) : (
               <FontAwesomeIcon icon={faUser} size="xl" className="size-full" />
             )}
@@ -200,10 +203,23 @@ export default function MyProfile() {
           </h1>
         </div>
       </div>
-      <h1 className="text-center text-xl my-4">See your posts</h1>
       {session?.user.id && (
-         <div className="shadow-inner bg-secondary-2/20 rounded-xl">
-        <Feed userIdFilter={session.user.id} showCateBar={false} setPostCount={setPostCount}></Feed>
+        <div className="w-full flex flex-col">
+          <div className="w-full flex flex-row justify-center items-center gap-6 h-[50px]">
+            <button className={`${view==="AllPosts"?"text-accent border-b-4 border-accent":"text-secondary-2"} text-3xl  hover:text-accent size-12`} onClick={()=>setView("AllPosts")}>
+              <FontAwesomeIcon icon={faBorderAll}/>
+            </button>
+            <button className={`${view==="LikedPosts"?"text-accent border-b-4 border-accent":"text-secondary-2"} text-3xl  hover:text-accent size-12`} onClick={()=>setView("LikedPosts")}>
+              <FontAwesomeIcon icon={faHeart}/>
+            </button>
+          </div>
+          <div className="shadow-inner bg-secondary-2/20 rounded-xl">
+            <Feed
+              userIdFilter={session.user.id}
+              showCateBar={false}
+              setPostCount={setPostCount}
+            ></Feed>
+          </div>
         </div>
       )}
     </section>

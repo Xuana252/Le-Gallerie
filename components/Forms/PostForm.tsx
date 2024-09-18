@@ -230,7 +230,7 @@ type EditPostForm = BasePostFormProps & {
 type PostFormProps = CreatePostForm | EditPostForm;
 
 export default function PostForm({ type, editPost }: PostFormProps) {
-  const { data: session,update } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
 
   const [submitState, setSubmitState] = useState<SubmitButtonState>("");

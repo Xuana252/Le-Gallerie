@@ -47,6 +47,7 @@ export type User = {
   follower?:number,
   following?:number,
   followed?:boolean,
+  blocked?:string[],
 }
 export type UploadUser = {
   _id:string,

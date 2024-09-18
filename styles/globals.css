@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .Message_base {
-  @apply rounded-xl size-fit p-2 font-semibold max-w-[85%] break-words whitespace-normal;
+  @apply rounded-2xl size-fit p-2 font-semibold max-w-[85%] break-words whitespace-normal;
 }
 .My_message {
   @apply Message_base bg-accent text-primary self-end;
