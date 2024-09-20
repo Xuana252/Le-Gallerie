@@ -8,15 +8,16 @@ import { SearchContext } from "./Nav";
 import { usePathname } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlassMinus } from "@fortawesome/free-solid-svg-icons";
-import { fetchAllPost, fetchUserPost } from "@server/postActions";
+import { fetchAllPost, fetchPostLikedUser, fetchUserLikedPost, fetchUserPost } from "@server/postActions";
 type FeedProps = {
   userIdFilter?: string;
+  userIdLikedFilter?:boolean;
   categoryFilter?: Category[];
   setPostCount?:Dispatch<SetStateAction<number>>
   showCateBar?:boolean;
 };
 
-export default function Feed({ userIdFilter, categoryFilter = [],showCateBar=true,setPostCount }: FeedProps) {
+export default function Feed({ userIdFilter,userIdLikedFilter, categoryFilter = [],showCateBar=true,setPostCount }: FeedProps) {
   const pathName = usePathname();
   const {searchText} = useContext(SearchContext);
   const [categoriesFilter, setCategoriesFilter] =
@@ -29,9 +30,11 @@ export default function Feed({ userIdFilter, categoryFilter = [],showCateBar=tru
 
   const fetchPosts = async () => {
     try {
-      const response = userIdFilter
-        ? await fetchUserPost(userIdFilter)
-        : await fetchAllPost();
+      const response = !userIdFilter
+        ? await fetchAllPost()
+        : userIdLikedFilter
+        ? await fetchUserLikedPost(userIdFilter)
+        : await fetchUserPost(userIdFilter)
       setPosts(response);
     } catch (error) {
       setError("Failed to fetch for post");
@@ -42,7 +45,7 @@ export default function Feed({ userIdFilter, categoryFilter = [],showCateBar=tru
 
   useEffect(() => {
     fetchPosts();
-  }, [userIdFilter]);
+  }, [userIdFilter,userIdLikedFilter]);
 
   // const breakpointColumnsObj = {
   //   default: 5,

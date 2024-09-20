@@ -562,7 +562,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                 } text-3xl  hover:text-accent size-12`}
                 onClick={() => setView("AllPosts")}
               >
-                <FontAwesomeIcon icon={faLinesLeaning} />
+                <FontAwesomeIcon icon={faBorderAll} />
               </button>
               <button
                 className={`${
@@ -577,11 +577,24 @@ export default function UserProfile({ params }: { params: { id: string } }) {
             </div>
             <div className="shadow-inner bg-secondary-2/20 rounded-xl">
               {user?._id && (
-                <Feed
-                  userIdFilter={user._id}
-                  showCateBar={false}
-                  setPostCount={setPostCount}
-                ></Feed>
+                <>
+                  <div className={`${view === "LikedPosts" ? "" : "hidden"}`}>
+                    <Feed
+                      userIdLikedFilter={true}
+                      userIdFilter={user._id}
+                      showCateBar={false}
+                      setPostCount={setPostCount}
+                    ></Feed>
+                  </div>
+                  <div className={`${view === "AllPosts" ? "" : "hidden"}`}>
+                    <Feed
+                      userIdLikedFilter={false}
+                      userIdFilter={user._id}
+                      showCateBar={false}
+                      setPostCount={setPostCount}
+                    ></Feed>
+                  </div>
+                </>
               )}
             </div>
           </div>

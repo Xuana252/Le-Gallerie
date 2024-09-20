@@ -31,7 +31,7 @@ export default function MyProfile() {
   const [followType, setFollowType] = useState<"Followers" | "Following">(
     "Followers"
   );
-  const [view,setView] = useState<"AllPosts"|"LikedPosts">("AllPosts")
+  const [view, setView] = useState<"AllPosts" | "LikedPosts">("AllPosts");
 
   const fetchFollowers = async () => {
     const response = await fetchUserFollowers(session?.user.id || "");
@@ -203,25 +203,53 @@ export default function MyProfile() {
           </h1>
         </div>
       </div>
-      {session?.user.id && (
+
         <div className="w-full flex flex-col">
           <div className="w-full flex flex-row justify-center items-center gap-6 h-[50px]">
-            <button className={`${view==="AllPosts"?"text-accent border-b-4 border-accent":"text-secondary-2"} text-3xl  hover:text-accent size-12`} onClick={()=>setView("AllPosts")}>
-              <FontAwesomeIcon icon={faBorderAll}/>
+            <button
+              className={`${
+                view === "AllPosts"
+                  ? "text-accent border-b-4 border-accent"
+                  : "text-secondary-2"
+              } text-3xl  hover:text-accent size-12`}
+              onClick={() => setView("AllPosts")}
+            >
+              <FontAwesomeIcon icon={faBorderAll} />
             </button>
-            <button className={`${view==="LikedPosts"?"text-accent border-b-4 border-accent":"text-secondary-2"} text-3xl  hover:text-accent size-12`} onClick={()=>setView("LikedPosts")}>
-              <FontAwesomeIcon icon={faHeart}/>
+            <button
+              className={`${
+                view === "LikedPosts"
+                  ? "text-accent border-b-4 border-accent"
+                  : "text-secondary-2"
+              } text-3xl  hover:text-accent size-12`}
+              onClick={() => setView("LikedPosts")}
+            >
+              <FontAwesomeIcon icon={faHeart} />
             </button>
           </div>
           <div className="shadow-inner bg-secondary-2/20 rounded-xl">
-            <Feed
-              userIdFilter={session.user.id}
-              showCateBar={false}
-              setPostCount={setPostCount}
-            ></Feed>
+            {session?.user.id && (
+            <>
+              <div className={`${view === "LikedPosts" ? "" : "hidden"}`}>
+                <Feed
+                  userIdLikedFilter={true}
+                  userIdFilter={session.user.id}
+                  showCateBar={false}
+                  setPostCount={setPostCount}
+                ></Feed>
+              </div>
+              <div className={`${view === "AllPosts" ? "" : "hidden"}`}>
+                <Feed
+                  userIdLikedFilter={false}
+                  userIdFilter={session.user.id}
+                  showCateBar={false}
+                  setPostCount={setPostCount}
+                ></Feed>
+              </div>
+            </>)}
           </div>
         </div>
-      )}
+
     </section>
   );
 }

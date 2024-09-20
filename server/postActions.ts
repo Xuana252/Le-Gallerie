@@ -21,6 +21,17 @@ export const fetchUserPost = async (user: string) => {
   return [];
 };
 
+export const fetchUserLikedPost = async (user: string) => {
+  const response = await fetch(
+    `${process.env.DOMAIN_NAME}/api/users/${user}/posts/liked-posts`
+  );
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+  return [];
+};
+
 export const createPost = async (post: Post, user: string) => {
   const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts/new`, {
     method: "POST",

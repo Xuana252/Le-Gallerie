@@ -257,7 +257,7 @@ export default function PostDetail({ post }: { post: Post }) {
             {post?.categories.map((category) => (
               <li
                 key={category._id}
-                className="text-base Category hover:font-bold cursor-pointer"
+                className="text-sm Category hover:font-bold cursor-pointer bg-secondary-2/40 size-fit px-2 py-1 rounded-xl"
                 onClick={() => handleCategoryCLick(category.name)}
               >
                 {category.name}
