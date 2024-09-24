@@ -16,7 +16,6 @@ import PostDetail from "@components/UI/PostDetail";
 
 export default function Post({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
-  const [postRendered, setPostRendered] = useState<boolean>(false);
   const router = useRouter();
   const [post, setPost] = useState<Post>({
     _id: "",
@@ -35,7 +34,6 @@ export default function Post({ params }: { params: { id: string } }) {
     if (data && JSON.stringify(data) !== JSON.stringify(post)) {
       setPost(data);
     }
-    setPostRendered(true);
   };
 
 
@@ -77,7 +75,7 @@ export default function Post({ params }: { params: { id: string } }) {
       <h1 className="text-center text-xl ">
         Explore more contents just like this
       </h1>
-      {postRendered&&<Feed categoryFilter={post.categories}></Feed>}
+      <Feed categoryFilter={post.categories}></Feed>
     </section>
   );
 }

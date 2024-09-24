@@ -24,7 +24,7 @@ import ChatBox from "@components/Chat/ChatBox";
 export const ButtonSet = () => {
   const { data: session } = useSession();
   const pathName = usePathname();
-  const [windowSize, setSize] = useState(9999);
+  const [windowSize, setSize] = useState(0);
   const [unseenMessageCount,setUnseenMessageCount] = useState(0)
   const [unseenNotificationCount,setUnseenNotificationCount] = useState(0)
 
@@ -35,6 +35,10 @@ export const ButtonSet = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  useEffect(()=> {
+    setSize(window.innerWidth)
+  })
 
   const ButtonSet = (
     <>

@@ -1,7 +1,7 @@
 export default function Loader() {
   return (
-    <div className="size-full flex justify-center relative">
-      <div className="loader absolute top-[40px]"></div>
+    <div className="w-full flex justify-center">
+      <div className="loader"></div>
     </div>
   );
 }

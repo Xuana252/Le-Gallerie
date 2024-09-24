@@ -9,7 +9,7 @@ type CategoryItemProps = {
   onSelected: (category: Category) => void;
 };
 export function CategoryItem({ category,selected=false, onSelected }: CategoryItemProps) {
-  const [isSelected, setIsSelected] = useState<boolean>(selected);
+  const [isSelected, setIsSelected] = useState<boolean>();
   const [mouseDown,setMouseDownCoordX] = useState(0)
 
   const handleCateSelect = (e: React.MouseEvent) => {
@@ -18,6 +18,7 @@ export function CategoryItem({ category,selected=false, onSelected }: CategoryIt
       onSelected(category);
     };
     }
+  useEffect(()=>{setIsSelected(selected)},[selected])
   return (
     <div
     onMouseDown={e=>setMouseDownCoordX(e.clientX)}
@@ -42,11 +43,10 @@ export default function CategoryBar({ selected=[],onCategoriesChange }: Category
   const listRef = useRef<HTMLUListElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startClientX, setStartClientX] = useState(0);
-  const [mouseDownCoordX, setMouseDownCoordX] = useState(0);
-  const [mouseUpCoordX, setMouseUpCoordX] = useState(0);
   const [selectedCategories, setSelectedCategories] = useState<Category[]>(selected);
   const [categories, setCategories] = useState<Category[]>([]);
 
+  
   const fetchCategories = async () => {
     const response = await getCategories();
 
@@ -57,8 +57,11 @@ export default function CategoryBar({ selected=[],onCategoriesChange }: Category
     fetchCategories();
   }, []);
 
+  useEffect(()=> {
+    setSelectedCategories(selected)
+  },[selected.toString()])
+
   const handleMouseDown = (e: React.MouseEvent<HTMLUListElement>) => {
-    setMouseDownCoordX(e.clientX);
     setIsDragging(true);
     setStartClientX(e.clientX);
   };
@@ -72,7 +75,6 @@ export default function CategoryBar({ selected=[],onCategoriesChange }: Category
   };
 
   const handleMouseUp = (e: React.MouseEvent<HTMLUListElement>) => {
-    setMouseUpCoordX(e.clientX);
     setIsDragging(false);
   };
   const handleMouseLeave = (e: React.MouseEvent<HTMLUListElement>) => {
@@ -103,7 +105,10 @@ export default function CategoryBar({ selected=[],onCategoriesChange }: Category
         onMouseLeave={handleMouseLeave}
         ref={listRef}
       >
-        {categories.map((category) => (
+        {[
+    ...selectedCategories, // Selected categories first
+    ...categories.filter(c => !selectedCategories.some(sc => sc.name === c.name)) // Non-selected categories
+  ].map((category) => (
           <CategoryItem
             key={category._id}
             category={category}

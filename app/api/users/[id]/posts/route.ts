@@ -4,13 +4,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { NextApiRequest } from "next";
 
 export const GET = async (
-  req: NextRequest,
+  req: Request,
   { params }: { params: { id: string } }
 ) => {
+  const { searchParams } = new URL(req.url);
+  const page = parseInt(searchParams.get("page") || "1");
+  const limit = parseInt(searchParams.get("limit") || "10");
   try {
-    connectToDB();
+    await connectToDB();
 
-    const posts = await Post.find({ creator: params.id }).sort({ createdAt: -1 })
+    const skip = (page - 1) * limit;
+
+    const posts = await Post.find({ creator: params.id })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
       .select("_id creator title categories description image likes")
       .populate({
         path: "creator",

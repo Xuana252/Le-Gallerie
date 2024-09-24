@@ -52,12 +52,12 @@ export default function SignInForm({ providers }: { providers: string[] }) {
     zIndex: 1,
     config: { duration: 400, easing: (t) => t * (2 - t) }, // Duration of the animation
   });
-  const MobileSliderAnimation = useSpring({
-    height:'fit-content',
-    transform: isSignUp ? "translateY(250%)" : "translateY(0%)",
-    zIndex: 1,
-    config: { duration: 400, easing: (t) => t * (2 - t) }, // Duration of the animation
-  });
+  // const MobileSliderAnimation = useSpring({
+  //   height:'fit-content',
+  //   animation: ,
+  //   zIndex: 1,
+  //   config: { duration: 400, easing: (t) => t * (2 - t) }, // Duration of the animation
+  // });
   const textTransitions = useTransition(isSignUp, {
     from: { transform: "translateY(-100px)" },
     enter: { transform: "translateY(0px)" },
@@ -264,14 +264,13 @@ export default function SignInForm({ providers }: { providers: string[] }) {
   };
 
   const Slider = (
-    <div className=" bg-secondary-2 py-5 flex flex-col items-center justify-center h-1/4 sm:h-full">
-      <Link href={"/"} className="font-AppLogo text-7xl">
+    <div className=" bg-secondary-2 py-5 flex flex-col items-center justify-center h-1/4 sm:h-full z-10 ">
+      <Link href={"/"} className="font-AppLogo text-7xl sm:inline-block hidden">
         AppLogo
       </Link>
       {isSignUp ? (
         <>
           <h1 className="text-2xl text-center">
-            <br />
             Already had an account? <br />
             <span
               className="cursor-pointer font-bold hover:underline"
@@ -284,7 +283,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
       ) : (
         <>
           <h1 className="text-2xl  text-center">
-            <br />
+
             Don't have an account? <br />
             <span
               className="cursor-pointer font-bold hover:underline"
@@ -483,7 +482,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
           </animated.div>
         ))}
 
-        <animated.div style={MobileSliderAnimation}>{Slider}</animated.div>
+        
         {mobileFormTransitions((style, item) =>
           item ? (
             <animated.div
@@ -505,7 +504,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
                 position: "absolute",
                 width: "100%",
                 height: "75%",
-                bottom: 0,
+                top: 0,
               }}
               className="flex flex-col size-full items-center justify-center gap-4 "
             >
@@ -513,6 +512,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
             </animated.div>
           )
         )}
+        <div className="w-full absolute bottom-0">{Slider}</div>
       </div>
     </>
   );

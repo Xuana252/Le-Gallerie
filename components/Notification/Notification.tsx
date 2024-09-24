@@ -170,11 +170,9 @@ function NotificationList({
   }, [metadata.unseen_count]);
 
   useEffect(() => {
-    console.log("Setting up notification listener");
     feedClient.fetch();
     feedClient.on("items.received.realtime", onNotificationsReceived);
     return () => {
-      console.log("Setting up notification listener");
       feedClient.off("items.received.realtime", onNotificationsReceived);
     };
   }, [feedClient]);

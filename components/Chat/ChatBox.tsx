@@ -62,13 +62,13 @@ export default function ChatBox({}: {}) {
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const [chat, setChat] = useState<any>([]);
   const [text, setText] = useState("");
-  const { data: session,update } = useSession();
+  const { data: session, update } = useSession();
   const messageListRef = useRef<HTMLUListElement>(null);
   const [isBlocked, setIsBlocked] = useState<boolean>(false); //from the other user
   const [blocked, setBlocked] = useState<boolean>(false); //us blocking the other user
 
   const checkChatUserBLock = async (userId: string) => {
-    if(!session?.user.id) return 
+    if (!session?.user.id) return;
     try {
       const user = await fetchUserWithId(userId);
       const userBlock = !!user.blocked.find(
@@ -128,7 +128,7 @@ export default function ChatBox({}: {}) {
     try {
       const response = await blockUser(session.user.id, userId);
       const newSession = await getSession();
-      await update(newSession)
+      await update(newSession);
       if (!response) {
         setBlocked((prev) => !prev);
       }
@@ -267,7 +267,9 @@ export default function ChatBox({}: {}) {
     };
   }, [chatInfo]);
 
-  useEffect(()=>{checkChatUserBLock(chatInfo.user._id)},[session])
+  useEffect(() => {
+    checkChatUserBLock(chatInfo.user._id);
+  }, [session]);
 
   const MediaView = (
     <div
@@ -399,9 +401,8 @@ export default function ChatBox({}: {}) {
         {chat?.message
           ?.sort((a: any, b: any) => b.createdAt - a.createdAt)
           .map((message: any, index: number) => (
-            <div className="flex flex-col">
+            <div key={index} className="flex flex-col">
               <div
-                key={index}
                 className={`${
                   message.senderId === session?.user.id
                     ? "My_message"

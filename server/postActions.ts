@@ -2,17 +2,17 @@
 import { Comment, type Post } from "@lib/types";
 import { checkLikeRateLimit } from "./checkRateLimit";
 
-export const fetchAllPost = async () => {
-  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts`);
+export const fetchAllPost = async (currentPage: number, limit:number) => {
+  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts?page=${currentPage}&limit=${limit}`);
   if (response.ok) {
     const data = await response.json();
     return data;
   }
   return [];
 };
-export const fetchUserPost = async (user: string) => {
+export const fetchUserPost = async (user: string,currentPage: number, limit:number) => {
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/users/${user}/posts`
+    `${process.env.DOMAIN_NAME}/api/users/${user}/posts?page=${currentPage}&limit=${limit}`
   );
   if (response.ok) {
     const data = await response.json();
@@ -21,9 +21,9 @@ export const fetchUserPost = async (user: string) => {
   return [];
 };
 
-export const fetchUserLikedPost = async (user: string) => {
+export const fetchUserLikedPost = async (user: string,currentPage: number, limit:number) => {
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/users/${user}/posts/liked-posts`
+    `${process.env.DOMAIN_NAME}/api/users/${user}/posts/liked-posts?page=${currentPage}&limit=${limit}`
   );
   if (response.ok) {
     const data = await response.json();
