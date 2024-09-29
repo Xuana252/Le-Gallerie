@@ -13,6 +13,7 @@ import {
   fetchPostWithId,
 } from "@server/postActions";
 import PostDetail from "@components/UI/PostDetail";
+import mongoose, { Schema } from "mongoose";
 
 export default function Post({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
@@ -25,6 +26,7 @@ export default function Post({ params }: { params: { id: string } }) {
     categories: [],
     image: "",
     likes: 0,
+    createdAt: undefined,
   });
 
 

@@ -498,13 +498,6 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                 />
               )}
             </div>
-            <div>
-              <div className="flex">
-                <h1 className="User_Profile_Page_Username">{user?.username}</h1>
-              </div>
-              <br />
-              <h2 className="User_Profile_Page_Bio">{user?.bio}</h2>
-            </div>
             <div className="User_Profile_Page_Stat_Bar">
               <PopupButton popupItem={<FollowList />}>
                 <h1
@@ -529,6 +522,11 @@ export default function UserProfile({ params }: { params: { id: string } }) {
               </h1>
             </div>
           </div>
+          <div className="px-4 py-2">
+              <h1 className="User_Profile_Page_Username">{user?.username}</h1>
+              <br />
+              <h2 className="User_Profile_Page_Bio">{user?.bio}</h2>
+            </div>
           <div className="User_Profile_Page_Interactive_Bar">
             <>
               <MultipleOptionsButton>

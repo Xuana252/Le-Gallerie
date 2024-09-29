@@ -1,3 +1,17 @@
+export const formatDateForInput = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based, so we add 1
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+export const formatDate = (date: Date) => {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // getMonth() is zero-based
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+};
+
 
 
 export const formatTimeAgoWithoutAgo = (date: string): string => {
@@ -33,9 +47,9 @@ export const formatTimeAgo = (timestamp: string): string => {
     const years = Math.floor(days / 365); // Approximate year length
   
     if (years >= 1) return `${years} year${years>1?'s':''} ago`;
-    if (months >= 1) return `${months} month${months>1?'s':''} ago`;
+    if (months >= 1) return `${months} mon${months>1?'s':''} ago`;
     if (days >= 1) return `${days} day${days>1?'s':''} ago`;
     if (hours >= 1) return `${hours} hour${hours>1?'s':''} ago`;
-    if (minutes >= 1) return `${minutes} minute${minutes>1?'s':''} ago`;
-    return `${seconds < 0 ? 0 : seconds} second${seconds>1?'s':''} ago`;
+    if (minutes >= 1) return `${minutes} min${minutes>1?'s':''} ago`;
+    return `${seconds < 0 ? 0 : seconds} sec${seconds>1?'s':''} ago`;
 };

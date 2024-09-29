@@ -27,6 +27,8 @@ export const POST = async (req: NextRequest) => {
       username,
       email,
       password: hashedPassword,
+      fullname:'',
+      birthdate:'',
       image,
       bio: '',
       follower:0,

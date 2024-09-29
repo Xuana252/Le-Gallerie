@@ -136,7 +136,7 @@ export default function ImageInput({
       <div className=" relative ">
         {!isLoading && image && !error && (
           <button
-            className="rounded-full size-8 bg-primary absolute bottom-0 right-0 text-base z-10"
+            className="rounded-full size-8 bg-primary text-accent absolute bottom-0 right-0 text-base z-10"
             onClick={handleClearImage}
           >
             <FontAwesomeIcon icon={faX} />

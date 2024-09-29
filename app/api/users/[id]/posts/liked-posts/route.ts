@@ -31,7 +31,7 @@ export const GET = async (
       })
       .populate("categories");
 
-    return NextResponse.json(likedPosts, { status: 200 });
+    return NextResponse.json({posts:likedPosts,counts:0}, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { message: "Failed to fetch for user liked posts" },

@@ -8,13 +8,15 @@ export const PATCH = async (
   req: Request,
   { params }: { params: { id: string } }
 ) => {
-  const { username, image, bio } = await req.json();
+  const { username, image, bio, fullname,birthdate } = await req.json();
   try {
     connectToDB();
     const updateInfo = {
       username: username,
       image: image,
       bio: bio,
+      fullname:fullname,
+      birthdate:birthdate,
     };
     const user = await User.findByIdAndUpdate(params.id, updateInfo, {
       new: true,

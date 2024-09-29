@@ -3,6 +3,9 @@ import Post from "@models/postModel";
 import Like from "@models/likesModel";
 import { NextRequest, NextResponse } from "next/server";
 import { NextApiRequest } from "next";
+import { getServerSession } from "next-auth";
+import { options } from "@app/api/auth/[...nextauth]/options";
+import User from "@models/userModel";
 
 export const GET = async (
   req: NextRequest,
@@ -10,14 +13,32 @@ export const GET = async (
 ) => {
   try {
     await connectToDB();
-    const post = await Post.findById(params.id).select('_id creator title categories description image likes')
-      .populate({ path: "creator", select: "-email -password -createdAt -updatedAt -__v" })
+
+    const session = await getServerSession(options);
+
+    const currentUser = await User.findById(session?.user.id);
+
+    const post = await Post.findById(params.id)
+      .select("_id creator title categories description image likes createdAt")
+      .populate({
+        path: "creator",
+        select: "-email -password -createdAt -updatedAt -__v",
+      })
       .populate("categories");
 
     if (!post) {
       return NextResponse.json({ message: "Post not found" }, { status: 404 });
     }
-    return NextResponse.json(post, { status: 200 });
+
+    if (currentUser&&(currentUser.blocked.includes(post.creator._id.toString())||post.creator.blocked.includes(currentUser._id.toString()))) {
+      return NextResponse.json(
+        { message: "Post not available" },
+        { status: 403 }
+      );
+    } else {
+      return NextResponse.json(post, { status: 200 });
+    }
+
   } catch (error) {
     return NextResponse.json(
       { message: "failed to fetch for post" },
@@ -62,10 +83,10 @@ export const DELETE = async (
     await connectToDB();
     const post = await Post.findByIdAndDelete(params.id);
     if (!post) {
-      return NextResponse.json({ message: "Post not found" }, { status: 404 })
+      return NextResponse.json({ message: "Post not found" }, { status: 404 });
     }
 
-    await Like.deleteMany({post:params.id})
+    await Like.deleteMany({ post: params.id });
 
     return NextResponse.json({ message: "Post deleted" }, { status: 200 });
   } catch (error) {

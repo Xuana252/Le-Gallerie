@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Image from "@components/UI/Image";
 import Feed from "@components/UI/Feed";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faPen, faBorderAll } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faPen, faBorderAll, faGear } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { getSession, useSession } from "next-auth/react";
 import PopupButton from "@components/Input/PopupButton";
@@ -168,16 +168,6 @@ export default function MyProfile() {
               <FontAwesomeIcon icon={faUser} size="xl" className="size-full" />
             )}
           </div>
-          <Link href={"/profile/edit"}>
-            <button className="Icon_small absolute border-[4px] border-primary right-1 bottom-1 bg-secondary-1">
-              <FontAwesomeIcon icon={faPen} />
-            </button>
-          </Link>
-        </div>
-        <div>
-          <h1 className="User_Profile_Page_Username">{session?.user?.name}</h1>
-          <br />
-          <h2 className="User_Profile_Page_Bio">{session?.user.bio}</h2>
         </div>
         <div className="User_Profile_Page_Stat_Bar">
           <PopupButton popupItem={<FollowList />}>
@@ -203,32 +193,52 @@ export default function MyProfile() {
           </h1>
         </div>
       </div>
-
-        <div className="w-full flex flex-col">
-          <div className="w-full flex flex-row justify-center items-center gap-6 h-[50px]">
-            <button
-              className={`${
-                view === "AllPosts"
-                  ? "text-accent border-b-4 border-accent"
-                  : "text-secondary-2"
-              } text-3xl  hover:text-accent size-12`}
-              onClick={() => setView("AllPosts")}
-            >
-              <FontAwesomeIcon icon={faBorderAll} />
+      <div className="px-4 py-2">
+          <h1 className="User_Profile_Page_Username">{session?.user?.name}</h1>
+          <br />
+          <h2 className="User_Profile_Page_Bio">{session?.user.bio}</h2>
+        </div>
+      <div className="User_Profile_Page_Interactive_Bar">
+        <>
+          <Link href={"/profile/setting/edit-profile"}>
+            <button className="Button_variant_1">
+              <FontAwesomeIcon icon={faPen} />
+              <span className="font-bold mx-2 text-lg">Edit</span>
             </button>
-            <button
-              className={`${
-                view === "LikedPosts"
-                  ? "text-accent border-b-4 border-accent"
-                  : "text-secondary-2"
-              } text-3xl  hover:text-accent size-12`}
-              onClick={() => setView("LikedPosts")}
-            >
-              <FontAwesomeIcon icon={faHeart} />
+          </Link>
+          <Link href={"/profile/setting"}>
+            <button className="Button_variant_1">
+              <FontAwesomeIcon icon={faGear} />
+              <span className="font-bold mx-2 text-lg">Setting</span>
             </button>
-          </div>
-          <div className="shadow-inner bg-secondary-2/20 rounded-xl">
-            {session?.user.id && (
+          </Link>
+        </>
+      </div>
+      <div className="w-full flex flex-col">
+        <div className="w-full flex flex-row justify-center items-center gap-6 h-[50px]">
+          <button
+            className={`${
+              view === "AllPosts"
+                ? "text-accent border-b-4 border-accent"
+                : "text-secondary-2"
+            } text-3xl  hover:text-accent size-12`}
+            onClick={() => setView("AllPosts")}
+          >
+            <FontAwesomeIcon icon={faBorderAll} />
+          </button>
+          <button
+            className={`${
+              view === "LikedPosts"
+                ? "text-accent border-b-4 border-accent"
+                : "text-secondary-2"
+            } text-3xl  hover:text-accent size-12`}
+            onClick={() => setView("LikedPosts")}
+          >
+            <FontAwesomeIcon icon={faHeart} />
+          </button>
+        </div>
+        <div className="shadow-inner bg-secondary-2/20 rounded-xl">
+          {session?.user.id && (
             <>
               <div className={`${view === "LikedPosts" ? "" : "hidden"}`}>
                 <Feed
@@ -246,10 +256,10 @@ export default function MyProfile() {
                   setPostCount={setPostCount}
                 ></Feed>
               </div>
-            </>)}
-          </div>
+            </>
+          )}
         </div>
-
+      </div>
     </section>
   );
 }

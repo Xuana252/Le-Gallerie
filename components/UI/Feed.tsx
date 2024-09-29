@@ -21,6 +21,7 @@ import {
   fetchUserLikedPost,
   fetchUserPost,
 } from "@server/postActions";
+import { useSession } from "next-auth/react";
 type FeedProps = {
   userIdFilter?: string;
   userIdLikedFilter?: boolean;
@@ -37,6 +38,7 @@ export default function Feed({
   setPostCount,
 }: FeedProps) {
   const pathName = usePathname();
+  const { data: session } = useSession();
   const { searchText } = useContext(SearchContext);
   const [categoriesFilter, setCategoriesFilter] = useState<Category[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -49,7 +51,7 @@ export default function Feed({
   const [colsNum, setColsNum] = useState(1);
 
   const [page, setPage] = useState(1); // Track the current page
-  const [limit] = useState(3); // Number of posts per page
+  const [limit] = useState(10); // Number of posts per page
   const [hasMore, setHasMore] = useState(true); // Whether there are more posts to load
   const observerRef = useRef<IntersectionObserver | null>(null); // Ref to handle scroll observation
 
@@ -60,13 +62,14 @@ export default function Feed({
         : userIdLikedFilter
         ? await fetchUserLikedPost(userIdFilter, currentPage, limit)
         : await fetchUserPost(userIdFilter, currentPage, limit);
-      if (response.length < limit) {
+      setPostCount && setPostCount(response.counts);
+      if (response.posts.length < limit) {
         setHasMore(false); // No more posts to load
       }
       if (currentPage === 1) {
-        setPosts(response); // Replace posts if it's the first page
+        setPosts(response.posts); // Replace posts if it's the first page
       } else {
-        setPosts((prevPosts) => [...prevPosts, ...response]); // Append posts for subsequent pages
+        setPosts((prevPosts) => [...prevPosts, ...response.posts]); // Append posts for subsequent pages
       }
     } catch (error) {
       setError("Failed to fetch for post");
@@ -95,6 +98,8 @@ export default function Feed({
   useEffect(() => {
     setLoading(true);
     const finalPosts = posts.filter((post) => {
+      if (session?.user.id && post.creator.blocked?.includes(session?.user.id))
+        return false;
       if (searchText.trim() === "" || pathName !== "/") {
         return categoriesFilter.every((category) =>
           post.categories.map((cat) => cat._id).includes(category._id)
@@ -120,10 +125,8 @@ export default function Feed({
     if (finalPosts.length > 0) setIsEmpty(false);
     else setIsEmpty(true);
     setFilteredPosts(finalPosts);
-    setPostCount && setPostCount(finalPosts.length);
     setTimeout(() => setLoading(false), 1000);
   }, [posts, searchText, JSON.stringify(categoriesFilter)]);
-
 
   const debounce = (func: Function, delay: number) => {
     let timeoutId: NodeJS.Timeout;
@@ -140,14 +143,16 @@ export default function Feed({
     if (isLoading || !hasMore) return;
     if (observerRef.current) observerRef.current.disconnect();
 
-    observerRef.current = new IntersectionObserver(debounce((entries:any) => {
-      entries.forEach((entry:any) => {
-        if (entry.isIntersecting && hasMore) {
-          console.log("Loading more posts...");
-          setPage((prevPage) => prevPage + 1);
-        }
-      });
-    }, 500)); 
+    observerRef.current = new IntersectionObserver(
+      debounce((entries: any) => {
+        entries.forEach((entry: any) => {
+          if (entry.isIntersecting && hasMore) {
+            console.log("Loading more posts...");
+            setPage((prevPage) => prevPage + 1);
+          }
+        });
+      }, 500)
+    );
 
     if (node) observerRef.current.observe(node);
   };

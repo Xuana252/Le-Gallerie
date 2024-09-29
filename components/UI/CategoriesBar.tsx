@@ -5,24 +5,30 @@ import { getCategories } from "@server/categoriesActions";
 
 type CategoryItemProps = {
   category: Category;
-  selected?:boolean;
+  selected?: boolean;
   onSelected: (category: Category) => void;
 };
-export function CategoryItem({ category,selected=false, onSelected }: CategoryItemProps) {
+export function CategoryItem({
+  category,
+  selected = false,
+  onSelected,
+}: CategoryItemProps) {
   const [isSelected, setIsSelected] = useState<boolean>();
-  const [mouseDown,setMouseDownCoordX] = useState(0)
+  const [mouseDown, setMouseDownCoordX] = useState(0);
 
   const handleCateSelect = (e: React.MouseEvent) => {
-    if(e.clientX===mouseDown) {
+    if (e.clientX === mouseDown) {
       setIsSelected((prev) => !prev);
       onSelected(category);
-    };
     }
-  useEffect(()=>{setIsSelected(selected)},[selected])
+  };
+  useEffect(() => {
+    setIsSelected(selected);
+  }, [selected]);
   return (
     <div
-    onMouseDown={e=>setMouseDownCoordX(e.clientX)}
-    onMouseUp={handleCateSelect}
+      onMouseDown={(e) => setMouseDownCoordX(e.clientX)}
+      onMouseUp={handleCateSelect}
       className={`h-fit w-fit my-2 text-center rounded-full py-1 px-3 text-cate font-bold select-none ${
         !isSelected
           ? "bg-secondary-1 border-2 border-accent text-accent"
@@ -35,18 +41,21 @@ export function CategoryItem({ category,selected=false, onSelected }: CategoryIt
 }
 
 type CategoryBarProps = {
-  selected?:Category[]
+  selected?: Category[];
   onCategoriesChange: (categories: Category[]) => void;
 };
 
-export default function CategoryBar({ selected=[],onCategoriesChange }: CategoryBarProps) {
+export default function CategoryBar({
+  selected = [],
+  onCategoriesChange,
+}: CategoryBarProps) {
   const listRef = useRef<HTMLUListElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startClientX, setStartClientX] = useState(0);
-  const [selectedCategories, setSelectedCategories] = useState<Category[]>(selected);
+  const [selectedCategories, setSelectedCategories] =
+    useState<Category[]>(selected);
   const [categories, setCategories] = useState<Category[]>([]);
 
-  
   const fetchCategories = async () => {
     const response = await getCategories();
 
@@ -57,9 +66,9 @@ export default function CategoryBar({ selected=[],onCategoriesChange }: Category
     fetchCategories();
   }, []);
 
-  useEffect(()=> {
-    setSelectedCategories(selected)
-  },[selected.toString()])
+  useEffect(() => {
+    setSelectedCategories(selected);
+  }, [selected.toString()]);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLUListElement>) => {
     setIsDragging(true);
@@ -85,7 +94,7 @@ export default function CategoryBar({ selected=[],onCategoriesChange }: Category
 
   const handleCateSelect = (category: Category) => {
     let updatedSelectedCategories = selectedCategories;
-    if (selectedCategories.some(c=>c.name===category.name)) {
+    if (selectedCategories.some((c) => c.name === category.name)) {
       updatedSelectedCategories = selectedCategories.filter(
         (c) => c.name !== category.name
       );
@@ -106,13 +115,15 @@ export default function CategoryBar({ selected=[],onCategoriesChange }: Category
         ref={listRef}
       >
         {[
-    ...selectedCategories, // Selected categories first
-    ...categories.filter(c => !selectedCategories.some(sc => sc.name === c.name)) // Non-selected categories
-  ].map((category) => (
+          ...selectedCategories, // Selected categories first
+          ...categories.filter(
+            (c) => !selectedCategories.some((sc) => sc.name === c.name)
+          ), // Non-selected categories
+        ].map((category) => (
           <CategoryItem
             key={category._id}
             category={category}
-            selected={selectedCategories.some(c=> c.name===category.name)}
+            selected={selectedCategories.some((c) => c.name === category.name)}
             onSelected={handleCateSelect}
           />
         ))}

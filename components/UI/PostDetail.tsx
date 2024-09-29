@@ -29,6 +29,7 @@ import DropDownButton from "@components/Input/DropDownButton";
 import { SearchContext } from "./Nav";
 import { CommentSection } from "./Comment";
 import { confirm } from "@components/Notification/Toaster";
+import { formatTimeAgo, formatTimeAgoWithoutAgo } from "@lib/dateFormat";
 
 export default function PostDetail({ post }: { post: Post }) {
     const { handleSearch } = useContext(SearchContext);
@@ -94,6 +95,7 @@ export default function PostDetail({ post }: { post: Post }) {
   };
 
   const handleDownload = () => {
+    if(!post._id) return;
     const link = document.createElement("a");
     link.href = post.image;
     link.target = "_blank";
@@ -102,6 +104,7 @@ export default function PostDetail({ post }: { post: Post }) {
     link.parentNode?.removeChild(link);
   };
   const handleShare = () => {
+    if(!post._id) return;
     if (navigator.share) {
       // Use the Web Share API if available
       navigator
@@ -251,6 +254,7 @@ export default function PostDetail({ post }: { post: Post }) {
                 {post?.creator.username}
               </h2>
             </label>
+            <div className="ml-auto text-accent/40">{post.createdAt?formatTimeAgo(post.createdAt.toString()):""}</div>
           </div>
           <h1 className="text-3xl font-bold">{post?.title}</h1>
           <ul className="flex gap-2 text-xl flex-wrap">

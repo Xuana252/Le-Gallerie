@@ -365,9 +365,10 @@ export default function PostForm({ type, editPost }: PostFormProps) {
           <h3>Title</h3>
           <InputBox
             onTextChange={handleTextChange}
-            name="title"
             type="Input"
+            name="title"
             value={post.title}
+            showName={false}
           >
             add some cool title...
           </InputBox>
@@ -385,7 +386,7 @@ export default function PostForm({ type, editPost }: PostFormProps) {
           <textarea
             name="description"
             value={post.description}
-            placeholder=" tell us something about your post..."
+            placeholder="tell us something about your post..."
             className="Input_box_variant_1 p-2 w-full h-[80%]"
             onChange={handleTextChange}
             spellCheck={false}

@@ -3,9 +3,12 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { type Post } from "@lib/types";
 import CustomImage from "./Image";
+import { useSession } from "next-auth/react";
 
 export default function PostCard({ post }: { post: Post }) {
+  const {data:session} = useSession();
   const handlePostCardClick = () => {
+    if(session?.user.id&&(post.creator.blocked?.includes(session?.user.id)||session?.user.blocked?.includes(post.creator._id))) return
     localStorage.setItem("post", JSON.stringify(post));
   };
   return (

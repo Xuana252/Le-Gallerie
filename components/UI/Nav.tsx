@@ -38,7 +38,7 @@ export const ButtonSet = () => {
 
   useEffect(()=> {
     setSize(window.innerWidth)
-  })
+  },[])
 
   const ButtonSet = (
     <>

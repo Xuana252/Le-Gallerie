@@ -1,35 +1,42 @@
 "use server";
 import { Comment, type Post } from "@lib/types";
 import { checkLikeRateLimit } from "./checkRateLimit";
+import { headers } from "next/headers";
 
 export const fetchAllPost = async (currentPage: number, limit:number) => {
-  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts?page=${currentPage}&limit=${limit}`);
+  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts?page=${currentPage}&limit=${limit}` ,{
+    headers: headers()
+  });
   if (response.ok) {
     const data = await response.json();
-    return data;
+    return {posts:data.posts,counts:data.counts};
   }
-  return [];
+  return {posts:[],counts:0};
 };
 export const fetchUserPost = async (user: string,currentPage: number, limit:number) => {
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/users/${user}/posts?page=${currentPage}&limit=${limit}`
+    `${process.env.DOMAIN_NAME}/api/users/${user}/posts?page=${currentPage}&limit=${limit}`,{
+      headers: headers()
+    }
   );
   if (response.ok) {
     const data = await response.json();
-    return data;
+    return {posts:data.posts,counts:data.counts};
   }
-  return [];
+  return {posts:[],counts:0};
 };
 
 export const fetchUserLikedPost = async (user: string,currentPage: number, limit:number) => {
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/users/${user}/posts/liked-posts?page=${currentPage}&limit=${limit}`
+    `${process.env.DOMAIN_NAME}/api/users/${user}/posts/liked-posts?page=${currentPage}&limit=${limit}`,{
+      headers: headers()
+    }
   );
   if (response.ok) {
     const data = await response.json();
-    return data;
+    return {posts:data.posts,counts:data.counts};
   }
-  return [];
+  return {posts:[],counts:0};
 };
 
 export const createPost = async (post: Post, user: string) => {
@@ -54,7 +61,9 @@ export const updatePost = async (post: Post) => {
 };
 
 export const fetchPostWithId = async (post: string) => {
-  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}`);
+  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}`,{
+    headers: headers()
+  });
   const data = await response.json();
 
   if (response.ok) return data;

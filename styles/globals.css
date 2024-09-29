@@ -28,7 +28,7 @@
   @apply flex rounded-full size-44 overflow-hidden bg-secondary-2 relative shadow-xl text-9xl;
 }
 .User_Profile_Page_Username {
-  @apply text-4xl text-center sm:text-left font-bold;
+  @apply text-4xl w-full text-accent text-center sm:text-left font-bold break-words;
 }
 .User_Profile_Page_Bio {
   @apply text-xl text-center sm:text-left;
@@ -37,7 +37,7 @@
   @apply flex gap-3 px-4 my-2 sm:justify-end justify-center;
 }
 .User_Profile_Page_Stat_Bar {
-  @apply flex flex-row items-start grow justify-evenly gap-4 sm:text-2xl text-lg;
+  @apply flex flex-row w-full sm:w-fit  items-start grow justify-evenly gap-4 sm:text-2xl text-lg bg-secondary-2/30 shadow-inner rounded-xl  px-2 py-4;
 }
 .Category {
   font-style: italic;
@@ -45,6 +45,14 @@
 }
 .Category::before {
   content: "#";
+}
+
+.Side_bar_item {
+  @apply flex flex-row  rounded-xl gap-2 items-center w-full text-left px-4 py-2 text-accent hover:bg-accent/50 hover:text-primary active:bg-accent active:text-primary font-bold
+}
+
+.Side_bar_selected_item {
+  @apply flex flex-row rounded-xl gap-2 items-center w-full text-left px-4 py-2 font-bold bg-accent text-primary
 }
 
 .Notification_view_toggle_button {
@@ -100,15 +108,15 @@
 }
 
 .Input_box_variant_2 {
-  @apply bg-transparent outline-none placeholder:text-inherit placeholder:opacity-50 border-primary  border-b-2 pb-2 text-xl px-1 flex;
+  @apply text-accent bg-transparent outline-none placeholder:text-inherit placeholder:opacity-50 border-primary  border-b-2 pb-2 text-xl px-1 flex;
 }
 
 .Input_box_variant_1 {
-  @apply bg-primary/50 flex rounded-2xl border-2 border-accent placeholder:text-accent placeholder:opacity-50  items-center grow outline-none justify-between  text-lg px-1 overflow-hidden;
+  @apply text-accent bg-primary/50 flex rounded-2xl border-2 border-accent placeholder:text-accent placeholder:opacity-50  items-center grow outline-none justify-between  text-lg px-1 overflow-hidden;
 }
 
 .Input_box_variant_3 {
-  @apply bg-secondary-2 rounded-lg outline-none placeholder:text-accent placeholder:opacity-50 text-sm p-2 ;
+  @apply text-accent bg-secondary-2 rounded-lg outline-none placeholder:text-accent placeholder:opacity-50 text-sm p-2 ;
 }
 
 .Cate_box {

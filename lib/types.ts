@@ -9,6 +9,9 @@ declare module 'next-auth' {
     follower?:number,
     following?:number,
     blocked?:string[],
+    createdAt?:Date,
+    fullname?:string,
+    birthdate?:string,
   }
 
   interface Session {
@@ -42,6 +45,8 @@ export type User = {
   _id:string,
   email?:string,
   username?:string,
+  fullname?:string,
+  birthdate?:string,
   image?:string,
   bio?:string,
   follower?:number,
@@ -53,6 +58,8 @@ export type UploadUser = {
   _id:string,
   email?:string,
   username?:string,
+  fullname?:string,
+  birthdate?:string,
   image?: {
     file:File|null,
     url:string,
@@ -79,6 +86,7 @@ export type Post = {
     categories: Category[],
     image: string,
     likes?:number,
+    createdAt?: Date,
 }
 export type UploadPost = {
     _id?: string,

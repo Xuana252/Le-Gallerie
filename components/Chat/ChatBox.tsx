@@ -439,7 +439,7 @@ export default function ChatBox({}: {}) {
           ))}
       </ul>
       <div className="flex items-center bg-secondary-2/70 p-1 h-[50px] shadow-md gap-2">
-        {!(isBlocked || blocked) && (
+        {!(isBlocked || blocked) ? (
           <>
             <ImageInput image="" type="TextImage" setImage={handleSend} />
             <InputBox
@@ -452,6 +452,22 @@ export default function ChatBox({}: {}) {
             </InputBox>
             <EmojiInput setEmoji={setText} />
             <button className="Icon_small" onClick={handleSendClick}>
+              <FontAwesomeIcon icon={faPaperPlane} />
+            </button>
+          </>
+        ) : (
+          <>
+            <ImageInput image="" type="TextImage" setImage={()=>{}} />
+            <InputBox
+              value={""}
+              style={{ border: "none" }}
+              onTextChange={()=>{}}
+              type="Input"
+            >
+              Say something
+            </InputBox>
+            <EmojiInput setEmoji={()=>{}} />
+            <button className="Icon_small" onClick={()=>{}}>
               <FontAwesomeIcon icon={faPaperPlane} />
             </button>
           </>

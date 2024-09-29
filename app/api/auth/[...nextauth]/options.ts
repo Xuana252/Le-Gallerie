@@ -108,6 +108,8 @@ export const options: NextAuthOptions = {
 
           const newUser = await User.create({
             username: user.name ?? "unknown",
+            fullname:"",
+            birthdate:"",
             email: user.email,
             password: hashedPassword,
             image: "",
@@ -144,6 +146,9 @@ export const options: NextAuthOptions = {
             session.user.follower = sessionUser.follower||0;
             session.user.following = sessionUser.following||0;
             session.user.blocked = sessionUser.blocked.map((user:any)=>user.toString())||[];
+            session.user.createdAt = sessionUser.createdAt||null;
+            session.user.fullname = sessionUser.fullname||"";
+            session.user.birthdate = sessionUser.birthdate||"";
           }
         } catch (error) {
           console.log("Error fetching user for session:", error);

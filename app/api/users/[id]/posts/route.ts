@@ -15,6 +15,7 @@ export const GET = async (
 
     const skip = (page - 1) * limit;
 
+    const counts = await Post.countDocuments({ creator: params.id })
     const posts = await Post.find({ creator: params.id })
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -26,7 +27,7 @@ export const GET = async (
       })
       .populate("categories");
 
-    return NextResponse.json(posts, { status: 200 });
+    return NextResponse.json({posts:posts,counts:counts}, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { message: "Failed to fetch for user post" },
