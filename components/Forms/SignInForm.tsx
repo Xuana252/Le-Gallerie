@@ -176,8 +176,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
     signIn(provider, { callbackUrl: "/" });
   };
 
-  const handleCredentialsSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCredentialsSignIn = async () => {
     setSubmitState("Processing");
     const invalidInputs = checkInvalidInput();
     if (invalidInputs.length > 0) {
@@ -206,8 +205,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
     }
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSignUp = async () => {
     setSubmitState("Processing");
     const invalidInputs = checkInvalidInput();
 
@@ -300,7 +298,16 @@ export default function SignInForm({ providers }: { providers: string[] }) {
   const SignInForm = (
     <>
       <form
-        onSubmit={handleCredentialsSignIn}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault(); // Prevent default form submission
+            handleCredentialsSignIn(); // Manually handle sign-in
+          }
+        }}
+        onSubmit={(e) => {
+          e.preventDefault(); // Prevent the default form behavior
+          handleCredentialsSignIn(); // Call the sign-in logic
+        }}
         className="flex flex-col w-full p-2 gap-6 items-center"
       >
         <div className="grid grid-cols-1">
@@ -354,7 +361,16 @@ export default function SignInForm({ providers }: { providers: string[] }) {
   const SignUpForm = (
     <>
       <form
-        onSubmit={handleSignUp}
+         onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault(); // Prevent default form submission
+            handleSignUp(); // Manually handle sign-in
+          }
+        }}
+        onSubmit={(e) => {
+          e.preventDefault(); // Prevent the default form behavior
+          handleSignUp(); // Call the sign-in logic
+        }}
         className="flex flex-col w-full p-2 gap-4 items-center"
       >
         <ImageInput

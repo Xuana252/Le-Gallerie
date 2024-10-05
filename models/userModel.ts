@@ -40,6 +40,7 @@ const UserSchema = new Schema ({
     },
     blocked: [{
         type: Schema.Types.ObjectId,
+        ref: 'User',
         required: false,
     }]
 },

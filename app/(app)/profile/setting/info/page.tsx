@@ -35,19 +35,19 @@ export default function Info() {
         <div className="flex flex-col text-xl bg-secondary-2/40 py-2 px-1 text-accent rounded-lg">
           <div className="w-full py-2 flex flex-row">
             <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">Username</div>
-            <p className="w-[70%]">{session?.user.name}</p>
+            <p className="break-words w-[70%]">{session?.user.name}</p>
           </div>
           <div className="w-full py-2 flex flex-row">
             <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">Bio</div>
-            <p className="w-[70%]">{session?.user.bio}</p>
+            <p className="break-words w-[70%]">{session?.user.bio}</p>
           </div>
           <div className="w-full py-2 flex flex-row">
             <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">Fullname</div>
-            <p className="w-[70%]">{session?.user.fullname}</p>
+            <p className="break-words w-[70%]">{session?.user.fullname}</p>
           </div>
           <div className="w-full py-2 flex flex-row">
             <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">Birth</div>
-            <p className="w-[70%]">{session?.user.birthdate}</p>
+            <p className="break-words w-[70%]">{session?.user.birthdate}</p>
           </div>
         </div>
         <div className="User_Profile_Page_Interactive_Bar">
@@ -69,7 +69,7 @@ export default function Info() {
           </h1>
           <h1 className="text-accent font-semibold">
             email:{" "}
-            <span className="text-accent/90 font-bold">
+            <span className="text-accent/90 font-bold break-words">
               {session?.user?.email}
             </span>
           </h1>

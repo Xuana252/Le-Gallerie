@@ -152,7 +152,7 @@ export const CommentItem = ({
       <div className="flex flex-col w-[80%] gap-2">
         <div className="rounded-xl bg-secondary-2 w-fit px-2 py-1 text-sm">
           <span
-            className={`font-semibold ${
+            className={`font-semibold break-all whitespace-normal ${
               size === "small" ? "text-sm" : "text-xs"
             }`}
           >

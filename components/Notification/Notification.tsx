@@ -122,7 +122,7 @@ function NotificationList({
       toast.custom((t) => (
         <div className="Toast_item">
           {item ? (
-            <>
+            <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
               <div className="Icon_small bg-secondary-2 select-none pointer-events-none">
                 {item.actors[0].avatar ? (
                   <CustomImage
@@ -138,9 +138,9 @@ function NotificationList({
                   <FontAwesomeIcon icon={faUser} className="m-0" />
                 )}
               </div>
-              <div className="flex flex-col text-sm grow">
+              <div className="flex flex-col text-sm ">
                 <p>
-                  <b>{item.actors[0].name}</b> {item.blocks[0].content}
+                  <b className="whitespace-normal break-all">{item.actors[0].name}</b> {item.blocks[0].content}
                 </p>
                 <p className="text-xs text-secondary-1">
                   {formatTimeAgo(item.inserted_at)}
@@ -156,7 +156,7 @@ function NotificationList({
                   className="rounded-full size-3 p-1 hover:bg-primary hover:text-accent"
                 />
               </button>
-            </>
+            </div>
           ) : (
             "you have 1 notification"
           )}
@@ -306,7 +306,7 @@ function NotificationList({
                   )}
                   <div className="flex flex-col text-sm w-[70%]">
                     <p>
-                      <b>{item.actors[0].name}</b> {item.blocks[0].content}
+                      <b className="break-all whitespace-normal">{item.actors[0].name}</b> {item.blocks[0].content}
                     </p>
                     <p className="text-xs text-secondary-1">
                       {formatTimeAgo(item.inserted_at)}

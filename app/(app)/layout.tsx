@@ -8,7 +8,7 @@ import Nav from "@components/UI/Nav";
 import Provider from "@context/Provider";
 import ThemeManager from "@theme/ThemeManager";
 const inter = Inter({ subsets: ["latin"] });
-import { Toaster } from 'sonner';
+import { Toaster } from "sonner";
 import ChatBox from "@components/Chat/ChatBox";
 
 export const metadata: Metadata = {
@@ -31,11 +31,9 @@ export default function RootLayout({
           <ThemeManager>
             <div className="min-h-[100vh] flex flex-col">
               {/* Nav will appear on top  */}
-              <Nav>
-                <>{children}</>
-              </Nav>
+              <Nav>{children}</Nav>
             </div>
-            <Toaster richColors position='top-left'/>
+            <Toaster richColors position="top-left" />
           </ThemeManager>
         </Provider>
       </body>

@@ -2,6 +2,8 @@
 
 import { User } from "@lib/types";
 import { getServerSession } from "next-auth";
+import { headers } from "next/headers";
+import { checkVerifyRateLimit } from "./checkRateLimit";
 
 export const signUp = async (user: any) => {
   const response = await fetch(`${process.env.DOMAIN_NAME}/api/users/new`, {
@@ -105,3 +107,46 @@ export const blockUser = async (user: string, blockUser: string) => {
     return false;
   }
 };
+
+export const fetchUserBlockedList = async (user: string) => {
+  try {
+    const response = await fetch(
+      `${process.env.DOMAIN_NAME}/api/users/${user}/blocks`
+    );
+    const data = await response.json();
+    if (response.ok) return data;
+  } catch (error) {
+    console.log("Failed to check user followed state", error);
+    return null;
+  }
+};
+
+export const sendVerificationCode = async (user: string) => {
+  try {
+    const response = await fetch(
+      `${process.env.DOMAIN_NAME}/api/users/${user}/verify`
+    );
+    const data = await response.json();
+    if (response.ok) return data;
+  } catch (error) {
+    console.log("Failed to send verification", error);
+    return "";
+  }
+}
+
+export const changeUserPassword = async (user:string, newpassword:string) => {
+  const response = await fetch(
+    `${process.env.DOMAIN_NAME}/api/users/${user}/change-password`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        newPassword: newpassword,
+      }),
+    }
+  );
+  if (response.ok) return true;
+  return false;
+}

@@ -49,10 +49,11 @@ export const PATCH = async (
       { status: 200 }
     );
   } catch (error) {
-    console.log("Failed to update user blocked", error);
     return NextResponse.json(
       { message: "Failed to update user blocked" },
       { status: 500 }
     );
   }
 };
+
+

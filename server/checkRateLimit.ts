@@ -1,5 +1,5 @@
 'use server'
-import { apiIdToRequestCount, apiRateLimiter, AuthIdToRequestCount, authRateLimiter, likeIdToRequestCount, likeRateLimiter, postIdToRequestCount, postRateLimiter, rateLimit } from "@lib/rateLimit"
+import { apiIdToRequestCount, apiRateLimiter, AuthIdToRequestCount, authRateLimiter, likeIdToRequestCount, likeRateLimiter, postIdToRequestCount, postRateLimiter, rateLimit, verifyRateLimiter, verifyRequestCount } from "@lib/rateLimit"
 import { RateLimitObject } from "@lib/types";
 import { headers } from "next/headers"
 const getIpAddress = (): string => {
@@ -31,6 +31,10 @@ const getIpAddress = (): string => {
   
   export async function checkLikeRateLimit(): Promise<boolean> {
     return checkRateLimit(likeRateLimiter, likeIdToRequestCount, 'like');
+  }
+
+  export async function checkVerifyRateLimit(): Promise<boolean> {
+    return checkRateLimit(verifyRateLimiter, verifyRequestCount, 'verify');
   }
   
   export async function checkApiRateLimit(): Promise<boolean> {

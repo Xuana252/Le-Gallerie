@@ -150,7 +150,7 @@ export default function PostDetail({ post }: { post: Post }) {
       <span className="font-bold">Liked by</span>
       <ul className="flex flex-col gap-2 p-1 bg-secondary-2/50 h-48 rounded-xl overflow-y-scroll no-scrollbar">
         {likes.map((user, index) => (
-          <label key={index} className="flex items-center gap-2">
+          <label key={index} className="grid grid-cols-[auto_1fr] items-center gap-2">
             {session?.user?.id === user._id ? (
               <UserProfileIcon currentUser={true} size={"Icon_small"} />
             ) : (
@@ -160,7 +160,7 @@ export default function PostDetail({ post }: { post: Post }) {
                 size={"Icon_small"}
               />
             )}
-            <h2 className="text-sm cursor-pointer text-accent">
+            <h2 className="text-sm cursor-pointer text-accent max-w-[150px] w-[150px] whitespace-nowrap overflow-x-hidden overflow-ellipsis">
               {user.username}
             </h2>
           </label>
@@ -240,8 +240,8 @@ export default function PostDetail({ post }: { post: Post }) {
           </div>
         </div>
         <div className="grow flex-col flex gap-2">
-          <div className="flex items-center gap-2">
-            <label className="flex items-center gap-2">
+          <div className="grid grid-cols-[1fr_auto] items-center gap-2">
+            <label className="grid grid-cols-[auto_1fr] items-center gap-2">
               {session?.user?.id === post?.creator._id ? (
                 <UserProfileIcon currentUser={true} />
               ) : (
@@ -250,7 +250,7 @@ export default function PostDetail({ post }: { post: Post }) {
                   user={post?.creator || { _id: "" }}
                 />
               )}
-              <h2 className="text-sm cursor-pointer font-bold">
+              <h2 className="text-sm cursor-pointer font-bold whitespace-normal break-all">
                 {post?.creator.username}
               </h2>
             </label>

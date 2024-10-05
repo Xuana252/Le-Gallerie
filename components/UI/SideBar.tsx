@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import {
   faAngleLeft,
   faAngleRight,
@@ -33,39 +33,10 @@ export default function SideBar({ children }: { children: ReactNode }) {
       icon: faKey,
     },
   ];
-  const [windowSize, setSize] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(0);
   const [windowHeight, setWindowHeight] = useState(0);
   const [isMinimize, setIsMinimize] = useState(true);
   const [selectedMenuIndex, setSelectedMenuIndex] = useState(-1);
-
-  useEffect(() => {
-    const handleResize = () => setSize(window.innerWidth);
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      // Set initial height when component mounts
-      setWindowHeight(window.innerHeight);
-
-      // Update height on window resize
-      const handleResize = () => {
-        setWindowHeight(window.innerHeight);
-      };
-
-      window.addEventListener("resize", handleResize);
-
-      // Cleanup event listener on component unmount
-      return () => window.removeEventListener("resize", handleResize);
-    }
-  }, []);
-
-  useEffect(() => {
-    setSize(window.innerWidth);
-  }, []);
 
   useEffect(() => {
     const foundIndex = menuItems.findIndex((item) =>
@@ -75,52 +46,56 @@ export default function SideBar({ children }: { children: ReactNode }) {
     setSelectedMenuIndex(foundIndex !== -1 ? foundIndex : -1);
   }, [pathName]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      setWindowHeight(window.innerHeight);
+    };
+
+    // Set initial window dimensions
+    handleResize();
+
+    // Add event listener for window resize
+    window.addEventListener("resize", handleResize);
+
+    // Clean up event listener on component unmount
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
     <div
-      className={`flex flex-col sm:flex-row h-full`}
+      className="flex flex-col sm:flex-row h-screen"
       style={{
-        minHeight: `${windowHeight  - 60}px`,
-        height: `${windowHeight  - 60}px`,
+        height: `calc(100vh - 60px)`,
       }}
     >
       <div className="relative">
         <div
-          className={`flex h-full justify-start ${
-            windowSize < 640
-              ? "flex-row w-full items-center overflow-x-scroll no-scrollbar"
-              : isMinimize
-              ? "w-fit flex-col"
-              : "flex-col w-[200px]"
-          } bg-secondary-2 gap-3 py-2 sm:py-4 px-2`}
+          onMouseEnter={() => setIsMinimize(false)}
+          onMouseLeave={() => setIsMinimize(true)}
+          className={`Side_bar_menu transition-transform duration-200 ${
+            isMinimize ? "w-fit" : "sm:max-x-[200px]"
+          }`}
         >
           {menuItems.map((menu, index) => (
-            <Link href={menu.path} key={index}>
-              <button
-                className={`${
-                  selectedMenuIndex === index
-                    ? "Side_bar_selected_item"
-                    : "Side_bar_item"
-                }`}
-              >
+            <Link href={menu.path} key={index} className={`${
+              selectedMenuIndex === index
+                ? "Side_bar_selected_item"
+                : "Side_bar_item"
+            }`}>
                 <FontAwesomeIcon icon={menu.icon} />
                 {isMinimize ? "" : menu.name}
-              </button>
             </Link>
           ))}
         </div>
-
-        <button
-          className={`text-accent text-xl ml-auto sm:h-fit h-full bg-secondary-2 sm:mt-auto absolute sm:bottom-0 top-0 right-0 flex items-center px-2 py-2`}
-          onClick={() => setIsMinimize((prev) => !prev)}
-        >
-          <FontAwesomeIcon icon={isMinimize ? faAngleRight : faAngleLeft} />
-        </button>
       </div>
       <div
         className="w-full overflow-y-scroll p-4"
         style={{
-          maxHeight: `${windowHeight  - 60}px`,
-          height: `${windowHeight  - 60}px`,
+          maxHeight: `${windowHeight - 60}px`,
+          height: `${windowHeight - 60}px`,
         }}
       >
         {children}

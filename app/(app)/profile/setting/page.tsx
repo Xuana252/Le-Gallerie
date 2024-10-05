@@ -1,4 +1,3 @@
-'use client'
 import { faKey, faUser, faUserGear, faUserLock } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";

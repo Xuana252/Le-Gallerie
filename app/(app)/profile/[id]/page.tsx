@@ -160,7 +160,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
         setBlocked((prev) => !prev);
       }
     } catch (error) {
-      toastError("Error");
+      toastError("Error while blocking user");
     }
   };
   const handleChangeFollowState = async () => {
@@ -370,16 +370,17 @@ export default function UserProfile({ params }: { params: { id: string } }) {
         </div>
         <ul className="bg-secondary-1 w-[300px] h-[400px] sm:w-[400px] sm:h-[500px] rounded-lg py-4 px-2 flex flex-col gap-2">
           {list.map((item) => (
-            <div key={item._id} className="flex items-center">
-              <label className="flex items-center gap-2 cursor-pointer">
-                {item._id === session?.user.id ? (
+             <li
+             key={item._id}
+             className="grid grid-cols-[auto_1fr_auto] items-center gap-2 h-fit w-full"
+           >
+               {item._id === session?.user.id ? (
                   <UserProfileIcon currentUser={true} />
                 ) : (
                   <UserProfileIcon currentUser={false} user={item} />
                 )}
-                {item.username}
-              </label>
-              {item._id === session?.user.id ? null : curUserFollowing?.find(
+               <p className="font-bold break-all whitespace-normal">{item.username}</p>
+               {item._id === session?.user.id ? null : curUserFollowing?.find(
                   (follow) => follow._id === item._id
                 ) ? (
                 <button
@@ -408,7 +409,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                   Follow
                 </button>
               )}
-            </div>
+           </li>
           ))}
         </ul>
       </div>
@@ -477,6 +478,9 @@ export default function UserProfile({ params }: { params: { id: string } }) {
         </section>
       ) : (
         <section className="text-accent">
+          <div className="px-4 py-2">
+            <h1 className="User_Profile_Page_Username">{user?.username}</h1>
+          </div>
           <div className="User_Profile_Layout">
             <div className=" User_Profile_Page_Picture ">
               {user?.image ? (
@@ -523,10 +527,9 @@ export default function UserProfile({ params }: { params: { id: string } }) {
             </div>
           </div>
           <div className="px-4 py-2">
-              <h1 className="User_Profile_Page_Username">{user?.username}</h1>
-              <br />
-              <h2 className="User_Profile_Page_Bio">{user?.bio}</h2>
-            </div>
+            <h2 className="User_Profile_Page_Fullname">{user?.fullname}</h2>
+            <h2 className="User_Profile_Page_Bio">{user?.bio}</h2>
+          </div>
           <div className="User_Profile_Page_Interactive_Bar">
             <>
               <MultipleOptionsButton>

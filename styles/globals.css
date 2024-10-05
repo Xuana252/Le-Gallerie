@@ -28,16 +28,19 @@
   @apply flex rounded-full size-44 overflow-hidden bg-secondary-2 relative shadow-xl text-9xl;
 }
 .User_Profile_Page_Username {
-  @apply text-4xl w-full text-accent text-center sm:text-left font-bold break-words;
+  @apply text-4xl w-full text-accent text-center sm:text-left font-bold break-words underline;
 }
 .User_Profile_Page_Bio {
-  @apply text-xl text-center sm:text-left;
+  @apply text-xl text-center sm:text-left break-words;
+}
+.User_Profile_Page_Fullname {
+  @apply text-xl text-center font-bold sm:text-left;
 }
 .User_Profile_Page_Interactive_Bar {
   @apply flex gap-3 px-4 my-2 sm:justify-end justify-center;
 }
 .User_Profile_Page_Stat_Bar {
-  @apply flex flex-row w-full sm:w-fit  items-start grow justify-evenly gap-4 sm:text-2xl text-lg bg-secondary-2/30 shadow-inner rounded-xl  px-2 py-4;
+  @apply flex flex-row w-full sm:w-fit  items-start grow justify-evenly gap-4 sm:text-2xl text-lg bg-secondary-2/30 shadow-md rounded-xl  px-2 py-4;
 }
 .Category {
   font-style: italic;
@@ -47,12 +50,16 @@
   content: "#";
 }
 
+.Side_bar_menu {
+  @apply flex h-full justify-start bg-secondary-2 gap-3 py-2 sm:py-4 px-2 flex-row w-full items-center overflow-x-scroll no-scrollbar sm:flex-col sm:items-start
+}
+
 .Side_bar_item {
-  @apply flex flex-row  rounded-xl gap-2 items-center w-full text-left px-4 py-2 text-accent hover:bg-accent/50 hover:text-primary active:bg-accent active:text-primary font-bold
+  @apply flex flex-row  rounded-xl gap-2 items-center sm:w-full text-left px-4 py-2 text-accent hover:bg-accent/50 hover:text-primary active:bg-accent active:text-primary font-bold
 }
 
 .Side_bar_selected_item {
-  @apply flex flex-row rounded-xl gap-2 items-center w-full text-left px-4 py-2 font-bold bg-accent text-primary
+  @apply flex flex-row rounded-xl gap-2 items-center sm:w-full text-left px-4 py-2 font-bold bg-accent text-primary
 }
 
 .Notification_view_toggle_button {

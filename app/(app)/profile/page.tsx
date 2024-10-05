@@ -3,7 +3,12 @@ import React, { useEffect, useState } from "react";
 import Image from "@components/UI/Image";
 import Feed from "@components/UI/Feed";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faPen, faBorderAll, faGear } from "@fortawesome/free-solid-svg-icons";
+import {
+  faUser,
+  faPen,
+  faBorderAll,
+  faGear,
+} from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { getSession, useSession } from "next-auth/react";
 import PopupButton from "@components/Input/PopupButton";
@@ -118,15 +123,16 @@ export default function MyProfile() {
         </div>
         <ul className="bg-secondary-1 w-[300px] h-[400px] sm:w-[400px] sm:h-[500px] rounded-lg py-4 px-2 flex flex-col gap-2">
           {list.map((item) => (
-            <div key={item._id} className="flex items-center">
-              <label className="flex items-center gap-2 cursor-pointer">
+            <li
+              key={item._id}
+              className="grid grid-cols-[auto_1fr_auto] items-center gap-2 h-fit w-full"
+            >
                 <UserProfileIcon currentUser={false} user={item} />
-                {item.username}
-              </label>
+                <p className="font-bold break-all whitespace-normal">{item.username}</p>
               {followType === "Following" ||
               following?.find((follow) => follow._id === item._id) ? (
                 <button
-                  className="Button_variant_1 ml-auto"
+                  className="Button_variant_1"
                   onClick={() => handleUnfollow(item)}
                   disabled={followTimeOut}
                 >
@@ -134,14 +140,14 @@ export default function MyProfile() {
                 </button>
               ) : (
                 <button
-                  className="Button_variant_1 ml-auto"
+                  className="Button_variant_1"
                   onClick={() => handleFollow(item)}
                   disabled={followTimeOut}
                 >
                   Follow back
                 </button>
               )}
-            </div>
+            </li>
           ))}
         </ul>
       </div>
@@ -150,6 +156,9 @@ export default function MyProfile() {
 
   return (
     <section className="text-accent">
+      <div className="px-4 py-2">
+        <h1 className="User_Profile_Page_Username">{session?.user?.name}</h1>
+      </div>
       <div className="User_Profile_Layout">
         <div className="relative">
           <div className="User_Profile_Page_Picture ">
@@ -194,10 +203,9 @@ export default function MyProfile() {
         </div>
       </div>
       <div className="px-4 py-2">
-          <h1 className="User_Profile_Page_Username">{session?.user?.name}</h1>
-          <br />
-          <h2 className="User_Profile_Page_Bio">{session?.user.bio}</h2>
-        </div>
+        <h2 className="User_Profile_Page_Fullname">{session?.user.fullname}</h2>
+        <h2 className="User_Profile_Page_Bio">{session?.user.bio}</h2>
+      </div>
       <div className="User_Profile_Page_Interactive_Bar">
         <>
           <Link href={"/profile/setting/edit-profile"}>

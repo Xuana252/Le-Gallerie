@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import InputBox from "@components/Input/InputBox";
 import SubmitButton from "@components/Input/SubmitButton";
 import { faCheck, faL, faUser } from "@fortawesome/free-solid-svg-icons";
@@ -26,8 +26,8 @@ export default function EditPage() {
   const [updateInfo, setUpdateInfo] = useState<UploadUser>({
     _id: session?.user.id || "",
     username: session?.user.name || "",
-    fullname:session?.user.fullname||"",
-    birthdate:session?.user.birthdate||"",
+    fullname: session?.user.fullname || "",
+    birthdate: session?.user.birthdate || "",
     image: {
       file: null,
       url: session?.user.image || "",
@@ -41,13 +41,12 @@ export default function EditPage() {
         _id: session?.user.id || "",
         username: session.user.name || "",
         fullname: session.user.fullname || "",
-        birthdate:session?.user.birthdate||"",
+        birthdate: session?.user.birthdate || "",
         image: {
           file: null,
           url: session.user.image || "",
         },
         bio: session.user.bio || "",
-
       });
       setUpdateImage(session.user.image || "");
     }
@@ -55,8 +54,8 @@ export default function EditPage() {
 
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if(updateInfo.username?.trim()==="") {
-      toastError("username must not be empty") 
+    if (updateInfo.username?.trim() === "") {
+      toastError("username must not be empty");
       return;
     }
     try {
@@ -95,7 +94,7 @@ export default function EditPage() {
         await update(newSession);
         console.log("User updated");
         setSubmitState("Succeeded");
-        setTimeout(() => router.push('/profile/setting/info'), 1000);
+        setTimeout(() => router.push("/profile/setting/info"), 1000);
       } else {
         setSubmitState("Failed");
         console.log("Failed to update user");
@@ -113,12 +112,12 @@ export default function EditPage() {
     }));
   };
 
-  const handleDateChange = (date:string) => {
-    setUpdateInfo(u=>({
+  const handleDateChange = (date: string) => {
+    setUpdateInfo((u) => ({
       ...u,
-      birthdate:date,
-    }))
-  }
+      birthdate: date,
+    }));
+  };
 
   const handleInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -133,7 +132,7 @@ export default function EditPage() {
         </h1>
         <form
           onSubmit={handleUpdate}
-          className="flex flex-col sm:flex-row h-fit gap-2 sm:gap-4  "
+          className="flex flex-col sm:flex-row h-fit gap-2 sm:gap-4  text-accent"
         >
           <div>
             <ImageInput
@@ -167,7 +166,11 @@ export default function EditPage() {
             >
               Full name
             </InputBox>
-            <DateTimePicker name="birthdate" value={updateInfo.birthdate||''} onChange={handleDateChange}></DateTimePicker>
+            <DateTimePicker
+              name="birthdate"
+              value={updateInfo.birthdate || ""}
+              onChange={handleDateChange}
+            ></DateTimePicker>
           </div>
           <div className="flex justify-end gap-3 mt-auto">
             <SubmitButton state={submitState} changeState={setSubmitState}>
@@ -175,12 +178,14 @@ export default function EditPage() {
             </SubmitButton>
           </div>
         </form>
-        
       </div>
       <div className="bg-secondary-1/70 rounded-lg p-4 flex flex-col gap-4">
         <h1 className="text-primary font-bold text-2xl bg-accent/30 rounded-md px-2 py-1">
           User profile preview
         </h1>
+        <h1 className="User_Profile_Page_Username">
+            {updateInfo.username || "username"}
+          </h1>
         <div className="User_Profile_Layout">
           <div className="User_Profile_Page_Picture ">
             {updateInfo.image?.url ? (
@@ -210,19 +215,16 @@ export default function EditPage() {
             </h1>
           </div>
         </div>
-        <div>
-          <h1 className="User_Profile_Page_Username">
-            {updateInfo.username || "username"}
-          </h1>
-          <br />
-          <h2 className="text-accent/90 text-xl font-semibold ">
-            {updateInfo.bio || "bio"}
-          </h2>
-          <h2 className="text-accent/90 text-xl font-semibold ">
+        <div className="text-accent">
+          <h2 className="User_Profile_Page_Fullname">
             {updateInfo.fullname || "fullname"}
+          </h2>
+          <h2 className="User_Profile_Page_Bio">
+            {updateInfo.bio || "bio"}
           </h2>
         </div>
       </div>
+
       <div className="bg-secondary-1/70 rounded-lg p-4 flex flex-col gap-4">
         <h1 className="text-primary font-bold text-2xl bg-accent/30 rounded-md px-2 py-1">
           User information preview
@@ -245,20 +247,28 @@ export default function EditPage() {
         </div>
         <div className="flex flex-col text-xl bg-secondary-2/40 py-2 px-1 text-accent rounded-lg">
           <div className="w-full py-2 flex flex-row">
-            <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">Username</div>
-            <p className="w-[70%]">{updateInfo.username||"username"}</p>
+            <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">
+              Username
+            </div>
+            <p className="w-[70%]">{updateInfo.username || "username"}</p>
           </div>
           <div className="w-full py-2 flex flex-row">
-            <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">Bio</div>
+            <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">
+              Bio
+            </div>
             <p className="w-[70%]">{updateInfo.bio || "bio"}</p>
           </div>
           <div className="w-full py-2 flex flex-row">
-            <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">Fullname</div>
+            <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">
+              Fullname
+            </div>
             <p className="w-[70%]">{updateInfo.fullname || "fullname"}</p>
           </div>
           <div className="w-full py-2 flex flex-row">
-            <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">Birth</div>
-            <p className="w-[70%]">{updateInfo.birthdate|| "birthdate"}</p>
+            <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">
+              Birth
+            </div>
+            <p className="w-[70%]">{updateInfo.birthdate || "birthdate"}</p>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { RateLimitObject } from "./types";
 
 export const likeIdToRequestCount = new Map<string, number>(); // keeps track of individual users
+export const verifyRequestCount = new Map<string,number>();
 export const postIdToRequestCount = new Map<string,number>();
 export const apiIdToRequestCount = new Map<string,number>();
 export const AuthIdToRequestCount = new Map<string,number>();
@@ -12,11 +13,17 @@ export const likeRateLimiter:RateLimitObject = {
   maxRequests: 10,
 };
 
+export const verifyRateLimiter:RateLimitObject = {
+  windowStart: Date.now(),
+  windowDuration: 1000*60, // Milliseconds (currently 1 Hour)
+  maxRequests: 100,
+};
+
 
 export const postRateLimiter:RateLimitObject = {
   windowStart: Date.now(),
   windowDuration: 1000*60, // Milliseconds (currently 1 Hour)
-  maxRequests: 1,
+  maxRequests: 10,
 };
 
 export const authRateLimiter:RateLimitObject = {

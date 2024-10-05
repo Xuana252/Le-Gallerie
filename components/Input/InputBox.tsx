@@ -7,7 +7,6 @@ import {
   faUnlock,
   faX,
 } from "@fortawesome/free-solid-svg-icons";
-import { icon } from "@fortawesome/fontawesome-svg-core";
 
 type InputProps = {
   type: "Input" | "SearchBox" | "Password";
@@ -74,8 +73,9 @@ export default function InputBox({
           onKeyDown={onKeyDown}
           type={showPassword || type !== "Password" ? "text" : "password"}
           spellCheck="false"
-          className={`bg-transparent placeholder:text-inherit outline-none w-full px-2`}
+          className={`bg-transparent placeholder:text-inherit placeholder:opacity-50 outline-none w-full px-2`}
           placeholder={children ? children : "add text here..."}
+          autoComplete="off"
         />
         <div className="flex items-center size-8 justify-center Input_box_base cursor-pointer">
           {type === "Password" ? (
