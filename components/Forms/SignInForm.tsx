@@ -335,6 +335,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
           Sign in
         </SubmitButton>
       </form>
+      <Link href={'/forget-password'} className="underline hover:font-bold">Forget password</Link>
       {/* Ask for sign up */}
       <h1>or</h1>
       {/* other Sign in methods */}

@@ -4,6 +4,7 @@ import { User } from "@lib/types";
 import { getServerSession } from "next-auth";
 import { headers } from "next/headers";
 import { checkVerifyRateLimit } from "./checkRateLimit";
+import toastError from "@components/Notification/Toaster";
 
 export const signUp = async (user: any) => {
   const response = await fetch(`${process.env.DOMAIN_NAME}/api/users/new`, {
@@ -121,20 +122,20 @@ export const fetchUserBlockedList = async (user: string) => {
   }
 };
 
-export const sendVerificationCode = async (user: string) => {
+export const sendVerificationCode = async (email: String) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users/${user}/verify`
+      `${process.env.DOMAIN_NAME}/api/users/verify/${email}`
     );
     const data = await response.json();
-    if (response.ok) return data;
+    if (response.ok) return { id: data.id, code: data.code };
   } catch (error) {
     console.log("Failed to send verification", error);
-    return "";
+    return { id: "", code: "" };
   }
-}
+};
 
-export const changeUserPassword = async (user:string, newpassword:string) => {
+export const changeUserPassword = async (user: string, newpassword: string) => {
   const response = await fetch(
     `${process.env.DOMAIN_NAME}/api/users/${user}/change-password`,
     {
@@ -149,4 +150,4 @@ export const changeUserPassword = async (user:string, newpassword:string) => {
   );
   if (response.ok) return true;
   return false;
-}
+};

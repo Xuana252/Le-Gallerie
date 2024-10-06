@@ -6,12 +6,12 @@ import User from "@models/userModel";
 
 export const GET = async (
   req: Request,
-  { params }: { params: { id: string } }
+  {params}:{params:{email:string}}
 ) => {
   try {
     await connectToDB();
 
-    const userToBeVerified = await User.findById(params.id);
+    const userToBeVerified = await User.findOne({email:params.email});
 
     if (!userToBeVerified)
       return NextResponse.json({ message: "user not found" }, { status: 404 });
@@ -45,7 +45,7 @@ From the Le Gallerie team.
     // Send email
     await transporter.sendMail(mailOptions);
 
-    return NextResponse.json(verificationCode, { status: 200 });
+    return NextResponse.json({id:userToBeVerified._id.toString(),code:verificationCode.toString()}, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { message: "failed to send verification" },

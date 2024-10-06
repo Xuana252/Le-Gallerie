@@ -201,14 +201,9 @@ export default function Feed({
       )}
       {error ? (
         <div>{error}</div>
-      ) : isEmpty ? (
-        <div className="size-full flex flex-col gap-3 justify-center   pt-3 text-accent items-center">
-          {/* <FontAwesomeIcon icon={faMagnifyingGlassMinus} className="text-7xl" />
-          <h1 className="text-xl">No related posts found:/</h1> */}
-        </div>
       ) : (
         <ul
-          className={`grid ${gridColStyle} gap-x-3 min-h-screen min-w-full p-5 justify-center `}
+          className={`grid ${gridColStyle} gap-x-3 h-fit min-w-full p-5 justify-center `}
         >
           {Array.from(Array(colsNum).keys()).map((columnIndex) => (
             <div
