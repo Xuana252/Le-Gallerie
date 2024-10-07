@@ -33,6 +33,7 @@ export default function CustomImage({ src, ...props }: any) {
         :(<IKImage
         urlEndpoint={urlEndpoint}
         src={imageSource}
+        priority
         {...props}
       />)}
     </>

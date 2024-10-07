@@ -1,13 +1,12 @@
-import '@fortawesome/fontawesome-svg-core/styles.css';
-import { config } from '@fortawesome/fontawesome-svg-core';
+import "@fortawesome/fontawesome-svg-core/styles.css";
+import { config } from "@fortawesome/fontawesome-svg-core";
 config.autoAddCss = false;
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@styles/globals.css";
 import ThemeManager from "@theme/ThemeManager";
 const inter = Inter({ subsets: ["latin"] });
-import { Toaster } from 'sonner';
-
+import { Toaster } from "sonner";
 
 
 export const metadata: Metadata = {
@@ -18,19 +17,31 @@ export const metadata: Metadata = {
   },
 };
 
-
+const backgroundImages = [
+  "images/background.webp",
+  "images/background3.webp",
+  "images/background2.jpg",
+];
 
 export default function NoNavLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const randomImage =
+    backgroundImages[Math.floor(Math.random() * backgroundImages.length)];
+
   return (
     <html lang="en">
       <body className={inter.className}>
         <ThemeManager>
-          <div className="h-[100vh] flex ">{children}</div>
-          <Toaster richColors position='bottom-right'/>
+          <div
+            className={`h-[100vh] flex bg-cover bg-center`}
+            style={{ backgroundImage: `url(${randomImage})` }}
+          >
+            {children}
+          </div>
+          <Toaster richColors position="bottom-right" />
         </ThemeManager>
       </body>
     </html>

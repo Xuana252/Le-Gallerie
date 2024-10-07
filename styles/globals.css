@@ -84,12 +84,12 @@
 }
 @screen sm {
   .Sign_In_Form_Desktop {
-    @apply text-accent grid grid-cols-2 rounded-3xl w-full max-w-[1080px] min-h-[400px] shadow-lg m-auto bg-secondary-1 overflow-hidden h-[80%]  relative;
+    @apply text-accent grid grid-cols-2 rounded-3xl w-full max-w-[1080px] min-h-[400px] shadow-xl m-auto bg-secondary-1/90 border-2 border-accent/50 backdrop-blur-sm overflow-hidden h-[80%]  relative;
   }
 }
 
 .Sign_In_Form_Mobile {
-  @apply size-full grid grid-rows-2 text-accent rounded-3xl relative overflow-hidden shadow-lg bg-secondary-1;
+  @apply size-full grid grid-rows-2 text-accent rounded-3xl relative overflow-hidden shadow-xl bg-secondary-1/90 border-2 border-accent/50 backdrop-blur-sm;
 }
 @screen sm {
   .Sign_In_Form_Mobile {
@@ -97,11 +97,15 @@
   }
 }
 
+.Edit_button {
+  @apply rounded-full text-lg size-8 sm:text-xl sm:size-10 bg-secondary-1/30 backdrop-blur-sm transition-transform hover:scale-110 active:scale-90 duration-200 origin-center
+}
+
 .Button_base {
   @apply rounded-full font-semibold py-1 px-2 select-none;
 }
 .Button_variant_1 {
-  @apply Button_base border-2 border-accent  bg-accent min-h-fit text-primary hover:bg-secondary-2 hover:border-secondary-2 active:text-accent active:bg-primary;
+  @apply Button_base border-2 border-accent  bg-accent min-h-fit text-primary hover:scale-110 transition-transform duration-150 active:text-accent active:bg-primary;
 }
 .Button_variant_1_5 {
   @apply Button_base border-2 border-accent bg-primary min-h-fit text-accent hover:bg-secondary-2 active:text-primary active:bg-accent;

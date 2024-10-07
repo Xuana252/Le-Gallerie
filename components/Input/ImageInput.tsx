@@ -1,13 +1,24 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   faX,
   faImage,
   faCheck,
   faGhost,
   faUser,
+  faCropSimple,
+  faRotateRight,
+  faRotateLeft,
+  faUpDown,
+  faLeftRight,
+  faGear,
+  faCancel,
+  faBackspace,
+  faBackward,
+  faSave,
 } from "@fortawesome/free-solid-svg-icons";
-import { useTransition, animated } from "@react-spring/web";
+import Cropper from "cropperjs";
+import "cropperjs/dist/cropper.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { AppLogoLoader } from "@components/UI/Loader";
 
@@ -21,9 +32,13 @@ export default function ImageInput({
   type = "PostImage",
   setImage,
 }: ImageInputProps) {
+  const imageRef = useRef<HTMLImageElement>(null);
+  const cropperRef = useRef<Cropper | null>(null);
   const imageInput = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isCropping, setIsCropping] = useState<boolean>(false);
+  const [flip, setFlip] = useState({ flipX: 1, flipY: 1 });
 
   const testImageUrl = (url: string) => {
     return new Promise<boolean>((resolve) => {
@@ -36,6 +51,7 @@ export default function ImageInput({
 
   const handleImageClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
+    if (isCropping) return;
     imageInput.current?.click();
   };
 
@@ -46,7 +62,7 @@ export default function ImageInput({
 
     if (e.target.files && e.target.files[0]) {
       if (e.target.files[0].size > 3 * 1024 * 1024) {
-        imageInput.current?imageInput.current.value='':null
+        imageInput.current ? (imageInput.current.value = "") : null;
         setError(true);
         setTimeout(() => {
           setError(false);
@@ -80,24 +96,104 @@ export default function ImageInput({
         setIsLoading(false);
       }, 1000);
     }
-    imageInput.current?imageInput.current.value='':null
+    imageInput.current ? (imageInput.current.value = "") : null;
+  };
+
+  const toggleCropping = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setIsCropping((prev) => !prev);
   };
   const handleClearImage = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    setIsCropping(false);
     setImage({ file: null, url: "" });
     if (imageInput.current) {
-      imageInput.current.value = ""; 
+      imageInput.current.value = "";
     }
   };
+
+  useEffect(() => {
+    if (!isCropping || !imageRef.current) return;
+
+    cropperRef.current = new Cropper(imageRef.current, {
+      viewMode: 1,
+      zoomable: true,
+      scalable: true,
+    });
+
+    return () => {
+      cropperRef.current?.destroy();
+      cropperRef.current = null; // reset the ref after destruction
+    };
+  }, [isCropping, imageRef]);
+
+  const handleCrop = () => {
+    if (cropperRef.current) {
+      // Get the cropped image as a canvas
+      const croppedCanvas = cropperRef.current.getCroppedCanvas();
+
+      // Convert the canvas to a data URL and set it as the image
+      croppedCanvas.toBlob((blob) => {
+        if (blob) {
+          // Create a new File from the Blob
+          const newFile = new File([blob], "cropped_image.png", {
+            type: "image/png",
+          });
+
+          // Create a URL for the new image
+          const croppedImageUrl = URL.createObjectURL(blob);
+
+          // Set the new image
+          setImage({ file: newFile, url: croppedImageUrl });
+
+          // Exit cropping mode
+          setIsCropping(false);
+        }
+      });
+    }
+  };
+
+  const handleFlipHorizontally = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (cropperRef.current) {
+      setFlip((prev) => ({ ...prev, flipX: prev.flipX * -1 }));
+      cropperRef.current?.scaleX(flip.flipX * -1);
+    }
+  };
+  const handleFlipVertically = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (cropperRef.current) {
+      setFlip((prev) => ({ ...prev, flipY: prev.flipY * -1 }));
+      cropperRef.current?.scaleY(flip.flipY * -1);
+    }
+  };
+
+  const handleRotateLeft = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    rotateImage(-45);
+  };
+  const handleRotateRight = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    rotateImage(45);
+  };
+
+  const rotateImage = (angle = 90) => {
+    if (cropperRef.current) {
+      cropperRef.current.rotate(angle);
+    }
+  };
+
   const PostImage = (
     <div className="size-full min-h-[192px]  flex items-center justify-center sm:rounded-l-3xl sm:rounded-tr-none rounded-t-3xl overflow-hidden relative">
       {!isLoading && image && !error && (
-        <button
-          className="rounded-full size-6 bg-secondary-1 absolute top-4 right-4 text-base"
-          onClick={handleClearImage}
-        >
-          <FontAwesomeIcon icon={faX} />
-        </button>
+        <ul className="absolute top-4 right-4 flex gap-2 ">
+          <button className="Edit_button" onClick={toggleCropping}>
+            <FontAwesomeIcon icon={faGear} />
+          </button>
+          <button className="Edit_button" onClick={handleClearImage}>
+            <FontAwesomeIcon icon={faX} />
+          </button>
+        </ul>
       )}
       <div
         className="size-full bg-secondary-2 flex items-center justify-center"
@@ -116,7 +212,53 @@ export default function ImageInput({
             </h1>
           </div>
         ) : image ? (
-          <img src={image} alt="Selected preview" className="w-full" />
+          isCropping ? (
+            <div className="fixed top-0 left-0 bg-black/50 size-full flex items-center justify-center z-50 overflow-y-scroll no-scrollbar">
+              <div className="w-full max-w-[800px] md:w-fit  flex flex-col items-center gap-2 ">
+                <div>
+                  <img
+                    ref={imageRef}
+                    src={image}
+                    alt="Selected preview"
+                    className="w-full h-auto"
+                  />
+                </div>
+                <ul className=" flex gap-2 w-fit justify-center items-center p-2 bg-primary/20 border-[2px] border-accent/50 backdrop-blur-sm rounded-xl">
+                  <button className="Edit_button" onClick={handleCrop}>
+                    <FontAwesomeIcon icon={faSave} />
+                  </button>
+                  <button
+                    className="Edit_button"
+                    onClick={handleFlipVertically}
+                  >
+                    <FontAwesomeIcon icon={faUpDown} />
+                  </button>
+                  <button
+                    className="Edit_button "
+                    onClick={handleFlipHorizontally}
+                  >
+                    <FontAwesomeIcon icon={faLeftRight} />
+                  </button>
+                  <button className="Edit_button" onClick={handleRotateRight}>
+                    <FontAwesomeIcon icon={faRotateRight} />
+                  </button>
+                  <button className="Edit_button" onClick={handleRotateLeft}>
+                    <FontAwesomeIcon icon={faRotateLeft} />
+                  </button>
+                  <button className="Edit_button" onClick={toggleCropping}>
+                    <FontAwesomeIcon icon={faGear} />
+                  </button>
+                </ul>
+              </div>
+            </div>
+          ) : (
+            <img
+              ref={imageRef}
+              src={image}
+              alt="Selected preview"
+              className="w-full"
+            />
+          )
         ) : (
           <FontAwesomeIcon icon={faImage} className="text-7xl" />
         )}
@@ -132,15 +274,23 @@ export default function ImageInput({
     </div>
   );
   const ProfileImage = (
-    <div className="my-4 h-44 w-full relative flex flex-col items-center gap-4">
+    <div className="my-4 h-44 w-full flex flex-col items-center gap-4">
       <div className=" relative ">
         {!isLoading && image && !error && (
-          <button
-            className="rounded-full size-8 bg-primary text-accent absolute bottom-0 right-0 text-base z-10"
-            onClick={handleClearImage}
-          >
-            <FontAwesomeIcon icon={faX} />
-          </button>
+          <ul className="absolute h-full right-0 z-10 flex flex-col justify-between">
+            <button
+              className="rounded-full size-8 bg-primary text-accent  text-base "
+              onClick={handleClearImage}
+            >
+              <FontAwesomeIcon icon={faX} />
+            </button>
+            <button
+              className="rounded-full size-8 bg-primary text-accent text-base"
+              onClick={toggleCropping}
+            >
+              <FontAwesomeIcon icon={faGear} />
+            </button>
+          </ul>
         )}
         <div
           className="size-28 flex justify-center items-center bg-secondary-2 rounded-full relative overflow-hidden border-accent border-2"
@@ -151,7 +301,53 @@ export default function ImageInput({
           ) : error ? (
             <FontAwesomeIcon icon={faGhost} className="text-7xl" />
           ) : image ? (
-            <img src={image} alt="Selected preview" className="size-full" />
+            isCropping ? (
+              <div className="fixed top-0 left-0 bg-black/50 size-full flex items-center justify-center z-50">
+                <div className="w-full max-w-[800px] md:w-fit flex flex-col items-center gap-2">
+                 
+                  <div>
+                    <img
+                      ref={imageRef}
+                      src={image}
+                      alt="Selected preview"
+                      className="w-full"
+                    />
+                  </div>
+                  <ul className=" flex gap-2 w-fit justify-center items-center p-2 bg-primary/20 border-[2px] border-accent/50 backdrop-blur-sm rounded-xl">
+                    <button className="Edit_button" onClick={handleCrop}>
+                      <FontAwesomeIcon icon={faSave} />
+                    </button>
+                    <button
+                      className="Edit_button"
+                      onClick={handleFlipVertically}
+                    >
+                      <FontAwesomeIcon icon={faUpDown} />
+                    </button>
+                    <button
+                      className="Edit_button "
+                      onClick={handleFlipHorizontally}
+                    >
+                      <FontAwesomeIcon icon={faLeftRight} />
+                    </button>
+                    <button className="Edit_button" onClick={handleRotateRight}>
+                      <FontAwesomeIcon icon={faRotateRight} />
+                    </button>
+                    <button className="Edit_button" onClick={handleRotateLeft}>
+                      <FontAwesomeIcon icon={faRotateLeft} />
+                    </button>
+                    <button className="Edit_button" onClick={toggleCropping}>
+                      <FontAwesomeIcon icon={faGear} />
+                    </button>
+                  </ul>
+                </div>
+              </div>
+            ) : (
+              <img
+                src={image}
+                alt="Selected preview"
+                className="size-full object-cover"
+              />
+            )
           ) : (
             <FontAwesomeIcon
               icon={faUser}
@@ -168,9 +364,6 @@ export default function ImageInput({
         onChange={handleImageChange}
         accept="image/*"
       />
-      <h1 className="text-medium">
-        {image ? "Looking good there" : "Add Profile picture"}
-      </h1>
     </div>
   );
 
@@ -196,7 +389,7 @@ export default function ImageInput({
       case "PostImage":
         return PostImage;
       case "TextImage":
-        return TextImage
+        return TextImage;
       default:
         return PostImage;
     }

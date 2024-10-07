@@ -262,7 +262,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
   };
 
   const Slider = (
-    <div className=" bg-secondary-2 py-5 flex flex-col items-center justify-center h-1/4 sm:h-full z-10 ">
+    <div className=" bg-gradient-to-t from-secondary-2/70 to-primary/70 backdrop-blur-sm py-5 flex flex-col items-center justify-center h-1/4 sm:h-full z-10 shadow-lg">
       <Link href={"/"} className="font-AppLogo text-7xl sm:inline-block hidden">
         AppLogo
       </Link>

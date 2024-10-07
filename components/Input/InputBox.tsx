@@ -74,7 +74,7 @@ export default function InputBox({
           type={showPassword || type !== "Password" ? "text" : "password"}
           spellCheck="false"
           className={`bg-transparent placeholder:text-inherit placeholder:opacity-50 outline-none w-full px-2`}
-          placeholder={children ? children : "add text here..."}
+          placeholder={children}
           autoComplete="off"
         />
         <div className="flex items-center size-8 justify-center Input_box_base cursor-pointer">
