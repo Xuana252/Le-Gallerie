@@ -3,7 +3,7 @@ import InputBox from "@components/Input/InputBox";
 import toastError from "@components/Notification/Toaster";
 import UserProfileIcon from "@components/UI/UserProfileIcon";
 import { User } from "@lib/types";
-import { blockUser, fetchUserBlockedList } from "@server/accountActions";
+import { blockUser, fetchUserBlockedList } from "@actions/accountActions";
 import { getSession, useSession } from "next-auth/react";
 import { useEffect, useId, useState } from "react";
 import { text } from "stream/consumers";

@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { type Category } from "@lib/types";
-import { getCategories } from "@server/categoriesActions";
+import { getCategories } from "@actions/categoriesActions";
 
 type CategoryItemProps = {
   category: Category;

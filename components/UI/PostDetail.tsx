@@ -11,14 +11,14 @@ import {
   faHeart as solidHeart,
 } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
-import { Post, User } from "@lib/types";
+import { Category, Post, User } from "@lib/types";
 import { removeImage } from "@lib/upload";
 import {
   checkUserHasLiked,
   deletePost,
   fetchPostLikedUser,
   handleLike,
-} from "@server/postActions";
+} from "@actions/postActions";
 import { useRouter } from "next/navigation";
 import React, { useContext, useEffect, useState } from "react";
 import CustomImage from "./Image";
@@ -32,7 +32,7 @@ import { confirm } from "@components/Notification/Toaster";
 import { formatTimeAgo, formatTimeAgoWithoutAgo } from "@lib/dateFormat";
 
 export default function PostDetail({ post }: { post: Post }) {
-    const { handleSearch } = useContext(SearchContext);
+    const { handleSetCategory } = useContext(SearchContext);
   const router = useRouter();
   const { data: session } = useSession();
   const [postRendered, setPostRendered] = useState<boolean>(false);
@@ -40,8 +40,8 @@ export default function PostDetail({ post }: { post: Post }) {
   const [likedState, setLikedState] = useState<boolean>(false);
   const [likes, setLikes] = useState<User[]>([]);
 
-  const handleCategoryCLick = (name: string) => {
-    handleSearch(name);
+  const handleCategoryCLick = (category: Category) => {
+    handleSetCategory(category);
     router.push("/");
   };
 
@@ -262,7 +262,7 @@ export default function PostDetail({ post }: { post: Post }) {
               <li
                 key={category._id}
                 className="text-sm Category hover:font-bold cursor-pointer bg-secondary-2/40 size-fit px-2 py-1 rounded-xl"
-                onClick={() => handleCategoryCLick(category.name)}
+                onClick={() => handleCategoryCLick(category)}
               >
                 {category.name}
               </li>

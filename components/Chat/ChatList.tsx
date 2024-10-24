@@ -8,7 +8,7 @@ import { arrayUnion, collection, doc, getDoc, serverTimestamp, setDoc, updateDoc
 import { db } from "@lib/firebase";
 import { ChatContext } from "@components/UI/Nav";
 import { formatTimeAgo } from "@lib/dateFormat";
-import { fetchUserFollowers } from "@server/accountActions";
+import { fetchUserFollowers } from "@actions/accountActions";
 import { User } from "@lib/types";
 import { useRouter } from "next/navigation";
 import Image from "@components/UI/Image";

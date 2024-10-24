@@ -1,10 +1,7 @@
 "use server";
 
 import { User } from "@lib/types";
-import { getServerSession } from "next-auth";
 import { headers } from "next/headers";
-import { checkVerifyRateLimit } from "./checkRateLimit";
-import toastError from "@components/Notification/Toaster";
 
 export const signUp = async (user: any) => {
   const response = await fetch(`${process.env.DOMAIN_NAME}/api/users/new`, {
@@ -151,3 +148,14 @@ export const changeUserPassword = async (user: string, newpassword: string) => {
   if (response.ok) return true;
   return false;
 };
+
+export const fetchUsers = async (searchText:string) => {
+    const response = await fetch(
+      `${process.env.DOMAIN_NAME}/api/users?searchText=${searchText}`,{
+        headers: headers()
+      }
+    );
+    const data = await response.json();
+    if (response.ok) return {users:data.users, counts:data.counts};
+    return {users:[],counts:0}
+}

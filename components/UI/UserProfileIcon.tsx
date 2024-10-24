@@ -11,7 +11,7 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { type User } from "@lib/types";
-import { checkFollowState } from "@server/accountActions";
+import { checkFollowState } from "@actions/accountActions";
 import CustomImage from "./Image";
 
 // Define the base type for the props

@@ -18,7 +18,7 @@ import {
   fetchPostWithId,
   handleComment,
   handleLikeComment,
-} from "@server/postActions";
+} from "@actions/postActions";
 import { useEffect, useRef, useState } from "react";
 import UserProfileIcon from "./UserProfileIcon";
 import { useSession } from "next-auth/react";

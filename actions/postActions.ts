@@ -1,10 +1,11 @@
 "use server";
-import { Comment, type Post } from "@lib/types";
+import { Category, Comment, type Post } from "@lib/types";
 import { checkLikeRateLimit } from "./checkRateLimit";
 import { headers } from "next/headers";
 
-export const fetchAllPost = async (currentPage: number, limit:number) => {
-  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts?page=${currentPage}&limit=${limit}` ,{
+export const fetchAllPost = async (currentPage: number, limit:number,searchText:string, categoryFilter:Category[]) => {
+  const categoryIds = categoryFilter.map(category => category._id).join(',');
+  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts?page=${currentPage}&limit=${limit}&searchText=${searchText}&categoryIds=${categoryIds}` ,{
     headers: headers()
   });
   if (response.ok) {

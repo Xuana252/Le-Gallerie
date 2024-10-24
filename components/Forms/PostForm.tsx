@@ -14,9 +14,9 @@ import SubmitButton from "@components/Input/SubmitButton";
 import { useSession } from "next-auth/react";
 import { useTransition, animated } from "@react-spring/web";
 import ImageInput from "@components/Input/ImageInput";
-import { createPost, updatePost } from "@server/postActions";
-import { getCategories } from "@server/categoriesActions";
-import { checkPostRateLimit } from "@server/checkRateLimit";
+import { createPost, updatePost } from "@actions/postActions";
+import { getCategories } from "@actions/categoriesActions";
+import { checkPostRateLimit } from "@actions/checkRateLimit";
 import toastError from "@components/Notification/Toaster";
 import {uploadImage,updateImage} from "@lib/upload";
 import withAuth from "@middleware";
@@ -299,10 +299,10 @@ export default function PostForm({ type, editPost }: PostFormProps) {
             console.log(`Attempted to ${type} successfully`);
 
             type === "Edit"
-              ? localStorage.setItem("post", JSON.stringify({...post,image:post.image.url}))
+              ? localStorage.setItem("post", JSON.stringify({...post,image:postToUpload.image}))
               : null;
 
-            setTimeout(() => router.back(), 1000);
+            setTimeout(() => router.push(`/post/${post._id}`), 1000);
           }, 500);
         } else {
           setSubmitState("Failed");

@@ -17,7 +17,7 @@ import {
   fetchUserFollowing,
   fetchUserWithId,
   followUser,
-} from "@server/accountActions";
+} from "@actions/accountActions";
 import {
   arrayUnion,
   collection,

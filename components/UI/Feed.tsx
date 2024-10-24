@@ -20,14 +20,16 @@ import {
   fetchPostLikedUser,
   fetchUserLikedPost,
   fetchUserPost,
-} from "@server/postActions";
+} from "@actions/postActions";
 import { useSession } from "next-auth/react";
+import { set } from "mongoose";
 type FeedProps = {
   userIdFilter?: string;
   userIdLikedFilter?: boolean;
   categoryFilter?: Category[];
   setPostCount?: Dispatch<SetStateAction<number>>;
   showCateBar?: boolean;
+  showResults?: boolean;
 };
 
 export default function Feed({
@@ -36,34 +38,42 @@ export default function Feed({
   categoryFilter = [],
   showCateBar = true,
   setPostCount,
+  showResults = false,
 }: FeedProps) {
-  const pathName = usePathname();
-  const { data: session } = useSession();
-  const { searchText } = useContext(SearchContext);
+  const { searchText, category } = useContext(SearchContext);
   const [categoriesFilter, setCategoriesFilter] = useState<Category[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>();
-  const [filteredPost, setFilteredPosts] = useState<Post[]>([]);
-  const [isEmpty, setIsEmpty] = useState(false);
 
   const [gridColStyle, setGridColStyle] = useState("grid-colds-1");
   const [colsNum, setColsNum] = useState(1);
+
+  const [searchCount, setSearchCount] = useState(0);
 
   const [page, setPage] = useState(1); // Track the current page
   const [limit] = useState(10); // Number of posts per page
   const [hasMore, setHasMore] = useState(true); // Whether there are more posts to load
   const observerRef = useRef<IntersectionObserver | null>(null); // Ref to handle scroll observation
 
-  const fetchPosts = async (currentPage = 1) => {
+  const fetchPosts = async (
+    currentPage = 1,
+    searchText = "",
+    categoriesFilter: Category[]
+  ) => {
+    setLoading(true);
     try {
       const response = !userIdFilter
-        ? await fetchAllPost(currentPage, limit)
+        ? await fetchAllPost(currentPage, limit, searchText, categoriesFilter)
         : userIdLikedFilter
         ? await fetchUserLikedPost(userIdFilter, currentPage, limit)
         : await fetchUserPost(userIdFilter, currentPage, limit);
+
       setPostCount && setPostCount(response.counts);
-      if (response.posts.length < limit) {
+      if (searchText || categoriesFilter.length > 0) {
+        setSearchCount(response.counts);
+      }
+      if (response.posts.length + posts.length === response.counts) {
         setHasMore(false); // No more posts to load
       }
       if (currentPage === 1) {
@@ -74,6 +84,9 @@ export default function Feed({
     } catch (error) {
       setError("Failed to fetch for post");
     }
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
   };
 
   useEffect(() => {
@@ -81,52 +94,22 @@ export default function Feed({
   }, [categoryFilter.toString()]);
 
   useEffect(() => {
-    fetchPosts(page);
-  }, [page, userIdFilter, userIdLikedFilter]);
+    setPage(1);
+    setPosts([]); // Reset posts on search
+    setHasMore(true); // Reset hasMore for new search
+  }, [searchText, categoriesFilter]);
 
-  // const breakpointColumnsObj = {
-  //   default: 5,
-  //   1100: 3,
-  //   700: 2,
-  //   500: 1,
-  // };
+  useEffect(() => {
+    setCategoriesFilter(category);
+  }, [category]);
+
+  useEffect(() => {
+    fetchPosts(page, searchText, categoriesFilter);
+  }, [page, userIdFilter, userIdLikedFilter, searchText, categoriesFilter]);
 
   const handleCategoriesFilerChange = (categories: Category[]) => {
     setCategoriesFilter(categories);
   };
-
-  useEffect(() => {
-    setLoading(true);
-    const finalPosts = posts.filter((post) => {
-      if (session?.user.id && post.creator.blocked?.includes(session?.user.id))
-        return false;
-      if (searchText.trim() === "" || pathName !== "/") {
-        return categoriesFilter.every((category) =>
-          post.categories.map((cat) => cat._id).includes(category._id)
-        );
-      }
-
-      const searchPattern = new RegExp(
-        searchText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), // Escape special characters
-        "i" // Case-insensitive search
-      );
-
-      const postCategoryIds = new Set(post.categories.map((cat) => cat._id));
-
-      return (
-        categoriesFilter.every((category) =>
-          postCategoryIds.has(category._id)
-        ) &&
-        (searchPattern.test(post.title) ||
-          searchPattern.test(post.creator.username || "") ||
-          post.categories.some((c) => searchPattern.test(c.name)))
-      );
-    });
-    if (finalPosts.length > 0) setIsEmpty(false);
-    else setIsEmpty(true);
-    setFilteredPosts(finalPosts);
-    setTimeout(() => setLoading(false), 1000);
-  }, [posts, searchText, JSON.stringify(categoriesFilter)]);
 
   const debounce = (func: Function, delay: number) => {
     let timeoutId: NodeJS.Timeout;
@@ -201,35 +184,48 @@ export default function Feed({
       )}
       {error ? (
         <div>{error}</div>
-      ) : (
-        <ul
-          className={`grid ${gridColStyle} gap-x-3 h-fit min-w-full p-5 justify-center `}
-        >
-          {Array.from(Array(colsNum).keys()).map((columnIndex) => (
-            <div
-              key={columnIndex}
-              className="flex flex-col w-full h-fit gap-3 "
-            >
-              {filteredPost.map((post, index) => {
-                if (index % colsNum === columnIndex) {
-                  return (
-                    <div
-                      key={post._id}
-                      ref={
-                        index === filteredPost.length - 1 ? lastPostRef : null
-                      }
-                    >
-                      <PostCard post={post} />
-                    </div>
-                  );
-                }
-                return null;
-              })}
-            </div>
-          ))}
-        </ul>
+      ) : searchCount === 0 &&
+        (searchText || categoriesFilter.length > 0) &&
+        !isLoading ? (
+        <div className="text-accent text-center text-xl my-8">
+          no post found:/
+        </div>
+      ) : page===1&&isLoading? <Loader></Loader> : (
+        <>
+          {showResults &&
+            searchCount > 0 &&
+            (searchText || categoriesFilter.length > 0) && (
+              <div className="text-left text-2xl p-2 text-accent font-bold">
+                Found {searchCount} posts
+              </div>
+            )}
+          <ul
+            className={`grid ${gridColStyle} gap-x-3 h-fit min-w-full p-5 justify-center `}
+          >
+            {Array.from(Array(colsNum).keys()).map((columnIndex) => (
+              <div
+                key={columnIndex}
+                className="flex flex-col w-full h-fit gap-3 "
+              >
+                {posts.map((post, index) => {
+                  if (index % colsNum === columnIndex) {
+                    return (
+                      <div
+                        key={post._id}
+                        ref={index === posts.length - 1 ? lastPostRef : null}
+                      >
+                        <PostCard post={post} />
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+            ))}
+          </ul>
+        </>
       )}
-      {isLoading && <Loader></Loader>}
+      {page>1&&isLoading && <Loader></Loader>}
     </section>
   );
 }

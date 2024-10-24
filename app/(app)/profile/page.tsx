@@ -16,7 +16,7 @@ import {
   fetchUserFollowers,
   fetchUserFollowing,
   followUser,
-} from "@server/accountActions";
+} from "@actions/accountActions";
 import UserProfileIcon from "@components/UI/UserProfileIcon";
 import { User } from "@lib/types";
 import { confirm } from "@components/Notification/Toaster";

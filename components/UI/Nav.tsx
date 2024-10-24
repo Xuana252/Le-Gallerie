@@ -20,6 +20,7 @@ import ThemeList from "@theme/ThemesList";
 import NotificationButton from "@components/Notification/Notification";
 import ChatButton from "@components/Chat/ChatButton";
 import ChatBox from "@components/Chat/ChatBox";
+import { Category } from "@lib/types";
 
 export const ButtonSet = () => {
   const { data: session } = useSession();
@@ -89,7 +90,9 @@ export const ButtonSet = () => {
   );
 };
 type SearchContextType = {
+  category: Category[],
   searchText: string;
+  handleSetCategory: (category: Category) => void;
   handleSearch: (text: string) => void;
 };
 
@@ -98,7 +101,9 @@ type ChatContextType = {
   setChatInfo: (chat: any) => void;
 };
 export const SearchContext = createContext<SearchContextType>({
+  category: [],
   searchText: "",
+  handleSetCategory: ()=> {},
   handleSearch: () => {},
 });
 
@@ -110,11 +115,15 @@ export const ChatContext = createContext<ChatContextType>({
 export default function Nav({ children }: { children: React.ReactNode }) {
   const [pendingText, setPendingText] = useState("");
   const [searchText, setSearchText] = useState("");
+  const [category,setCategory] = useState<Category[]>([])
   const [chatInfo, setChat] = useState(null);
 
   const pathName = usePathname();
   const router = useRouter();
 
+  const handleSetCategory = (category: Category) => {
+    setCategory([category])
+  }
   const handleSearchTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPendingText(e.target.value);
   };
@@ -129,20 +138,21 @@ export default function Nav({ children }: { children: React.ReactNode }) {
   };
   const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
+
       const finalText = pendingText
         .trim()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase();
-      localStorage.setItem("searchText", finalText);
       handleSearch(finalText);
     }
   };
+  
 
   return (
     <>
       <ChatContext.Provider value={{ chatInfo, setChatInfo }}>
-        <SearchContext.Provider value={{ searchText, handleSearch }}>
+        <SearchContext.Provider value={{ searchText, category ,handleSetCategory, handleSearch }}>
           <nav className="Nav_bar">
             <div className="justify-between pointer-events-auto h-full w-full gap-1 px-2 items-center flex">
               <div className="flex items-center">

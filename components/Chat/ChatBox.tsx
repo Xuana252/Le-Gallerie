@@ -48,7 +48,7 @@ import { faImage } from "@fortawesome/free-regular-svg-icons";
 import { useRouter } from "next/navigation";
 import toastError, { confirm } from "@components/Notification/Toaster";
 import CustomImage from "@components/UI/Image";
-import { blockUser, fetchUserWithId } from "@server/accountActions";
+import { blockUser, fetchUserWithId } from "@actions/accountActions";
 import { AppLogoLoader, Spinner } from "@components/UI/Loader";
 import { formatTimeAgo, formatTimeAgoWithoutAgo } from "@lib/dateFormat";
 

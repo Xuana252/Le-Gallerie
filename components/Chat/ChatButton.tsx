@@ -7,7 +7,7 @@ import ChatList from "./ChatList";
 import { useSession } from "next-auth/react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "@lib/firebase";
-import { fetchUserWithId } from "@server/accountActions";
+import { fetchUserWithId } from "@actions/accountActions";
 
 export default function ChatButton({returnUnseenCount}:{returnUnseenCount:Dispatch<SetStateAction<number>>}) {
   const [chats, setChats] = useState<any>([]);

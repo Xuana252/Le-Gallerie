@@ -6,8 +6,8 @@ import { SubmitButtonState } from "@lib/types";
 import {
   changeUserPassword,
   sendVerificationCode,
-} from "@server/accountActions";
-import { checkVerifyRateLimit } from "@server/checkRateLimit";
+} from "@actions/accountActions";
+import { checkVerifyRateLimit } from "@actions/checkRateLimit";
 import { useRouter } from "next/navigation";
 import React, { FormEvent, useEffect, useRef, useState } from "react";
 

@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { type SubmitButtonState } from "@lib/types";
-import { updateUser } from "@server/accountActions";
+import { updateUser } from "@actions/accountActions";
 import ImageInput from "@components/Input/ImageInput";
 import { uploadImage, removeImage, updateImage } from "@lib/upload";
 import CustomImage from "@components/UI/Image";

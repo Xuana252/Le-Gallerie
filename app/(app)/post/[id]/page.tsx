@@ -11,7 +11,7 @@ import { Category, Comment, User, type Post } from "@lib/types";
 import { useSession } from "next-auth/react";
 import {
   fetchPostWithId,
-} from "@server/postActions";
+} from "@actions/postActions";
 import PostDetail from "@components/UI/PostDetail";
 import mongoose, { Schema } from "mongoose";
 
