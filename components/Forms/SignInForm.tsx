@@ -318,7 +318,6 @@ export default function SignInForm({ providers }: { providers: string[] }) {
             onTextChange={handleSignInCredentialsChange}
             styleVariant="Input_box_variant_2"
           >
-            email...
           </InputBox>
           <InputBox
             name="password"
@@ -327,7 +326,6 @@ export default function SignInForm({ providers }: { providers: string[] }) {
             onTextChange={handleSignInCredentialsChange}
             styleVariant="Input_box_variant_2"
           >
-            password...
           </InputBox>
         </div>
         {/* Add sign up logic later */}
@@ -387,7 +385,6 @@ export default function SignInForm({ providers }: { providers: string[] }) {
             onTextChange={handleSignUpCredentialsChange}
             type={"Input"}
           >
-            username...
           </InputBox>
           <InputBox
             styleVariant={"Input_box_variant_2"}
@@ -396,7 +393,6 @@ export default function SignInForm({ providers }: { providers: string[] }) {
             onTextChange={handleSignUpCredentialsChange}
             type={"Input"}
           >
-            email...
           </InputBox>
           <InputBox
             styleVariant={"Input_box_variant_2"}
@@ -405,16 +401,14 @@ export default function SignInForm({ providers }: { providers: string[] }) {
             onTextChange={handleSignUpCredentialsChange}
             type={"Password"}
           >
-            password...
           </InputBox>
           <InputBox
             styleVariant={"Input_box_variant_2"}
-            name="repeatedPassword"
+            name="confirm password"
             value={signUpCredentials.repeatedPassword}
             onTextChange={handleSignUpCredentialsChange}
             type={"Password"}
           >
-            password...
           </InputBox>
         </div>
         {/* Add sign up logic later */}
