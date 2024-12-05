@@ -151,9 +151,7 @@ export const changeUserPassword = async (user: string, newpassword: string) => {
 
 export const fetchUsers = async (searchText:string) => {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users?searchText=${searchText}`,{
-        headers: headers()
-      }
+      `${process.env.DOMAIN_NAME}/api/users?searchText=${searchText}`
     );
     const data = await response.json();
     if (response.ok) return {users:data.users, counts:data.counts};
