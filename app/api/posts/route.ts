@@ -60,7 +60,10 @@ export const GET = async (req: Request) => {
         path: "creator",
         select: "-email -password -createdAt -updatedAt -__v",
       })
-      .populate("categories");
+      .populate({
+        path: "categories",
+        model: "Category" // Explicitly specify the model name for population
+      })
 
     return NextResponse.json({ posts: posts, counts: count }, { status: 200 });
   } catch (error) {
