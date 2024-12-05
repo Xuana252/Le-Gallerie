@@ -59,7 +59,7 @@ export const GET = async (req: Request) => {
         path: "creator",
         select: "-email -password -createdAt -updatedAt -__v",
       })
-      // .populate("categories");
+      .populate("categories");
 
     return NextResponse.json({ posts: posts, counts: count }, { status: 200 });
   } catch (error) {
