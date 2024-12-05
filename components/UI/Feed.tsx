@@ -82,7 +82,7 @@ export default function Feed({
         setPosts((prevPosts) => [...prevPosts, ...response.posts]); // Append posts for subsequent pages
       }
     } catch (error) {
-      setError("Failed to fetch for post");
+      setError("Failed to fetch for post: "+error);
     }
     setTimeout(() => {
       setLoading(false);
