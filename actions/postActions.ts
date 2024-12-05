@@ -1,12 +1,14 @@
 "use server";
 import { Category, Comment, type Post } from "@lib/types";
 import { checkLikeRateLimit } from "./checkRateLimit";
-import { headers } from "next/headers";
+import { headers,cookies } from "next/headers";
+
 
 export const fetchAllPost = async (currentPage: number, limit:number,searchText:string, categoryFilter:Category[]) => {
   const categoryIds = categoryFilter.map(category => category._id).join(',');
+  
   const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts?page=${currentPage}&limit=${limit}&searchText=${searchText}&categoryIds=${categoryIds}` ,{
-    headers: headers()
+    headers:new Headers(headers())
   });
   if (response.ok) {
     const data = await response.json();
@@ -17,7 +19,7 @@ export const fetchAllPost = async (currentPage: number, limit:number,searchText:
 export const fetchUserPost = async (user: string,currentPage: number, limit:number) => {
   const response = await fetch(
     `${process.env.DOMAIN_NAME}/api/users/${user}/posts?page=${currentPage}&limit=${limit}`,{
-      headers: headers()
+      headers:new Headers(headers())
     }
   );
   if (response.ok) {
@@ -30,7 +32,7 @@ export const fetchUserPost = async (user: string,currentPage: number, limit:numb
 export const fetchUserLikedPost = async (user: string,currentPage: number, limit:number) => {
   const response = await fetch(
     `${process.env.DOMAIN_NAME}/api/users/${user}/posts/liked-posts?page=${currentPage}&limit=${limit}`,{
-      headers: headers()
+      headers:new Headers(headers())
     }
   );
   if (response.ok) {
@@ -38,6 +40,16 @@ export const fetchUserLikedPost = async (user: string,currentPage: number, limit
     return {posts:data.posts,counts:data.counts};
   }
   return {posts:[],counts:0};
+};
+
+export const fetchPostWithId = async (post: string) => {
+  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}`,{
+    headers:new Headers(headers())
+  });
+  const data = await response.json();
+
+  if (response.ok) return data;
+  return null;
 };
 
 export const createPost = async (post: Post, user: string) => {
@@ -61,15 +73,7 @@ export const updatePost = async (post: Post) => {
   return false;
 };
 
-export const fetchPostWithId = async (post: string) => {
-  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}`,{
-    headers: headers()
-  });
-  const data = await response.json();
 
-  if (response.ok) return data;
-  return null;
-};
 
 export const checkUserHasLiked = async (user: string, id: string,type:"comment"|"post") => {
   try {
