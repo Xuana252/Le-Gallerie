@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { options } from "@app/api/auth/[...nextauth]/options";
 import User from "@models/userModel";
 import { NextResponse } from "@node_modules/next/server";
+import Category from "@models/categoryModel";
 
 export const GET = async (req: Request) => {
   const { searchParams } = new URL(req.url);
