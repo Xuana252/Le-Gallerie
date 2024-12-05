@@ -1,5 +1,4 @@
 
-import Category from "@models/categoryModel";
 import Post from "@models/postModel";
 import { getServerSession } from "next-auth";
 import { options } from "@app/api/auth/[...nextauth]/options";
@@ -61,10 +60,9 @@ export const GET = async (req: Request) => {
         path: "creator",
         select: "-email -password -createdAt -updatedAt -__v",
       })
-      .populate({
-        path: "categories",
-        model: "Category" // Explicitly specify the model name for population
-      })
+      .populate(
+        "categories"
+      )
 
     return NextResponse.json({ posts: posts, counts: count }, { status: 200 });
   } catch (error) {

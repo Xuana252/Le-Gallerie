@@ -1,14 +1,15 @@
 import mongoose, { Schema, model, models } from "mongoose";
+import User from "./userModel";
 
 const FollowSchema = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: User,
     },
     follower: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: User,
     },
   },
   {

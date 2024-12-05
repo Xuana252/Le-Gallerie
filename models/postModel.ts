@@ -1,10 +1,12 @@
 import mongoose, { Schema, model, models } from "mongoose";
+import Category from "./categoryModel";
+import User from "./userModel";
 
 const PostSchema = new Schema(
   {
     creator: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: User,
     },
     title: {
       type: String,
@@ -14,7 +16,7 @@ const PostSchema = new Schema(
     },
     categories: [{
       type: Schema.Types.ObjectId,
-      ref: "Category",
+      ref: Category,
     }],
     image: {
       type: String,
