@@ -8,7 +8,7 @@ export const fetchAllPost = async (currentPage: number, limit:number,searchText:
   const categoryIds = categoryFilter.map(category => category._id).join(',');
   
   const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts?page=${currentPage}&limit=${limit}&searchText=${searchText}&categoryIds=${categoryIds}` ,{
-    headers:new Headers(headers())
+    headers: headers()
   });
   if (response.ok) {
     const data = await response.json();
@@ -19,7 +19,7 @@ export const fetchAllPost = async (currentPage: number, limit:number,searchText:
 export const fetchUserPost = async (user: string,currentPage: number, limit:number) => {
   const response = await fetch(
     `${process.env.DOMAIN_NAME}/api/users/${user}/posts?page=${currentPage}&limit=${limit}`,{
-      headers:new Headers(headers())
+      headers: headers()
     }
   );
   if (response.ok) {
@@ -32,7 +32,7 @@ export const fetchUserPost = async (user: string,currentPage: number, limit:numb
 export const fetchUserLikedPost = async (user: string,currentPage: number, limit:number) => {
   const response = await fetch(
     `${process.env.DOMAIN_NAME}/api/users/${user}/posts/liked-posts?page=${currentPage}&limit=${limit}`,{
-      headers:new Headers(headers())
+      headers: headers()
     }
   );
   if (response.ok) {
@@ -44,7 +44,7 @@ export const fetchUserLikedPost = async (user: string,currentPage: number, limit
 
 export const fetchPostWithId = async (post: string) => {
   const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}`,{
-    headers:new Headers(headers())
+    headers: headers()
   });
   const data = await response.json();
 
