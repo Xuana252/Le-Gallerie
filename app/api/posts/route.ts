@@ -1,11 +1,8 @@
 import { connectToDB } from "@utils/database";
 import Post from "@models/postModel";
-import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { options } from "@app/api/auth/[...nextauth]/options";
 import User from "@models/userModel";
-import { Categories } from "emoji-picker-react";
-import Category from "@models/categoryModel";
 
 export const GET = async (req: Request) => {
   const { searchParams } = new URL(req.url);
