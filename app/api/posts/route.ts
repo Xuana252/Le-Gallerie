@@ -65,6 +65,7 @@ export const GET = async (req: Request) => {
 
     return Response.json({ posts: posts, counts: count }, { status: 200 });
   } catch (error) {
+    console.log(error);
     return Response.json(
       { message: "failed to fetch for post" },
       { status: 500 }
