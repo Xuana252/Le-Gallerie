@@ -81,6 +81,7 @@ export default function Feed({
       } else {
         setPosts((prevPosts) => [...prevPosts, ...response.posts]); // Append posts for subsequent pages
       }
+      console.log(response.posts||"no post");
     } catch (error) {
       setError("Failed to fetch for post: "+error);
     }
@@ -203,7 +204,7 @@ export default function Feed({
             className={`grid ${gridColStyle} gap-x-3 h-fit min-w-full p-5 justify-center `}
           >
             {Array.from(Array(colsNum).keys()).map((columnIndex) => (
-              <div
+              <ul
                 key={columnIndex}
                 className="flex flex-col w-full h-fit gap-3 "
               >
@@ -220,7 +221,7 @@ export default function Feed({
                   }
                   return null;
                 })}
-              </div>
+              </ul>
             ))}
           </ul>
         </>
