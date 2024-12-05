@@ -3,6 +3,7 @@ import Post from "@models/postModel";
 import { getServerSession } from "next-auth";
 import { options } from "@app/api/auth/[...nextauth]/options";
 import User from "@models/userModel";
+import { NextResponse } from "@node_modules/next/server";
 
 export const GET = async (req: Request) => {
   const { searchParams } = new URL(req.url);
@@ -60,10 +61,10 @@ export const GET = async (req: Request) => {
       })
       .populate("categories");
 
-    return Response.json({ posts: posts, counts: count }, { status: 200 });
+    return NextResponse.json({ posts: posts, counts: count }, { status: 200 });
   } catch (error) {
     console.log(error);
-    return Response.json(
+    return NextResponse.json(
       { message: "failed to fetch for post" },
       { status: 500 }
     );
