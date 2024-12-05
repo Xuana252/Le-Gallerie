@@ -40,6 +40,7 @@ export const GET = async (
     }
 
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { message: "failed to fetch for post" },
       { status: 500 }
