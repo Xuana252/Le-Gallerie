@@ -12,15 +12,9 @@ export const GET = async (req: Request) => {
   try {
     await connectToDB();
 
-    const session = await getServerSession(options);
-
-    const currentUser = await User.findById(session?.user.id)
 
     // Build the query object
     const query: any = {
-      _id: {
-        $nin: currentUser?.blocked,
-      },
     };
 
     if (searchText) {
