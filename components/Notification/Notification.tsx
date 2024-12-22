@@ -138,7 +138,7 @@ function NotificationList({
                   <FontAwesomeIcon icon={faUser} className="m-0" />
                 )}
               </div>
-              <div className="flex flex-col text-sm ">
+              <div className="flex flex-col text-sm w-full">
                 <p>
                   <b className="whitespace-normal break-all">{item.actors[0].name}</b> {item.blocks[0].content}
                 </p>
