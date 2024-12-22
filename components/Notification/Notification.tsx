@@ -122,7 +122,7 @@ function NotificationList({
       toast.custom((t) => (
         <div className="Toast_item">
           {item ? (
-            <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
+            <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 w-full">
               <div className="Icon_small bg-secondary-2 select-none pointer-events-none">
                 {item.actors[0].avatar ? (
                   <CustomImage
