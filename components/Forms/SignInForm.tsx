@@ -404,7 +404,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
           </InputBox>
           <InputBox
             styleVariant={"Input_box_variant_2"}
-            name="confirm password"
+            name="repeatedPassword"
             value={signUpCredentials.repeatedPassword}
             onTextChange={handleSignUpCredentialsChange}
             type={"Password"}
