@@ -15,7 +15,7 @@ export const likeRateLimiter:RateLimitObject = {
 
 export const verifyRateLimiter:RateLimitObject = {
   windowStart: Date.now(),
-  windowDuration: 1000*60, // Milliseconds (currently 1 Hour)
+  windowDuration: 1000*60, // Milliseconds (currently 1 Hour) 
   maxRequests: 4,
 };
 
