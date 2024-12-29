@@ -9,7 +9,7 @@ export const AuthIdToRequestCount = new Map<string,number>();
 
 export const likeRateLimiter:RateLimitObject = {
   windowStart: Date.now(),
-  windowDuration: 1000*60, // Milliseconds (currently 1 Hour)
+  windowDuration: 1000*60, // Milliseconds (currently 1 Hour) 
   maxRequests: 10,
 };
 
