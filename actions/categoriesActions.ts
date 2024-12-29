@@ -1,6 +1,6 @@
 'use server'
 
-//Get Categories
+//Get Categories 
 export const getCategories = async () => {
     const response = await fetch(`${process.env.DOMAIN_NAME}/api/categories`);
     if(response.ok) {
