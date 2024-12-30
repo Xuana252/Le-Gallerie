@@ -58,6 +58,7 @@ export default function ThemeList() {
         })
       : "";
   };
+  
   const handleScrollToBottom = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     themeList.current
