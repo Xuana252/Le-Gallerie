@@ -3,7 +3,7 @@
 import { User } from "@lib/types";
 import { headers } from "next/headers";
 
-//Sign up 
+
 export const signUp = async (user: any) => {
   const response = await fetch(`${process.env.DOMAIN_NAME}/api/users/new`, {
     method: "POST",
