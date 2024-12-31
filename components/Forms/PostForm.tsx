@@ -302,7 +302,7 @@ export default function PostForm({ type, editPost }: PostFormProps) {
               ? localStorage.setItem("post", JSON.stringify({...post,image:postToUpload.image}))
               : null;
 
-            setTimeout(() => router.push(`/post/${post._id}`), 1000);
+            setTimeout(() => router.push(`/post/${response._id}`), 1000);
           }, 500);
         } else {
           setSubmitState("Failed");
