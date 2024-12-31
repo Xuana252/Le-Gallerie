@@ -81,7 +81,6 @@ export default function Feed({
       } else {
         setPosts((prevPosts) => [...prevPosts, ...response.posts]); // Append posts for subsequent pages
       }
-      console.log(response.posts||"no post");
     } catch (error) {
       setError("Failed to fetch for post: "+error);
     }
@@ -131,7 +130,6 @@ export default function Feed({
       debounce((entries: any) => {
         entries.forEach((entry: any) => {
           if (entry.isIntersecting && hasMore) {
-            console.log("Loading more posts...");
             setPage((prevPage) => prevPage + 1);
           }
         });

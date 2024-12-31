@@ -7,7 +7,9 @@ import { headers,cookies } from "next/headers";
 export const fetchAllPost = async (currentPage: number, limit:number,searchText:string, categoryFilter:Category[]) => {
   const categoryIds = categoryFilter.map(category => category._id).join(',');
   
-  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts?page=${currentPage}&limit=${limit}&searchText=${searchText}&categoryIds=${categoryIds}`);
+  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts?page=${currentPage}&limit=${limit}&searchText=${searchText}&categoryIds=${categoryIds}` ,{
+    headers:new Headers(headers())
+  });
   if (response.ok) {
     const data = await response.json();
     return {posts:data.posts,counts:data.counts};
@@ -16,7 +18,9 @@ export const fetchAllPost = async (currentPage: number, limit:number,searchText:
 };
 export const fetchUserPost = async (user: string,currentPage: number, limit:number) => {
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/users/${user}/posts?page=${currentPage}&limit=${limit}`
+    `${process.env.DOMAIN_NAME}/api/users/${user}/posts?page=${currentPage}&limit=${limit}`,{
+      headers:new Headers(headers())
+    }
   );
   if (response.ok) {
     const data = await response.json();
@@ -27,7 +31,9 @@ export const fetchUserPost = async (user: string,currentPage: number, limit:numb
 
 export const fetchUserLikedPost = async (user: string,currentPage: number, limit:number) => {
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/users/${user}/posts/liked-posts?page=${currentPage}&limit=${limit}`
+    `${process.env.DOMAIN_NAME}/api/users/${user}/posts/liked-posts?page=${currentPage}&limit=${limit}`,{
+      headers:new Headers(headers())
+    }
   );
   if (response.ok) {
     const data = await response.json();
@@ -37,7 +43,9 @@ export const fetchUserLikedPost = async (user: string,currentPage: number, limit
 };
 
 export const fetchPostWithId = async (post: string) => {
-  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}`);
+  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}`,{
+    headers:new Headers(headers())
+  });
   const data = await response.json();
 
   if (response.ok) return data;
@@ -49,8 +57,11 @@ export const createPost = async (post: Post, user: string) => {
     method: "POST",
     body: JSON.stringify({ ...post, creator: user }),
   });
-  if (response.ok) return true;
-  return false;
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+  return null;
 };
 
 export const updatePost = async (post: Post) => {
@@ -61,8 +72,11 @@ export const updatePost = async (post: Post) => {
       body: JSON.stringify(post),
     }
   );
-  if (response.ok) return true;
-  return false;
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+  return null;
 };
 
 

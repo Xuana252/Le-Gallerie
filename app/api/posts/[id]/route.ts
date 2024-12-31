@@ -65,7 +65,7 @@ export const PATCH = async (
       new: true,
     });
     if (post) {
-      return NextResponse.json({ message: "Post updated" }, { status: 200 });
+      return NextResponse.json(post, { status: 200 });
     }
     return NextResponse.json({ message: "Post not found" }, { status: 404 });
   } catch (error) {
