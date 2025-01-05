@@ -1,7 +1,7 @@
 "use server";
-import { Category, Comment, type Post } from "@lib/types";
+import { Category, type Post } from "@lib/types";
+import { headers } from "next/headers";
 import { checkLikeRateLimit } from "./checkRateLimit";
-import { headers,cookies } from "next/headers";
 
 
 export const fetchAllPost = async (currentPage: number, limit:number,searchText:string, categoryFilter:Category[]) => {
