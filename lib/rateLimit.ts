@@ -38,7 +38,6 @@ export const apiRateLimiter:RateLimitObject = {
 }
 
 export const rateLimit = (ip: string,rateLimiter:RateLimitObject,requestCount:Map<string,number>) => {
-
   // Check and update current window
   const now = Date.now();
   const isNewWindow = now - rateLimiter.windowStart > rateLimiter.windowDuration;
