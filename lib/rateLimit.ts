@@ -22,7 +22,7 @@ export const verifyRateLimiter:RateLimitObject = {
 
 export const postRateLimiter:RateLimitObject = {
   windowStart: Date.now(),
-  windowDuration: 1000*60, // Milliseconds (currently 1 Hour)
+  windowDuration: 1000*60, // Milliseconds (currently 1 Hour) 
   maxRequests: 10,
 };
 
