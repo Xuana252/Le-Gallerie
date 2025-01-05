@@ -6,7 +6,6 @@ import {getStorage} from 'firebase/storage'
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 
-
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
   authDomain: "le-gallerie.firebaseapp.com",
