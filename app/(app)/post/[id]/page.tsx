@@ -18,6 +18,7 @@ import mongoose, { Schema } from "mongoose";
 export default function Post({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
   const router = useRouter();
+  const [isLoading,setIsLoading] = useState<boolean>(true)
   const [post, setPost] = useState<Post>({
     _id: "",
     creator: { _id: "" },
@@ -31,11 +32,13 @@ export default function Post({ params }: { params: { id: string } }) {
 
 
   const fetchPost = async () => {
+    setIsLoading(true)
     const data = await fetchPostWithId(params.id);
 
     if (data && JSON.stringify(data) !== JSON.stringify(post)) {
       setPost(data);
     }
+    setIsLoading(false)
   };
 
 
@@ -43,7 +46,7 @@ export default function Post({ params }: { params: { id: string } }) {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     fetchPost();
-  }, [params.id, session]);
+  }, [params.id]);
 
   useEffect(() => {
     const handleLocalStorage = () => {
@@ -52,6 +55,7 @@ export default function Post({ params }: { params: { id: string } }) {
         const post = JSON.parse(storePost);
         setPost(post);
         localStorage.removeItem("post"); // Remove after setting state
+        setIsLoading(false)
       }
     };
     handleLocalStorage();
@@ -71,7 +75,7 @@ export default function Post({ params }: { params: { id: string } }) {
         >
           <FontAwesomeIcon icon={faArrowLeft} />
         </button>
-          <PostDetail post={post}/>
+          <PostDetail post={post} isLoading={isLoading}/>
       </div>
       <br />
       <h1 className="text-center text-xl ">

@@ -45,7 +45,7 @@ export default function UserProfileIcon({
 
   const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (currentUser) {
+    if (currentUser || session?.user.id===user._id) {
       router.push("/profile");
     } else {
       let storeUser = { ...user };

@@ -2,6 +2,7 @@
 import { Category, Comment, type Post } from "@lib/types";
 import { checkLikeRateLimit } from "./checkRateLimit";
 import { headers,cookies } from "next/headers";
+import { Reaction } from "@app/enum/reactionEnum";
 
 
 export const fetchAllPost = async (currentPage: number, limit:number,searchText:string, categoryFilter:Category[]) => {
@@ -46,6 +47,7 @@ export const fetchPostWithId = async (post: string) => {
   const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}`,{
     headers:new Headers(headers())
   });
+
   const data = await response.json();
 
   if (response.ok) return data;
@@ -96,7 +98,7 @@ export const checkUserHasLiked = async (user: string, id: string,type:"comment"|
   }
 };
 
-export const handleLike = async (user: string, post: string) => {
+export const handleLike = async (user: string, post: string, reaction: Reaction|null) => {
   const isRateLimited = await checkLikeRateLimit();
   if (isRateLimited) return;
   try {
@@ -104,6 +106,7 @@ export const handleLike = async (user: string, post: string) => {
       method: "PATCH",
       body: JSON.stringify({
         userId: user,
+        reaction: reaction,
       }),
     });
   } catch (error) {

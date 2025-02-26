@@ -82,7 +82,7 @@ export default function Feed({
         setPosts((prevPosts) => [...prevPosts, ...response.posts]); // Append posts for subsequent pages
       }
     } catch (error) {
-      setError("Failed to fetch for post: "+error);
+      setError("Failed to fetch for post: " + error);
     }
     setTimeout(() => {
       setLoading(false);
@@ -189,7 +189,7 @@ export default function Feed({
         <div className="text-accent text-center text-xl my-8">
           no post found:/
         </div>
-      ) : page===1&&isLoading? <Loader></Loader> : (
+      ) : (
         <>
           {showResults &&
             searchCount > 0 &&
@@ -213,18 +213,29 @@ export default function Feed({
                         key={post._id}
                         ref={index === posts.length - 1 ? lastPostRef : null}
                       >
-                        <PostCard post={post} />
+                        <PostCard post={post} isLoading={false} />
                       </div>
                     );
                   }
                   return null;
                 })}
+                {
+                  isLoading &&
+                  Array.from({ length: 10 }).map((_, index) => {
+                    if (((posts.length + index) % colsNum) === columnIndex) {
+                      return (
+                        <div key={index}>
+                          <PostCard isLoading={true} />
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
               </ul>
             ))}
           </ul>
         </>
       )}
-      {page>1&&isLoading && <Loader></Loader>}
     </section>
   );
 }

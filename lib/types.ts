@@ -1,3 +1,4 @@
+import { Reaction } from '@app/enum/reactionEnum';
 import { Date } from 'mongoose';
 import NextAuth from 'next-auth';
 import { DefaultUser } from 'next-auth';
@@ -40,6 +41,7 @@ export type Like = {
   _id:string,
   user:User,
   post:Post,
+  reaction: Reaction,
 }
 export type User = {
   _id:string,

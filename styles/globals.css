@@ -40,7 +40,7 @@
   @apply flex gap-3 px-4 my-2 sm:justify-end justify-center;
 }
 .User_Profile_Page_Stat_Bar {
-  @apply flex flex-row w-full sm:w-fit  items-start grow justify-evenly gap-4 sm:text-2xl text-lg bg-secondary-2/30 shadow-md rounded-xl  px-2 py-4;
+  @apply flex flex-row w-full sm:w-fit  items-start grow justify-evenly gap-4 sm:text-2xl text-lg bg-secondary-2/30 shadow-md rounded-xl  px-2 py-4 z-30;
 }
 .Category {
   font-style: italic;
@@ -168,6 +168,9 @@
   @apply animate-highlight rounded-lg
 }
 
+.ReactionItem {
+    @apply hover:scale-150 transition-all duration-200 ease-in-out active:scale-90
+}
 @layer base {
   /* Hide scrollbar for Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
