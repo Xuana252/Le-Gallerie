@@ -1,5 +1,6 @@
-import { faX } from "@fortawesome/free-solid-svg-icons";
+import { faClose, faGripLines, faWindowClose, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { createPortal } from "react-dom";
 import { useTransition, animated } from "@react-spring/web";
 import React, { useState } from "react";
 type PopupButtonProps = {
@@ -21,7 +22,7 @@ export default function PopupButton({ children, popupItem }: PopupButtonProps) {
       </button>
       {popupTransition((styles, item) =>
         item ? (
-          <div className="fixed z-100 top-0 left-0 w-[100vw] h-[100vh] flex items-center justify-center ">
+          createPortal(<div className="fixed z-100 top-0 left-0 w-[100vw] h-[100vh] flex items-center justify-center z-50">
             <animated.div
               style={styles}
               className="flex flex-col size-fit rounded-xl bg-secondary-1/50 backdrop-blur-md border-[1px] border-accent p-2"
@@ -30,11 +31,11 @@ export default function PopupButton({ children, popupItem }: PopupButtonProps) {
                 className="Icon_smaller self-end"
                 onClick={() => setPopupVisibility(false)}
               >
-                <FontAwesomeIcon icon={faX} />
+                <FontAwesomeIcon icon={faGripLines} />
               </button>
               {popupItem}
             </animated.div>
-          </div>
+          </div>,document.body)
         ) : null
       )}
     </>

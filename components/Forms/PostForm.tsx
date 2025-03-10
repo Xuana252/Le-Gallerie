@@ -234,7 +234,6 @@ export default function PostForm({ type, editPost }: PostFormProps) {
   const router = useRouter();
 
   const [submitState, setSubmitState] = useState<SubmitButtonState>("");
-  useState<Boolean>(false);
   const [imageToUpdate, setUpdateInfo] = useState(editPost?.image.url || "");
 
   const [post, setPost] = useState<UploadPost>(

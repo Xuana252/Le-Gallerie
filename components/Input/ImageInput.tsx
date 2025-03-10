@@ -16,6 +16,7 @@ import {
   faBackspace,
   faBackward,
   faSave,
+  faClose,
 } from "@fortawesome/free-solid-svg-icons";
 import Cropper from "cropperjs";
 import "cropperjs/dist/cropper.css";
@@ -58,6 +59,7 @@ export default function ImageInput({
   const handleImageChange: React.ChangeEventHandler<HTMLInputElement> = async (
     e
   ) => {
+    e.preventDefault();
     setIsLoading(true);
 
     if (e.target.files && e.target.files[0]) {
@@ -127,7 +129,8 @@ export default function ImageInput({
     };
   }, [isCropping, imageRef]);
 
-  const handleCrop = () => {
+  const handleCrop = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     if (cropperRef.current) {
       // Get the cropped image as a canvas
       const croppedCanvas = cropperRef.current.getCroppedCanvas();
@@ -191,7 +194,7 @@ export default function ImageInput({
             <FontAwesomeIcon icon={faGear} />
           </button>
           <button className="Edit_button" onClick={handleClearImage}>
-            <FontAwesomeIcon icon={faX} />
+            <FontAwesomeIcon icon={faClose} />
           </button>
         </ul>
       )}
@@ -212,53 +215,12 @@ export default function ImageInput({
             </h1>
           </div>
         ) : image ? (
-          isCropping ? (
-            <div className="fixed top-0 left-0 bg-black/50 size-full flex items-center justify-center z-50 overflow-y-scroll no-scrollbar">
-              <div className="w-full max-w-[800px] md:w-fit  flex flex-col items-center gap-2 ">
-                <div>
-                  <img
-                    ref={imageRef}
-                    src={image}
-                    alt="Selected preview"
-                    className="w-full h-auto"
-                  />
-                </div>
-                <ul className=" flex gap-2 w-fit justify-center items-center p-2 bg-primary/20 border-[2px] border-accent/50 backdrop-blur-sm rounded-xl">
-                  <button className="Edit_button" onClick={handleCrop}>
-                    <FontAwesomeIcon icon={faSave} />
-                  </button>
-                  <button
-                    className="Edit_button"
-                    onClick={handleFlipVertically}
-                  >
-                    <FontAwesomeIcon icon={faUpDown} />
-                  </button>
-                  <button
-                    className="Edit_button "
-                    onClick={handleFlipHorizontally}
-                  >
-                    <FontAwesomeIcon icon={faLeftRight} />
-                  </button>
-                  <button className="Edit_button" onClick={handleRotateRight}>
-                    <FontAwesomeIcon icon={faRotateRight} />
-                  </button>
-                  <button className="Edit_button" onClick={handleRotateLeft}>
-                    <FontAwesomeIcon icon={faRotateLeft} />
-                  </button>
-                  <button className="Edit_button" onClick={toggleCropping}>
-                    <FontAwesomeIcon icon={faGear} />
-                  </button>
-                </ul>
-              </div>
-            </div>
-          ) : (
-            <img
-              ref={imageRef}
-              src={image}
-              alt="Selected preview"
-              className="w-full"
-            />
-          )
+          <img
+            ref={imageRef}
+            src={image}
+            alt="Selected preview"
+            className="w-full"
+          />
         ) : (
           <FontAwesomeIcon icon={faImage} className="text-7xl" />
         )}
@@ -274,7 +236,7 @@ export default function ImageInput({
     </div>
   );
   const ProfileImage = (
-    <div className="my-4 h-44 w-full flex flex-col items-center gap-4">
+    <div className="h-fit w-full flex flex-col items-center gap-4">
       <div className=" relative ">
         {!isLoading && image && !error && (
           <ul className="absolute h-full right-0 z-10 flex flex-col justify-between">
@@ -282,7 +244,7 @@ export default function ImageInput({
               className="rounded-full size-8 bg-primary text-accent  text-base "
               onClick={handleClearImage}
             >
-              <FontAwesomeIcon icon={faX} />
+              <FontAwesomeIcon icon={faClose} />
             </button>
             <button
               className="rounded-full size-8 bg-primary text-accent text-base"
@@ -301,58 +263,13 @@ export default function ImageInput({
           ) : error ? (
             <FontAwesomeIcon icon={faGhost} className="text-7xl" />
           ) : image ? (
-            isCropping ? (
-              <div className="fixed top-0 left-0 bg-black/50 size-full flex items-center justify-center z-50">
-                <div className="w-full max-w-[800px] md:w-fit flex flex-col items-center gap-2">
-                 
-                  <div>
-                    <img
-                      ref={imageRef}
-                      src={image}
-                      alt="Selected preview"
-                      className="w-full"
-                    />
-                  </div>
-                  <ul className=" flex gap-2 w-fit justify-center items-center p-2 bg-primary/20 border-[2px] border-accent/50 backdrop-blur-sm rounded-xl">
-                    <button className="Edit_button" onClick={handleCrop}>
-                      <FontAwesomeIcon icon={faSave} />
-                    </button>
-                    <button
-                      className="Edit_button"
-                      onClick={handleFlipVertically}
-                    >
-                      <FontAwesomeIcon icon={faUpDown} />
-                    </button>
-                    <button
-                      className="Edit_button "
-                      onClick={handleFlipHorizontally}
-                    >
-                      <FontAwesomeIcon icon={faLeftRight} />
-                    </button>
-                    <button className="Edit_button" onClick={handleRotateRight}>
-                      <FontAwesomeIcon icon={faRotateRight} />
-                    </button>
-                    <button className="Edit_button" onClick={handleRotateLeft}>
-                      <FontAwesomeIcon icon={faRotateLeft} />
-                    </button>
-                    <button className="Edit_button" onClick={toggleCropping}>
-                      <FontAwesomeIcon icon={faGear} />
-                    </button>
-                  </ul>
-                </div>
-              </div>
-            ) : (
-              <img
-                src={image}
-                alt="Selected preview"
-                className="size-full object-cover"
-              />
-            )
-          ) : (
-            <FontAwesomeIcon
-              icon={faUser}
-              className="size-full mt-4 text-9xl"
+            <img
+              src={image}
+              alt="Selected preview"
+              className="size-full object-cover"
             />
+          ) : (
+            <FontAwesomeIcon icon={faImage} className="text-6xl" />
           )}
         </div>
       </div>
@@ -394,5 +311,41 @@ export default function ImageInput({
         return PostImage;
     }
   };
-  return renderImageInput();
+
+  return isCropping ? (
+    <div className="fixed top-0 left-0 bg-black/50 size-full flex items-center justify-center z-50">
+      <div className=" w-auto h-auto flex flex-col items-center gap-2">
+        <div>
+          <img
+            ref={imageRef}
+            src={image}
+            alt="Selected preview"
+            className="object-contain max-h-[500px] md:max-h-[800px] min-h-[400px]"
+          />
+        </div>
+        <ul className=" flex gap-2 w-fit justify-center items-center p-2 bg-primary/20 border-[2px] border-accent/50 backdrop-blur-sm rounded-xl">
+          <button className="Edit_button" onClick={handleCrop}>
+            <FontAwesomeIcon icon={faSave} />
+          </button>
+          <button className="Edit_button" onClick={handleFlipVertically}>
+            <FontAwesomeIcon icon={faUpDown} />
+          </button>
+          <button className="Edit_button " onClick={handleFlipHorizontally}>
+            <FontAwesomeIcon icon={faLeftRight} />
+          </button>
+          <button className="Edit_button" onClick={handleRotateRight}>
+            <FontAwesomeIcon icon={faRotateRight} />
+          </button>
+          <button className="Edit_button" onClick={handleRotateLeft}>
+            <FontAwesomeIcon icon={faRotateLeft} />
+          </button>
+          <button className="Edit_button" onClick={toggleCropping}>
+            <FontAwesomeIcon icon={faClose} />
+          </button>
+        </ul>
+      </div>
+    </div>
+  ) : (
+    renderImageInput()
+  );
 }

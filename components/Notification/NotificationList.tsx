@@ -1,4 +1,5 @@
 "use client";
+
 import React, {
   useState,
   useRef,
@@ -33,7 +34,7 @@ import { toast } from "sonner";
 import { formatTimeAgo } from "@lib/dateFormat";
 import CustomImage from "@components/UI/Image";
 
-function NotificationList({
+export default function NotificationList({
   returnUnseenCount,
 }: {
   returnUnseenCount: Dispatch<SetStateAction<number>>;
@@ -140,7 +141,10 @@ function NotificationList({
               </div>
               <div className="flex flex-col text-sm w-full">
                 <p>
-                  <b className="whitespace-normal break-all">{item.actors[0].name}</b> {item.blocks[0].content}
+                  <b className="whitespace-normal break-all">
+                    {item.actors[0].name}
+                  </b>{" "}
+                  {item.blocks[0].content}
                 </p>
                 <p className="text-xs text-secondary-1">
                   {formatTimeAgo(item.inserted_at)}
@@ -221,7 +225,7 @@ function NotificationList({
   const notificationList = (
     <div>
       <h1 className="font-bold text-xl">Notification</h1>
-      <div className="grid grid-cols-2">
+      <div className="grid grid-cols-3 text-xs">
         <button
           name="All"
           onClick={handleToggleNotificationList}
@@ -230,6 +234,24 @@ function NotificationList({
           }`}
         >
           All
+        </button>
+        <button
+          name="FriendRequest"
+          onClick={handleToggleNotificationList}
+          className={`font-bold ${
+            notificationView === "FriendRequest" && "Notification_view_toggle_button "
+          }`}
+        >
+          <div className="flex items-center justify-center gap-2 pointer-events-none">
+            <div
+              className={`${
+                metadata.unread_count > 0 ? "" : "hidden"
+              } flex items-center justify-center rounded-full size-4 bg-accent text-primary text-xs font-bold `}
+            >
+              {metadata.unread_count}
+            </div>
+            Friend Request
+          </div>
         </button>
         <button
           name="Unread"
@@ -306,7 +328,10 @@ function NotificationList({
                   )}
                   <div className="flex flex-col text-sm w-[70%]">
                     <p>
-                      <b className="break-all whitespace-normal">{item.actors[0].name}</b> {item.blocks[0].content}
+                      <b className="break-all whitespace-normal">
+                        {item.actors[0].name}
+                      </b>{" "}
+                      {item.blocks[0].content}
                     </p>
                     <p className="text-xs text-secondary-1">
                       {formatTimeAgo(item.inserted_at)}
@@ -338,24 +363,5 @@ function NotificationList({
         <FontAwesomeIcon icon={faBell} />
       </div>
     </DropDownButton>
-  );
-}
-
-export default function NotificationButton({
-  returnUnseenCount,
-}: {
-  returnUnseenCount: Dispatch<SetStateAction<number>>;
-}) {
-  const { data: session } = useSession();
-
-  if (!session) return;
-
-  return (
-    <KnockProvider
-      apiKey={process.env.NEXT_PUBLIC_KNOCK_API_KEY as string}
-      userId={session.user.id || ""}
-    >
-      <NotificationList returnUnseenCount={returnUnseenCount} />
-    </KnockProvider>
   );
 }

@@ -1,7 +1,7 @@
 import { Reaction } from "@app/enum/reactionEnum";
 import { faHeart } from "@node_modules/@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
-import { Like } from "./types";
+import { Like } from "../types";
 
 export const renderReaction = (reaction: Reaction | null) => {
   switch (reaction) {

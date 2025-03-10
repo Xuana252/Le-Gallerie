@@ -1,4 +1,4 @@
-import { getTop3Reactions, renderReaction } from "@lib/render";
+import { getTop3Reactions, renderReaction } from "@lib/Emoji/render";
 import { Like } from "@lib/types";
 import React, { useState } from "react";
 import UserProfileIcon from "./UserProfileIcon";

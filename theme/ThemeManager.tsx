@@ -20,5 +20,5 @@ export default async function ThemeManager({
 }) {
   const theme = await getStoredTheme();
 
-  return <div className={`${theme}`}>{children}</div>;
+  return <body className={`${theme}`}>{children}</body>;
 }

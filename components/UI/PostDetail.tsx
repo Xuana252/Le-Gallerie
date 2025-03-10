@@ -33,10 +33,9 @@ import { confirm } from "@components/Notification/Toaster";
 import { formatTimeAgo, formatTimeAgoWithoutAgo } from "@lib/dateFormat";
 import ReactionButton from "@components/Input/ReactionInput";
 import { Reaction } from "@app/enum/reactionEnum";
-import { renderReaction } from "@lib/render";
+import { renderReaction } from "@lib/Emoji/render";
 import LikedUserTab from "./LikedUserTab";
 import PopupButton from "@components/Input/PopupButton";
-import ImageFullScreenInspector from "./ImageFullScreenInpector";
 
 export default function PostDetail({
   isLoading,
@@ -85,10 +84,9 @@ export default function PostDetail({
     try {
       const response = await fetchPostLikedUser(post._id);
       setLikes(response);
-
+      const myReaction = response.find((like: any) => like.user._id === session?.user.id)
       setReaction(
-        response.find((like: any) => like.user._id === session?.user.id)
-          .reaction || null
+        myReaction?myReaction.reaction:null
       );
     } catch (error) {
       console.error("Failed to fetch users that has liked post", error);
@@ -154,31 +152,6 @@ export default function PostDetail({
     }
   };
 
-  // Function to generate an array of mock likes with random quantities for each reaction
-  const generateMockLikes = (): Like[] => {
-    const likes: Like[] = [];
-    const allReactions: Reaction[] = Object.values(Reaction);
-
-    let userCounter = 1;
-    allReactions.forEach((reaction) => {
-      // Generate a random quantity for this reaction (between 1 and 5 likes)
-      const quantity = Math.floor(Math.random() * (20 - 1 + 1)) + 1;
-      for (let i = 0; i < quantity; i++) {
-        likes.push({
-          _id: `${userCounter}`, // For simplicity, using the userCounter as the like id
-          reaction,
-          post: post,
-          user: {
-            _id: `${userCounter}`,
-            username: `user ${userCounter}`,
-          } as User,
-        } as Like);
-        userCounter++;
-      }
-    });
-
-    return likes;
-  };
 
   const handleDownload = () => {
     if (!post._id) return;
@@ -236,6 +209,7 @@ export default function PostDetail({
       <div className="flex items-center size-full relative sm:rounded-l-3xl sm:rounded-tr-none rounded-t-3xl overflow-hidden bg-secondary-2">
         {post.image && (
           <CustomImage
+            zoomable={true}
             src={post.image}
             alt={post.title}
             className="w-full"
@@ -301,11 +275,13 @@ export default function PostDetail({
             ) : (
               <div className="flex justify-start items-center">
                 <ReactionButton
+                  type="Icon_small"
+                  drop="left"
                   reaction={reaction}
                   action={handleSetLikedState}
                 />
                 <PopupButton
-                  popupItem={<LikedUserTab likes={generateMockLikes()} />}
+                  popupItem={<LikedUserTab likes={likes} />}
                 >
                   <span className="hover:underline">
                     {postLikes} interactions
@@ -321,13 +297,13 @@ export default function PostDetail({
                     className="hover:bg-secondary-2 Icon_smaller "
                     onClick={() => handleDeletePost()}
                   >
-                    <FontAwesomeIcon icon={faTrash} />
+                    <FontAwesomeIcon icon={faTrash} title="Delete Post" />
                   </button>
                   <button
                     className="hover:bg-secondary-2 Icon_smaller"
                     onClick={handleEditButtonClick}
                   >
-                    <FontAwesomeIcon icon={faPen} />
+                    <FontAwesomeIcon icon={faPen} title="Edit Post" />
                   </button>
                 </>
               )}
@@ -335,13 +311,13 @@ export default function PostDetail({
                 className="hover:bg-secondary-2 Icon_smaller "
                 onClick={handleDownload}
               >
-                <FontAwesomeIcon icon={faDownload} />
+                <FontAwesomeIcon icon={faDownload} title="Save Image" />
               </button>
               <button
                 className="hover:bg-secondary-2 Icon_smaller "
                 onClick={handleShare}
               >
-                <FontAwesomeIcon icon={faShare} />
+                <FontAwesomeIcon icon={faShare} title="Share Image" />
               </button>
             </div>
           </div>

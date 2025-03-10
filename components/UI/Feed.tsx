@@ -182,12 +182,12 @@ export default function Feed({
         />
       )}
       {error ? (
-        <div>{error}</div>
+        <div>Error:{error}</div>
       ) : searchCount === 0 &&
         (searchText || categoriesFilter.length > 0) &&
         !isLoading ? (
         <div className="text-accent text-center text-xl my-8">
-          no post found:/
+          Sorry, we couldn't find anything:/
         </div>
       ) : (
         <>

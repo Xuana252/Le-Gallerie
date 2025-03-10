@@ -10,13 +10,23 @@ import {
   faAngleUp,
   faBan,
   faBars,
+  faClose,
   faCommentDots,
+  faDotCircle,
   faFaceSmile,
   faMinus,
   faPaperPlane,
   faPlus,
+  faRightFromBracket,
+  faSmile,
   faTrash,
+  faTriangleCircleSquare,
+  faTriangleExclamation,
   faUser,
+  faUserGraduate,
+  faUserGroup,
+  faUserPlus,
+  faUsers,
   faX,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -40,30 +50,26 @@ import React, {
   useRef,
   useState,
 } from "react";
-import ImageInput from "@components/Input/ImageInput";
-import { removeImage, uploadImage } from "@lib/upload";
-import EmojiInput from "@components/Input/EmojiInput";
-import Image from "@components/UI/Image";
-import { faImage } from "@fortawesome/free-regular-svg-icons";
-import { useRouter } from "next/navigation";
-import toastError, { confirm } from "@components/Notification/Toaster";
-import CustomImage from "@components/UI/Image";
 import { blockUser, fetchUserWithId } from "@actions/accountActions";
 import { AppLogoLoader, Spinner } from "@components/UI/Loader";
-import { formatTimeAgo, formatTimeAgoWithoutAgo } from "@lib/dateFormat";
+import MediaView from "./Views/MediaView";
+import SettingView from "./Views/SettingView";
+import ChatView from "./Views/ChatView";
+import ThemeView from "./Views/ThemeView";
+import { User } from "@lib/types";
+import CustomImage from "@components/UI/Image";
+import { ChatBoxView } from "@app/enum/chatBoxView";
+import AddMemberView from "./Views/AddMemberView";
 
-export default function ChatBox({}: {}) {
-  const router = useRouter();
+export default function ChatBox() {
   const { chatInfo, setChatInfo } = useContext(ChatContext);
-  const [chatBoxView, setChatBoxView] = useState<
-    "Chat" | "Setting" | "Media"
-  >();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const [chat, setChat] = useState<any>([]);
-  const [text, setText] = useState("");
+  const [chatBoxView, setChatBoxView] = useState<ChatBoxView>(ChatBoxView.CHAT);
+
+  const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const { data: session, update } = useSession();
-  const messageListRef = useRef<HTMLUListElement>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const [isBlocked, setIsBlocked] = useState<boolean>(false); //from the other user
   const [blocked, setBlocked] = useState<boolean>(false); //us blocking the other user
 
@@ -85,9 +91,6 @@ export default function ChatBox({}: {}) {
       return false;
     }
   };
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setText(e.target.value);
-  };
 
   const toggleMinimized = () => {
     setIsMinimized((prev) => !prev);
@@ -95,442 +98,234 @@ export default function ChatBox({}: {}) {
 
   const handleChatView = () => {
     setIsMinimized(false);
-    setChatBoxView("Chat");
+    setChatBoxView(ChatBoxView.CHAT);
   };
 
-  const handleCustomView = () => {
+  const handleSettingView = () => {
     setIsMinimized(false);
-    setChatBoxView("Setting");
+    setChatBoxView(ChatBoxView.SETTING);
   };
   const handleCloseChat = () => {
     if (isLoading) return;
     setChatInfo(null);
   };
-  const handleSendClick = () => {
-    if (text === "" || !session) return;
-    handleSend({ file: null, url: "" });
-  };
-
-  const handleChangeBlockState = async (userId: string) => {
-    if (!session?.user.id) return;
-    if (!blocked) {
-      const result = await confirm(
-        `Do you want to block ${chatInfo.user.username}`
-      );
-      if (result) {
-        setBlocked(true);
-      } else {
-        return;
-      }
-    } else {
-      setBlocked(false);
-    }
-    try {
-      const response = await blockUser(session.user.id, userId);
-      const newSession = await getSession();
-      await update(newSession);
-      if (!response) {
-        setBlocked((prev) => !prev);
-      }
-    } catch (error) {
-      toastError("Error");
-    }
-  };
-
-  const handleDeleteChat = async (chatId: string) => {
-    if (!session) return;
-    const confirmation = await confirm("Do you want to remove this chat?");
-    if (!confirmation) return;
-    setIsLoading(true);
-    const usersChatRef = collection(db, "usersChat");
-    try {
-      const imageQueue: Promise<any>[] = [];
-
-      // Add image removal promises to the queue
-      chat?.message?.forEach((message: any) => {
-        if (message.image) {
-          imageQueue.push(removeImage(message.image)); // Push each image removal promise
-        }
-      });
-
-      // Wait for all images to be removed if there are any
-      if (imageQueue.length > 0) {
-        await Promise.all(imageQueue);
-      }
-      const removeChatFromUser = async (userId: string) => {
-        const userChatDoc = await getDoc(doc(usersChatRef, userId));
-
-        if (userChatDoc.exists()) {
-          const userChatData = userChatDoc.data();
-          const chatArray = userChatData.chat || [];
-
-          // Find the exact chat object with chatId
-          const chatToRemove = chatArray.find(
-            (chat: any) => chat.chatId === chatId
-          );
-
-          if (chatToRemove) {
-            await updateDoc(doc(usersChatRef, userId), {
-              chat: arrayRemove(chatToRemove),
-            });
-          }
-        }
-      };
-
-      // Remove chat from both users' chat arrays
-      await removeChatFromUser(chatInfo.user._id);
-      await removeChatFromUser(session.user.id || "");
-
-      await deleteDoc(doc(db, "chat", chatId));
-      console.log("Chat deleted successfully");
-      setIsLoading(false);
-      setChatInfo(null);
-    } catch (error) {
-      console.error("Error deleting chat:", error);
-    }
-  };
-
-  const handleSend = async (image: { file: File | null; url: string }) => {
-    setText("");
-    if (!session) return;
-    if (
-      (!image.file && text === "") ||
-      (await checkChatUserBLock(chatInfo.user._id))
-    )
-      return;
-    let imageURL = "";
-    if (image.file) imageURL = await uploadImage(image.file);
-    try {
-      await updateDoc(doc(db, "chat", chatInfo.chatId), {
-        message: arrayUnion({
-          senderId: session.user.id,
-          text,
-          image: imageURL ? imageURL : null,
-          createdAt: new Date(),
-        }),
-      });
-
-      const usersIds = [session.user.id, chatInfo.user._id];
-
-      usersIds.forEach(async (id) => {
-        const usersChatRef = doc(db, "usersChat", id);
-        const usersChatSnapShot = await getDoc(usersChatRef);
-
-        if (usersChatSnapShot.exists()) {
-          const usersChatData = usersChatSnapShot.data();
-
-          const chatIndex = usersChatData.chat.findIndex(
-            (c: any) => c.chatId === chatInfo.chatId
-          );
-
-          usersChatData.chat[chatIndex].lastMessage = text ? text : "new image";
-          usersChatData.chat[chatIndex].isSeen = id === session.user.id;
-          usersChatData.chat[chatIndex].updatedAt = Date.now();
-
-          await updateDoc(usersChatRef, {
-            chat: usersChatData.chat,
-          });
-        }
-      });
-    } catch (error) {}
-  };
-
-  useEffect(() => {
-    messageListRef.current?.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  }, [chat?.message?.length, chatInfo]);
 
   useEffect(() => {
     const unSub = onSnapshot(doc(db, "chat", chatInfo.chatId), (res) => {
-      setChat(res.data());
-      checkChatUserBLock(chatInfo.user._id);
+      if (res.exists()) {
+        setChat(res.data());
+        checkChatUserBLock(chatInfo.users[0]._id);
+      } else {
+        setChatInfo(null);
+      }
     });
     setBlocked(
       !!(
+        chat.type === "single" &&
         session?.user.blocked &&
         session.user.blocked.find(
-          (userId: string) => userId === chatInfo.user._id
+          (userId: string) => userId === chatInfo.users[0]._id
         )
       )
     );
     setIsBlocked(
-      chatInfo.user.blocked.find(
-        (userId: string) => userId === session?.user.id
+      !!(
+        chat.type === "single" &&
+        chatInfo.users[0].blocked.find(
+          (userId: string) => userId === session?.user.id
+        )
       )
     );
 
-    setChatBoxView("Chat");
+    setChatBoxView(ChatBoxView.CHAT);
     return () => {
       unSub();
     };
   }, [chatInfo]);
 
   useEffect(() => {
-    checkChatUserBLock(chatInfo.user._id);
+    chat.type === "single" && checkChatUserBLock(chatInfo.users[0]._id);
   }, [session]);
 
-  const MediaView = (
-    <div
-      className={`${
-        chatBoxView === "Media" ? "inline-block" : "hidden"
-      } flex flex-col backdrop-blur-sm bg-primary/70 absolute top-0 left-0 z-40 items-center py-1 px-1 size-full`}
-    >
-      <div className="w-full justify-center grid grid-cols-3">
-        <button
-          className="Icon_small"
-          onClick={() => setChatBoxView("Setting")}
-        >
-          <FontAwesomeIcon icon={faAngleLeft} />
-        </button>
-        <span className="text-lg font-semibold text-center content-center">
-          Media
-        </span>
-      </div>
-      <div className="grid grid-cols-3 overflow-y-scroll no-scrollbar gap-1 w-full">
-        {chat?.message?.map((message: any, index: number) =>
-          message.image ? (
-            <div key={index} className="aspect-square cursor-zoom-in size-full">
-              <CustomImage
-                src={blocked || isBlocked ? "" : message.image}
-                alt="picture"
-                className="size-full"
-                onerror
-                width={0}
-                height={0}
-                transformation={[{ quality: 50 }]}
-                style={{ objectFit: "cover" }}
-              />
-            </div>
-          ) : null
-        )}
-      </div>
-    </div>
-  );
-
-  const CustomView = (
-    <div
-      className={`${
-        chatBoxView === "Setting" ? "inline-block" : "hidden"
-      } grid grid-cols-1 gap-4 backdrop-blur-sm bg-primary/70 overflow-y-scroll no-scrollbar absolute top-0 left-0 z-40 items-center p-4 size-full`}
-    >
-      <div className="grid grid-cols-1 place-items-center">
-        <div className="relative size-28 rounded-full bg-secondary-2 overflow-hidden shadow-xl flex items-center justify-center">
-          {chatInfo.user.image ? (
-            <CustomImage
-              src={chatInfo.user.image}
-              alt="profile picture"
-              className="size-full"
-              width={0}
-              height={0}
-              transformation={[{ quality: 10 }]}
-              style={{ objectFit: "cover" }}
-            />
-          ) : (
-            <div className="text-9xl mt-4">
-              <FontAwesomeIcon icon={faUser} />
-            </div>
-          )}
-        </div>
-        <span className="text-3xl font-bold">{chatInfo.user.username}</span>
-      </div>
-      <div>
-        <div className="font-bold text-accent/70 indent-3">Action</div>
-        <div className="grid grid-cols-1 w-full rounded-lg bg-secondary-1/60 font-bold text-lg ">
-          <button
-            className="outline-none flex gap-2 w-full h-fit min-h-[54px] items-center  p-2 border-b-2 border-accent last:border-none hover:bg-primary   first:rounded-t-lg last:rounded-b-lg overflow-hidden"
-            onClick={() => {
-              router.push(`/profile/${chatInfo.user._id}`);
-            }}
-          >
-            <div className="Icon_small">
-              <FontAwesomeIcon icon={faUser} />
-            </div>
-            <span className="grow text-md text-left">View user profile</span>
-          </button>
-          <button
-            className="outline-none flex gap-2 w-full min-h-[54px] items-center p-2 border-b-2 border-accent last:border-none hover:bg-primary first:rounded-t-lg last:rounded-b-lg overflow-hidden"
-            onClick={() => setChatBoxView("Media")}
-          >
-            <div className="Icon_small">
-              <FontAwesomeIcon icon={faImage} />
-            </div>
-            <span className="grow text-md text-left">View media</span>
-          </button>
-        </div>
-      </div>
-      <div>
-        <div className="font-bold text-accent/70 indent-3">
-          Privacy & Support
-        </div>
-        <div className="grid grid-cols-1 w-full rounded-lg bg-secondary-1/60 font-bold text-lg ">
-          <button
-            className="outline-none flex gap-2 w-full h-fit min-h-[54px] items-center p-2 border-b-2 border-accent last:border-none hover:bg-primary first:rounded-t-lg last:rounded-b-lg overflow-hidden"
-            onClick={() => handleChangeBlockState(chatInfo.user._id)}
-          >
-            <div className="Icon_small">
-              <FontAwesomeIcon icon={faBan} />
-            </div>
-            <span className="grow text-md text-left text-red-500">
-              {blocked ? "Unblock" : "Block"} user
-            </span>
-          </button>
-          <button
-            className="outline-none flex gap-2 w-full min-h-[54px] items-center p-2 border-b-2 border-accent last:border-none hover:bg-primary first:rounded-t-lg last:rounded-b-lg overflow-hidden"
-            onClick={() => handleDeleteChat(chatInfo.chatId)}
-          >
-            <div className="Icon_small">
-              <FontAwesomeIcon icon={faTrash} />
-            </div>
-            <span className="grow text-md text-left text-red-500">
-              Delete chat
-            </span>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const ChatBoxView = (
-    <>
-      <ul
-        ref={messageListRef}
-        className="h-[400px] w-full bg-secondary-2/50 flex flex-col-reverse justify-items-end gap-2 py-4 px-2 overflow-y-scroll no-scrollbar"
+  return (
+    <div className={`${chat?.theme}`}>
+      <div
+        className={`fixed text-accent bottom-0 right-0 sm:right-20 mx-[20px] sm:w-[400px] max-h-[500px]  flex flex-col rounded-t-2xl z-40 backdrop-blur-lg border-x-[1px] border-t-[1px] shadow-xl border-accent`}
       >
-        {chat?.message
-          ?.sort((a: any, b: any) => b.createdAt - a.createdAt)
-          .map((message: any, index: number) => (
-            <div key={index} className="flex flex-col">
-              <div
-                className={`${
-                  message.senderId === session?.user.id
-                    ? "My_message"
-                    : "Other_message"
-                }`}
-              >
-                <div>
-                  {message.image && (
+        <div className="flex flex-row items-center  bg-secondary-2/70 p-2 gap-4 shadow-md h-[50px] rounded-t-2xl ">
+          <label className="flex flex-row items-center gap-2 bg-primary rounded-full pr-4">
+            <div
+              className={`${
+                chatInfo.type === "group" && !chatInfo.image
+                  ? "grid grid-cols-2"
+                  : ""
+              } size-9 gap-[2px] items-center justify-center pointer-events-none`}
+            >
+              {chatInfo.type === "single" ? (
+                <div className="Icon_small">
+                  {chatInfo.users.image ? (
                     <CustomImage
-                      src={message.image}
-                      alt="message image"
+                      src={chatInfo.users[0].image}
+                      alt="profile picture"
                       className="size-full"
                       width={0}
                       height={0}
                       transformation={[{ quality: 10 }]}
                       style={{ objectFit: "cover" }}
-                    />
+                    ></CustomImage>
+                  ) : (
+                    <FontAwesomeIcon icon={faUser} />
                   )}
-                  <p>{message.text}</p>
                 </div>
-              </div>
-              {index === 0 && (
-                <span
-                  className={`${
-                    message.senderId === session?.user.id
-                      ? "text-right"
-                      : "text-left"
-                  } text-xs`}
-                >
-                  {formatTimeAgoWithoutAgo(message.createdAt.toDate())}
-                </span>
+              ) : chatInfo.image ? (
+                <div className="Icon_small">
+                  <CustomImage
+                    src={chatInfo.image}
+                    alt="profile picture"
+                    className="size-full"
+                    width={0}
+                    height={0}
+                    transformation={[{ quality: 10 }]}
+                    style={{ objectFit: "cover" }}
+                  ></CustomImage>
+                </div>
+              ) : (
+                chatInfo.users
+                  .slice(0, 4)
+                  .map((user: User, index: number) => (
+                    <div
+                      className={`${
+                        chatInfo.users.length === 3 && index === 2
+                          ? "col-span-2"
+                          : "flex-1"
+                      } flex items-center rounded-md  justify-center h-full  overflow-hidden bg-secondary-2 text-accent`}
+                    >
+                      {user.image ? (
+                        <CustomImage
+                          src={user.image}
+                          alt="profile picture"
+                          className="size-full"
+                          width={0}
+                          height={0}
+                          transformation={[{ quality: 10 }]}
+                          style={{ objectFit: "cover" }}
+                        ></CustomImage>
+                      ) : (
+                        <FontAwesomeIcon icon={faUser} />
+                      )}
+                    </div>
+                  ))
               )}
             </div>
-          ))}
-      </ul>
-      <div className="flex items-center bg-secondary-2/70 p-1 h-[50px] shadow-md gap-2">
-        {!(isBlocked || blocked) ? (
-          <>
-            <ImageInput image="" type="TextImage" setImage={handleSend} />
-            <InputBox
-              value={text}
-              style={{ border: "none" }}
-              onTextChange={handleTextChange}
-              type="Input"
+            <h1 className="font-semibold max-w-[150px] overflow-x-hidden overflow-ellipsis whitespace-nowrap">
+              {chatInfo.type === "single"
+                ? chatInfo.users[0].username
+                : chatInfo.name}
+            </h1>
+          </label>
+          <div className="ml-auto flex flex-row rounded-xl bg-primary gap-2 p-1 h-full items-center">
+            <button
+              className="Icon_smaller"
+              onClick={
+                chatBoxView === "Setting" ? handleChatView : handleSettingView
+              }
             >
-              Say something
-            </InputBox>
-            <EmojiInput setEmoji={setText} />
-            <button className="Icon_small" onClick={handleSendClick}>
-              <FontAwesomeIcon icon={faPaperPlane} />
+              <FontAwesomeIcon
+                icon={chatBoxView === "Setting" ? faCommentDots : faBars}
+              />
             </button>
-          </>
-        ) : (
-          <>
-            <ImageInput image="" type="TextImage" setImage={()=>{}} />
-            <InputBox
-              value={""}
-              style={{ border: "none" }}
-              onTextChange={()=>{}}
-              type="Input"
-            >
-              Say something
-            </InputBox>
-            <EmojiInput setEmoji={()=>{}} />
-            <button className="Icon_small" onClick={()=>{}}>
-              <FontAwesomeIcon icon={faPaperPlane} />
+            <button className="Icon_smaller" onClick={toggleMinimized}>
+              <FontAwesomeIcon icon={isMinimized ? faAngleUp : faAngleDown} />
             </button>
-          </>
-        )}
-      </div>
-    </>
-  );
-
-  return (
-    <div
-      className={`fixed text-accent bottom-0 right-0 sm:right-20 mx-[20px] sm:w-[400px] max-h-[500px]  flex flex-col rounded-t-xl z-40 backdrop-blur-lg border-x-[1px] border-t-[1px] shadow-xl border-accent`}
-    >
-      <div className="flex  bg-secondary-2/70 p-1 gap-4 shadow-md h-[50px] rounded-t-lg ">
-        <div className="flex items-center gap-2">
-          <UserProfileIcon currentUser={false} user={chatInfo.user} />
-          <h1 className="font-semibold max-w-[150px] overflow-x-hidden overflow-ellipsis whitespace-nowrap">
-            {chatInfo.user.username}
-          </h1>
-        </div>
-        <div className="ml-auto flex flex-row">
-          <button
-            className="Icon_small"
-            onClick={
-              chatBoxView === "Setting" ? handleChatView : handleCustomView
-            }
-          >
-            <FontAwesomeIcon
-              icon={chatBoxView === "Setting" ? faCommentDots : faBars}
-            />
-          </button>
-          <button className="Icon_small" onClick={toggleMinimized}>
-            <FontAwesomeIcon icon={isMinimized ? faAngleUp : faAngleDown} />
-          </button>
-          <button className="Icon_small" onClick={handleCloseChat}>
-            <FontAwesomeIcon icon={faX} />
-          </button>
-        </div>
-      </div>
-      <div className={`${isMinimized ? "hidden" : "inline-block"} relative`}>
-        {((isBlocked || blocked) && chatBoxView !== "Setting") || isLoading ? (
-          <div className="size-full top-0 left-0 absolute text-primary text-[1.5em] font-semibold bg-primary/50 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
-            {isLoading ? (
-              <div className="size-24 bg-accent/50 rounded-full">
-                <AppLogoLoader></AppLogoLoader>
-              </div>
-            ) : (
-              <>
-                <span className="bg-accent/40  px-2">
-                  Oops can't do that right now:/
-                </span>
-                <button
-                  className="font-bold underline bg-accent/40 px-2"
-                  onClick={() => setChatBoxView("Setting")}
-                >
-                  See setting
-                </button>
-              </>
-            )}
+            <button className="Icon_smaller" onClick={handleCloseChat}>
+              <FontAwesomeIcon icon={faClose} />
+            </button>
           </div>
-        ) : null}
-        {MediaView}
-        {CustomView}
-        {ChatBoxView}
+        </div>
+        <div
+          className={`${
+            isMinimized ? "hidden" : "inline-block"
+          } relative h-[450px]`}
+        >
+          {((isBlocked || blocked) && chatBoxView !== "Setting") ||
+          isLoading ? (
+            <div className="size-full top-0 left-0 absolute text-primary text-[1.5em] font-semibold bg-primary/50 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+              {isLoading ? (
+                <div className="size-24 bg-accent/50 rounded-full">
+                  <AppLogoLoader></AppLogoLoader>
+                </div>
+              ) : (
+                <>
+                  <span className="bg-accent/40  px-2">
+                    Oops can't do that right now:/
+                  </span>
+                  <button
+                    className="font-bold underline bg-accent/40 px-2"
+                    onClick={() => setChatBoxView(ChatBoxView.SETTING)}
+                  >
+                    See setting
+                  </button>
+                </>
+              )}
+            </div>
+          ) : null}
+          {chatBoxView === ChatBoxView.MEDIA && (
+            <MediaView
+              chat={chat}
+              setChatBoxView={setChatBoxView}
+              isBlocked={isBlocked}
+              blocked={blocked}
+            />
+          )}
+          {chatBoxView === ChatBoxView.SETTING && (
+            <SettingView
+              chat={chat}
+              chatInfo={chatInfo}
+              isBlocked={isBlocked}
+              blocked={blocked}
+              isLoading={isLoading}
+              setBlocked={setBlocked}
+              setChatInfo={setChatInfo}
+              setIsLoading={setIsLoading}
+              setChatBoxView={setChatBoxView}
+            />
+          )}
+          {chatBoxView === ChatBoxView.CHAT && (
+            <ChatView
+              chat={chat}
+              chatInfo={chatInfo}
+              isBlocked={isBlocked}
+              blocked={blocked}
+            />
+          )}
+          {chatBoxView === ChatBoxView.THEME && (
+            <ThemeView
+              setChatBoxView={setChatBoxView}
+              chat={chat}
+              chatInfo={chatInfo}
+              // isBlocked={isBlocked}
+              // blocked={blocked}
+            />
+          )}
+          {chatBoxView === ChatBoxView.ADDMEMBER && (
+            <AddMemberView
+              setChatBoxView={setChatBoxView}
+              chat={chat}
+              chatInfo={chatInfo}
+              // isBlocked={isBlocked}
+              // blocked={blocked}
+            />
+          )}
+          {chatBoxView === ChatBoxView.MEMBER && (
+            <ThemeView
+              setChatBoxView={setChatBoxView}
+              chat={chat}
+              chatInfo={chatInfo}
+              // isBlocked={isBlocked}
+              // blocked={blocked}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

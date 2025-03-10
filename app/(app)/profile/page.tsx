@@ -93,6 +93,7 @@ export default function MyProfile() {
   useEffect(() => {
     fetchFollowers();
     fetchFollowing();
+    console.log(session?.user)
   }, [session?.user.id]);
 
   const FollowList = () => {

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { type Post } from "@lib/types";
 import CustomImage from "./Image";
@@ -20,6 +20,27 @@ type PostCardProps = {
 
 export default function PostCard({ post, isLoading }: PostCardProps) {
   const { data: session } = useSession();
+  const [minHeight, setMinHeight] = useState<number | null>(null);
+  const [bgColor, setBgColor] = useState<string>("");
+
+  useEffect(() => {
+    // Generate a stable random width on the client after hydration
+    setMinHeight(Math.floor(Math.random() * 201) + 150);
+    setBgColor(getRandomColor());
+  }, []);
+
+  const getRandomColor = () => {
+    const colors = [
+      "bg-gradient-to-b from-red-200 to-yellow-300",
+      "bg-gradient-to-b from-blue-200 to-indigo-300",
+      "bg-gradient-to-b from-green-200 to-teal-300",
+      "bg-gradient-to-b from-purple-200 to-pink-300",
+      "bg-gradient-to-b from-yellow-200 to-orange-300",
+      "bg-gradient-to-b from-gray-200 to-gray-300",
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
+
   const handlePostCardClick = () => {
     if (
       session?.user.id &&
@@ -34,8 +55,10 @@ export default function PostCard({ post, isLoading }: PostCardProps) {
     return (
       <div className="animate-slide-up-animation relative w-full h-fit grid grid-cols-1 gap-2 rounded-xl overflow-hidden cursor-pointer z-0 animate-slideUp">
         <div
-          className="animate-pulse w-full  bg-accent/20"
-          style={{ height: `${Math.floor(Math.random() * 201) + 150}px` }}
+          className={`animate-pulse w-full  ${bgColor}`}
+          style={{
+            minHeight: minHeight !== null ? `${minHeight}px` : undefined,
+          }}
         ></div>
         <div className="flex flex-col justify-between hover:opacity-100 opacity-0 absolute p-2 bottom-0 left-0 bg-gradient-to-t from-black to-transparent text-white size-full">
           <div className="flex flex-row justify-between items-center w-full">

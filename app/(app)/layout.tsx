@@ -26,17 +26,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <ThemeManager>
         <Provider>
-          <ThemeManager>
-            <div className="min-h-[100vh] flex flex-col">
-              {/* Nav will appear on top  */}
-              <Nav>{children}</Nav>
-            </div>
-            <Toaster richColors position="top-left" />
-          </ThemeManager>
+          <div className="min-h-[100vh] flex flex-col">
+            {/* Nav will appear on top  */}
+            <Nav>{children}</Nav>
+          </div>
+          <Toaster richColors position="top-left" />
         </Provider>
-      </body>
+      </ThemeManager>
     </html>
   );
 }

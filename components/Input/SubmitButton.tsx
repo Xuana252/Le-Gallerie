@@ -9,19 +9,21 @@ import { type SubmitButtonState } from '@lib/types';
 type SubmitButtonBaseProps = {
     children? :React.ReactNode,
     state?: SubmitButtonState,
-    changeState?: React.Dispatch<React.SetStateAction<SubmitButtonState>>
+    changeState?: React.Dispatch<React.SetStateAction<SubmitButtonState>>,
+    style?:string
 }
 
 type SubmitButtonWithStateProps = {
     children?:React.ReactNode,
     state: SubmitButtonState,
     changeState: React.Dispatch<React.SetStateAction<SubmitButtonState>>
+    style?:string
 }
 
 type SubmitButtonProps = SubmitButtonBaseProps|SubmitButtonWithStateProps
 
 
-export default function SubmitButton({children,state,changeState}:SubmitButtonProps) {
+export default function SubmitButton({children,state,changeState,style}:SubmitButtonProps) {
     let content:React.ReactNode = children||'Submit'
 
     switch(state) {
@@ -41,7 +43,7 @@ export default function SubmitButton({children,state,changeState}:SubmitButtonPr
             break
     }
   return (
-     <button type='submit' className='Button_variant_1 min-h-[35px] h-[35px]' disabled={state === 'Processing'}>
+     <button type='submit' className={`Button_variant_1 min-h-[35px] h-[35px] ${style}`} disabled={state === 'Processing'}>
        {content}
      </button>
   );

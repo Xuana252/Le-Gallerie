@@ -2,15 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
+.MessageRowBase {
+  @apply flex items-center gap-1
+}
+.MyMessageRow {
+  @apply MessageRowBase flex-row-reverse
+}
+.OtherMessageRow {
+  @apply MessageRowBase flex-row
+}
+
+
+
 .Message_base {
-  @apply rounded-2xl size-fit p-2 font-semibold max-w-[85%] break-words whitespace-normal;
+  @apply size-fit px-3 py-1 font-semibold break-all whitespace-normal text-sm;
 }
+
+
 .My_message {
-  @apply Message_base bg-accent text-primary self-end;
+  @apply Message_base bg-accent text-primary;
 }
+.My_message_upper {
+  @apply My_message rounded-l-2xl rounded-tr-2xl rounded-br-md ;
+}
+.My_message_under {
+  @apply My_message rounded-l-2xl rounded-br-2xl rounded-tr-md;
+}
+
+.My_message_middle {
+  @apply My_message rounded-l-2xl rounded-r-md;
+}
+
+
 .Other_message {
-  @apply Message_base bg-primary text-accent self-start;
+  @apply Message_base bg-primary text-accent;
 }
+.Other_message_upper {
+  @apply Other_message rounded-r-2xl rounded-tl-2xl rounded-bl-md ;
+}
+.Other_message_under {
+  @apply Other_message rounded-r-2xl rounded-bl-2xl rounded-tl-md;
+}
+.Other_message_middle {
+  @apply Other_message rounded-r-2xl rounded-l-md;
+}
+
 
 .Theme_list {
   @apply flex flex-wrap gap-2  h-48 w-[150px] rounded-lg overflow-y-scroll no-scrollbar;
@@ -40,7 +76,7 @@
   @apply flex gap-3 px-4 my-2 sm:justify-end justify-center;
 }
 .User_Profile_Page_Stat_Bar {
-  @apply flex flex-row w-full sm:w-fit  items-start grow justify-evenly gap-4 sm:text-2xl text-lg bg-secondary-2/30 shadow-md rounded-xl  px-2 py-4 z-30;
+  @apply flex flex-row w-full sm:w-fit  items-start grow justify-evenly gap-4 sm:text-2xl text-lg bg-secondary-2/30 shadow-md rounded-xl  px-2 py-4;
 }
 .Category {
   font-style: italic;
@@ -51,15 +87,15 @@
 }
 
 .Side_bar_menu {
-  @apply flex h-full justify-start bg-secondary-2 gap-3 py-2 sm:py-4 px-2 flex-row w-full items-center overflow-x-scroll no-scrollbar sm:flex-col sm:items-start
+  @apply flex h-full justify-start bg-secondary-2 gap-3 py-2 sm:py-4 px-2 flex-row w-full items-center overflow-x-scroll no-scrollbar sm:flex-col sm:items-start;
 }
 
 .Side_bar_item {
-  @apply flex flex-row  rounded-xl gap-2 items-center sm:w-full text-left px-4 py-2 text-accent hover:bg-accent/50 hover:text-primary active:bg-accent active:text-primary font-bold
+  @apply flex flex-row  rounded-xl gap-2 items-center sm:w-full text-left px-4 py-2 text-accent hover:bg-accent/50 hover:text-primary active:bg-accent active:text-primary font-bold;
 }
 
 .Side_bar_selected_item {
-  @apply flex flex-row rounded-xl gap-2 items-center sm:w-full text-left px-4 py-2 font-bold bg-accent text-primary
+  @apply flex flex-row rounded-xl gap-2 items-center sm:w-full text-left px-4 py-2 font-bold bg-accent text-primary;
 }
 
 .Notification_view_toggle_button {
@@ -98,14 +134,14 @@
 }
 
 .Edit_button {
-  @apply rounded-full text-lg size-8 sm:text-xl sm:size-10 bg-secondary-1/30 backdrop-blur-sm transition-transform hover:scale-110 active:scale-90 duration-200 origin-center
+  @apply rounded-full text-lg size-8 sm:text-xl sm:size-10 bg-secondary-1/30 backdrop-blur-sm transition-transform hover:scale-110 active:scale-90 duration-200 origin-center;
 }
 
 .Button_base {
-  @apply rounded-full font-semibold py-1 px-2 select-none;
+  @apply rounded-lg font-semibold py-1 px-2 select-none;
 }
 .Button_variant_1 {
-  @apply Button_base border-2 border-accent  bg-accent min-h-fit text-primary hover:scale-110 transition-transform duration-150 active:text-accent active:bg-primary;
+  @apply Button_base border-2 border-accent  bg-accent min-h-fit text-primary hover:scale-y-110 hover:scale-x-105 transition-transform duration-150 active:text-accent active:bg-primary;
 }
 .Button_variant_1_5 {
   @apply Button_base border-2 border-accent bg-primary min-h-fit text-accent hover:bg-secondary-2 active:text-primary active:bg-accent;
@@ -127,7 +163,7 @@
 }
 
 .Input_box_variant_3 {
-  @apply text-accent bg-secondary-2 rounded-lg outline-none placeholder:text-accent placeholder:opacity-50 text-sm p-2 ;
+  @apply text-accent bg-secondary-2 rounded-lg outline-none placeholder:text-accent placeholder:opacity-50 text-sm p-2;
 }
 
 .Cate_box {
@@ -149,27 +185,30 @@
   }
 }
 .Icon_base {
-  @apply flex items-center justify-center rounded-full overflow-hidden hover:bg-secondary-2 text-accent;
+  @apply flex items-center justify-center rounded-full overflow-hidden hover:bg-secondary-2 text-accent bg-primary/50;
 }
 .Icon {
-  @apply Icon_base size-10 text-2xl ;
+  @apply Icon_base size-10 text-2xl;
 }
 .Icon_small {
-  @apply Icon_base  size-9 text-xl ;
+  @apply Icon_base  size-9 text-xl;
 }
 .Icon_smaller {
-  @apply  Icon_base size-6 text-base ;
+  @apply Icon_base size-6 text-base;
+}
+.Icon_message {
+  @apply Icon_base size-4 text-xs;
 }
 .Icon_big {
-  @apply Icon_base size-12 text-3xl ;
+  @apply Icon_base size-12 text-3xl;
 }
 
 .Highlighted {
-  @apply animate-highlight rounded-lg
+  @apply animate-highlight rounded-lg;
 }
 
 .ReactionItem {
-    @apply hover:scale-150 transition-all duration-200 ease-in-out active:scale-90
+  @apply hover:scale-150 transition-all duration-200 ease-in-out active:scale-90;
 }
 @layer base {
   /* Hide scrollbar for Chrome, Safari and Opera */
@@ -360,7 +399,6 @@
   }
 }
 
-
 .theme1 {
   --primary: 255, 255, 255;
   --secondary: 224, 224, 224;
@@ -377,7 +415,7 @@
   background-color: rgb(var(--primary));
 }
 .theme3 {
-  --primary:245, 245, 245;
+  --primary: 245, 245, 245;
   --secondary: 72, 207, 203;
   --secondary-variant-1: 34, 151, 153;
   --accent: 66, 66, 66;
@@ -422,48 +460,48 @@
   --primary: 71, 147, 175;
   --secondary: 255, 196, 112;
   --secondary-variant-1: 221, 87, 70;
-  --accent:139, 50, 44 ;
+  --accent: 139, 50, 44;
   background-color: rgb(var(--primary));
 }
 .theme10 {
   --primary: 43, 42, 76;
   --secondary: 179, 19, 18;
   --secondary-variant-1: 234, 144, 108;
-  --accent:238, 226, 222 ;
+  --accent: 238, 226, 222;
   background-color: rgb(var(--primary));
 }
 .theme11 {
   --primary: 0, 0, 0;
   --secondary: 207, 10, 10;
   --secondary-variant-1: 220, 95, 0;
-  --accent:238, 238, 238 ;
+  --accent: 238, 238, 238;
   background-color: rgb(var(--primary));
 }
 .theme12 {
   --primary: 232, 232, 232;
   --secondary: 240, 84, 84;
   --secondary-variant-1: 48, 71, 94;
-  --accent:34, 40, 49;
+  --accent: 34, 40, 49;
   background-color: rgb(var(--primary));
 }
 .theme13 {
   --primary: 56, 20, 96;
   --secondary: 178, 31, 102;
   --secondary-variant-1: 254, 52, 110;
-  --accent:255, 189, 105;
+  --accent: 255, 189, 105;
   background-color: rgb(var(--primary));
 }
 .theme14 {
   --primary: 255, 233, 208;
-  --secondary: 255, 254, 211 ;
+  --secondary: 255, 254, 211;
   --secondary-variant-1: 187, 233, 255;
-  --accent:177, 175, 255;
+  --accent: 177, 175, 255;
   background-color: rgb(var(--primary));
 }
 .theme15 {
   --primary: 245, 238, 230;
   --secondary: 255, 248, 227;
-  --secondary-variant-1: 243, 215, 202 ;
+  --secondary-variant-1: 243, 215, 202;
   --accent: 230, 164, 180;
   background-color: rgb(var(--primary));
 }
@@ -471,7 +509,6 @@
   --primary: 253, 253, 189;
   --secondary: 200, 255, 212;
   --secondary-variant-1: 184, 232, 252;
-  --accent:177, 175, 255;
+  --accent: 177, 175, 255;
   background-color: rgb(var(--primary));
 }
-

@@ -9,7 +9,7 @@ const themeCategories = [
   { name: "Space", list: ["theme10","theme11","theme12","theme13"] },
   { name: "Pastel", list: ["theme14", "theme15", "theme16"] },
 ];
-const themes = [
+export const themes = [
   "theme1",
   "theme2",
   "theme3",
@@ -49,24 +49,7 @@ export default function ThemeList() {
     }
   };
 
-  const handleScrollToTop = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    themeList.current
-      ? themeList.current.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        })
-      : "";
-  };
-  const handleScrollToBottom = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    themeList.current
-      ? themeList.current.scrollTo({
-          top: themeList.current.scrollHeight,
-          behavior: "smooth",
-        })
-      : "";
-  };
+
 
   return (
     <div className="relative">

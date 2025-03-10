@@ -17,7 +17,7 @@ import { SetStateAction, useEffect, useState } from "react";
 import UserProfileIcon from "./UserProfileIcon";
 import { createContext, Dispatch } from "react";
 import ThemeList from "@theme/ThemesList";
-import NotificationButton from "@components/Notification/Notification";
+import NotificationButton from "@components/Notification/NotificationButton";
 import ChatButton from "@components/Chat/ChatButton";
 import ChatBox from "@components/Chat/ChatBox";
 import { Category } from "@lib/types";
@@ -184,7 +184,7 @@ export default function Nav({ children }: { children: React.ReactNode }) {
             </div>
           </nav>
           {children}
-          {chatInfo && <ChatBox />}
+          {chatInfo&&<ChatBox />}
         </SearchContext.Provider>
       </ChatContext.Provider>
     </>
