@@ -11,8 +11,10 @@ import CustomImage from "@components/UI/Image";
 
 export default function FriendSearchSection({
   onSelected,
+  filter = []
 }: {
   onSelected: (user: User) => any;
+  filter?: string[] ;
 }) {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(true);
@@ -23,7 +25,7 @@ export default function FriendSearchSection({
   const fetchFollowers = async () => {
     setIsLoading(true);
     const response = await fetchUserFollowers(session?.user.id || "");
-    setFollowers(response?.users || []);
+    setFollowers(response?.users.filter((user:User)=>filter.findIndex(id=>id===user._id)===-1) || []);
     setIsLoading(false);
   };
 
@@ -90,6 +92,8 @@ export default function FriendSearchSection({
                   </span>
                 </label>
               ))}
+
+              
       </ul>
     </div>
   );

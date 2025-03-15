@@ -38,6 +38,7 @@ export default function ChatButton({
             if (!item.isSeen) count++;
             return {
               ...item,
+              memberIds:chatData.memberIds||[],
               type:chatData.type,
               image:chatData.image||"",
               name:chatData.name||"",

@@ -11,17 +11,12 @@ export default function MediaView({
   blocked,
 }: {
   chat: any;
-  setChatBoxView: Dispatch<
-    SetStateAction<ChatBoxView>
-  >;
+  setChatBoxView: Dispatch<SetStateAction<ChatBoxView>>;
   isBlocked: boolean;
   blocked: boolean;
 }) {
   return (
-    <div
-      className={`
-           flex flex-col backdrop-blur-sm bg-primary/70 items-center size-full`}
-    >
+    <>
       <div className="w-full justify-center grid grid-cols-3 h-[30px] bg-secondary-2/50 items-center px-2">
         <button
           className="Icon_smaller"
@@ -52,6 +47,6 @@ export default function MediaView({
           ) : null
         )}
       </div>
-    </div>
+    </>
   );
 }

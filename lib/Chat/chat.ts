@@ -29,55 +29,103 @@ export const RenderLog = (type: number, username: String) => {
     case 2:
       return `${username} left the chat`;
     case 3:
-      return `${username} joined the chat`;
+      return `${username} was added to the chat`;
     case 4:
-      return `${username} has been kicked`;
+      return `${username} was kicked out`;
     case 5:
       return `${username} changed the theme`;
+    case 6:
+      return `${username} is the new admin`;
   }
 };
 
-export const removeChatFromUserChat = async (chatId:string,userId:string) => {
-  const userChatDoc = await getDoc(doc(usersChatRef,userId));
+export const removeChatFromUserChat = async (
+  chatId: string,
+  userId: string
+) => {
+  const userChatDoc = await getDoc(doc(usersChatRef, userId));
 
-  if(userChatDoc.exists()) {
+  if (userChatDoc.exists()) {
     const userChatData = userChatDoc.data();
     const chatArray = userChatData.chat || [];
 
-    const chatToRemove = chatArray.find((chat:any)=>chat.chatId===chatId)
+    const chatToRemove = chatArray.find((chat: any) => chat.chatId === chatId);
 
-    if(chatToRemove) {
-      await updateDoc(doc(usersChatRef,userId), {
-        chat: arrayRemove(chatToRemove)
-      })
+    if (chatToRemove) {
+      await updateDoc(doc(chatRef, chatId), {
+        memberIds: arrayRemove(userId),
+      });
+      await updateDoc(doc(usersChatRef, userId), {
+        chat: arrayRemove(chatToRemove),
+      });
     }
   }
-}
+};
 
-export const leaveChat = async (chatId:string,userId:string) => {
-  await removeChatFromUserChat(chatId,userId)
-  await addLog(chatId,2,userId)
-}
+export const updateAdmin = async (chatId: string, userId: string) => {
+  const chatDocRef = await getDoc(doc(chatRef, chatId));
 
-export const kickFromChat = async (chatId:string,userId:string) => {
-  await removeChatFromUserChat(chatId,userId)
-  await addLog(chatId,4,userId)
-}
-
-
-export const joinChat = async (chatId:string,userId:string) => {
-  const userChatDoc = await getDoc(doc(usersChatRef,userId));
-
-  if(userChatDoc.exists()) {
-
-  } else {
-    await setDoc(doc(usersChatRef, userId), {
-      chat: [],
+  if (chatDocRef.exists()) {
+    await updateDoc(doc(chatRef, chatId), {
+      admin: userId,
     });
+
+    addLog(chatId, 6, userId);
+  }
+};
+
+export const leaveChat = async (chatId: string, userId: string) => {
+  await removeChatFromUserChat(chatId, userId);
+  await addLog(chatId, 2, userId);
+};
+
+export const kickFromChat = async (chatId: string, userId: string) => {
+  await removeChatFromUserChat(chatId, userId);
+  await addLog(chatId, 4, userId);
+};
+
+export const joinChat = async (chatId: string, userId: string) => {
+  const userChatDoc = await getDoc(doc(usersChatRef, userId));
+  const chatDoc = await getDoc(doc(chatRef, chatId));
+
+  if (!chatDoc.exists()) return;
+  const chatData = chatDoc.data();
+
+  const memberIds = chatData.memberIds || [];
+  if (!userChatDoc.exists()) {
+    await setDoc(doc(usersChatRef, userId), {
+      chat: [
+        {
+          chatId: chatId,
+          lastMessage: "",
+          receiverIds: [...memberIds],
+          updatedAt: Date.now(),
+        },
+      ],
+    });
+  } else {
+    const userChatData = userChatDoc.data();
+
+    const userChats = userChatData.chat || [];
+
+    if (userChats.findIndex((chat: any) => chat.chatId === chatId) === -1) {
+      await updateDoc(doc(usersChatRef, userId), {
+        chat: arrayUnion({
+          chatId: chatId,
+          lastMessage: "",
+          receiverIds: [...memberIds],
+          updatedAt: Date.now(),
+        }),
+      });
+    }
   }
 
-}
+  await updateDoc(doc(chatRef, chatId), {
+    memberIds: arrayUnion(userId),
+  });
 
+  await addLog(chatId, 3, userId);
+};
 
 export const changeChatTheme = async (
   chatId: string,
@@ -102,6 +150,7 @@ export const addLog = async (chatId: string, type: number, userId: string) => {
   //3: join chat
   //4: kick user
   //5: change theme
+  //6: update admin
   const chatDoc = await getDoc(doc(chatRef, chatId));
 
   if (chatDoc.exists()) {
@@ -270,7 +319,7 @@ export const startChat = async (
           ) {
             existingChat = {
               ...chat,
-              type:"single",
+              type: "single",
               users: [
                 user,
                 {
@@ -313,6 +362,7 @@ export const startChat = async (
       await updateDoc(doc(usersChatRef, user._id), {
         chat: arrayUnion({
           chatId: newChatRef.id,
+          isSeen: false,
           lastMessage: "",
           receiverIds: [session.user.id],
           updatedAt: Date.now(),
@@ -321,7 +371,7 @@ export const startChat = async (
       await updateDoc(doc(usersChatRef, session.user.id), {
         chat: arrayUnion({
           chatId: newChatRef.id,
-
+          isSeen: false,
           lastMessage: "",
           receiverIds: [user._id],
           updatedAt: Date.now(),
@@ -342,7 +392,7 @@ export const startChat = async (
           if (chatData.exists()) {
             existingChat = {
               ...chatInfo,
-              type:"single",
+              type: "single",
               users: [
                 user,
                 {
@@ -403,6 +453,7 @@ export const createGroupChat = async (
     const newChatRef = doc(chatRef);
     const newChat = await setDoc(newChatRef, {
       createAt: serverTimestamp(),
+      memberIds: [...users.map((user: User) => user._id), session.user.id],
       name: name,
       message: [],
       type: "group",
@@ -418,10 +469,11 @@ export const createGroupChat = async (
         await updateDoc(doc(usersChatRef, user._id), {
           chat: arrayUnion({
             chatId: newChatRef.id,
+            isSeen: false,
             lastMessage: "",
             receiverIds: [
               session.user.id,
-              ...users.filter((u) => u._id !== user._id).map((u) => u._id)
+              ...users.filter((u) => u._id !== user._id).map((u) => u._id),
             ],
             updatedAt: Date.now(),
           }),
@@ -432,6 +484,7 @@ export const createGroupChat = async (
     await updateDoc(doc(usersChatRef, session.user.id), {
       chat: arrayUnion({
         chatId: newChatRef.id,
+        isSeen: false,
         lastMessage: "",
         receiverIds: [...users.map((u) => u._id)],
         updatedAt: Date.now(),
@@ -449,12 +502,11 @@ export const createGroupChat = async (
       if (chatData.exists()) {
         const chatInfo = {
           ...chatItem,
-          type:"group",
-          image:image,
-          name:name,
+          type: "group",
+          image: image,
+          name: name,
           users: [
             ...users,
-        
 
             {
               _id: session.user.id,

@@ -5,9 +5,19 @@ import { changeTheme } from "@theme/ThemeManager";
 const themeCategories = [
   { name: "System", list: ["theme1", "theme2"] },
   { name: "Retro", list: ["theme3", "theme4", "theme5"] },
-  { name: "Vintage", list: ["theme6","theme7","theme8","theme9"] },
-  { name: "Space", list: ["theme10","theme11","theme12","theme13"] },
+  { name: "Vintage", list: ["theme6", "theme7", "theme8", "theme9"] },
+  { name: "Space", list: ["theme10", "theme11", "theme12", "theme13"] },
   { name: "Pastel", list: ["theme14", "theme15", "theme16"] },
+  {
+    name: "Spiderman",
+    list: [
+      "theme-spiderman-classic",
+      "theme-spiderman-miles",
+      "theme-spiderman-2099",
+      "theme-spiderman-symbiote",
+      "theme-spiderman-gwen"
+    ],
+  },
 ];
 export const themes = [
   "theme1",
@@ -26,6 +36,11 @@ export const themes = [
   "theme14",
   "theme15",
   "theme16",
+  "theme-spiderman-classic",
+  "theme-spiderman-miles",
+  "theme-spiderman-2099",
+  "theme-spiderman-symbiote",
+  "theme-spiderman-gwen"
 ];
 
 export default function ThemeList() {
@@ -49,8 +64,6 @@ export default function ThemeList() {
     }
   };
 
-
-
   return (
     <div className="relative">
       {/* {isScrollable && !isScrolledToTop && (
@@ -70,25 +83,26 @@ export default function ThemeList() {
         </button>
       )} */}
       <ul className={`Theme_list `} ref={themeList} onScroll={handleScroll}>
-        {themeCategories.map((category,index) => (
+        {themeCategories.map((category, index) => (
           <div key={index} className="w-full">
-            <div className="sticky top-0 bg-accent text-primary my-2 font-bold px-2 pb-1">{category.name}</div>
+            <div className="sticky top-0 bg-accent text-primary my-2 font-bold px-2 pb-1">
+              {category.name}
+            </div>
             <div className="flex flex-wrap gap-2">
-              {
-                category.list.map((theme) =>
-                  <div
-                key={theme}
-                className={`Theme_item  ${theme}`}
-                onClick={async () => {
-                  changeTheme(theme);
-                }}
-              >
-                <div className={` bg-primary`}></div>
-                <div className={` bg-secondary-1`}></div>
-                <div className={` bg-secondary-2`}></div>
-                <div className={` bg-accent`}></div>
-              </div>)
-              }
+              {category.list.map((theme) => (
+                <div
+                  key={theme}
+                  className={`Theme_item  ${theme}`}
+                  onClick={async () => {
+                    changeTheme(theme);
+                  }}
+                >
+                  <div className={` bg-primary`}></div>
+                  <div className={` bg-secondary-1`}></div>
+                  <div className={` bg-secondary-2`}></div>
+                  <div className={` bg-accent`}></div>
+                </div>
+              ))}
             </div>
           </div>
         ))}

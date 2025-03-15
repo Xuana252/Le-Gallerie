@@ -11,7 +11,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { getProviders, signIn } from "next-auth/react";
 import Link from "next/link";
 
-import { SignUpCredentials, SubmitButtonState, UploadUser } from "@lib/types";
+import { SignUpCredentials, UploadUser } from "@lib/types";
 import { useRouter } from "next/navigation";
 import { useSpring, animated, useTransition } from "@react-spring/web";
 import { signUp } from "@actions/accountActions";
@@ -33,8 +33,6 @@ export default function AuthenticationForm({
 }: {
   providers: string[];
 }) {
-  const router = useRouter();
-  const [submitState, setSubmitState] = useState<SubmitButtonState>("");
   const [isSignUp, setIsSignUp] = useState(false);
 
   const DesktopSliderAnimation = useSpring({

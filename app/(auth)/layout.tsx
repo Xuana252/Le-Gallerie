@@ -3,7 +3,6 @@ import { config } from "@fortawesome/fontawesome-svg-core";
 config.autoAddCss = false;
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "@styles/globals.css";
 import ThemeManager from "@theme/ThemeManager";
 const inter = Inter({ subsets: ["latin"] });
 import { Toaster } from "sonner";

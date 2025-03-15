@@ -18,6 +18,7 @@ import {
   faRightFromBracket,
   faRightToBracket,
   faUser,
+  faUserTie,
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { useSession } from "@node_modules/next-auth/react";
@@ -129,20 +130,21 @@ export default function ChatView({
             (c: any) => c.chatId === chatInfo.chatId
           );
 
-          if(chatIndex!==-1) {
-            usersChatData.chat[chatIndex].lastMessage = text ? text : "new image";
+          if (chatIndex !== -1) {
+            usersChatData.chat[chatIndex].lastMessage = text
+              ? text
+              : "new image";
             usersChatData.chat[chatIndex].isSeen = id === session.user.id;
             usersChatData.chat[chatIndex].updatedAt = Date.now();
-  
+
             await updateDoc(usersChatRef, {
               chat: usersChatData.chat,
             });
           }
-          
         }
       });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -157,7 +159,9 @@ export default function ChatView({
     const isMine = message.senderId === session?.user.id;
     const baseClass = isMine ? "My_message" : "Other_message";
 
-    const currentIndex = chat.message.findIndex((msg:any)=>msg.id===message.id)
+    const currentIndex = chat.message.findIndex(
+      (msg: any) => msg.id === message.id
+    );
     // Get previous and next messages
     const prevMessage = chat.message[currentIndex - 1];
     const nextMessage = chat.message[currentIndex + 1];
@@ -178,12 +182,12 @@ export default function ChatView({
 
   return (
     <>
-      {chat.pinned&& (
+      {chat.pinned && (
         <div
           className="absolute left-[50%] -translate-x-[50%] rounded-full bg-accent w-fit p-2 mt-2 text-primary flex flex-row items-center gap-2 hover:-translate-y-[4px] hover:opacity-100 opacity-50 z-50 duration-200 ease-in-out "
           onClick={handleMoveToPin}
         >
-          <FontAwesomeIcon icon={faMapPin} size="xs"/>
+          <FontAwesomeIcon icon={faMapPin} size="xs" />
           <div className="Icon_message">
             {chatInfo.users.find(
               (user: User) =>
@@ -212,11 +216,21 @@ export default function ChatView({
           </div>
         </div>
       )}
+
       <ul
         ref={messageListRef}
         className="h-[400px] w-full bg-secondary-2/50 flex flex-col-reverse justify-items-end gap-1 py-4 px-2 overflow-y-scroll overflow-x-auto no-scrollbar relative z-40"
         onScroll={handleScroll}
       >
+        {showScrollToBottom && (
+          <button
+            className="Icon_small fixed left-[50%] -translate-x-[50%]"
+            onClick={handleScrollToBottom}
+            style={{zIndex:100}}
+          >
+            <FontAwesomeIcon icon={faArrowDown} />
+          </button>
+        )}
         {isLoading ? (
           <>
             <div className="OtherMessageRow">
@@ -262,7 +276,7 @@ export default function ChatView({
                   }}
                   key={index}
                   className="flex flex-col"
-                  style={{zIndex:99-index}}
+                  style={{ zIndex: 99 - index }}
                 >
                   <ChatItem
                     message={{
@@ -298,7 +312,6 @@ export default function ChatView({
                       )
                     }
                   />
-
                   {index === 0 && (
                     <span
                       className={`${
@@ -312,35 +325,41 @@ export default function ChatView({
                   )}
                 </li>
               ) : (
-                <li className="text-xs text-center opacity-70 rounded-lg py-[2px] px-[6px] bg-secondary-2 w-fit mx-auto my-2">
-                
+                <li
+                  key={index}
+                  className="text-xs text-center opacity-70 rounded-lg py-[2px] px-[6px] bg-secondary-2 w-fit mx-auto my-2"
+                >
                   {
-                      //0: create chat
-  //1: pin message
-  //2: leave chat
-  //3: join chat
-  //4: kick user
-  //5: change theme
-                  message.type===0?
-                  <FontAwesomeIcon icon={faPuzzlePiece}/>
-                  :message.type===1
-                  ?<FontAwesomeIcon icon={faMapPin}/>
-                  :message.type===2
-                  ?<FontAwesomeIcon icon={faRightFromBracket}/>
-                  :message.type===3
-                  ?<FontAwesomeIcon icon={faRightToBracket}/>
-                  :message.type===4
-                  ?<FontAwesomeIcon icon={faHandPointRight}/>
-                  :message.type===5
-                  ?<FontAwesomeIcon icon={faPalette}/>:""
-                  }    {" "}
+                    //0: create chat
+                    //1: pin message
+                    //2: leave chat
+                    //3: join chat
+                    //4: kick user
+                    //5: change theme
+                    message.type === 0 ? (
+                      <FontAwesomeIcon icon={faPuzzlePiece} />
+                    ) : message.type === 1 ? (
+                      <FontAwesomeIcon icon={faMapPin} />
+                    ) : message.type === 2 ? (
+                      <FontAwesomeIcon icon={faRightFromBracket} />
+                    ) : message.type === 3 ? (
+                      <FontAwesomeIcon icon={faRightToBracket} />
+                    ) : message.type === 4 ? (
+                      <FontAwesomeIcon icon={faHandPointRight} />
+                    ) : message.type === 5 ? (
+                      <FontAwesomeIcon icon={faPalette} />
+                    ) : message.type === 6 ? (
+                      <FontAwesomeIcon icon={faUserTie} />
+                    ) : (
+                      ""
+                    )
+                  }{" "}
                   {RenderLog(
                     message.type,
                     chatInfo.users.find(
                       (user: User) => user._id === message.userId
                     ).username
                   )}
-                 
                 </li>
               )
             )
@@ -350,14 +369,7 @@ export default function ChatView({
             Start chatting...
           </div>
         )}
-        {showScrollToBottom && (
-          <button
-            className="Icon_small fixed left-[50%] -translate-x-[50%]"
-            onClick={handleScrollToBottom}
-          >
-            <FontAwesomeIcon icon={faArrowDown} />
-          </button>
-        )}
+        
       </ul>
       <div className="flex items-center bg-secondary-2/70 p-1 h-[50px] shadow-md gap-2">
         {!(isBlocked || blocked) ? (

@@ -11,6 +11,7 @@ import React, { useContext } from "react";
 import { ChatContext } from "@components/UI/Nav";
 import { User } from "@lib/types";
 import CustomImage from "@components/UI/Image";
+import ImageGroupDisplay from "@components/UI/ImageGroupDisplay";
 
 export default function ChatList({
   chatList,
@@ -25,7 +26,7 @@ export default function ChatList({
   const handleSelectChat = async (chat: any) => {
     if (!session) return;
     const usersChat = chatList.map((item: any) => {
-      const { users, image, name, type, ...rest } = item;
+      const { users, image, name, type,memberIds, ...rest } = item;
       return rest;
     });
 
@@ -77,68 +78,8 @@ export default function ChatList({
             className="bg-accent text-primary rounded-lg p-2 flex gap-3 cursor-pointer hover:bg-accent/80 transition-all duration-200 "
             onClick={() => handleSelectChat(chat)}
           >
-            <div
-              className={`${
-                chat.type === "group" && !chat.image
-                  ? "grid grid-cols-2 gap-[2px]"
-                  : ""
-              } size-12 max-w-12 max-h-12 items-center justify-between pointer-events-none`}
-            >
-              {chat.type === "single" ? (
-                <div className="Icon_big">
-                  {chat.users[0].image ? (
-                    <CustomImage
-                      src={chat.users[0].image}
-                      alt="profile picture"
-                      className="size-full"
-                      width={0}
-                      height={0}
-                      transformation={[{ quality: 10 }]}
-                      style={{ objectFit: "cover" }}
-                    ></CustomImage>
-                  ) : (
-                    <FontAwesomeIcon icon={faUser} />
-                  )}
-                </div>
-              ) : chat.image ? (
-                <div className="Icon_big">
-                  <CustomImage
-                    src={chat.image}
-                    alt="profile picture"
-                    className="size-full"
-                    width={0}
-                    height={0}
-                    transformation={[{ quality: 10 }]}
-                    style={{ objectFit: "cover" }}
-                  ></CustomImage>
-                </div>
-              ) : (
-                chat.users
-                  .slice(0, 4)
-                  .map((user: User, index: number) => (
-                    <div
-                      className={`${
-                        chat.users.length === 3 && index === 2
-                          ? "col-span-2"
-                          : "flex-1"
-                      } rounded-md flex items-center justify-center h-full  overflow-hidden bg-secondary-2 text-accent`}
-                    >
-                      {user.image ? (
-                        <CustomImage
-                          src={user.image}
-                          alt="profile picture"
-                          className="size-full"
-                          width={0}
-                          height={0}
-                          transformation={[{ quality: 10 }]}
-                          style={{ objectFit: "cover" }}
-                        ></CustomImage>
-                      ) : (
-                        <FontAwesomeIcon icon={faUser} />
-                      )}
-                    </div>
-                  ))
-              )}
+            <div className={`size-10`}>
+              <ImageGroupDisplay images={chat.type==="group"?chat.image?[chat.image]:chat.users.filter((user:User)=>chat.memberIds.findIndex((id:string)=>id===user._id)!==-1).map(((u:User)=>u.image)):[chat.users[0].image]} />
             </div>
             <div className="flex flex-col grow justify-around items-baseline pointer-events-none">
               <span className="font-bold">

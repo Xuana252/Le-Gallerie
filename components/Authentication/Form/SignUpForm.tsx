@@ -1,5 +1,6 @@
 import { signUp } from "@actions/accountActions";
 import { checkAuthRateLimit } from "@actions/checkRateLimit";
+import { SubmitButtonState } from "@app/enum/submitButtonState";
 import ImageInput from "@components/Input/ImageInput";
 import InputBox from "@components/Input/InputBox";
 import SubmitButton from "@components/Input/SubmitButton";
@@ -8,13 +9,13 @@ import {
   checkInvalidInput,
   handleInvalid,
 } from "@lib/Authentication/Auth";
-import { SignUpCredentials, SubmitButtonState } from "@lib/types";
+import { SignUpCredentials } from "@lib/types";
 import { uploadImage } from "@lib/upload";
 import { signIn } from "next-auth/react";
 import React, { useState } from "react";
 
 export default function SignUpForm() {
-  const [submitState, setSubmitState] = useState<SubmitButtonState>("");
+  const [submitState, setSubmitState] = useState<SubmitButtonState>(SubmitButtonState.IDLE);
   const [signUpCredentials, setSignUpCredentials] = useState<SignUpCredentials>(
     {
       email: "",
@@ -37,17 +38,17 @@ export default function SignUpForm() {
   };
 
   const handleSignUp = async () => {
-    setSubmitState("Processing");
+    setSubmitState(SubmitButtonState.PROCESSING);
     const invalidInputs = checkInvalidInput(signUpCredentials);
 
     if (invalidInputs.length > 0) {
       handleInvalid(invalidInputs);
-      setSubmitState("Failed");
+      setSubmitState(SubmitButtonState.FAILED);
       return;
     } else {
       const isRateLimited = await checkAuthRateLimit();
       if (isRateLimited) {
-        setSubmitState("Failed");
+        setSubmitState(SubmitButtonState.FAILED);
         alertError(["Sign up limit exceeded please return in an hour"]);
         console.log("Sign up limit exceeded please return in an hour");
         return;
@@ -65,7 +66,7 @@ export default function SignUpForm() {
         };
         const response = await signUp(newUser);
         if (response.status) {
-          setSubmitState("Succeeded");
+          setSubmitState(SubmitButtonState.SUCCESS);
           setTimeout(() => {
             signIn("credentials", {
               email: signUpCredentials.email,
@@ -74,12 +75,12 @@ export default function SignUpForm() {
             });
           }, 1000);
         } else {
-          setSubmitState("Failed");
+          setSubmitState(SubmitButtonState.FAILED);
           console.log(response.message);
           alertError(response.message);
         }
       } catch (error) {
-        setSubmitState("Failed");
+        setSubmitState(SubmitButtonState.FAILED);
         console.log(error);
       }
     }

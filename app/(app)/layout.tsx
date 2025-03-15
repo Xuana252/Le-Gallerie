@@ -4,6 +4,7 @@ config.autoAddCss = false;
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@styles/globals.css";
+import "@styles/theme.css";
 import Nav from "@components/UI/Nav";
 import Provider from "@context/Provider";
 import ThemeManager from "@theme/ThemeManager";

@@ -7,6 +7,7 @@ import {
   faPaperPlane,
   faPen,
   faShare,
+  faSmile,
   faTrash,
   faUser,
   faHeart as solidHeart,
@@ -15,7 +16,6 @@ import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import { Category, Like, Post, User } from "@lib/types";
 import { removeImage } from "@lib/upload";
 import {
-  checkUserHasLiked,
   deletePost,
   fetchPostLikedUser,
   handleLike,
@@ -58,27 +58,13 @@ export default function PostDetail({
   };
 
   useEffect(() => {
-    // fetchLikeStatus()
+
     setIsLoadingLikes(true);
     fetchLikesUsers();
     setPostLikes(post.likes || 0);
     setIsLoadingLikes(false);
   }, [post]);
 
-  //   const fetchLikeStatus = async () => {
-  //     if (session?.user.id && post._id) {
-  //       try {
-  //         const result = await checkUserHasLiked(
-  //           session.user.id,
-  //           post._id,
-  //           "post"
-  //         );
-  //         setLikedState(result);
-  //       } catch (error) {
-  //         console.error("Failed to check if user has liked post", error);
-  //       }
-  //     }
-  //   };
   const fetchLikesUsers = async () => {
     if (!post._id) return;
     try {
@@ -153,15 +139,7 @@ export default function PostDetail({
   };
 
 
-  const handleDownload = () => {
-    if (!post._id) return;
-    const link = document.createElement("a");
-    link.href = post.image;
-    link.target = "_blank";
-    link.download = post.title || "download";
-    link.click();
-    link.parentNode?.removeChild(link);
-  };
+
   const handleShare = () => {
     if (!post._id) return;
     if (navigator.share) {
@@ -227,7 +205,7 @@ export default function PostDetail({
           <div className="flex-row py-2 h-fit z-20 flex sticky bg-secondary-1 items-center top-[59px] gap-2">
             <div className="flex justify-start items-center gap-1">
               <button className="Icon_small animate-pulse bg-secondary-2">
-                <FontAwesomeIcon icon={faHeart} className="text-accent/70" />
+                <FontAwesomeIcon icon={faSmile} className="text-accent/70" />
               </button>
               <div className="bg-secondary-2 animate-pulse w-20 h-5 rounded-xl"></div>
             </div>
@@ -268,12 +246,12 @@ export default function PostDetail({
             {isLoadingLikes ? (
               <div className="flex justify-start items-center gap-1">
                 <button className="Icon_small animate-pulse bg-secondary-2">
-                  <FontAwesomeIcon icon={faHeart} className="text-accent/70" />
+                  <FontAwesomeIcon icon={faSmile} className="text-accent/70" />
                 </button>
                 <div className="bg-secondary-2 animate-pulse w-20 h-5 rounded-xl"></div>
               </div>
             ) : (
-              <div className="flex justify-start items-center">
+              <div className="flex gap-2 justify-start items-center">
                 <ReactionButton
                   type="Icon_small"
                   drop="left"
@@ -307,12 +285,6 @@ export default function PostDetail({
                   </button>
                 </>
               )}
-              <button
-                className="hover:bg-secondary-2 Icon_smaller "
-                onClick={handleDownload}
-              >
-                <FontAwesomeIcon icon={faDownload} title="Save Image" />
-              </button>
               <button
                 className="hover:bg-secondary-2 Icon_smaller "
                 onClick={handleShare}

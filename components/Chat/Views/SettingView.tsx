@@ -29,6 +29,7 @@ import { useRouter } from "@node_modules/next/navigation";
 import { deleteChat, leaveChat } from "@lib/Chat/chat";
 import { User } from "@lib/types";
 import { ChatBoxView } from "@app/enum/chatBoxView";
+import ImageGroupDisplay from "@components/UI/ImageGroupDisplay";
 
 export default function SettingView({
   chatInfo,
@@ -48,9 +49,7 @@ export default function SettingView({
   isLoading: boolean;
   setBlocked: (state: boolean) => void;
   setChatInfo: (info: any) => void;
-  setChatBoxView: Dispatch<
-    SetStateAction<ChatBoxView>
-  >;
+  setChatBoxView: Dispatch<SetStateAction<ChatBoxView>>;
   setIsLoading: (state: boolean) => void;
 }) {
   const { data: session, update } = useSession();
@@ -112,72 +111,27 @@ export default function SettingView({
   };
   return (
     <div
-      className={`grid grid-cols-1 gap-4 backdrop-blur-sm bg-primary/70 overflow-y-scroll no-scrollbar absolute top-0 left-0 z-40 items-center p-4 size-full  `}
+      className={`grid grid-cols-1 w-full gap-4 backdrop-blur-sm bg-primary/70 overflow-y-scroll no-scrollbar items-center p-4 size-full`}
     >
       <div className="grid grid-cols-1 place-items-center">
-        <div
-          className={`${
-            chatInfo.type === "group" && !chatInfo.image
-              ? "grid grid-cols-2 gap-1"
-              : ""
-          } size-28 rounded-full overflow-hidden max-w-28 max-h-28 items-center justify-between pointer-events-none`}
-        >
-          {chatInfo.type === "single" ? (
-            chatInfo.users[0].image ? (
-              <CustomImage
-                src={chatInfo.users[0].image}
-                alt="profile picture"
-                className="size-full"
-                width={0}
-                height={0}
-                transformation={[{ quality: 10 }]}
-                style={{ objectFit: "cover" }}
-              ></CustomImage>
-            ) : (
-              <FontAwesomeIcon icon={faUser} className="size-full" />
-            )
-          ) : chatInfo.image ? (
-            <CustomImage
-            src={chatInfo.image}
-            alt="profile picture"
-            className="size-full"
-            width={0}
-            height={0}
-            transformation={[{ quality: 10 }]}
-            style={{ objectFit: "cover" }}
-          ></CustomImage>
-          ) : (
-            chatInfo.users
-              .slice(0, 4)
-              .map((user: User, index: number) => (
-                <div
-                  className={`${
-                    chatInfo.users.length === 3 && index === 2
-                      ? "col-span-2"
-                      : "flex-1"
-                  } rounded-2xl flex items-center justify-center h-full  overflow-hidden bg-secondary-2 text-accent`}
-                >
-                  {user.image ? (
-                    <CustomImage
-                      src={user.image}
-                      alt="profile picture"
-                      className="size-full"
-                      width={0}
-                      height={0}
-                      transformation={[{ quality: 10 }]}
-                      style={{ objectFit: "cover" }}
-                    />
-                  ) : (
-                    <FontAwesomeIcon icon={faUser} className="size-full" />
-                  )}
-                </div>
-              ))
-          )}
+        <div className="size-28">
+          <ImageGroupDisplay
+            images={
+              chat.type === "group"
+                ? chat.image?[chat.image]:chatInfo.users
+                    .filter(
+                      (user: User) =>
+                        chat.memberIds.findIndex(
+                          (id: string) => id === user._id
+                        ) !== -1
+                    )
+                    .map((u: User) => u.image)
+                : [chatInfo.users[0].image]
+            }
+          />
         </div>
         <span className="text-3xl font-bold">
-          {chatInfo.type === "single"
-            ? chatInfo.users[0].username
-            : chatInfo.name}
+          {chat.type === "single" ? chatInfo.users[0].username : chat.name}
         </span>
       </div>
 
@@ -200,22 +154,24 @@ export default function SettingView({
             <>
               <button
                 className="outline-none flex gap-2 w-full h-fit min-h-[54px] items-center  p-2 border-b-2 border-accent last:border-none hover:bg-primary   first:rounded-t-lg last:rounded-b-lg overflow-hidden"
-                onClick={() => {}}
+                onClick={() => setChatBoxView(ChatBoxView.MEMBER)}
               >
                 <div className="Icon_small">
                   <FontAwesomeIcon icon={faUsers} />
                 </div>
                 <span className="grow text-md text-left">View members</span>
               </button>
-              <button
-                className="outline-none flex gap-2 w-full h-fit min-h-[54px] items-center  p-2 border-b-2 border-accent last:border-none hover:bg-primary   first:rounded-t-lg last:rounded-b-lg overflow-hidden"
-                onClick={() => setChatBoxView(ChatBoxView.ADDMEMBER)}
-              >
-                <div className="Icon_small">
-                  <FontAwesomeIcon icon={faUserPlus} />
-                </div>
-                <span className="grow text-md text-left">Add member</span>
-              </button>
+              {chat.admin === session?.user.id && (
+                <button
+                  className="outline-none flex gap-2 w-full h-fit min-h-[54px] items-center  p-2 border-b-2 border-accent last:border-none hover:bg-primary   first:rounded-t-lg last:rounded-b-lg overflow-hidden"
+                  onClick={() => setChatBoxView(ChatBoxView.ADDMEMBER)}
+                >
+                  <div className="Icon_small">
+                    <FontAwesomeIcon icon={faUserPlus} />
+                  </div>
+                  <span className="grow text-md text-left">Add member</span>
+                </button>
+              )}
             </>
           )}
           <button

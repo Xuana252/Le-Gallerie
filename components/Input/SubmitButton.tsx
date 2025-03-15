@@ -4,7 +4,7 @@ import React from 'react';
 import { Spinner } from '@components/UI/Loader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faTriangleExclamation, faX } from '@fortawesome/free-solid-svg-icons';
-import { type SubmitButtonState } from '@lib/types';
+import { SubmitButtonState } from '@app/enum/submitButtonState';
 
 type SubmitButtonBaseProps = {
     children? :React.ReactNode,
@@ -27,16 +27,16 @@ export default function SubmitButton({children,state,changeState,style}:SubmitBu
     let content:React.ReactNode = children||'Submit'
 
     switch(state) {
-        case 'Processing':
+        case SubmitButtonState.PROCESSING:
             content = <Spinner/>
             break
-        case 'Succeeded':
+        case SubmitButtonState.SUCCESS:
             content = <FontAwesomeIcon icon={faCheck} size='lg'/>
-            changeState&&setTimeout(()=>{changeState('')},2000)
+            changeState&&setTimeout(()=>{changeState(SubmitButtonState.IDLE)},2000)
             break
-        case 'Failed':
+        case SubmitButtonState.FAILED:
             content = <FontAwesomeIcon icon={faTriangleExclamation} size='lg'/>
-            changeState&&setTimeout(()=>{changeState('')},2000)
+            changeState&&setTimeout(()=>{changeState(SubmitButtonState.IDLE)},2000)
             break
         default:
             content = content

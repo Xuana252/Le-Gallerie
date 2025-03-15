@@ -95,7 +95,7 @@ export default function ChatItem({
 
   return (
     <div
-      className={`flex flex-col z-50 transition-all duration-200 ease-in-out ${messageClass.includes("upper")?"mt-4":messageClass.includes("under")?"mb-4":messageClass.includes("rounded-2xl")?"my-4":""} `}
+      className={`flex flex-col transition-all duration-200 ease-in-out ${messageClass.includes("upper")?"mt-4":messageClass.includes("under")?"mb-4":messageClass.includes("rounded-2xl")?"my-4":""} `}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >

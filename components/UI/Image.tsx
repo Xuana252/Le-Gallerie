@@ -2,15 +2,16 @@
 import React, { useEffect, useState } from "react";
 import { IKImage } from "imagekitio-next";
 import { createPortal } from "react-dom";
-import { faX } from "@node_modules/@fortawesome/free-solid-svg-icons";
+import { faClose, faCopy, faDownload, faSave, faX } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
+import { handleCopyImage, handleDownloadImage } from "@lib/image";
 
 const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
 
 export default function CustomImage({ src, zoomable = false, ...props }: any) {
   const [isZoomed, setIsZoomed] = useState(false);
   const [imageSource, setImageSource] = useState(src);
-  const [isErrored, setIsErrored] = useState<boolean>(false);
+  const [isErrored, setIsErrored] = useState<boolean>(true);
   const testImageUrl = (url: string) => {
     return new Promise<boolean>((resolve) => {
       const img = new Image();
@@ -45,13 +46,21 @@ export default function CustomImage({ src, zoomable = false, ...props }: any) {
           />
           {isZoomed &&
             createPortal(
-              <div className="fixed z-50 top-0 left-0 h-screen w-screen bg-black/80 backdrop-blur-sm flex items-center justify-center p-10 animate-fadeIn">
-                <button
-                  className="Icon_smaller absolute right-10 top-10"
-                  onClick={() => setIsZoomed(false)}
+              <div className="fixed z-50 top-0 left-0 h-screen w-screen bg-black/80 backdrop-blur-sm flex items-center justify-center p-10">
+                <div
+                  className="flex flex-row-reverse gap-2 items-center absolute right-[20px] top-[20px]"
+                  
                 >
-                  <FontAwesomeIcon icon={faX} className="text-gray-400" />
-                </button>
+                  <button className="Icon_smaller" onClick={() => setIsZoomed(false)}>
+                    <FontAwesomeIcon icon={faClose} className="text-gray-400" />
+                  </button>
+                  <button className="Icon_smaller" onClick={() => handleDownloadImage(src)}>
+                    <FontAwesomeIcon icon={faDownload} className="text-gray-400" />
+                  </button>
+                  <button className="Icon_smaller" onClick={() => handleCopyImage(src)}>
+                    <FontAwesomeIcon icon={faCopy} className="text-gray-400" />
+                  </button>
+                </div>
                 <IKImage
                   urlEndpoint={urlEndpoint}
                   alt="Image"

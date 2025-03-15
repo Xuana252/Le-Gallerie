@@ -1,0 +1,148 @@
+.theme1 {
+    --primary: 255, 255, 255;
+    --secondary: 224, 224, 224;
+    --secondary-variant-1: 166, 166, 166;
+    --accent: 0, 0, 0;
+    background-color: rgb(var(--primary));
+  }
+  
+  .theme2 {
+    --primary: 40, 40, 40;
+    --secondary: 81, 81, 81;
+    --secondary-variant-1: 108, 108, 108;
+    --accent: 208, 208, 208;
+    background-color: rgb(var(--primary));
+  }
+  .theme3 {
+    --primary: 245, 245, 245;
+    --secondary: 72, 207, 203;
+    --secondary-variant-1: 34, 151, 153;
+    --accent: 66, 66, 66;
+    background-color: rgb(var(--primary));
+  }
+  .theme4 {
+    --primary: 21, 21, 21;
+    --secondary: 169, 29, 58;
+    --secondary-variant-1: 199, 54, 89;
+    --accent: 238, 238, 238;
+    background-color: rgb(var(--primary));
+  }
+  .theme5 {
+    --primary: 10, 29, 86;
+    --secondary: 73, 46, 135;
+    --secondary-variant-1: 55, 181, 182;
+    --accent: 242, 245, 151;
+    background-color: rgb(var(--primary));
+  }
+  .theme6 {
+    --primary: 255, 248, 232;
+    --secondary: 247, 238, 211;
+    --secondary-variant-1: 170, 179, 150;
+    --accent: 103, 70, 54;
+    background-color: rgb(var(--primary));
+  }
+  .theme7 {
+    --primary: 140, 185, 189;
+    --secondary: 254, 251, 246;
+    --secondary-variant-1: 236, 177, 89;
+    --accent: 182, 115, 82;
+    background-color: rgb(var(--primary));
+  }
+  .theme8 {
+    --primary: 245, 247, 248;
+    --secondary: 252, 222, 112;
+    --secondary-variant-1: 232, 184, 109;
+    --accent: 24, 85, 25;
+    background-color: rgb(var(--primary));
+  }
+  .theme9 {
+    --primary: 71, 147, 175;
+    --secondary: 255, 196, 112;
+    --secondary-variant-1: 221, 87, 70;
+    --accent: 139, 50, 44;
+    background-color: rgb(var(--primary));
+  }
+  .theme10 {
+    --primary: 43, 42, 76;
+    --secondary: 179, 19, 18;
+    --secondary-variant-1: 234, 144, 108;
+    --accent: 238, 226, 222;
+    background-color: rgb(var(--primary));
+  }
+  .theme11 {
+    --primary: 0, 0, 0;
+    --secondary: 207, 10, 10;
+    --secondary-variant-1: 220, 95, 0;
+    --accent: 238, 238, 238;
+    background-color: rgb(var(--primary));
+  }
+  .theme12 {
+    --primary: 232, 232, 232;
+    --secondary: 240, 84, 84;
+    --secondary-variant-1: 48, 71, 94;
+    --accent: 34, 40, 49;
+    background-color: rgb(var(--primary));
+  }
+  .theme13 {
+    --primary: 56, 20, 96;
+    --secondary: 178, 31, 102;
+    --secondary-variant-1: 254, 52, 110;
+    --accent: 255, 189, 105;
+    background-color: rgb(var(--primary));
+  }
+  .theme14 {
+    --primary: 255, 233, 208;
+    --secondary: 255, 254, 211;
+    --secondary-variant-1: 187, 233, 255;
+    --accent: 177, 175, 255;
+    background-color: rgb(var(--primary));
+  }
+  .theme15 {
+    --primary: 245, 238, 230;
+    --secondary: 255, 248, 227;
+    --secondary-variant-1: 243, 215, 202;
+    --accent: 230, 164, 180;
+    background-color: rgb(var(--primary));
+  }
+  .theme16 {
+    --primary: 253, 253, 189;
+    --secondary: 200, 255, 212;
+    --secondary-variant-1: 184, 232, 252;
+    --accent: 177, 175, 255;
+    background-color: rgb(var(--primary));
+  }
+  .theme-spiderman-classic {
+    --primary:  0, 87, 183; /* Red (Suit Base) */
+    --secondary: 255, 0, 0;/* Blue (Suit Accents) */
+    --secondary-variant-1: 0, 0, 0; /* Black (Webbing & Logo) */
+    --accent: 255, 255, 255; /* White (Eyes) */
+    background-color: rgb(var(--primary));
+  }
+  .theme-spiderman-miles {
+    --primary: 20, 20, 20; /* Black (Suit Base) */
+    --secondary: 224, 0, 26; /* Red (Webbing & Accents) */
+    --secondary-variant-1: 102, 16, 242; /* Purple (Highlights) */
+    --accent: 255, 255, 255; /* White (Eyes) */
+    background-color: rgb(var(--primary));
+  }
+  .theme-spiderman-2099 {
+    --primary: 0, 0, 50; /* Deep Midnight Blue (Suit Base) */
+    --secondary: 255, 0, 0; /* Vivid Red (Emblem & Claw Accents) */
+    --secondary-variant-1: 30, 30, 80; /* Dark Blue Variant (Subtle Suit Shadows) */
+    --accent: 0, 255, 255; /* Neon Cyan (Futuristic Glow Highlights) */
+    background-color: rgb(var(--primary));
+  }
+  .theme-spiderman-symbiote {
+    --primary: 0, 0, 0; /* Black (Suit Base) */
+    --secondary: 255, 255, 255; /* White (Logo, Eyes, Webbing) */
+    --secondary-variant-1: 40, 40, 40; /* Dark Gray (Subtle Shadows & Texture) */
+    --accent: 120, 0, 0; /* Deep Blood Red (Menacing Glow & Highlights) */
+    background-color: rgb(var(--primary));
+  }
+  .theme-spiderman-gwen {
+    --primary: 255, 255, 255; /* White (Suit Base) */
+    --secondary: 255, 20, 147; /* Deep Pink (Webbing Accents) */
+    --secondary-variant-1: 50, 205, 255; /* Light Blue (Shoes & Hood Lining) */
+    --accent: 30, 30, 30; /* Dark Gray (Shadows & Details) */
+    background-color: rgb(var(--primary));
+  }

@@ -5,7 +5,6 @@ import InputBox from "../Input/InputBox";
 import {
   type Post,
   type Category,
-  SubmitButtonState,
   UploadPost,
 } from "@lib/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -20,6 +19,7 @@ import { checkPostRateLimit } from "@actions/checkRateLimit";
 import toastError from "@components/Notification/Toaster";
 import {uploadImage,updateImage} from "@lib/upload";
 import withAuth from "@middleware";
+import { SubmitButtonState } from "@app/enum/submitButtonState";
 
 type CategoriesSelectorProps = {
   selectedCategories: Category[];
@@ -233,7 +233,7 @@ export default function PostForm({ type, editPost }: PostFormProps) {
   const { data: session } = useSession();
   const router = useRouter();
 
-  const [submitState, setSubmitState] = useState<SubmitButtonState>("");
+  const [submitState, setSubmitState] = useState<SubmitButtonState>(SubmitButtonState.IDLE);
   const [imageToUpdate, setUpdateInfo] = useState(editPost?.image.url || "");
 
   const [post, setPost] = useState<UploadPost>(
@@ -254,7 +254,7 @@ export default function PostForm({ type, editPost }: PostFormProps) {
     e.preventDefault();
     if (post.image.url && session?.user.id) {
       try {
-        setSubmitState("Processing");
+        setSubmitState(SubmitButtonState.PROCESSING);
         const isRateLimited = await checkPostRateLimit();
         if (isRateLimited) {
           throw new Error("one post request per minute. please wait");
@@ -294,7 +294,7 @@ export default function PostForm({ type, editPost }: PostFormProps) {
         }
         if (response) {
           setTimeout(() => {
-            setSubmitState("Succeeded");
+            setSubmitState(SubmitButtonState.SUCCESS);
             console.log(`Attempted to ${type} successfully`);
 
             type === "Edit"
@@ -304,11 +304,11 @@ export default function PostForm({ type, editPost }: PostFormProps) {
             setTimeout(() => router.push(`/post/${response._id}`), 1000);
           }, 500);
         } else {
-          setSubmitState("Failed");
+          setSubmitState(SubmitButtonState.FAILED);
           console.log(`Failed to ${type} post`);
         }
       } catch (error: any) {
-        setSubmitState("Failed");
+        setSubmitState(SubmitButtonState.FAILED);
         toastError(error.toString());
         console.log(`Something went wrong while trying to ${type} post`, error);
       }

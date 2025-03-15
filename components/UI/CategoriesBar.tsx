@@ -50,7 +50,7 @@ export function CategoryItem({
         onMouseUp={handleCateSelect}
         className={`h-fit w-fit my-2 text-center rounded-full py-1 px-3 text-cate font-bold select-none ${
           !isSelected
-            ? "bg-secondary-1 border-2 border-accent text-accent"
+            ? "bg-secondary-2/50 border-2 border-accent text-accent"
             : "bg-accent border-2 border-accent text-primary"
         } `}
       >

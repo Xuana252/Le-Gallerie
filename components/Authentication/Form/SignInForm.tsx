@@ -1,8 +1,8 @@
+import { SubmitButtonState } from "@app/enum/submitButtonState";
 import InputBox from "@components/Input/InputBox";
 import SubmitButton from "@components/Input/SubmitButton";
 import toastError from "@components/Notification/Toaster";
 import { checkInvalidInput, handleInvalid } from "@lib/Authentication/Auth";
-import { SubmitButtonState } from "@lib/types";
 import { faGithub, faGoogle } from "@node_modules/@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { signIn } from "next-auth/react";
@@ -17,7 +17,7 @@ const providerIcons: Record<string, any> = {
 
 export default function SignInForm({ providers }: { providers: string[] }) {
   const router = useRouter();
-  const [submitState, setSubmitState] = useState<SubmitButtonState>("");
+  const [submitState, setSubmitState] = useState<SubmitButtonState>(SubmitButtonState.IDLE);
   const [signInCredentials, setSignInCredentials] = useState({
     email: "",
     password: "",
@@ -35,11 +35,11 @@ export default function SignInForm({ providers }: { providers: string[] }) {
   };
 
   const handleCredentialsSignIn = async () => {
-    setSubmitState("Processing");
+    setSubmitState(SubmitButtonState.PROCESSING);
     const invalidInputs = checkInvalidInput(signInCredentials);
     if (invalidInputs.length > 0) {
       handleInvalid(invalidInputs);
-      setSubmitState("Failed");
+      setSubmitState(SubmitButtonState.FAILED);
       return;
     } else {
       try {
@@ -49,16 +49,16 @@ export default function SignInForm({ providers }: { providers: string[] }) {
           redirect: false,
         });
         if (response?.error) {
-          setSubmitState("Failed");
+          setSubmitState(SubmitButtonState.FAILED);
           console.log(response.error);
           toastError(response.error);
         } else if (response?.ok) {
-          setSubmitState("Succeeded");
+          setSubmitState(SubmitButtonState.SUCCESS);
           setTimeout(() => router.push("/"));
         }
       } catch (error) {
         console.log(error);
-        setSubmitState("Failed");
+        setSubmitState(SubmitButtonState.FAILED);
       }
     }
   };

@@ -1,5 +1,5 @@
 "use client";
-import { faUser, faCircle, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faCircle, faUsers, faRobot } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useSession } from "next-auth/react";
 import React, { useContext, useEffect, useState } from "react";
@@ -29,6 +29,7 @@ import RecommendSection from "./ChatTabComponent/FriendSearchSection";
 import CreateGroupChatForm from "@components/Forms/GroupChatForm";
 import FriendSearchSection from "./ChatTabComponent/FriendSearchSection";
 import GroupChatForm from "@components/Forms/GroupChatForm";
+import { faBots } from "@node_modules/@fortawesome/free-brands-svg-icons";
 
 export default function ChatTab({
   chatList,
@@ -56,6 +57,9 @@ export default function ChatTab({
                 <FontAwesomeIcon icon={faUsers} title="Add Group Chat" />
               </div>
             </PopupButton>
+            <div className="Icon_smaller">
+              <FontAwesomeIcon icon={faRobot} title="Chat with AI" />
+            </div>
           </div>
         </div>
         <div className=" w-[300px] h-[400px]  sm:w-[400px] sm:h-[500px] flex flex-col gap-2 bg-secondary-2/50 rounded-t-lg rounded-b-lg p-2">

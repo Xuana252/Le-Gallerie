@@ -1,3 +1,4 @@
+import { SubmitButtonState } from "@app/enum/submitButtonState";
 import FriendSearchSection from "@components/Chat/ChatTabComponent/FriendSearchSection";
 import ImageInput from "@components/Input/ImageInput";
 import InputBox from "@components/Input/InputBox";
@@ -6,9 +7,9 @@ import toastError, { confirm } from "@components/Notification/Toaster";
 import { ChatContext } from "@components/UI/Nav";
 import UserProfileIcon from "@components/UI/UserProfileIcon";
 import { createGroupChat } from "@lib/Chat/chat";
-import { SubmitButtonState, User } from "@lib/types";
+import { User } from "@lib/types";
 import { uploadImage } from "@lib/upload";
-import { faMinus } from "@node_modules/@fortawesome/free-solid-svg-icons";
+import { faMinus, faUserPlus } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { useRouter } from "next/navigation";
 import React, { use, useContext, useState } from "react";
@@ -24,7 +25,7 @@ export default function GroupChatForm() {
     url: "",
   });
   const [groupName, setGroupName] = useState("New Group");
-  const [createState, setCreateState] = useState<SubmitButtonState>("");
+  const [createState, setCreateState] = useState<SubmitButtonState>(SubmitButtonState.IDLE);
   const [members, setMembers] = useState<User[]>([]);
 
   const handleImageChange = (image: { file: File | null; url: string }) => {
@@ -47,16 +48,16 @@ export default function GroupChatForm() {
     e.preventDefault();
     const result = await confirm("Do you want to create group chat?");
     if (!result) return;
-    setCreateState("Processing");
+    setCreateState(SubmitButtonState.PROCESSING);
 
     try {
       let photoUrl = "";
       if (groupPhoto.file) photoUrl = await uploadImage(groupPhoto.file);
       createGroupChat(members, setChatInfo, router, groupName, photoUrl);
-      setCreateState("Succeeded");
+      setCreateState(SubmitButtonState.SUCCESS);
 
     } catch (error:any) {
-      setCreateState("Failed");
+      setCreateState(SubmitButtonState.FAILED);
       console.log(error)
       toastError(error.toString())
     }
@@ -85,30 +86,39 @@ export default function GroupChatForm() {
       />
       <FriendSearchSection onSelected={handleAddMember} />
       <div>Members</div>
-      <ul className="flex flex-col w-full h-[200px] bg-primary/80 rounded-lg p-1 gap-2">
+      <ul className="flex flex-col w-full h-[200px] overflow-scroll no-scrollbar bg-primary/80 rounded-lg p-1 gap-2">
         <div className="flex flex-row justify-between items-center gap-2">
           <UserProfileIcon currentUser={true} size="Icon_small" />
           <div className="grow font-bold text-accent">You</div>
         </div>
-        {members.map((member, index) => (
-          <li className="flex flex-row justify-between items-center gap-2">
-            <UserProfileIcon
-              currentUser={false}
-              user={member}
-              size="Icon_small"
-            />
-            <div className="grow font-bold text-accent">{member.username}</div>
-            <button
-              className="Icon_smaller"
-              onClick={(e) => {
-                e.preventDefault();
-                handleRemoveMember(member);
-              }}
-            >
-              <FontAwesomeIcon icon={faMinus} />
-            </button>
-          </li>
-        ))}
+        {members.length>0
+                  ?members.map((member, index) => (
+                    <li className="flex flex-row justify-between items-center gap-2" key={index}>
+                      <UserProfileIcon
+                        currentUser={false}
+                        user={member}
+                        size="Icon_small"
+                      />
+                      <div className="grow font-bold text-accent">
+                        {member.username}
+                      </div>
+                      <button
+                        className="Icon_smaller"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleRemoveMember(member);
+                        }}
+                      >
+                        <FontAwesomeIcon icon={faMinus} />
+                      </button>
+                    </li>
+                  ))
+                :(
+                  <div className="m-auto opacity-50">
+                    add your friends {" "}
+                    <FontAwesomeIcon icon={faUserPlus}/>
+                  </div>
+                )}
       </ul>
       <SubmitButton state={createState} changeState={setCreateState}>
         Add Group

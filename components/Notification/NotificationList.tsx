@@ -24,6 +24,7 @@ import DropDownButton from "../Input/DropDownButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBell,
+  faClose,
   faEye,
   faTrash,
   faUser,
@@ -156,7 +157,7 @@ export default function NotificationList({
                 }}
               >
                 <FontAwesomeIcon
-                  icon={faX}
+                  icon={faClose}
                   className="rounded-full size-3 p-1 hover:bg-primary hover:text-accent"
                 />
               </button>

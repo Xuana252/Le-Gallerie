@@ -1,51 +1,68 @@
 "use server";
 import { Category, Comment, type Post } from "@lib/types";
 import { checkLikeRateLimit } from "./checkRateLimit";
-import { headers,cookies } from "next/headers";
+import { headers, cookies } from "next/headers";
 import { Reaction } from "@app/enum/reactionEnum";
 
+export const fetchAllPost = async (
+  currentPage: number,
+  limit: number,
+  searchText: string,
+  categoryFilter: Category[]
+) => {
+  const categoryIds = categoryFilter.map((category) => category._id).join(",");
 
-export const fetchAllPost = async (currentPage: number, limit:number,searchText:string, categoryFilter:Category[]) => {
-  const categoryIds = categoryFilter.map(category => category._id).join(',');
-  
-  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts?page=${currentPage}&limit=${limit}&searchText=${searchText}&categoryIds=${categoryIds}` ,{
-    headers:new Headers(headers())
-  });
-  if (response.ok) {
-    const data = await response.json();
-    return {posts:data.posts,counts:data.counts};
-  }
-  return {posts:[],counts:0};
-};
-export const fetchUserPost = async (user: string,currentPage: number, limit:number) => {
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/users/${user}/posts?page=${currentPage}&limit=${limit}`,{
-      headers:new Headers(headers())
+    `${process.env.DOMAIN_NAME}/api/posts?page=${currentPage}&limit=${limit}&searchText=${searchText}&categoryIds=${categoryIds}`,
+    {
+      headers: new Headers(headers()),
     }
   );
   if (response.ok) {
     const data = await response.json();
-    return {posts:data.posts,counts:data.counts};
+    return { posts: data.posts, counts: data.counts };
   }
-  return {posts:[],counts:0};
+  return { posts: [], counts: 0 };
 };
-
-export const fetchUserLikedPost = async (user: string,currentPage: number, limit:number) => {
+export const fetchUserPost = async (
+  user: string,
+  currentPage: number,
+  limit: number
+) => {
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/users/${user}/posts/liked-posts?page=${currentPage}&limit=${limit}`,{
-      headers:new Headers(headers())
+    `${process.env.DOMAIN_NAME}/api/users/${user}/posts?page=${currentPage}&limit=${limit}`,
+    {
+      headers: new Headers(headers()),
     }
   );
   if (response.ok) {
     const data = await response.json();
-    return {posts:data.posts,counts:data.counts};
+    return { posts: data.posts, counts: data.counts };
   }
-  return {posts:[],counts:0};
+  return { posts: [], counts: 0 };
+};
+
+export const fetchUserLikedPost = async (
+  user: string,
+  currentPage: number,
+  limit: number
+) => {
+  const response = await fetch(
+    `${process.env.DOMAIN_NAME}/api/users/${user}/posts/liked-posts?page=${currentPage}&limit=${limit}`,
+    {
+      headers: new Headers(headers()),
+    }
+  );
+  if (response.ok) {
+    const data = await response.json();
+    return { posts: data.posts, counts: data.counts };
+  }
+  return { posts: [], counts: 0 };
 };
 
 export const fetchPostWithId = async (post: string) => {
-  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}`,{
-    headers:new Headers(headers())
+  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}`, {
+    headers: new Headers(headers()),
   });
 
   const data = await response.json();
@@ -81,24 +98,11 @@ export const updatePost = async (post: Post) => {
   return null;
 };
 
-
-
-export const checkUserHasLiked = async (user: string, id: string,type:"comment"|"post") => {
-  try {
-    const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users/${user}/has-liked/${id}/${type}`
-    );
-    const data = await response.json();
-    if (response.ok) {
-      return data.liked ?? false;
-    }
-  } catch (error) {
-    console.log("Failed to check user has liked");
-    return false;
-  }
-};
-
-export const handleLike = async (user: string, post: string, reaction: Reaction|null) => {
+export const handleLike = async (
+  user: string,
+  post: string,
+  reaction: Reaction | null
+) => {
   const isRateLimited = await checkLikeRateLimit();
   if (isRateLimited) return;
   try {
@@ -122,7 +126,7 @@ export const fetchPostLikedUser = async (post: string) => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Failed to update post likes", error);
+    console.error("Failed to fetch post likes", error);
     return [];
   }
 };
@@ -180,18 +184,33 @@ export const handleComment = async (
 };
 
 export const handleLikeComment = async (
-  comment:string,
-  user:string
+  commentId: string,
+  userId: string,
+  reaction: Reaction | null
 ) => {
   //add rate limiting if you want
   try {
-    await fetch(`${process.env.DOMAIN_NAME}/api/comments/${comment}/likes`, {
+    await fetch(`${process.env.DOMAIN_NAME}/api/comments/${commentId}/likes`, {
       method: "PATCH",
       body: JSON.stringify({
-        userId: user,
+        userId: userId,
+        reaction: reaction,
       }),
     });
   } catch (error) {
     console.error("Failed to update comment likes", error);
   }
-}
+};
+
+export const fetchCommentLikes = async (commentId: string, postId: string) => {
+  try {
+    const response = await fetch(
+      `${process.env.DOMAIN_NAME}/api/comments/${commentId}/likes`
+    );
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Failed to fetch comment likes", error);
+    return [];
+  }
+};

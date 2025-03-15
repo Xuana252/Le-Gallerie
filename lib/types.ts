@@ -20,7 +20,7 @@ declare module 'next-auth' {
   }
 }
 
-export type SubmitButtonState = 'Succeeded'|'Failed'|'Processing'|''
+
 
 export type RateLimitObject = {
   windowStart: any,
@@ -43,6 +43,7 @@ export type Like = {
   post:Post,
   reaction: Reaction,
 }
+
 export type User = {
   _id:string,
   email?:string,
