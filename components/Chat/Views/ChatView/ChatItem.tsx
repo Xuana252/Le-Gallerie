@@ -53,6 +53,7 @@ export default function ChatItem({
   ];
 
   useEffect(() => {
+    console.log(message);
     if (messageRef.current) {
       const width = messageRef.current.clientWidth;
 
@@ -95,7 +96,15 @@ export default function ChatItem({
 
   return (
     <div
-      className={`flex flex-col transition-all duration-200 ease-in-out ${messageClass.includes("upper")?"mt-4":messageClass.includes("under")?"mb-4":messageClass.includes("rounded-2xl")?"my-4":""} `}
+      className={`flex flex-col transition-all duration-200 ease-in-out ${
+        messageClass.includes("upper")
+          ? "mt-4"
+          : messageClass.includes("under")
+          ? "mb-4"
+          : messageClass.includes("rounded-2xl")
+          ? "my-4"
+          : ""
+      } `}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
@@ -113,7 +122,6 @@ export default function ChatItem({
             : "OtherMessageRow"
         }`}
       >
-        
         {profileRenderClasses.some(
           (className) => className === messageClass
         ) ? (
@@ -137,31 +145,40 @@ export default function ChatItem({
         <div ref={messageRef} className="max-w-[60%] flex flex-col">
           <div
             className={`${messageClass} ${
-              isPinned?messageClass.includes("My_message")?"border-r-8 border-r-secondary-2 my-4":"border-l-8 border-l-secondary-2 my-4":""
+              isPinned
+                ? messageClass.includes("My_message")
+                  ? "border-r-8 border-r-secondary-2 my-4"
+                  : "border-l-8 border-l-secondary-2 my-4"
+                : ""
             } `}
             onClick={() => setIsClicked((prev) => !prev)}
           >
-            {message.image && !message.delete && (
-              <div className="rounded-xl overflow-hidden -mr-2 -ml-2">
-                <CustomImage
-                  zoomable={true}
-                  src={message.image}
-                  alt="message image"
-                  className="size-full "
-                  width={0}
-                  height={0}
-                  transformation={[{ quality: 10 }]}
-                  style={{ objectFit: "cover" }}
-                />
-              </div>
+            {message.delete ? (
+              <p className="italic font-normal">Message deleted</p>
+            ) : (
+              <>
+                {message.image.length > 0 && (
+                  <ul className="rounded-xl flex flex-wrap overflow-hidden grow -mr-2 -ml-2 gap-1">
+                    {message.image.map((url: string) => (
+                      <div className="" style={{flex: "1 1 0", minWidth: "30%", aspectRatio: "1 / 1"}}>
+                        <CustomImage
+                          zoomable={true}
+                          src={url}
+                          alt="message image"
+                          className="size-full"
+                          width={0}
+                          height={0}
+                          transformation={[{ quality: 10 }]}
+                          style={{ objectFit: "cover" }}
+                        />
+                        
+                      </div>
+                    ))}
+                  </ul>
+                )}
+                <p>{message.text}</p>
+              </>
             )}
-            <p
-              className={`${
-                message.delete ? "italic font-normal opacity-50" : ""
-              }`}
-            >
-              {message.delete ? "Message deleted" : message.text}
-            </p>
           </div>
           {message.reactions.length > 0 && (
             <div

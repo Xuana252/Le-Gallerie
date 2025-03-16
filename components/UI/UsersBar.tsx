@@ -35,27 +35,22 @@ export default function UsersBar() {
             </div>
             <ul className="flex flex-row gap-4 w-full overflow-x-scroll no-scrollbar p-4">
               {usersList.map((user) => (
-                <li
+                <label
                   key={user._id}
-                  className="hover:shadow-md rounded-md bg-secondary-1 p-2 min-w-[150px] max-w-[150px]"
+                  className="hover:shadow-md rounded-md bg-secondary-1 p-2 min-w-[150px] max-w-[150px] flex flex-col gap-2 items-center overflow-hidden cursor-pointer"
                 >
-                  <label
-                    htmlFor="profile"
-                    className="flex flex-col gap-2 items-center overflow-hidden"
-                  >
-                    {user._id === session?.user.id ? (
-                      <UserProfileIcon currentUser={true} />
-                    ) : (
-                      <UserProfileIcon currentUser={false} user={user} />
-                    )}
-                    <h2 className="text-center font-bold overflow-x-scroll no-scrollbar whitespace-nowrap w-full text-accent underline underline-offset-2">
-                      {user.username}
-                    </h2>
-                    <h2 className="text-center/50 overflow-x-scroll no-scrollbar whitespace-nowrap w-full text-accent ">
-                      {user.fullname}
-                    </h2>
-                  </label>
-                </li>
+                  {user._id === session?.user.id ? (
+                    <UserProfileIcon currentUser={true} />
+                  ) : (
+                    <UserProfileIcon currentUser={false} user={user} />
+                  )}
+                  <h2 className="text-center font-bold overflow-x-scroll no-scrollbar whitespace-nowrap w-full text-accent underline underline-offset-2">
+                    {user.username}
+                  </h2>
+                  <h2 className="text-center/50 overflow-x-scroll no-scrollbar whitespace-nowrap w-full text-accent ">
+                    {user.fullname}
+                  </h2>
+                </label>
               ))}
             </ul>
           </>

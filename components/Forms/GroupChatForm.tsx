@@ -7,7 +7,7 @@ import toastError, { confirm } from "@components/Notification/Toaster";
 import { ChatContext } from "@components/UI/Nav";
 import UserProfileIcon from "@components/UI/UserProfileIcon";
 import { createGroupChat } from "@lib/Chat/chat";
-import { User } from "@lib/types";
+import { UploadImage, User } from "@lib/types";
 import { uploadImage } from "@lib/upload";
 import { faMinus, faUserPlus } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
@@ -28,8 +28,8 @@ export default function GroupChatForm() {
   const [createState, setCreateState] = useState<SubmitButtonState>(SubmitButtonState.IDLE);
   const [members, setMembers] = useState<User[]>([]);
 
-  const handleImageChange = (image: { file: File | null; url: string }) => {
-    setGroupPhoto(image);
+  const handleImageChange = (image: UploadImage[]) => {
+    setGroupPhoto(image[0]);
   };
   const handleGroupNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setGroupName(e.target.value);
@@ -81,7 +81,7 @@ export default function GroupChatForm() {
       </InputBox>
       <ImageInput
         type="ProfileImage"
-        image={groupPhoto.url}
+        image={[groupPhoto.url]}
         setImage={handleImageChange}
       />
       <FriendSearchSection onSelected={handleAddMember} />

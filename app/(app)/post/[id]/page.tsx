@@ -25,7 +25,7 @@ export default function Post({ params }: { params: { id: string } }) {
     title: "",
     description: "",
     categories: [],
-    image: "",
+    image: [],
     likes: 0,
     createdAt: undefined,
   });

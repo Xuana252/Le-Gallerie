@@ -91,7 +91,7 @@ export default function MemberView({
               </div>
             </div>
           </li>
-          <div className="sticky top-0 bg-secondary-1 rounded-md p-1 shadow-md z-20">
+          <div className="font-bold sticky top-0 bg-secondary-1 rounded-md p-1 shadow-md z-20">
             Members
           </div>
           {members

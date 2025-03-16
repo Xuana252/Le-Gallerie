@@ -39,7 +39,7 @@ export function CategoryItem({
       <div
         onMouseDown={(e) => setMouseDownCoordX(e.clientX)}
         onMouseUp={handleCateSelect}
-        className={`h-8 my-2 rounded-full  animate-pulse select-none bg-secondary-1`}
+        className={`h-8 my-2 rounded-full  animate-pulse select-none bg-secondary-2`}
         style={{ minWidth: minWidth !== null ? `${minWidth}px` : undefined }}
       ></div>
     );

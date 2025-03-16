@@ -63,11 +63,13 @@ export type UploadUser = {
   username?:string,
   fullname?:string,
   birthdate?:string,
-  image?: {
-    file:File|null,
-    url:string,
-  },
+  image?: UploadImage,
   bio?:string,
+}
+
+export type UploadImage = {
+  file:File|null,
+  url:string,
 }
 
 export type SignUpCredentials = {
@@ -75,10 +77,7 @@ export type SignUpCredentials = {
   username: string;
   password: string;
   repeatedPassword: string;
-  image: {
-    file: File | null; // file can be a File or null
-    url: string;
-  };
+  image: UploadImage;
 };
 
 export type Post = {
@@ -87,7 +86,7 @@ export type Post = {
     title: string,
     description: string,
     categories: Category[],
-    image: string,
+    image: string[],
     likes?:number,
     createdAt?: Date,
 }
@@ -97,10 +96,7 @@ export type UploadPost = {
     title: string,
     description: string,
     categories: Category[],
-    image: {
-      file:File|null,
-      url:string,
-    },
+    image:UploadImage[],
     likes?:number,
 }
 export type Category = {

@@ -36,6 +36,7 @@ import { Reaction } from "@app/enum/reactionEnum";
 import { renderReaction } from "@lib/Emoji/render";
 import LikedUserTab from "./LikedUserTab";
 import PopupButton from "@components/Input/PopupButton";
+import PostImageSlider from "./PostImageSlider";
 
 export default function PostDetail({
   isLoading,
@@ -58,7 +59,6 @@ export default function PostDetail({
   };
 
   useEffect(() => {
-
     setIsLoadingLikes(true);
     fetchLikesUsers();
     setPostLikes(post.likes || 0);
@@ -70,10 +70,10 @@ export default function PostDetail({
     try {
       const response = await fetchPostLikedUser(post._id);
       setLikes(response);
-      const myReaction = response.find((like: any) => like.user._id === session?.user.id)
-      setReaction(
-        myReaction?myReaction.reaction:null
+      const myReaction = response.find(
+        (like: any) => like.user._id === session?.user.id
       );
+      setReaction(myReaction ? myReaction.reaction : null);
     } catch (error) {
       console.error("Failed to fetch users that has liked post", error);
     }
@@ -138,26 +138,24 @@ export default function PostDetail({
     }
   };
 
-
-
   const handleShare = () => {
     if (!post._id) return;
-    if (navigator.share) {
-      // Use the Web Share API if available
-      navigator
-        .share({
-          title: post.title,
-          text: "check out this photo",
-          url: post.image,
-        })
-        .catch((error) => console.error("Error sharing:", error));
-    } else {
-      // Fallback for browsers that do not support the Web Share API
-      const shareUrl = `https://twitter.com/intent/tweet?text=Check%20out%20this%20photo!&url=${encodeURIComponent(
-        post.image
-      )}`;
-      window.open(shareUrl, "_blank");
-    }
+    // if (navigator.share) {
+    //   // Use the Web Share API if available
+    //   navigator
+    //     .share({
+    //       title: post.title,
+    //       text: "check out this photo",
+    //       url: post.image,
+    //     })
+    //     .catch((error) => console.error("Error sharing:", error));
+    // } else {
+    //   // Fallback for browsers that do not support the Web Share API
+    //   const shareUrl = `https://twitter.com/intent/tweet?text=Check%20out%20this%20photo!&url=${encodeURIComponent(
+    //     post.image
+    //   )}`;
+    //   window.open(shareUrl, "_blank");
+    // }
   };
 
   const handleDeletePost = async () => {
@@ -167,7 +165,9 @@ export default function PostDetail({
 
     if (hasConfirmed && post._id) {
       try {
-        await removeImage(post.image);
+        await Promise.all(
+          post.image.map(async (img: string) => await removeImage(img))
+        );
         await deletePost(post._id);
         router.back();
         console.log("Post deleted");
@@ -186,17 +186,7 @@ export default function PostDetail({
     <div className={`Form`}>
       <div className="flex items-center size-full relative sm:rounded-l-3xl sm:rounded-tr-none rounded-t-3xl overflow-hidden bg-secondary-2">
         {post.image && (
-          <CustomImage
-            zoomable={true}
-            src={post.image}
-            alt={post.title}
-            className="w-full"
-            width={0}
-            height={0}
-            transformation={[{ quality: 100 }]}
-            style={{ objectFit: "cover" }}
-            lqip={{ active: true, quality: 20 }}
-          />
+          <PostImageSlider images={post.image}/>
         )}
       </div>
 
@@ -258,9 +248,7 @@ export default function PostDetail({
                   reaction={reaction}
                   action={handleSetLikedState}
                 />
-                <PopupButton
-                  popupItem={<LikedUserTab likes={likes} />}
-                >
+                <PopupButton popupItem={<LikedUserTab likes={likes} />}>
                   <span className="hover:underline">
                     {postLikes} interactions
                   </span>

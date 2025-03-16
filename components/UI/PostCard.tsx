@@ -6,7 +6,10 @@ import CustomImage from "./Image";
 import { useSession } from "next-auth/react";
 import UserProfileIcon from "./UserProfileIcon";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
-import { faHeart } from "@node_modules/@fortawesome/free-solid-svg-icons";
+import {
+  faHeart,
+  faImage,
+} from "@node_modules/@fortawesome/free-solid-svg-icons";
 import {
   formatDate,
   formatTimeAgo,
@@ -28,6 +31,7 @@ export default function PostCard({ post, isLoading }: PostCardProps) {
     setMinHeight(Math.floor(Math.random() * 201) + 150);
     setBgColor(getRandomColor());
   }, []);
+
 
   const getRandomColor = () => {
     const colors = [
@@ -53,7 +57,7 @@ export default function PostCard({ post, isLoading }: PostCardProps) {
   };
   if (isLoading || !post)
     return (
-      <div className="animate-slide-up-animation relative w-full h-fit grid grid-cols-1 gap-2 rounded-xl overflow-hidden cursor-pointer z-0 animate-slideUp">
+      <div className=" relative w-full h-fit grid grid-cols-1 gap-2 rounded-xl overflow-hidden cursor-pointer z-0  animate-slideUp ease-in-out">
         <div
           className={`animate-pulse w-full  ${bgColor}`}
           style={{
@@ -84,52 +88,62 @@ export default function PostCard({ post, isLoading }: PostCardProps) {
       <Link
         href={`/post/${post._id}`}
         onClick={handlePostCardClick}
-        className="animate-slide-up-animation relative w-full h-fit grid grid-cols-1 gap-2 rounded-xl overflow-hidden cursor-pointer animate-slideUp hover:scale-105 transition-all duration-150"
+        className="w-full h-fit relative animate-slideUp "
       >
-        <CustomImage
-          src={post.image}
-          alt={post.title}
-          className="size-full"
-          width={0}
-          height={0}
-          transformation={[{ quality: 50 }]}
-          style={{ objectFit: "cover" }}
-          loading="lazy"
-        />
-        <div className="flex flex-col justify-between hover:opacity-100 opacity-0 absolute p-2 bottom-0 left-0 bg-gradient-to-t from-black to-transparent text-white size-full">
-          <div className="flex flex-row justify-between items-center w-full">
-            <div className="flex flex-row gap-1 items-center bg-secondary-2/70 px-1 rounded-full text-sm">
-              <FontAwesomeIcon icon={faHeart} />
-              <p>{post.likes}</p>
-            </div>
+        {post.image.length > 1 && (
+          <div className="size-full bg-accent/50 absolute bottom-1 left-1 rounded-xl "></div>
+        )}
+        <div className=" relative w-full h-fit grid grid-cols-1 gap-2 rounded-xl overflow-hidden cursor-pointer  shadow-sm hover:scale-105 transition-all duration-300 ease-out">
+          <CustomImage
+            src={post.image[0]}
+            alt={post.title}
+            className="size-full"
+            width={0}
+            height={0}
+            transformation={[{ quality: 50 }]}
+            style={{ objectFit: "cover" }}
+            loading="lazy"
+          />
 
-            <p className="text-xs  italic bg-secondary-2/70 px-1 rounded-full">
-              {post.createdAt ? formatDate(post.createdAt.toString()) : ""}
-            </p>
-          </div>
-          <div className="h-fit w-full flex flex-row gap-2 items-center justify-start">
-            <div className="transition-transform duration-200 hover:scale-110">
-              {session?.user.id === post.creator._id ? (
-                <UserProfileIcon currentUser={true} size={"Icon_small"} />
-              ) : (
-                <UserProfileIcon
-                  currentUser={false}
-                  user={post.creator}
-                  size={"Icon_small"}
-                />
-              )}
-            </div>
-            <div>
-              <p className="text-left font-bold text-md h-fit w-full">
-                {post.title}
+          <div className="flex flex-col justify-between hover:opacity-100 opacity-0 absolute p-2 bottom-0 left-0 bg-gradient-to-t from-black to-transparent text-white size-full">
+            <div className="flex flex-row justify-between items-center w-full">
+              <div className="flex flex-row gap-1 items-center bg-secondary-2/70 px-1 rounded-full text-sm">
+                <FontAwesomeIcon icon={faHeart} />
+                <p>{post.likes}</p>
+              </div>
+              <p className="text-xs  italic bg-secondary-2/70 px-1 rounded-full">
+                {post.createdAt ? formatDate(post.createdAt.toString()) : ""}
               </p>
-              <ul className="flex overflow-x-scroll no-scrollbar h-fit gap-2 text-lg w-full">
-                {post.categories.map((category) => (
-                  <li key={category._id} className="text-sm Category">
-                    {category.name}
-                  </li>
-                ))}
-              </ul>
+            </div>
+            {post.image.length > 1 && (
+              <div className="text-2xl text-center">
+                +{post.image.length} <FontAwesomeIcon icon={faImage} />
+              </div>
+            )}
+            <div className="h-fit w-full flex flex-row gap-2 items-center justify-start">
+              <div className="transition-transform duration-200 hover:scale-110">
+                {session?.user.id === post.creator._id ? (
+                  <UserProfileIcon currentUser={true} size={"Icon_small"} />
+                ) : (
+                  <UserProfileIcon
+                    currentUser={false}
+                    user={post.creator}
+                    size={"Icon_small"}
+                  />
+                )}
+              </div>
+              <div>
+                <p className="text-left font-bold text-md h-fit w-full">
+                  {post.title}
+                </p>
+                <ul className="flex overflow-x-scroll no-scrollbar h-fit gap-2 text-lg w-full">
+                  {post.categories.map((category) => (
+                    <li key={category._id} className="text-sm Category">
+                      {category.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </div>

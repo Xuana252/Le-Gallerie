@@ -28,23 +28,28 @@ export default function MediaView({
           Media
         </span>
       </div>
-      <div className="grid grid-cols-3 overflow-y-scroll no-scrollbar gap-1 w-full p-1">
+      <div className="grid grid-cols-3 h-[420px] overflow-y-scroll no-scrollbar gap-1 w-full p-1">
         {chat?.message?.map((message: any, index: number) =>
-          message.image ? (
-            <div key={index} className="aspect-square cursor-zoom-in size-full">
-              <CustomImage
-                zoomable={true}
-                src={blocked || isBlocked ? "" : message.image}
-                alt="picture"
-                className="size-full"
-                onerror
-                width={0}
-                height={0}
-                transformation={[{ quality: 50 }]}
-                style={{ objectFit: "cover" }}
-              />
-            </div>
-          ) : null
+          message.image.length > 0
+            ? message.image.map((url: string) => (
+                <div
+                  key={index}
+                  className="aspect-square cursor-zoom-in size-full"
+                >
+                  <CustomImage
+                    zoomable={true}
+                    src={blocked || isBlocked ? "" : url}
+                    alt="picture"
+                    className="size-full"
+                    onerror
+                    width={0}
+                    height={0}
+                    transformation={[{ quality: 50 }]}
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              ))
+            : null
         )}
       </div>
     </>

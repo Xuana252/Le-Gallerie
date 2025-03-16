@@ -134,7 +134,7 @@
 }
 
 .Edit_button {
-  @apply rounded-full text-lg size-8 sm:text-xl sm:size-10 bg-secondary-1/30 backdrop-blur-sm transition-transform hover:scale-110 active:scale-90 duration-200 origin-center;
+  @apply rounded-full text-lg size-8 sm:text-xl sm:size-10 bg-secondary-1/30 backdrop-blur-sm transition-transform hover:scale-110 active:scale-90 duration-200 origin-center flex items-center justify-center cursor-pointer;
 }
 
 .Button_base {

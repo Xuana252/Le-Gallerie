@@ -9,7 +9,7 @@ import {
   checkInvalidInput,
   handleInvalid,
 } from "@lib/Authentication/Auth";
-import { SignUpCredentials } from "@lib/types";
+import { SignUpCredentials, UploadImage } from "@lib/types";
 import { uploadImage } from "@lib/upload";
 import { signIn } from "next-auth/react";
 import React, { useState } from "react";
@@ -86,10 +86,10 @@ export default function SignUpForm() {
     }
   };
 
-  const handleImageChange = (image: { file: File | null; url: string }) => {
+  const handleImageChange = (image: UploadImage[]) => {
     setSignUpCredentials((s) => ({
       ...s,
-      image,
+      image:image[0],
     }));
   };
 
@@ -110,7 +110,7 @@ export default function SignUpForm() {
       >
         <ImageInput
           type="ProfileImage"
-          image={signUpCredentials.image.url}
+          image={[signUpCredentials.image]}
           setImage={handleImageChange}
         />
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-1 items-center">

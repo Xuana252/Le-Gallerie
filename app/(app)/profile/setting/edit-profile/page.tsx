@@ -3,7 +3,7 @@ import InputBox from "@components/Input/InputBox";
 import SubmitButton from "@components/Input/SubmitButton";
 import { faCheck, faL, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { UploadUser, User } from "@lib/types";
+import { UploadImage, UploadUser, User } from "@lib/types";
 import { getSession, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -105,10 +105,10 @@ export default function EditPage() {
     }
   };
 
-  const handleImageChange = (image: { file: File | null; url: string }) => {
+  const handleImageChange = (image: UploadImage[]) => {
     setUpdateInfo((u) => ({
       ...u,
-      image,
+      image:image[0],
     }));
   };
 
@@ -137,7 +137,7 @@ export default function EditPage() {
           <div>
             <ImageInput
               type="ProfileImage"
-              image={updateInfo.image?.url || ""}
+              image={updateInfo.image?[updateInfo.image]:[]}
               setImage={handleImageChange}
             />
           </div>

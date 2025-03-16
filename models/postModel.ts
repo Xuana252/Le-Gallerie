@@ -18,10 +18,10 @@ const PostSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: Category,
     }],
-    image: {
+    image: [{
       type: String,
       required: [true, "image is required"],
-    },
+    }],
     likes: {
       type: Number,
       required: false,

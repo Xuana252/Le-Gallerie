@@ -11,6 +11,7 @@ import {
   faArrowRightFromFile,
   faHandPointRight,
   faMapPin,
+  faMinus,
   faPalette,
   faPallet,
   faPaperPlane,
@@ -27,7 +28,7 @@ import UserProfileIcon from "@components/UI/UserProfileIcon";
 import { User } from "@lib/types";
 import ReactionButton from "@components/Input/ReactionInput";
 import { Reaction } from "@app/enum/reactionEnum";
-import ChatItem from "../ChatItem";
+import ChatItem from "./ChatItem";
 import {
   addChatItemReaction,
   pinMessage,
@@ -36,6 +37,7 @@ import {
 } from "@lib/Chat/chat";
 import { faUsb } from "@node_modules/@fortawesome/free-brands-svg-icons";
 import { v4 as uuidv4 } from "uuid";
+import ChatBar from "./ChatBar";
 
 export default function ChatView({
   chat,
@@ -48,11 +50,11 @@ export default function ChatView({
   isBlocked: boolean;
   blocked: boolean;
 }) {
-  const [text, setText] = useState("");
   const { data: session, update } = useSession();
   const messageListRef = useRef<HTMLUListElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+
   const chatItemRef = useRef<{ [key: string]: HTMLLIElement | null }>({});
 
   const handleMoveToPin = () => {
@@ -85,68 +87,9 @@ export default function ChatView({
     setTimeout(() => setIsLoading(false), 1000);
   }, [chatInfo?.chatId]);
 
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    setText(e.target.value);
-  };
 
-  const handleSendClick = () => {
-    if (text === "" || !session) return;
-    handleSend({ file: null, url: "" });
-  };
 
-  const handleSend = async (image: { file: File | null; url: string }) => {
-    setText("");
-    if (!session) return;
-    if ((!image.file && text === "") || isBlocked) return;
-    let imageURL = "";
-    if (image.file) imageURL = await uploadImage(image.file);
-    try {
-      await updateDoc(doc(db, "chat", chatInfo.chatId), {
-        message: arrayUnion({
-          id: uuidv4(),
-          senderId: session.user.id,
-          text,
-          image: imageURL ? imageURL : null,
-          delete: false,
-          reactions: [],
-          createdAt: new Date(),
-        }),
-      });
-
-      const usersIds = [
-        session.user.id,
-        ...chatInfo.users.map((user: User) => user._id),
-      ];
-
-      usersIds.forEach(async (id) => {
-        const usersChatRef = doc(db, "usersChat", id);
-        const usersChatSnapShot = await getDoc(usersChatRef);
-
-        if (usersChatSnapShot.exists()) {
-          const usersChatData = usersChatSnapShot.data();
-
-          const chatIndex = usersChatData.chat.findIndex(
-            (c: any) => c.chatId === chatInfo.chatId
-          );
-
-          if (chatIndex !== -1) {
-            usersChatData.chat[chatIndex].lastMessage = text
-              ? text
-              : "new image";
-            usersChatData.chat[chatIndex].isSeen = id === session.user.id;
-            usersChatData.chat[chatIndex].updatedAt = Date.now();
-
-            await updateDoc(usersChatRef, {
-              chat: usersChatData.chat,
-            });
-          }
-        }
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
+ 
 
   useEffect(() => {
     messageListRef.current?.scrollTo({
@@ -219,14 +162,14 @@ export default function ChatView({
 
       <ul
         ref={messageListRef}
-        className="h-[400px] w-full bg-secondary-2/50 flex flex-col-reverse justify-items-end gap-1 py-4 px-2 overflow-y-scroll overflow-x-auto no-scrollbar relative z-40"
+        className="h-[400px] w-full bg-secondary-1/50 flex flex-col-reverse justify-items-end gap-1 py-4 px-2 overflow-y-scroll overflow-x-auto no-scrollbar relative z-40"
         onScroll={handleScroll}
       >
         {showScrollToBottom && (
           <button
             className="Icon_small fixed left-[50%] -translate-x-[50%]"
             onClick={handleScrollToBottom}
-            style={{zIndex:100}}
+            style={{ zIndex: 100 }}
           >
             <FontAwesomeIcon icon={faArrowDown} />
           </button>
@@ -364,51 +307,8 @@ export default function ChatView({
               )
             )
         )}
-        {chat?.message?.length < 1 && (
-          <div className="top-[50%] left-[50%] -translate-x-[50%] absolute">
-            Start chatting...
-          </div>
-        )}
-        
       </ul>
-      <div className="flex items-center bg-secondary-2/70 p-1 h-[50px] shadow-md gap-2">
-        {!(isBlocked || blocked) ? (
-          <>
-            <ImageInput image="" type="TextImage" setImage={handleSend} />
-            <InputBox
-              value={text}
-              onKeyDown={(e) => {
-                e.key === "Enter" && handleSendClick();
-              }}
-              style={{ border: "none" }}
-              onTextChange={handleTextChange}
-              type="Input"
-            >
-              Say something
-            </InputBox>
-            <EmojiInput setEmoji={setText} />
-            <button className="Icon_small" onClick={handleSendClick}>
-              <FontAwesomeIcon icon={faPaperPlane} />
-            </button>
-          </>
-        ) : (
-          <>
-            <ImageInput image="" type="TextImage" setImage={() => {}} />
-            <InputBox
-              value={""}
-              style={{ border: "none" }}
-              onTextChange={() => {}}
-              type="Input"
-            >
-              Say something
-            </InputBox>
-            <EmojiInput setEmoji={() => {}} />
-            <button className="Icon_small" onClick={() => {}}>
-              <FontAwesomeIcon icon={faPaperPlane} />
-            </button>
-          </>
-        )}
-      </div>
+      <ChatBar chatInfo={chatInfo} isBlocked={isBlocked} blocked={blocked} />
     </>
   );
 }

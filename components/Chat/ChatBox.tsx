@@ -54,7 +54,7 @@ import { blockUser, fetchUserWithId } from "@actions/accountActions";
 import { AppLogoLoader, Spinner } from "@components/UI/Loader";
 import MediaView from "./Views/MediaView";
 import SettingView from "./Views/SettingView";
-import ChatView from "./Views/ChatView";
+import ChatView from "./Views/ChatView/ChatView";
 import ThemeView from "./Views/ThemeView";
 import { User } from "@lib/types";
 import CustomImage from "@components/UI/Image";

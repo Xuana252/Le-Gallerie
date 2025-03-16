@@ -29,7 +29,7 @@ export default function ThemeView({
           <FontAwesomeIcon icon={faAngleLeft} />
         </button>
         <span className="text-lg font-semibold text-center content-center">
-          Media
+          Theme
         </span>
         <div
           className={`${chat.theme} ml-auto size-6 rounded-lg grid grid-cols-2 grid-rows-2  overflow-hidden clip-[circle(50%_at_50%_50%)]`}
@@ -42,7 +42,7 @@ export default function ThemeView({
       </div>
 
       <ul
-        className={` grid grid-cols-2 gap-2 p-2 overflow-scroll h-[420px] no-scrollbar`}
+        className={` grid grid-cols-3 gap-2 p-2 overflow-scroll h-[420px] no-scrollbar`}
       >
         {themes.map((theme) => (
           <div
@@ -51,7 +51,7 @@ export default function ThemeView({
             onClick={async () => changeChatTheme(chatInfo.chatId,theme,session?.user.id||"")}
           >
             <div className="h-7 w-full bg-secondary-2 flex flex-row justify-between items-center p-1">
-              <div className="bg-primary h-4 w-[80px] rounded-lg flex flex-row items-center pr-1 gap-1">
+              <div className="bg-primary h-4 w-[50px] rounded-lg flex flex-row items-center pr-1 gap-1">
                 <div className="rounded-full size-4 bg-accent"></div>
                 <div className="rounded-full h-2 grow bg-accent"></div>
               </div>
@@ -66,7 +66,7 @@ export default function ThemeView({
             >
               <div className="bg-accent h-4 w-[70px] self-end rounded-xl"></div>
               <div className="bg-primary h-4 w-[50px] self-start rounded-xl"></div>
-              <div className="bg-accent h-4 w-[100px] self-end rounded-xl"></div>
+              <div className="bg-accent h-4 w-[40px] self-end rounded-xl"></div>
             </div>
             <div className="h-7 w-full bg-secondary-2 flex flex-row justify-between items-center p-1 gap-1">
               <div className="bg-primary size-4 rounded-lg flex items-center justify-center">

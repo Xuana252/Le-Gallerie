@@ -134,9 +134,9 @@
   }
   .theme-spiderman-symbiote {
     --primary: 0, 0, 0; /* Black (Suit Base) */
-    --secondary: 255, 255, 255; /* White (Logo, Eyes, Webbing) */
+    --secondary:120, 0, 0; /* Deep Blood Red (Menacing Glow & Highlights) */ 
     --secondary-variant-1: 40, 40, 40; /* Dark Gray (Subtle Shadows & Texture) */
-    --accent: 120, 0, 0; /* Deep Blood Red (Menacing Glow & Highlights) */
+    --accent: 255, 255, 255; /* White (Logo, Eyes, Webbing) */
     background-color: rgb(var(--primary));
   }
   .theme-spiderman-gwen {
