@@ -7,7 +7,7 @@ import { checkVerifyRateLimit } from "@actions/checkRateLimit";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { SubmitButtonState } from "@app/enum/submitButtonState";
+import { SubmitButtonState } from "@enum/submitButtonState";
 
 export default function ChangePassword() {
   const router = useRouter();

@@ -1,9 +1,4 @@
-import {
-  handleLikeComment,
-  fetchCommentReplies,
-  handleComment,
-  fetchCommentLikes,
-} from "@actions/postActions";
+
 import ButtonWithTimeOut from "@components/Input/ButtonWithTimeOut";
 import EmojiInput from "@components/Input/EmojiInput";
 import { formatTimeAgoWithoutAgo } from "@lib/dateFormat";
@@ -20,8 +15,9 @@ import { useSearchParams } from "@node_modules/next/navigation";
 import UserProfileIcon from "./UserProfileIcon";
 import { Comment, Like } from "@lib/types";
 import ReactionButton from "@components/Input/ReactionInput";
-import { Reaction } from "@app/enum/reactionEnum";
+import { Reaction } from "@enum/reactionEnum";
 import { getTop3Reactions, renderReaction } from "@lib/Emoji/render";
+import { handleLikeComment, fetchCommentReplies, fetchCommentLikes, handleComment } from "@actions/commentAction";
 
 export const CommentItem = ({
   comment,

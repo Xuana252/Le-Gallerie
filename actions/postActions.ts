@@ -2,7 +2,7 @@
 import { Category, Comment, type Post } from "@lib/types";
 import { checkLikeRateLimit } from "./checkRateLimit";
 import { headers, cookies } from "next/headers";
-import { Reaction } from "@app/enum/reactionEnum";
+import { Reaction } from "@enum/reactionEnum";
 
 export const fetchAllPost = async (
   currentPage: number,
@@ -98,38 +98,9 @@ export const updatePost = async (post: Post) => {
   return null;
 };
 
-export const handleLike = async (
-  user: string,
-  post: string,
-  reaction: Reaction | null
-) => {
-  const isRateLimited = await checkLikeRateLimit();
-  if (isRateLimited) return;
-  try {
-    await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}/likes`, {
-      method: "PATCH",
-      body: JSON.stringify({
-        userId: user,
-        reaction: reaction,
-      }),
-    });
-  } catch (error) {
-    console.error("Failed to update post likes", error);
-  }
-};
 
-export const fetchPostLikedUser = async (post: string) => {
-  try {
-    const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/posts/${post}/likes`
-    );
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Failed to fetch post likes", error);
-    return [];
-  }
-};
+
+
 
 export const deletePost = async (post: string) => {
   await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}`, {
@@ -137,80 +108,3 @@ export const deletePost = async (post: string) => {
   });
 };
 
-export const fetchPostComment = async (post: string) => {
-  try {
-    const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/posts/${post}/comments`
-    );
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Failed to fetch for post comments", error);
-    return [];
-  }
-};
-export const fetchCommentReplies = async (comment: string) => {
-  try {
-    const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/comments/${comment}/replies`
-    );
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Failed to fetch for comment replies", error);
-    return [];
-  }
-};
-
-export const handleComment = async (
-  post: string,
-  user: string,
-  parent: string,
-  content: string
-) => {
-  try {
-    await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}/comments/new`, {
-      method: "POST",
-      body: JSON.stringify({
-        post,
-        user,
-        parent,
-        content,
-      }),
-    });
-  } catch (error) {
-    console.error("Failed to post comments", error);
-  }
-};
-
-export const handleLikeComment = async (
-  commentId: string,
-  userId: string,
-  reaction: Reaction | null
-) => {
-  //add rate limiting if you want
-  try {
-    await fetch(`${process.env.DOMAIN_NAME}/api/comments/${commentId}/likes`, {
-      method: "PATCH",
-      body: JSON.stringify({
-        userId: userId,
-        reaction: reaction,
-      }),
-    });
-  } catch (error) {
-    console.error("Failed to update comment likes", error);
-  }
-};
-
-export const fetchCommentLikes = async (commentId: string, postId: string) => {
-  try {
-    const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/comments/${commentId}/likes`
-    );
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Failed to fetch comment likes", error);
-    return [];
-  }
-};

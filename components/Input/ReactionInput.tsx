@@ -3,7 +3,7 @@ import ButtonWithTimeOut from "./ButtonWithTimeOut";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { faHeart } from "@node_modules/@fortawesome/free-regular-svg-icons";
 import { useTransition, animated, useSpring } from "@react-spring/web";
-import { Reaction } from "@app/enum/reactionEnum";
+import { Reaction } from "@enum/reactionEnum";
 import { renderReaction } from "@lib/Emoji/render";
 
 type ReactionButtonProps = {

@@ -1,4 +1,4 @@
-import { Reaction } from '@app/enum/reactionEnum';
+import { Reaction } from '@enum/reactionEnum';
 import { Date } from 'mongoose';
 import NextAuth from 'next-auth';
 import { DefaultUser } from 'next-auth';

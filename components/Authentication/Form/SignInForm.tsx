@@ -1,4 +1,4 @@
-import { SubmitButtonState } from "@app/enum/submitButtonState";
+import { SubmitButtonState } from "@enum/submitButtonState";
 import InputBox from "@components/Input/InputBox";
 import SubmitButton from "@components/Input/SubmitButton";
 import toastError from "@components/Notification/Toaster";

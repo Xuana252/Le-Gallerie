@@ -14,7 +14,7 @@ import { uploadImage, removeImage, updateImage } from "@lib/upload";
 import CustomImage from "@components/UI/Image";
 import DateTimePicker from "@components/Input/DateTimePicker";
 import toastError from "@components/Notification/Toaster";
-import { SubmitButtonState } from "@app/enum/submitButtonState";
+import { SubmitButtonState } from "@enum/submitButtonState";
 
 export default function EditPage() {
   const router = useRouter();

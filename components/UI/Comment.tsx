@@ -12,11 +12,9 @@ import { faPaperPlane, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { type Comment } from "@lib/types";
 import {
-  fetchCommentReplies,
-  fetchPostComment,
+
   fetchPostWithId,
-  handleComment,
-  handleLikeComment,
+
 } from "@actions/postActions";
 import { useEffect, useRef, useState } from "react";
 import UserProfileIcon from "./UserProfileIcon";
@@ -27,6 +25,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import EmojiInput from "@components/Input/EmojiInput";
 import ButtonWithTimeOut from "@components/Input/ButtonWithTimeOut";
 import { CommentItem } from "./CommentItem";
+import { fetchPostComment, handleComment } from "@actions/commentAction";
 
 export const CommentSection = ({ postId }: { postId: string }) => {
   const router = useRouter();

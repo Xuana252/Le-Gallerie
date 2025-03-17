@@ -16,9 +16,7 @@ import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import { Category, Like, Post, User } from "@lib/types";
 import { removeImage } from "@lib/upload";
 import {
-  deletePost,
-  fetchPostLikedUser,
-  handleLike,
+  deletePost
 } from "@actions/postActions";
 import { useRouter } from "next/navigation";
 import React, { useContext, useEffect, useState } from "react";
@@ -32,11 +30,12 @@ import { CommentSection } from "./Comment";
 import { confirm } from "@components/Notification/Toaster";
 import { formatTimeAgo, formatTimeAgoWithoutAgo } from "@lib/dateFormat";
 import ReactionButton from "@components/Input/ReactionInput";
-import { Reaction } from "@app/enum/reactionEnum";
+import { Reaction } from "@enum/reactionEnum";
 import { renderReaction } from "@lib/Emoji/render";
 import LikedUserTab from "./LikedUserTab";
 import PopupButton from "@components/Input/PopupButton";
 import PostImageSlider from "./PostImageSlider";
+import { fetchPostLikedUser, handleLike } from "@actions/likesAction";
 
 export default function PostDetail({
   isLoading,

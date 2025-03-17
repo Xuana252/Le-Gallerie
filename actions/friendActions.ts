@@ -1,0 +1,39 @@
+"use server";
+
+import { FriendState } from "@enum/friendStateEnum";
+
+export const checkFriendState = async (userId1: string, userId2: string) => {
+  try {
+    const response = await fetch(
+      `${process.env.DOMAIN_NAME}/api/users/${userId1}/friends/${userId2}`
+    );
+    const data = await response.json();
+    if (response.ok) return data.state ?? FriendState.UNFRIEND;
+  } catch (error) {
+    console.log(error);
+    return FriendState.UNFRIEND;
+  }
+};
+
+export const sendFriendRequest = async (userId1: string, userId2: string) => {
+  try {
+    await fetch(`${process.env.DOMAIN_NAME}/api/friends`, {
+      method: "PATCH",
+      body: JSON.stringify({ userId1: userId1, userId2: userId2 }),
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const removeFriendRequest = async (userId1: string, userId2: string) => {
+    try {
+      await fetch(`${process.env.DOMAIN_NAME}/api/friends`, {
+        method: "DELETE",
+        body: JSON.stringify({ userId1: userId1, userId2: userId2 }),
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  

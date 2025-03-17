@@ -3,7 +3,7 @@ import { Like } from "@lib/types";
 import React, { useState } from "react";
 import UserProfileIcon from "./UserProfileIcon";
 import { useSession } from "@node_modules/next-auth/react";
-import { Reaction } from "@app/enum/reactionEnum";
+import { Reaction } from "@enum/reactionEnum";
 
 export default function LikedUserTab({likes}:{likes:Like[]} ) {
   const [reactionFilter, setReactionFilter] = useState<Reaction | null>(null);

@@ -1,7 +1,7 @@
 import mongoose, { Schema, model, models } from "mongoose";
 import User from "./userModel";
 import Comment from "./commentModel";
-import { Reaction } from "@app/enum/reactionEnum";
+import { Reaction } from "@enum/reactionEnum";
 
 const CommentLikeSchema = new Schema(
   {

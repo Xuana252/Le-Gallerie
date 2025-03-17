@@ -58,7 +58,7 @@ import ChatView from "./Views/ChatView/ChatView";
 import ThemeView from "./Views/ThemeView";
 import { User } from "@lib/types";
 import CustomImage from "@components/UI/Image";
-import { ChatBoxView } from "@app/enum/chatBoxView";
+import { ChatBoxView } from "@enum/chatBoxView";
 import AddMemberView from "./Views/AddMemberView";
 import ImageGroupDisplay from "@components/UI/ImageGroupDisplay";
 import MemberView from "./Views/MemberView";

@@ -1,4 +1,4 @@
-import { ChatBoxView } from "@app/enum/chatBoxView";
+import { ChatBoxView } from "@enum/chatBoxView";
 import SubmitButton from "@components/Input/SubmitButton";
 import UserProfileIcon from "@components/UI/UserProfileIcon";
 import {

@@ -27,7 +27,7 @@ import React, { useEffect, useRef, useState } from "react";
 import UserProfileIcon from "@components/UI/UserProfileIcon";
 import { User } from "@lib/types";
 import ReactionButton from "@components/Input/ReactionInput";
-import { Reaction } from "@app/enum/reactionEnum";
+import { Reaction } from "@enum/reactionEnum";
 import ChatItem from "./ChatItem";
 import {
   addChatItemReaction,

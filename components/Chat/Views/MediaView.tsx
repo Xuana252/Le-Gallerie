@@ -1,4 +1,4 @@
-import { ChatBoxView } from "@app/enum/chatBoxView";
+import { ChatBoxView } from "@enum/chatBoxView";
 import CustomImage from "@components/UI/Image";
 import { faAngleLeft } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";

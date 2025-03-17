@@ -28,7 +28,7 @@ import React, { Dispatch, SetStateAction, useState } from "react";
 import { useRouter } from "@node_modules/next/navigation";
 import { deleteChat, leaveChat } from "@lib/Chat/chat";
 import { User } from "@lib/types";
-import { ChatBoxView } from "@app/enum/chatBoxView";
+import { ChatBoxView } from "@enum/chatBoxView";
 import ImageGroupDisplay from "@components/UI/ImageGroupDisplay";
 
 export default function SettingView({

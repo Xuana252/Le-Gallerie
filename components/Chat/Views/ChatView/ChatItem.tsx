@@ -1,4 +1,4 @@
-import { Reaction } from "@app/enum/reactionEnum";
+import { Reaction } from "@enum/reactionEnum";
 import DropDownButton from "@components/Input/DropDownButton";
 import PopupButton from "@components/Input/PopupButton";
 import ReactionButton from "@components/Input/ReactionInput";

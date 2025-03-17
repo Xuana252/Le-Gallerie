@@ -15,7 +15,7 @@ import {
 import { useContext } from "react";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Reaction } from "@app/enum/reactionEnum";
+import { Reaction } from "@enum/reactionEnum";
 
 const chatRef = collection(db, "chat");
 const usersChatRef = collection(db, "usersChat");

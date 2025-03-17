@@ -20,7 +20,7 @@ import { checkPostRateLimit } from "@actions/checkRateLimit";
 import toastError from "@components/Notification/Toaster";
 import {uploadImage,updateImage} from "@lib/upload";
 import withAuth from "@middleware";
-import { SubmitButtonState } from "@app/enum/submitButtonState";
+import { SubmitButtonState } from "@enum/submitButtonState";
 import { handleUpdateImage } from "@lib/image";
 import { CategoriesInput } from "@components/Input/CategoryInput";
 
@@ -69,7 +69,7 @@ export default function PostForm({ type, editPost }: PostFormProps) {
           throw new Error("one post request per minute. please wait");
         }
         let response;
-        let imageUrlList = await handleUpdateImage(post.image,imageToUpdate,type)
+        let imageUrlList = await handleUpdateImage(post.image,imageToUpdate)
        
         
         const postToUpload: Post = {

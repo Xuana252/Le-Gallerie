@@ -1,4 +1,4 @@
-import { Reaction } from "@app/enum/reactionEnum";
+import { Reaction } from "@enum/reactionEnum";
 import { faHeart } from "@node_modules/@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { Like } from "../types";
