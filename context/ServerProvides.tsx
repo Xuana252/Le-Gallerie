@@ -2,7 +2,7 @@
 
 import { getProviders } from "next-auth/react";
 import React from "react";
-import SignInForm from "@components/Forms/SignInForm";
+import AuthenticationForm from "@components/Authentication/AuthenticationForm";
 
 export default async function ServerProviders() {
     let providers:string[] = []
@@ -12,6 +12,6 @@ export default async function ServerProviders() {
     }
     
     return(
-       <SignInForm providers={providers}/>
+       <AuthenticationForm providers={providers}/>
     )
 }

@@ -21,7 +21,7 @@ export default function DropDownButton({
   const dropDownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const springProps = useSpring({
-    display: "inline-block",
+    display: "flex",
     opacity: toggleDropDown ? 1 : 0,
     transform: getAnimation(toggleDropDown,dropDirection),
     config: { duration: 300, easing: (t) => t * (2 - t) },
@@ -153,7 +153,7 @@ export default function DropDownButton({
           pointerEvents: toggleDropDown ? "auto" : "none",
         }}
         ref={dropDownRef}
-        className="rounded-xl bg-secondary-1/50 backdrop-blur-md border-[1.5px] border-accent shadow-2xl size-fit p-2"
+        className="rounded-xl bg-secondary-1/50 backdrop-blur-md border-[1.5px] border-accent shadow-2xl size-fit p-2 gap-2 flex flex-col"
       >
         {dropDownList}
       </animated.div>

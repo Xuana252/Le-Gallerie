@@ -2,6 +2,7 @@
 import React, { useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faClose,
   faLock,
   faMagnifyingGlass,
   faUnlock,
@@ -89,7 +90,7 @@ export default function InputBox({
           ) : (
             value !== "" && (
               <button onClick={handleClearText} tabIndex={-1}>
-                <FontAwesomeIcon icon={faX} size="sm" />
+                <FontAwesomeIcon icon={faClose} size="sm" />
               </button>
             )
           )}

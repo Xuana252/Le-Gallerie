@@ -3,22 +3,22 @@ import InputBox from "@components/Input/InputBox";
 import SubmitButton from "@components/Input/SubmitButton";
 import { faCheck, faL, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { UploadUser, User } from "@lib/types";
+import { UploadImage, UploadUser, User } from "@lib/types";
 import { getSession, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
-import { type SubmitButtonState } from "@lib/types";
 import { updateUser } from "@actions/accountActions";
 import ImageInput from "@components/Input/ImageInput";
 import { uploadImage, removeImage, updateImage } from "@lib/upload";
 import CustomImage from "@components/UI/Image";
 import DateTimePicker from "@components/Input/DateTimePicker";
 import toastError from "@components/Notification/Toaster";
+import { SubmitButtonState } from "@app/enum/submitButtonState";
 
 export default function EditPage() {
   const router = useRouter();
-  const [submitState, setSubmitState] = useState<SubmitButtonState>("");
+  const [submitState, setSubmitState] = useState<SubmitButtonState>(SubmitButtonState.IDLE);
   const { data: session, update } = useSession();
   const [imageToUpdate, setUpdateImage] = useState<string>(
     session?.user.image || ""
@@ -59,7 +59,7 @@ export default function EditPage() {
       return;
     }
     try {
-      setSubmitState("Processing");
+      setSubmitState(SubmitButtonState.PROCESSING);
       let imageUrl = "";
       if (updateInfo.image?.url) {
         if (updateInfo.image?.file) {
@@ -93,22 +93,22 @@ export default function EditPage() {
         const newSession = await getSession();
         await update(newSession);
         console.log("User updated");
-        setSubmitState("Succeeded");
+        setSubmitState(SubmitButtonState.SUCCESS);
         setTimeout(() => router.push("/profile/setting/info"), 1000);
       } else {
-        setSubmitState("Failed");
+        setSubmitState(SubmitButtonState.FAILED);
         console.log("Failed to update user");
       }
     } catch (error) {
-      setSubmitState("Failed");
+      setSubmitState(SubmitButtonState.FAILED);
       console.log("Error while updating user", error);
     }
   };
 
-  const handleImageChange = (image: { file: File | null; url: string }) => {
+  const handleImageChange = (image: UploadImage[]) => {
     setUpdateInfo((u) => ({
       ...u,
-      image,
+      image:image[0],
     }));
   };
 
@@ -137,7 +137,7 @@ export default function EditPage() {
           <div>
             <ImageInput
               type="ProfileImage"
-              image={updateInfo.image?.url || ""}
+              image={updateInfo.image?[updateInfo.image]:[]}
               setImage={handleImageChange}
             />
           </div>

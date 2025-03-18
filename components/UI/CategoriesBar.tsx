@@ -4,40 +4,59 @@ import { type Category } from "@lib/types";
 import { getCategories } from "@actions/categoriesActions";
 
 type CategoryItemProps = {
-  category: Category;
+  isLoading: boolean;
+  category?: Category;
   selected?: boolean;
-  onSelected: (category: Category) => void;
+  onSelected?: (category: Category) => void;
 };
 export function CategoryItem({
+  isLoading = false,
   category,
   selected = false,
   onSelected,
 }: CategoryItemProps) {
   const [isSelected, setIsSelected] = useState<boolean>();
   const [mouseDown, setMouseDownCoordX] = useState(0);
+  const [minWidth, setMinWidth] = useState<number | null>(null);
+
+  useEffect(() => {
+    // Generate a stable random width on the client after hydration
+    setMinWidth(Math.floor(Math.random() * (150 - 80) + 80));
+  }, []);
+
 
   const handleCateSelect = (e: React.MouseEvent) => {
-    if (e.clientX === mouseDown) {
+    if (e.clientX === mouseDown && category) {
       setIsSelected((prev) => !prev);
-      onSelected(category);
+      onSelected && onSelected(category);
     }
   };
   useEffect(() => {
     setIsSelected(selected);
   }, [selected]);
-  return (
-    <div
-      onMouseDown={(e) => setMouseDownCoordX(e.clientX)}
-      onMouseUp={handleCateSelect}
-      className={`h-fit w-fit my-2 text-center rounded-full py-1 px-3 text-cate font-bold select-none ${
-        !isSelected
-          ? "bg-secondary-1 border-2 border-accent text-accent"
-          : "bg-accent border-2 border-accent text-primary"
-      } `}
-    >
-      <span className="whitespace-nowrap">{category.name}</span>
-    </div>
-  );
+  if (isLoading)
+    return (
+      <div
+        onMouseDown={(e) => setMouseDownCoordX(e.clientX)}
+        onMouseUp={handleCateSelect}
+        className={`h-8 my-2 rounded-full  animate-pulse select-none bg-secondary-2`}
+        style={{ minWidth: minWidth !== null ? `${minWidth}px` : undefined }}
+      ></div>
+    );
+  else
+    return (
+      <div
+        onMouseDown={(e) => setMouseDownCoordX(e.clientX)}
+        onMouseUp={handleCateSelect}
+        className={`h-fit w-fit my-2 text-center rounded-full py-1 px-3 text-cate font-bold select-none ${
+          !isSelected
+            ? "bg-secondary-2/50 border-2 border-accent text-accent"
+            : "bg-accent border-2 border-accent text-primary"
+        } `}
+      >
+        <span className="whitespace-nowrap">{category?.name}</span>
+      </div>
+    );
 }
 
 type CategoryBarProps = {
@@ -51,15 +70,18 @@ export default function CategoryBar({
 }: CategoryBarProps) {
   const listRef = useRef<HTMLUListElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [startClientX, setStartClientX] = useState(0);
   const [selectedCategories, setSelectedCategories] =
     useState<Category[]>(selected);
   const [categories, setCategories] = useState<Category[]>([]);
 
   const fetchCategories = async () => {
+    setIsLoading(true);
     const response = await getCategories();
 
     setCategories(response);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -114,19 +136,26 @@ export default function CategoryBar({
         onMouseLeave={handleMouseLeave}
         ref={listRef}
       >
-        {[
-          ...selectedCategories, // Selected categories first
-          ...categories.filter(
-            (c) => !selectedCategories.some((sc) => sc.name === c.name)
-          ), // Non-selected categories
-        ].map((category) => (
-          <CategoryItem
-            key={category._id}
-            category={category}
-            selected={selectedCategories.some((c) => c.name === category.name)}
-            onSelected={handleCateSelect}
-          />
-        ))}
+        {isLoading
+          ? Array.from({ length: 30 }).map((_, index) => (
+              <CategoryItem key={index} isLoading={true}></CategoryItem>
+            ))
+          : [
+              ...selectedCategories, // Selected categories first
+              ...categories.filter(
+                (c) => !selectedCategories.some((sc) => sc.name === c.name)
+              ), // Non-selected categories
+            ].map((category) => (
+              <CategoryItem
+                isLoading={false}
+                key={category._id}
+                category={category}
+                selected={selectedCategories.some(
+                  (c) => c.name === category.name
+                )}
+                onSelected={handleCateSelect}
+              />
+            ))}
       </ul>
     </div>
   );

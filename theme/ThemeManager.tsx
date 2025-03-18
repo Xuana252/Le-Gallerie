@@ -1,5 +1,7 @@
 // components/ThemeManager.tsx 
 "use server";
+import "@styles/globals.css";
+import "@styles/theme.css";
 import { cookies } from "next/headers";
 
 export async function changeTheme(theme: string) {
@@ -20,5 +22,5 @@ export default async function ThemeManager({
 }) {
   const theme = await getStoredTheme();
 
-  return <div className={`${theme}`}>{children}</div>;
+  return <body className={`${theme}`}>{children}</body>;
 }

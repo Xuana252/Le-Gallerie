@@ -38,6 +38,7 @@ import UserProfileIcon from "@components/UI/UserProfileIcon";
 import CustomImage from "@components/UI/Image";
 import MultipleOptionsButton from "@components/Input/MultipleOptionsButton";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
+import { startChat } from "@lib/Chat/chat";
 
 export default function UserProfile({ params }: { params: { id: string } }) {
   const TIME_OUT_TIME = 1000;
@@ -267,80 +268,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
     }
   }, []);
 
-  const startChat = async () => {
-    if (!session) {
-      const loginConfirm = await confirm("you need to login first");
-      if (loginConfirm) {
-        router.push("/sign-in");
-      }
-      return;
-    }
-
-    const chatRef = collection(db, "chat");
-    const usersChatRef = collection(db, "usersChat");
-
-    try {
-      const receiverDocRef = doc(usersChatRef, session.user.id);
-      const receiverDocSnap = await getDoc(receiverDocRef);
-      let existingChat = null;
-
-      if (receiverDocSnap.exists()) {
-        const receiverData = receiverDocSnap.data();
-
-        if (receiverData.chat) {
-          existingChat = receiverData.chat.find(
-            (chat: any) => chat.receiverId === params.id
-          );
-          existingChat = existingChat ? { ...existingChat, user } : null;
-        }
-      }
-
-      if (!existingChat) {
-        const newChatRef = doc(chatRef);
-        await setDoc(newChatRef, {
-          createAt: serverTimestamp(),
-          message: [],
-        });
-
-        await updateDoc(doc(usersChatRef, params.id), {
-          chat: arrayUnion({
-            chatId: newChatRef.id,
-            lastMessage: "",
-            receiverId: session.user.id,
-            updatedAt: Date.now(),
-          }),
-        });
-        await updateDoc(doc(usersChatRef, session.user.id), {
-          chat: arrayUnion({
-            chatId: newChatRef.id,
-            lastMessage: "",
-            receiverId: params.id,
-            updatedAt: Date.now(),
-          }),
-        });
-
-        const currentUserChatData = await getDoc(
-          doc(usersChatRef, session.user.id)
-        );
-        if (currentUserChatData.exists()) {
-          const items = currentUserChatData.data()?.chat || [];
-
-          // Fetch additional user data
-          const chatItem = items.find(
-            (item: any) => item.receiverId === params.id
-          );
-
-          if (chatItem) {
-            // Add user data to the chat item
-            existingChat = { ...chatItem, user };
-          }
-        }
-      }
-      setChatInfo(existingChat);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  
 
   const FollowList = () => {
     const list = (followType === "Followers" ? followers : following) || [];
@@ -548,7 +476,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                   Block
                 </button>
               </MultipleOptionsButton>
-              <button className="Button_variant_1" onClick={startChat}>
+              <button className="Button_variant_1" onClick={()=>startChat(user,setChatInfo,router)}>
                 Message <FontAwesomeIcon icon={faComment} />
               </button>
             </>

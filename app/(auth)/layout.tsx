@@ -3,11 +3,9 @@ import { config } from "@fortawesome/fontawesome-svg-core";
 config.autoAddCss = false;
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "@styles/globals.css";
 import ThemeManager from "@theme/ThemeManager";
 const inter = Inter({ subsets: ["latin"] });
 import { Toaster } from "sonner";
-
 
 export const metadata: Metadata = {
   title: "Authentication",
@@ -33,17 +31,15 @@ export default function NoNavLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <ThemeManager>
-          <div
-            className={`h-[100vh] flex bg-cover bg-center`}
-            style={{ backgroundImage: `url(${randomImage})` }}
-          >
-            {children}
-          </div>
-          <Toaster richColors position="bottom-right" />
-        </ThemeManager>
-      </body>
+      <ThemeManager>
+        <div
+          className={`h-[100vh] flex bg-cover bg-center`}
+          style={{ backgroundImage: `url(${randomImage})` }}
+        >
+          {children}
+        </div>
+        <Toaster richColors position="bottom-right" />
+      </ThemeManager>
     </html>
   );
 }

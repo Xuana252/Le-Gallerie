@@ -6,17 +6,44 @@ import Comment from "@models/commentModel";
 
 const knock = new Knock(process.env.KNOCK_API_SECRET);
 
+export const GET = async (
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) => {
+  try {
+    await connectToDB();
+
+    const commentLikes = await CommentLike.find({
+      comment: params.id
+    }).populate({
+      path: "user",
+      select: "-email -password -createdAt -updatedAt -__v",
+    });
+
+    return NextResponse.json(commentLikes, { status: 200 });
+  } catch (error) {
+    console.log("Failed to fetch for comment likes", error);
+    return NextResponse.json(
+      { message: "Failed to fetch for comment likes" },
+      { status: 500 }
+    );
+  }
+};
+
 export const PATCH = async (
   req: NextRequest,
   { params }: { params: { id: string } }
 ) => {
-  const { userId } = await req.json();
+  const { userId, reaction } = await req.json();
   try {
     await connectToDB();
 
     const comment = await Comment.findById(params.id);
     if (!comment) {
-      return NextResponse.json({ message: "comment not found" }, { status: 400 });
+      return NextResponse.json(
+        { message: "comment not found" },
+        { status: 400 }
+      );
     }
 
     const liked = await CommentLike.findOne({
@@ -25,10 +52,18 @@ export const PATCH = async (
     });
 
     if (liked) {
-      await CommentLike.findOneAndDelete({ comment: params.id, user: userId });
-      comment.likes -= 1;
+      if (liked.reaction === reaction) {
+        await CommentLike.findOneAndDelete({
+          comment: params.id,
+          user: userId,
+        });
+        comment.likes -= 1;
+      } else {
+        liked.reaction = reaction;
+        await liked.save();
+      }
     } else {
-      await CommentLike.create({ comment: params.id, user: userId });
+      await CommentLike.create({ comment: params.id, user: userId ,reaction:reaction });
       comment.likes += 1;
       if (userId !== comment.user.toString()) {
         await knock.workflows.trigger("comment-like", {

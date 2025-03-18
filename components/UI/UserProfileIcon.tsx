@@ -13,11 +13,12 @@ import {
 import { type User } from "@lib/types";
 import { checkFollowState } from "@actions/accountActions";
 import CustomImage from "./Image";
+import { useEffect, useState } from "react";
 
 // Define the base type for the props
 type BaseUserProfileIconProps = {
   currentUser: boolean;
-  size?: "Icon" | "Icon_small" | "Icon_big" | "Icon_smaller";
+  size?: "Icon" | "Icon_small" | "Icon_big" | "Icon_smaller" | "Icon_message";
 };
 
 // Define the type for when currentUser is false
@@ -45,33 +46,37 @@ export default function UserProfileIcon({
 
   const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (currentUser) {
+    if (currentUser || session?.user.id === user._id) {
       router.push("/profile");
     } else {
       let storeUser = { ...user };
       if (session?.user.id) {
         const followed = await checkFollowState(user?._id, session?.user.id);
         storeUser = { ...user, followed: followed };
-        if(!(!!user.blocked?.find(userId=>userId===session.user.id))&&!(!!(session.user.blocked?.find(userId=>userId===user._id))))
+        if (
+          !!!user.blocked?.find((userId) => userId === session.user.id) &&
+          !!!session.user.blocked?.find((userId) => userId === user._id)
+        )
           localStorage.setItem("user", JSON.stringify(storeUser));
       }
       router.push(`/profile/${user._id}`);
     }
   };
-  const profileImage = currentUser ? session?.user.image : user.image;
+
+    const userImg = currentUser ? session?.user.image ?? "" : user?.image ?? ""
 
   return (
     <button className={`bg-secondary-2 relative ${size}`} onClick={handleClick}>
-      {profileImage ? (
-          <CustomImage
-            src={profileImage}
-            alt="profile picture"
-            className="size-full"
-            width={0}
-            height={0}
-            transformation={[{ quality: 10 }]}
-            style={{ objectFit: "cover" }}
-          />
+      {userImg ? (
+        <CustomImage
+          src={userImg}
+          alt="profile picture"
+          className="size-full"
+          width={0}
+          height={0}
+          transformation={[{ quality: 10 }]}
+          style={{ objectFit: "cover" }}
+        />
       ) : (
         <FontAwesomeIcon icon={faUser} className="m-0" />
       )}
