@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { IKImage } from "imagekitio-next";
 import { createPortal } from "react-dom";
 import {
@@ -16,7 +16,7 @@ const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
 
 export default function CustomImage({ src, zoomable = false, ...props }: any) {
   const [isZoomed, setIsZoomed] = useState(false);
-  const [imageSource, setImageSource] = useState("");
+  const [imageSource, setImageSource] = useState<string | null>(null);
   const [isErrored, setIsErrored] = useState<boolean>(true);
 
   const testImageUrl = (url: string) => {
@@ -35,8 +35,10 @@ export default function CustomImage({ src, zoomable = false, ...props }: any) {
     const checkError = async (newSrc: string) => {
       const validUrl = await testImageUrl(newSrc);
       if (isMounted) {
-        setImageSource(validUrl ? newSrc : "");
-        setIsErrored(!validUrl);
+        requestAnimationFrame(() => {
+          setImageSource(validUrl ? newSrc : null);
+          setIsErrored(false);
+        });
       }
     };
 
@@ -49,7 +51,7 @@ export default function CustomImage({ src, zoomable = false, ...props }: any) {
 
   return (
     <>
-      {isErrored ? (
+      {isErrored ||!imageSource ? (
         <div className="size-full flex items-center justify-center bg-secondary-2/30 backdrop-blur-sm">
           <span className="font-AppLogo text-[2.5em] select-none">AppLogo</span>
         </div>

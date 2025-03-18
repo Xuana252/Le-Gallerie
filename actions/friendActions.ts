@@ -27,13 +27,24 @@ export const sendFriendRequest = async (userId1: string, userId2: string) => {
 };
 
 export const removeFriendRequest = async (userId1: string, userId2: string) => {
-    try {
-      await fetch(`${process.env.DOMAIN_NAME}/api/friends`, {
-        method: "DELETE",
-        body: JSON.stringify({ userId1: userId1, userId2: userId2 }),
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  
+  try {
+    await fetch(`${process.env.DOMAIN_NAME}/api/friends`, {
+      method: "DELETE",
+      body: JSON.stringify({ userId1: userId1, userId2: userId2 }),
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const fetchFriendRequest = async (userId: string) => {
+  try {
+    const response = await fetch(
+      `${process.env.DOMAIN_NAME}/api/user/${userId}/friends/request`
+    );
+    return response.ok ? await response.json() : [];
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};

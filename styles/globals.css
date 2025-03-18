@@ -103,10 +103,10 @@
 }
 
 .Notification_list {
-  @apply w-[300px] h-[400px] sm:w-[350px] overflow-y-scroll no-scrollbar flex flex-col gap-2 px-2 pb-2 pt-0 bg-secondary-2 rounded-lg;
+  @apply w-[300px] h-[400px] sm:w-[350px] overflow-y-scroll no-scrollbar flex flex-col gap-2 p-2 bg-secondary-2 rounded-b-lg;
 }
 .Notification_item {
-  @apply flex gap-2 items-center p-2 rounded-xl bg-accent h-fit w-full text-primary select-none cursor-pointer;
+  @apply grid grid-cols-[auto_1fr_auto] gap-2 items-center p-2 rounded-xl bg-accent h-fit w-full text-primary select-none cursor-pointer;
 }
 .Toast_item {
   @apply flex gap-2 items-center p-2 rounded-xl bg-accent h-fit min-w-[350px] text-primary select-none cursor-pointer;

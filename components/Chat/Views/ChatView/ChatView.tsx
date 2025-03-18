@@ -52,8 +52,9 @@ export default function ChatView({
 }) {
   const { data: session, update } = useSession();
   const messageListRef = useRef<HTMLUListElement>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+  const prevChatInfo = useRef(chatInfo); // Store previous value
 
   const chatItemRef = useRef<{ [key: string]: HTMLLIElement | null }>({});
 
@@ -83,8 +84,11 @@ export default function ChatView({
   };
 
   useEffect(() => {
-    setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 1000);
+    if (prevChatInfo.current !== chatInfo) {
+      setIsLoading(true);
+      setTimeout(() => setIsLoading(false), 1000);
+    }
+    prevChatInfo.current = chatInfo; 
   }, [chatInfo?.chatId]);
 
 
@@ -301,7 +305,7 @@ export default function ChatView({
                     message.type,
                     chatInfo.users.find(
                       (user: User) => user._id === message.userId
-                    ).username
+                    )?.username
                   )}
                 </li>
               )

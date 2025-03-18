@@ -34,16 +34,15 @@ export default function UserInteractionBar({
   const router = useRouter();
   const { data: session, status, update } = useSession();
   const [postCount, setPostCount] = useState<number>(0);
-  const [isFollowed, setIsFollowed] = useState(false);
-  const [isBlocked, setIsBlocked] = useState<boolean>(false); //from the other user
-  const [blocked, setBlocked] = useState<boolean>(false); //us blocking the other user
+  const [isFollowed, setIsFollowed] = useState<boolean | null>(null);
+  const [isBlocked, setIsBlocked] = useState<boolean>(false);
+  const [blocked, setBlocked] = useState<boolean>(false);
   const [followTimeOut, setFollowTimeout] = useState(false);
-  const [friendState, setFriendState] = useState<FriendState>(
-    FriendState.UNFRIEND
-  );
+  const [friendState, setFriendState] = useState<FriendState | null>(null);
   const { setChatInfo } = useContext(ChatContext);
 
   const handleFriendButtonAction = async () => {
+    if(friendState===null) return
     if (!session?.user.id) {
       const loginConfirm = await confirm("you need to login first");
       if (loginConfirm) {
@@ -110,7 +109,7 @@ export default function UserInteractionBar({
   };
 
   const handleChangeFollowState = async () => {
-    if (followTimeOut) return;
+    if (followTimeOut || isFollowed === null) return;
     setFollowTimeout(true);
     if (!session?.user.id) {
       const loginConfirm = await confirm("you need to login first");
@@ -147,7 +146,22 @@ export default function UserInteractionBar({
     }, TIME_OUT_TIME);
   };
 
-  const renderFriendMessage = (state: FriendState) => {
+  const renderFollowState = (state: boolean | null) => {
+    switch (state) {
+      case true:
+        return <>Unfollow</>;
+      case false:
+        return <>Follow</>;
+      default:
+        return (
+          <div className=" rounded-xl text-transparent animate-pulse bg-accent">
+            NullState
+          </div>
+        );
+    }
+  };
+
+  const renderFriendMessage = (state: FriendState | null) => {
     switch (state) {
       case FriendState.UNFRIEND:
         return (
@@ -165,6 +179,12 @@ export default function UserInteractionBar({
         return <>Accept Request</>;
       case FriendState.SENT:
         return <>Cancel Request</>;
+      default:
+        return (
+          <div className=" rounded-xl text-transparent animate-pulse bg-accent">
+            NullState
+          </div>
+        );
     }
   };
   return (
@@ -176,7 +196,7 @@ export default function UserInteractionBar({
               className={`size-full font-bold px-2 py-1`}
               onClick={handleChangeFollowState}
             >
-              {isFollowed ? "Unfollow" : "Follow"}
+              {renderFollowState(isFollowed)}
             </button>
             <button
               className={`size-full font-bold px-2 py-1`}

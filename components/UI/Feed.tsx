@@ -17,7 +17,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlassMinus } from "@fortawesome/free-solid-svg-icons";
 import {
   fetchAllPost,
-  fetchPostLikedUser,
   fetchUserLikedPost,
   fetchUserPost,
 } from "@actions/postActions";
