@@ -17,7 +17,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import CustomImage from "./Image";
+import CustomImage from "../Image/Image";
 
 export default function PostImageSlider({ images = [] }: { images: string[] }) {
   const imageListRef = useRef<HTMLUListElement>(null);

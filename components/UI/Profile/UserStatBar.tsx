@@ -8,30 +8,40 @@ import { User } from "@lib/types";
 import { useSession } from "@node_modules/next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import UserProfileIcon from "../UserProfileIcon";
+import UserProfileIcon from "./UserProfileIcon";
 import { confirm } from "@components/Notification/Toaster";
+import { fetchUserFriends } from "@actions/friendActions";
 
 export default function UserStatBar({
   userId,
   updateFlag,
-  postCount,
 }: {
   userId: string;
   updateFlag: boolean;
-  postCount: number;
 }) {
   const TIME_OUT_TIME = 2000;
   const router = useRouter();
   const { data: session, status, update } = useSession();
 
+  const [friends, setFriends] = useState<User[]>();
   const [followers, setFollowers] = useState<User[]>();
   const [following, setFollowing] = useState<User[]>();
+  const [curUserFriends, setCurUserFriends] = useState<User[]>();
   const [curUserFollowers, setCurUserFollowers] = useState<User[]>();
-  const [followTimeOut, setFollowTimeout] = useState(false);
   const [curUserFollowing, setCurUserFollowing] = useState<User[]>();
-  const [followType, setFollowType] = useState<"Followers" | "Following">(
-    "Followers"
-  );
+  const [followTimeOut, setFollowTimeout] = useState(false);
+  const [followType, setFollowType] = useState<
+    "Followers" | "Following" | "Friends"
+  >("Followers");
+
+  const fetchFriends = async () => {
+    const response = await fetchUserFriends(userId);
+    if (session?.user.id) {
+      const curUserFriends = await fetchUserFriends(session.user.id);
+      setCurUserFriends(curUserFriends?.users);
+    }
+    setFriends(response?.users);
+  };
 
   const fetchFollowers = async () => {
     const response = await fetchUserFollowers(userId);
@@ -102,13 +112,22 @@ export default function UserStatBar({
   useEffect(() => {
     fetchFollowers();
     fetchFollowing();
+    fetchFriends();
   }, [userId, updateFlag]);
 
   const FollowList = () => {
-    const list = (followType === "Followers" ? followers : following) || [];
+    const list =
+      followType === "Followers"
+        ? followers
+        : followType === "Following"
+        ? following
+        : followType === "Friends"
+        ? friends
+        : [];
+
     return (
-      <div className="text-base">
-        <div className="grid grid-cols-2">
+      <div className="text-base mt-2">
+        <div className="grid grid-cols-3">
           <button
             name="Following"
             onClick={() => setFollowType("Following")}
@@ -129,12 +148,22 @@ export default function UserStatBar({
           >
             Followers
           </button>
+          <button
+            name="Friends"
+            onClick={() => setFollowType("Friends")}
+            className={`font-bold ${
+              followType === "Friends" &&
+              "bg-secondary-1 mb-[-10px] text-primary rounded-lg pt-1 pb-3 font-bold"
+            }`}
+          >
+            Friends
+          </button>
         </div>
-        <ul className="bg-secondary-1 w-[300px] h-[400px] sm:w-[400px] sm:h-[500px] rounded-lg py-4 px-2 flex flex-col gap-2">
-          {list.map((item) => (
+        <ul className={`bg-secondary-1 w-[300px] h-[400px] sm:w-[400px] sm:h-[500px] rounded-lg py-4 px-2 ${followType==="Friends"?"grid grid-cols-2":"flex flex-col"} gap-2`}>
+          {list?.map((item) => (
             <li
               key={item._id}
-              className="grid grid-cols-[auto_1fr_auto] items-center gap-2 h-fit w-full"
+              className="grid grid-cols-[auto_1fr_auto] items-center gap-2 h-fit w-full border-l-4 border-accent pl-1 rounded-md"
             >
               {item._id === session?.user.id ? (
                 <UserProfileIcon currentUser={true} />
@@ -144,7 +173,7 @@ export default function UserStatBar({
               <p className="font-bold break-all whitespace-normal">
                 {item.username}
               </p>
-              {item._id === session?.user.id ? null : curUserFollowing?.find(
+              {item._id === session?.user.id || followType==="Friends" ? null : curUserFollowing?.find(
                   (follow) => follow._id === item._id
                 ) ? (
                 <button
@@ -190,7 +219,7 @@ export default function UserStatBar({
             <span className="font-semibold">{followers.length || 0}</span>
           ) : (
             <span className=" w-6 rounded-lg animate-pulse bg-accent">
-              <div className="opacity-0">2</div>
+              <div className="opacity-0">9999</div>
             </span>
           )}
           Followers
@@ -205,22 +234,27 @@ export default function UserStatBar({
             <span className="font-semibold">{following.length || 0}</span>
           ) : (
             <span className=" w-6 rounded-lg animate-pulse bg-accent">
-              <div className="opacity-0">2</div>
+              <div className="opacity-0">9999</div>
             </span>
           )}
           Following
         </h1>
       </PopupButton>
-      <h1 className="flex flex-col items-center justify-start">
-        {postCount ? (
-          <span className="font-semibold">{postCount || 0}</span>
-        ) : (
-          <span className=" w-6 rounded-lg animate-pulse bg-accent">
-            <div className="opacity-0">2</div>
-          </span>
-        )}
-        Posts
-      </h1>
+      <PopupButton popupItem={<FollowList />}>
+        <h1
+          className="flex flex-col items-center justify-start"
+          onClick={() => setFollowType("Friends")}
+        >
+          {friends ? (
+            <span className="font-semibold">{friends.length || 0}</span>
+          ) : (
+            <span className=" w-6 rounded-lg animate-pulse bg-accent">
+              <div className="opacity-0">9999</div>
+            </span>
+          )}
+          Friends
+        </h1>
+      </PopupButton>
     </div>
   );
 }

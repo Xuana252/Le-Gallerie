@@ -24,7 +24,7 @@ import "cropperjs/dist/cropper.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { AppLogoLoader } from "@components/UI/Loader";
 import { UploadImage } from "@lib/types";
-import ImageSlider from "@components/UI/ImageSlider";
+import ImageSlider from "@components/UI/Image/ImageSlider";
 import { testImageUrl } from "@lib/image";
 import toastError from "@components/Notification/Toaster";
 

@@ -6,14 +6,15 @@ import {
   faArrowLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
-import Feed from "@components/UI/Feed";
+import Feed from "@components/UI/Layout/Feed";
 import { Category, Comment, User, type Post } from "@lib/types";
 import { useSession } from "next-auth/react";
 import {
   fetchPostWithId,
 } from "@actions/postActions";
-import PostDetail from "@components/UI/PostDetail";
+import PostDetail from "@components/UI/Post/PostDetail";
 import mongoose, { Schema } from "mongoose";
+import { PostPrivacy } from "@enum/postPrivacyEnum";
 
 export default function Post({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
@@ -28,6 +29,7 @@ export default function Post({ params }: { params: { id: string } }) {
     image: [],
     likes: 0,
     createdAt: undefined,
+    privacy: PostPrivacy.PUBLIC,
   });
 
 

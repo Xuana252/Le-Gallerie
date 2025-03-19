@@ -65,7 +65,7 @@ export const fetchPostWithId = async (post: string) => {
     headers: new Headers(headers()),
   });
 
-  const data = await response.json();
+  const data = await response.json();;
 
   if (response.ok) return data;
   return null;
@@ -98,13 +98,8 @@ export const updatePost = async (post: Post) => {
   return null;
 };
 
-
-
-
-
 export const deletePost = async (post: string) => {
   await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}`, {
     method: "DELETE",
   });
 };
-

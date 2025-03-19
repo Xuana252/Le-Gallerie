@@ -2,7 +2,7 @@ import React, { Dispatch, FormEvent, SetStateAction, useState } from "react";
 import FriendSearchSection from "../ChatTabComponent/FriendSearchSection";
 import { User } from "@lib/types";
 import { ChatBoxView } from "@enum/chatBoxView";
-import UserProfileIcon from "@components/UI/UserProfileIcon";
+import UserProfileIcon from "@components/UI/Profile/UserProfileIcon";
 import {
   faAngleLeft,
   faMinus,

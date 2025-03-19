@@ -19,7 +19,7 @@ export const GET = async (
     const currentUser = await User.findById(session?.user.id);
 
     const post = await Post.findById(params.id)
-      .select("_id creator title categories description image likes createdAt")
+      .select("-updatedAt -__v")
       .populate({
         path: "creator",
         select: "-email -password -createdAt -updatedAt -__v",
@@ -52,7 +52,7 @@ export const PATCH = async (
   req: NextRequest,
   { params }: { params: { id: string } }
 ) => {
-  const { image, categories, title, description } = await req.json();
+  const { image, categories, title, description ,privacy} = await req.json();
   try {
     await connectToDB();
     const updatedPost = {
@@ -60,6 +60,7 @@ export const PATCH = async (
       categories: categories,
       title: title,
       description: description,
+      privacy: privacy,
     };
     const post = await Post.findByIdAndUpdate(params.id, updatedPost, {
       new: true,

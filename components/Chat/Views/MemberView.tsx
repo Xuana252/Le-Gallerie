@@ -1,6 +1,6 @@
 import { ChatBoxView } from "@enum/chatBoxView";
 import SubmitButton from "@components/Input/SubmitButton";
-import UserProfileIcon from "@components/UI/UserProfileIcon";
+import UserProfileIcon from "@components/UI/Profile/UserProfileIcon";
 import {
   faAngleLeft,
   faUsers,

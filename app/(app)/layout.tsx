@@ -4,7 +4,7 @@ config.autoAddCss = false;
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
-import Nav from "@components/UI/Nav";
+import Nav from "@components/UI/Layout/Nav";
 import Provider from "@context/Provider";
 import ThemeManager from "@theme/ThemeManager";
 const inter = Inter({ subsets: ["latin"] });

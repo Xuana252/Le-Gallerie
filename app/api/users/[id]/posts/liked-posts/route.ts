@@ -24,7 +24,7 @@ export const GET = async (
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .select("_id creator title categories description image likes createdAt")
+      .select("_-updatedAt -__v")
       .populate({
         path: "creator",
         select: "-email -password -updatedAt -__v",

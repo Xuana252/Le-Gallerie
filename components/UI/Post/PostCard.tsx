@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { type Post } from "@lib/types";
-import CustomImage from "./Image";
+import CustomImage from "../Image/Image";
 import { useSession } from "next-auth/react";
-import UserProfileIcon from "./UserProfileIcon";
+import UserProfileIcon from "../Profile/UserProfileIcon";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import {
   faHeart,

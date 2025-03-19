@@ -1,6 +1,6 @@
 import { blockUser } from "@actions/accountActions";
 import toastError, { confirm } from "@components/Notification/Toaster";
-import CustomImage from "@components/UI/Image";
+import CustomImage from "@components/UI/Image/Image";
 import { db } from "@lib/firebase";
 import { removeImage } from "@lib/upload";
 import {
@@ -29,7 +29,7 @@ import { useRouter } from "@node_modules/next/navigation";
 import { deleteChat, leaveChat } from "@lib/Chat/chat";
 import { User } from "@lib/types";
 import { ChatBoxView } from "@enum/chatBoxView";
-import ImageGroupDisplay from "@components/UI/ImageGroupDisplay";
+import ImageGroupDisplay from "@components/UI/Image/ImageGroupDisplay";
 
 export default function SettingView({
   chatInfo,

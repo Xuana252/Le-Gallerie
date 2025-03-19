@@ -63,6 +63,7 @@ export default function CustomImage({ src, zoomable = false, ...props }: any) {
             urlEndpoint={urlEndpoint}
             src={imageSource}
             priority
+            loading="lazy"
             {...props}
           />
           {isZoomed &&

@@ -1,5 +1,5 @@
 "use client";
-import CustomImage from "@components/UI/Image";
+import CustomImage from "@components/UI/Image/Image";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { formatTimeAgo } from "@lib/dateFormat";

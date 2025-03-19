@@ -17,7 +17,7 @@ import {
 
 } from "@actions/postActions";
 import { useEffect, useRef, useState } from "react";
-import UserProfileIcon from "./UserProfileIcon";
+import UserProfileIcon from "../../Profile/UserProfileIcon";
 import { useSession } from "next-auth/react";
 import { formatTimeAgoWithoutAgo } from "@lib/dateFormat";
 import InputBox from "@components/Input/InputBox";

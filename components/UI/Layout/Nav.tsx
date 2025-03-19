@@ -10,11 +10,11 @@ import {
   faEllipsisVertical,
 } from "@fortawesome/free-solid-svg-icons";
 import { usePathname, useRouter } from "next/navigation";
-import InputBox from "../Input/InputBox";
-import DropDownButton from "../Input/DropDownButton";
+import InputBox from "../../Input/InputBox";
+import DropDownButton from "../../Input/DropDownButton";
 import { signOut, useSession } from "next-auth/react";
 import { SetStateAction, useEffect, useState } from "react";
-import UserProfileIcon from "./UserProfileIcon";
+import UserProfileIcon from "../Profile/UserProfileIcon";
 import { createContext, Dispatch } from "react";
 import ThemeList from "@theme/ThemesList";
 import NotificationButton from "@components/Notification/NotificationButton";

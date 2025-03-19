@@ -1,7 +1,7 @@
 "use client";
 import InputBox from "@components/Input/InputBox";
 import toastError from "@components/Notification/Toaster";
-import UserProfileIcon from "@components/UI/UserProfileIcon";
+import UserProfileIcon from "@components/UI/Profile/UserProfileIcon";
 import { User } from "@lib/types";
 import { blockUser, fetchUserBlockedList } from "@actions/accountActions";
 import { getSession, useSession } from "next-auth/react";

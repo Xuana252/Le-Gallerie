@@ -14,7 +14,7 @@ import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { useSession, getSession } from "@node_modules/next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useContext, useEffect, useState } from "react";
-import { ChatContext } from "../Nav";
+import { ChatContext } from "../Layout/Nav";
 import { User } from "@lib/types";
 import { FriendState } from "@enum/friendStateEnum";
 import {
@@ -154,7 +154,7 @@ export default function UserInteractionBar({
         return <>Follow</>;
       default:
         return (
-          <div className=" rounded-xl text-transparent animate-pulse bg-accent">
+          <div className=" rounded-md text-transparent animate-pulse bg-accent">
             NullState
           </div>
         );
@@ -181,7 +181,7 @@ export default function UserInteractionBar({
         return <>Cancel Request</>;
       default:
         return (
-          <div className=" rounded-xl text-transparent animate-pulse bg-accent">
+          <div className=" rounded-md text-transparent animate-pulse bg-accent">
             NullState
           </div>
         );

@@ -7,9 +7,9 @@ import React, {
   useRef,
   useState,
 } from "react";
-import PostCard from "./PostCard";
+import PostCard from "../Post/PostCard";
 import { type Category, type Post } from "@lib/types";
-import Loader from "./Loader";
+import Loader from "../Loader";
 import CategoryBar from "./CategoriesBar";
 import { SearchContext } from "./Nav";
 import { usePathname } from "next/navigation";
@@ -68,6 +68,7 @@ export default function Feed({
         ? await fetchUserLikedPost(userIdFilter, currentPage, limit)
         : await fetchUserPost(userIdFilter, currentPage, limit);
 
+      console.log(response.counts);
       setPostCount && setPostCount(response.counts);
       if (searchText || categoriesFilter.length > 0) {
         setSearchCount(response.counts);
@@ -218,10 +219,9 @@ export default function Feed({
                   }
                   return null;
                 })}
-                {
-                  isLoading &&
+                {isLoading &&
                   Array.from({ length: 10 }).map((_, index) => {
-                    if (((posts.length + index) % colsNum) === columnIndex) {
+                    if ((posts.length + index) % colsNum === columnIndex) {
                       return (
                         <div key={index}>
                           <PostCard isLoading={true} />

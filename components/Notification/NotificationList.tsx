@@ -34,7 +34,7 @@ import {
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { formatTimeAgo } from "@lib/dateFormat";
-import CustomImage from "@components/UI/Image";
+import CustomImage from "@components/UI/Image/Image";
 import { fetchFriendRequest, sendFriendRequest } from "@actions/friendActions";
 
 export default function NotificationList({

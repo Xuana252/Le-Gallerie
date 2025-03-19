@@ -1,6 +1,6 @@
 "use client";
 import React, { useContext, useEffect, useState } from "react";
-import Feed from "@components/UI/Feed";
+import Feed from "@components/UI/Layout/Feed";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBorderAll,
@@ -24,12 +24,12 @@ import {
 } from "firebase/firestore";
 import { db } from "@lib/firebase";
 import { getSession, useSession } from "next-auth/react";
-import { ChatContext } from "@components/UI/Nav";
+import { ChatContext } from "@components/UI/Layout/Nav";
 import toastError, { confirm } from "@components/Notification/Toaster";
 import { useRouter } from "next/navigation";
 import PopupButton from "@components/Input/PopupButton";
-import UserProfileIcon from "@components/UI/UserProfileIcon";
-import CustomImage from "@components/UI/Image";
+import UserProfileIcon from "@components/UI/Profile/UserProfileIcon";
+import CustomImage from "@components/UI/Image/Image";
 import MultipleOptionsButton from "@components/Input/MultipleOptionsButton";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import { startChat } from "@lib/Chat/chat";
@@ -43,15 +43,9 @@ import UserStatBar from "@components/UI/Profile/UserStatBar";
 import UserInteractionBar from "@components/UI/Profile/UserInteractionBar";
 
 export default function UserProfile({ params }: { params: { id: string } }) {
-  const TIME_OUT_TIME = 1000;
-  const router = useRouter();
   const { data: session, status, update } = useSession();
-  const [postCount, setPostCount] = useState<number>(0);
-  const [isFollowed, setIsFollowed] = useState(false);
   const [isBlocked, setIsBlocked] = useState<boolean>(false); //from the other user
   const [blocked, setBlocked] = useState<boolean>(false); //us blocking the other user
-  const [followTimeOut, setFollowTimeout] = useState(false);
-  const { setChatInfo } = useContext(ChatContext);
   const [interactFlag, setInteractFlag] = useState(true);
 
   const [view, setView] = useState<"AllPosts" | "LikedPosts">("AllPosts");
@@ -111,7 +105,6 @@ export default function UserProfile({ params }: { params: { id: string } }) {
         setBlocked(blockedUser);
       } else {
         setUser(user);
-        setIsFollowed(user.followed);
       }
       localStorage.removeItem("user");
     }
@@ -154,16 +147,12 @@ export default function UserProfile({ params }: { params: { id: string } }) {
             </div>
           </div>
           <div className="User_Profile_Page_Interactive_Bar">
-            <div className="rounded-lg bg-accent animate-pulse p-1 ">
+            <div className="rounded-lg bg-accent animate-pulse p-2 ">
               <span className="opacity-0">User Button</span>
             </div>
-            <div className="rounded-lg bg-accent animate-pulse p-1 ">
+            <div className="rounded-lg bg-accent animate-pulse p-2 ">
               <span className="opacity-0">User Button</span>
             </div>
-            <div className="rounded-lg bg-accent animate-pulse p-1 ">
-              <span className="opacity-0">User Button</span>
-            </div>
-           
           </div>
           <h1 className="text-center text-xl my-4 ">See posts</h1>
           <div className="shadow-inner bg-secondary-2/20 rounded-xl">
@@ -205,7 +194,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
             <UserStatBar
               userId={params.id}
               updateFlag={interactFlag}
-              postCount={postCount}
+        
             />
           </div>
           <div className="px-4 py-2">
@@ -249,7 +238,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                       userIdLikedFilter={true}
                       userIdFilter={user._id}
                       showCateBar={false}
-                      setPostCount={setPostCount}
+           
                     ></Feed>
                   </div>
                   <div className={`${view === "AllPosts" ? "" : "hidden"}`}>
@@ -257,7 +246,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                       userIdLikedFilter={false}
                       userIdFilter={user._id}
                       showCateBar={false}
-                      setPostCount={()=>{}}
+                   
                     ></Feed>
                   </div>
                 </>

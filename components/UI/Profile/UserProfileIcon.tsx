@@ -11,9 +11,9 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { type User } from "@lib/types";
-import { checkFollowState } from "@actions/accountActions";
-import CustomImage from "./Image";
+import CustomImage from "../Image/Image";
 import { useEffect, useState } from "react";
+import { checkFollowState } from "@actions/followsActions";
 
 // Define the base type for the props
 type BaseUserProfileIconProps = {
@@ -63,7 +63,7 @@ export default function UserProfileIcon({
     }
   };
 
-    const userImg = currentUser ? session?.user.image ?? "" : user?.image ?? ""
+  const userImg = currentUser ? session?.user.image ?? "" : user?.image ?? "";
 
   return (
     <button className={`bg-secondary-2 relative ${size}`} onClick={handleClick}>

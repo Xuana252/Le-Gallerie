@@ -48,3 +48,16 @@ export const fetchFriendRequest = async (userId: string) => {
     return [];
   }
 };
+
+export const fetchUserFriends = async (userId:string) => {
+  try {
+    const response = await fetch(
+      `${process.env.DOMAIN_NAME}/api/users/${userId}/friends`
+    );
+    const data = await response.json();
+    if (response.ok) return { users: data.users, length: data.length };
+  } catch (error) {
+    console.log("Failed to check user followed state", error);
+    return null;
+  }
+}

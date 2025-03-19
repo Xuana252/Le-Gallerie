@@ -1,7 +1,7 @@
 "use client";
 import { User } from "@lib/types";
 import React, { useContext, useEffect, useState } from "react";
-import UserProfileIcon from "./UserProfileIcon";
+import UserProfileIcon from "../Profile/UserProfileIcon";
 import { useSession } from "next-auth/react";
 import { SearchContext } from "./Nav";
 import { fetchUsers } from "@actions/accountActions";

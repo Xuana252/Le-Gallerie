@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { useRef, useState, useEffect } from "react";
 import { useSession } from "@node_modules/next-auth/react";
 import { useSearchParams } from "@node_modules/next/navigation";
-import UserProfileIcon from "./UserProfileIcon";
+import UserProfileIcon from "../../Profile/UserProfileIcon";
 import { Comment, Like } from "@lib/types";
 import ReactionButton from "@components/Input/ReactionInput";
 import { Reaction } from "@enum/reactionEnum";

@@ -1,7 +1,7 @@
 import { getTop3Reactions, renderReaction } from "@lib/Emoji/render";
 import { Like } from "@lib/types";
 import React, { useState } from "react";
-import UserProfileIcon from "./UserProfileIcon";
+import UserProfileIcon from "../../Profile/UserProfileIcon";
 import { useSession } from "@node_modules/next-auth/react";
 import { Reaction } from "@enum/reactionEnum";
 

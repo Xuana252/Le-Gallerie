@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Image from "@components/UI/Image";
-import Feed from "@components/UI/Feed";
+import Image from "@components/UI/Image/Image";
+import Feed from "@components/UI/Layout/Feed";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUser,
@@ -12,11 +12,11 @@ import {
 import Link from "next/link";
 import { getSession, useSession } from "next-auth/react";
 import PopupButton from "@components/Input/PopupButton";
-import UserProfileIcon from "@components/UI/UserProfileIcon";
+import UserProfileIcon from "@components/UI/Profile/UserProfileIcon";
 import { User } from "@lib/types";
 import { confirm } from "@components/Notification/Toaster";
 import ButtonWithTimeOut from "@components/Input/ButtonWithTimeOut";
-import CustomImage from "@components/UI/Image";
+import CustomImage from "@components/UI/Image/Image";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import {
   fetchUserFollowers,
@@ -28,7 +28,6 @@ import UserStatBar from "@components/UI/Profile/UserStatBar";
 export default function MyProfile() {
   const { data: session, update } = useSession();
 
-  const [postCount, setPostCount] = useState<number>(0);
   const [view, setView] = useState<"AllPosts" | "LikedPosts">("AllPosts");
 
   return (
@@ -58,7 +57,7 @@ export default function MyProfile() {
         <UserStatBar
           userId={session?.user.id || ""}
           updateFlag={true}
-          postCount={postCount}
+
         />
       </div>
       <div className="px-4 py-2">
@@ -112,7 +111,7 @@ export default function MyProfile() {
                   userIdLikedFilter={true}
                   userIdFilter={session.user.id}
                   showCateBar={false}
-                  setPostCount={setPostCount}
+                 
                 ></Feed>
               </div>
               <div className={`${view === "AllPosts" ? "" : "hidden"}`}>
@@ -120,7 +119,6 @@ export default function MyProfile() {
                   userIdLikedFilter={false}
                   userIdFilter={session.user.id}
                   showCateBar={false}
-                  setPostCount={setPostCount}
                 ></Feed>
               </div>
             </>

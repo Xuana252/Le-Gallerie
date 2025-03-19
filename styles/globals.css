@@ -103,7 +103,7 @@
 }
 
 .Notification_list {
-  @apply w-[300px] h-[400px] sm:w-[350px] overflow-y-scroll no-scrollbar flex flex-col gap-2 p-2 bg-secondary-2 rounded-b-lg;
+  @apply w-[300px] h-[400px] sm:w-[350px] overflow-y-scroll no-scrollbar flex flex-col gap-2 p-2 bg-secondary-2 rounded-lg;
 }
 .Notification_item {
   @apply grid grid-cols-[auto_1fr_auto] gap-2 items-center p-2 rounded-xl bg-accent h-fit w-full text-primary select-none cursor-pointer;
@@ -224,13 +224,13 @@
 
 @font-face {
   font-family: "AppLogo";
-  src: url("../Fonts/icomoon.ttf") format("woff2");
+  src: url("../public/Fonts/icomoon.ttf") format("woff2");
   font-weight: normal;
   font-style: normal;
 }
 @font-face {
   font-family: "AppName";
-  src: url("../Fonts/PlaywriteBEVLG-VariableFont_wght.ttf") format("woff2");
+  src: url("../public/Fonts/PlaywriteBEVLG-VariableFont_wght.ttf") format("woff2");
   font-weight: normal;
   font-style: normal;
 }

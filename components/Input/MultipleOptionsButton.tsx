@@ -5,7 +5,13 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useSpring, animated } from "@react-spring/web";
-import React, { ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, {
+  ReactNode,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 
 export default function MultipleOptionsButton({
   children,
@@ -19,8 +25,10 @@ export default function MultipleOptionsButton({
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   useLayoutEffect(() => {
-    const selectedWidth = selectedRef.current?.getBoundingClientRect().width || 0;
-    const dropdownWidth = dropdownRef.current?.getBoundingClientRect().width || 0;
+    const selectedWidth =
+      selectedRef.current?.getBoundingClientRect().width || 0;
+    const dropdownWidth =
+      dropdownRef.current?.getBoundingClientRect().width || 0;
     setMaxWidth(Math.max(selectedWidth, dropdownWidth));
   }, [children, selectedIndex, toggleDropDown]);
 
@@ -39,14 +47,20 @@ export default function MultipleOptionsButton({
         style={{ width: maxWidth || "auto" }}
       >
         <div
-          className="hover:bg-accent hover:text-primary h-full w-full"
-          onClick={() => setToggleDropDown(false)}
+          className="hover:bg-accent hover:text-primary h-full w-full flex flex-row items-center justify-center"
+          onClick={(e) => {
+            e.preventDefault();
+            setToggleDropDown(false);
+          }}
         >
           {children[selectedIndex]}
         </div>
         <button
           className=" h-full w-8 border-l-2 aspect-square border-accent hover:bg-accent hover:text-primary text-accent"
-          onClick={() => setToggleDropDown((prev) => !prev)}
+          onClick={(e) => {
+            e.preventDefault();
+            setToggleDropDown((prev) => !prev);
+          }}
         >
           <FontAwesomeIcon
             icon={faAngleUp}
@@ -70,7 +84,7 @@ export default function MultipleOptionsButton({
         }
       >
         <ul
-          className={` max-h-[400px] w-full overflow-y-scroll no-scrollbar flex-col flex  items-center `}
+          className={` max-h-[400px] w-full overflow-y-scroll no-scrollbar flex-col flex  items-center p-1 `}
         >
           {children.map((item, index) =>
             index !== selectedIndex ? (

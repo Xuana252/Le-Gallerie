@@ -1,4 +1,4 @@
-import { ChatContext } from "@components/UI/Nav";
+import { ChatContext } from "@components/UI/Layout/Nav";
 import { db } from "@lib/firebase";
 import { User } from "@lib/types";
 import {
@@ -19,6 +19,23 @@ import { Reaction } from "@enum/reactionEnum";
 
 const chatRef = collection(db, "chat");
 const usersChatRef = collection(db, "usersChat");
+
+export const RenderBackground = (theme: string) => {
+  switch (theme) {
+    case "theme-spiderman-classic":
+      return "backgrounds/Spiderman/Spiderman.png";
+    case "theme-spiderman-miles":
+      return "backgrounds/Spiderman/MilesMorales2.png";
+    case "theme-spiderman-2099":
+      return "backgrounds/Spiderman/Spider2099.png";
+    case "theme-spiderman-symbiote":
+      return "backgrounds/Spiderman/Venom.png";
+    case "theme-spiderman-gwen":
+      return "backgrounds/Spiderman/SpiderGwen.png";
+    default:
+      return "";
+  }
+};
 
 export const RenderLog = (type: number, username: String) => {
   switch (type) {
