@@ -6,6 +6,10 @@ import { NextApiRequest } from "next";
 import { getServerSession } from "next-auth";
 import { options } from "@app/api/auth/[...nextauth]/options";
 import User from "@models/userModel";
+import { FriendState } from "@enum/friendStateEnum";
+import Friend from "@models/friendModel";
+import { PostPrivacy } from "@enum/postPrivacyEnum";
+import { checkFriendState } from "@actions/friendActions";
 
 export const GET = async (
   req: NextRequest,
@@ -30,15 +34,32 @@ export const GET = async (
       return NextResponse.json({ message: "Post not found" }, { status: 404 });
     }
 
-    if (currentUser&&(currentUser.blocked.includes(post.creator._id.toString())||post.creator.blocked.includes(currentUser._id.toString()))) {
+    if (
+      (post.privacy === PostPrivacy.PRIVATE &&post.creator._id.toString()!==session?.user.id) ||
+      (currentUser &&
+        (currentUser.blocked.includes(post.creator._id.toString()) ||
+          post.creator.blocked.includes(currentUser._id.toString())))
+    ) {
       return NextResponse.json(
         { message: "Post not available" },
         { status: 403 }
       );
+    } else if (post.privacy === PostPrivacy.FRIEND) {
+      const state = await checkFriendState(
+        post.creator._id.toString(),
+        session?.user.id || ""
+      );
+      if (state !== FriendState.FRIEND) {
+        return NextResponse.json(
+          { message: "Post not available" },
+          { status: 403 }
+        );
+      } else {
+        return NextResponse.json(post, { status: 200 });
+      }
     } else {
       return NextResponse.json(post, { status: 200 });
     }
-
   } catch (error) {
     console.log(error);
     return NextResponse.json(
@@ -52,7 +73,7 @@ export const PATCH = async (
   req: NextRequest,
   { params }: { params: { id: string } }
 ) => {
-  const { image, categories, title, description ,privacy} = await req.json();
+  const { image, categories, title, description, privacy } = await req.json();
   try {
     await connectToDB();
     const updatedPost = {

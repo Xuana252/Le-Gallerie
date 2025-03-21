@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { UploadImage, UploadPost } from "@lib/types";
 import { uploadImage } from "@lib/upload";
+import { PostPrivacy } from "@enum/postPrivacyEnum";
 
 export default function EditPost() {
   const searchParams = useSearchParams();
@@ -22,6 +23,7 @@ export default function EditPost() {
         url: "",
       },
     ],
+    privacy:PostPrivacy.PUBLIC
   });
 
   useEffect(() => {

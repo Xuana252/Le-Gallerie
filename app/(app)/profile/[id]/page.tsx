@@ -41,6 +41,7 @@ import {
 } from "@actions/followsActions";
 import UserStatBar from "@components/UI/Profile/UserStatBar";
 import UserInteractionBar from "@components/UI/Profile/UserInteractionBar";
+import UserPostFeed from "@components/UI/Profile/UserPostFeed";
 
 export default function UserProfile({ params }: { params: { id: string } }) {
   const { data: session, status, update } = useSession();
@@ -48,7 +49,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
   const [blocked, setBlocked] = useState<boolean>(false); //us blocking the other user
   const [interactFlag, setInteractFlag] = useState(true);
 
-  const [view, setView] = useState<"AllPosts" | "LikedPosts">("AllPosts");
+
   const [user, setUser] = useState<User | null>({
     _id: "",
     username: "",
@@ -207,52 +208,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
             updateCallback={() => setInteractFlag((prev) => !prev)}
           />
 
-          <div className="w-full flex flex-col">
-            <div className="w-full flex flex-row justify-center items-center gap-6 h-fit  ">
-              <button
-                className={`${
-                  view === "AllPosts"
-                    ? "text-accent border-b-4 border-accent"
-                    : "text-secondary-2"
-                } text-3xl  hover:text-accent size-12`}
-                onClick={() => setView("AllPosts")}
-              >
-                <FontAwesomeIcon icon={faBorderAll} />
-              </button>
-              <button
-                className={`${
-                  view === "LikedPosts"
-                    ? "text-accent border-b-4 border-accent"
-                    : "text-secondary-2"
-                } text-3xl  hover:text-accent size-12`}
-                onClick={() => setView("LikedPosts")}
-              >
-                <FontAwesomeIcon icon={faHeart} />
-              </button>
-            </div>
-            <div className="shadow-inner bg-secondary-2/20 rounded-xl">
-              {user?._id && (
-                <>
-                  <div className={`${view === "LikedPosts" ? "" : "hidden"}`}>
-                    <Feed
-                      userIdLikedFilter={true}
-                      userIdFilter={user._id}
-                      showCateBar={false}
-           
-                    ></Feed>
-                  </div>
-                  <div className={`${view === "AllPosts" ? "" : "hidden"}`}>
-                    <Feed
-                      userIdLikedFilter={false}
-                      userIdFilter={user._id}
-                      showCateBar={false}
-                   
-                    ></Feed>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
+          <UserPostFeed userId={user._id}/>
         </section>
       )}
     </>

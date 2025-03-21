@@ -12,11 +12,14 @@ export const GET = async (
 
     const request = Friend.find({
       $and: [{ user2: params.id }, { state: FriendState.PENDING }],
-    }).populate({path:"user1",select: "-email -password -createdAt -updatedAt -__v"});
+    }).populate({
+      path: "user1",
+      select: "-email -password -createdAt -updatedAt -__v",
+    });
 
     return NextResponse.json({ request: request }, { status: 200 });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return NextResponse.json(
       { message: "Failed to fetch friend request" },
       { status: 500 }

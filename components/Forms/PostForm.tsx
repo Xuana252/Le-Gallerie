@@ -168,7 +168,7 @@ export default function PostForm({ type, editPost }: PostFormProps) {
             {type} form{" "}
           </h2>
 
-          <MultipleOptionsButton>
+          <MultipleOptionsButton selected={post.privacy===PostPrivacy.PUBLIC?0:post.privacy===PostPrivacy.FRIEND?1:2}>
             <button
               className="flex flex-row items-center gap-2 p-1 text-sm font-bold"
               onClick={(e) => {

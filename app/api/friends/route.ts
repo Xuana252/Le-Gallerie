@@ -98,6 +98,11 @@ export const DELETE = async (req: NextRequest) => {
         { user1: userId2, user2: userId1 },
       ],
     });
+
+    return NextResponse.json(
+      { message: "Friend deleted" },
+      { status: 200 }
+    )
   } catch (error) {
     console.log(error);
     return NextResponse.json(

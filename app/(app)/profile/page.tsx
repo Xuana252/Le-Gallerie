@@ -24,11 +24,10 @@ import {
   followUser,
 } from "@actions/followsActions";
 import UserStatBar from "@components/UI/Profile/UserStatBar";
+import UserPostFeed from "@components/UI/Profile/UserPostFeed";
 
 export default function MyProfile() {
   const { data: session, update } = useSession();
-
-  const [view, setView] = useState<"AllPosts" | "LikedPosts">("AllPosts");
 
   return (
     <section className="text-accent">
@@ -80,51 +79,7 @@ export default function MyProfile() {
           </Link>
         </>
       </div>
-      <div className="w-full flex flex-col">
-        <div className="w-full flex flex-row justify-center items-center gap-6 h-[50px]">
-          <button
-            className={`${
-              view === "AllPosts"
-                ? "text-accent border-b-4 border-accent"
-                : "text-secondary-2"
-            } text-3xl  hover:text-accent size-12`}
-            onClick={() => setView("AllPosts")}
-          >
-            <FontAwesomeIcon icon={faBorderAll} />
-          </button>
-          <button
-            className={`${
-              view === "LikedPosts"
-                ? "text-accent border-b-4 border-accent"
-                : "text-secondary-2"
-            } text-3xl  hover:text-accent size-12`}
-            onClick={() => setView("LikedPosts")}
-          >
-            <FontAwesomeIcon icon={faHeart} />
-          </button>
-        </div>
-        <div className="shadow-inner bg-secondary-2/20 rounded-xl">
-          {session?.user.id && (
-            <>
-              <div className={`${view === "LikedPosts" ? "" : "hidden"}`}>
-                <Feed
-                  userIdLikedFilter={true}
-                  userIdFilter={session.user.id}
-                  showCateBar={false}
-                 
-                ></Feed>
-              </div>
-              <div className={`${view === "AllPosts" ? "" : "hidden"}`}>
-                <Feed
-                  userIdLikedFilter={false}
-                  userIdFilter={session.user.id}
-                  showCateBar={false}
-                ></Feed>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
+      <UserPostFeed userId={session?.user.id||""}/>
     </section>
   );
 }

@@ -14,12 +14,14 @@ import React, {
 } from "react";
 
 export default function MultipleOptionsButton({
+  selected = 0,
   children,
 }: {
+  selected?: number;
   children: ReactNode[];
 }) {
   const [toggleDropDown, setToggleDropDown] = useState<boolean>(false);
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [selectedIndex, setSelectedIndex] = useState<number>(selected||0);
   const [maxWidth, setMaxWidth] = useState<number | null>(null);
   const selectedRef = useRef<HTMLDivElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);

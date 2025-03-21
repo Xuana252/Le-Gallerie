@@ -1,53 +1,44 @@
-import { faKey, faUser, faUserGear, faUserLock } from "@fortawesome/free-solid-svg-icons";
+import { menuItems } from "@constant/settingRoutes";
+import {
+  faKey,
+  faUser,
+  faUserGear,
+  faUserLock,
+  IconDefinition,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 
 export default function Setting() {
-  const menuItems = [
-    {
-      path: "/profile/setting/info",
-      name: "Account Info",
-      description: "view your account information",
-      icon: faUser,
-    },
-    {
-      path: "/profile/setting/edit-profile",
-      name: "Edit Profile",
-      description: "Edit your personal information",
-      icon: faUserGear,
-    },
-    {
-      path: "/profile/setting/block-list",
-      name: "Block List",
-      description: "view, unblock blocked users",
-      icon: faUserLock,
-    },
-    {
-      path: "/profile/setting/change-password",
-      name: " Change Password",
-      description: "Change your account password",
-      icon: faKey,
-    },
-  ];
+  const sections = menuItems.slice(1, menuItems.length);
   return (
     <section>
       <div className="w-full text-center text-3xl font-bold text-accent">
         Setting
       </div>
-      <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 my-8">
-        {menuItems.map((item, index) => (
-          <Link
-            href={item.path}
-            key={index}
-            className="w-full bg-secondary-2/50 backdrop-blur-sm rounded-xl p-4 flex flex-col items-start gap-3 hover:scale-105 transition-transform duration-200"
-          >
-            <FontAwesomeIcon
-              icon={item.icon}
-              className="text-4xl text-accent/70"
-            />
-            <span className="font-bold text-accent text-xl">{item.name}</span>
-            <p className="text-accent/80 text-base">{item.description}</p>
-          </Link>
+      <ul className="flex flex-col gap-6 my-8">
+        {sections.map((section: any, index) => (
+          <div>
+            <div className="w-fit bg-secondary-1/50 px-2 py-1 rounded-t-xl text-accent/70 text-xl">{section.section}</div>
+            <ul className="flex flex-wrap gap-6 p-4 bg-secondary-1/50 rounded-b-xl rounded-tr-xl">
+              {section.items.map((item: any, index: number) => (
+                <Link
+                  href={item.path}
+                  key={index}
+                  className="grow min-w-[30%] bg-secondary-2/50 backdrop-blur-sm rounded-xl p-4 flex flex-col items-start gap-3 hover:bg-secondary-2/70 transition-transform duration-200"
+                >
+                  <FontAwesomeIcon
+                    icon={item.icon}
+                    className="text-xl sm:text-3xl text-accent/70"
+                  />
+                  <span className="font-bold text-accent text-xl">
+                    {item.name}
+                  </span>
+                  <p className="text-accent/80 text-base">{item.description}</p>
+                </Link>
+              ))}
+            </ul>
+          </div>
         ))}
       </ul>
     </section>

@@ -1,10 +1,11 @@
-
 import Post from "@models/postModel";
 import { getServerSession } from "next-auth";
 import { options } from "@app/api/auth/[...nextauth]/options";
 import User from "@models/userModel";
 import { NextResponse } from "@node_modules/next/server";
 import { connectToDB } from "@utils/database";
+import Friend from "@models/friendModel";
+import { FriendState } from "@enum/friendStateEnum";
 
 export const GET = async (req: Request) => {
   const { searchParams } = new URL(req.url);
@@ -20,6 +21,17 @@ export const GET = async (req: Request) => {
 
     const currentUser = await User.findById(session?.user.id);
 
+    const currentFriend = await Friend.find({
+      $or: [{ user1: session?.user.id }, { user2: session?.user.id }],
+      state: FriendState.FRIEND,
+    });
+
+    const currentFriendIds = currentFriend.map((friend) =>
+      friend.user1.toString() === session?.user.id
+        ? friend.user2.toString()
+        : friend.user1.toString()
+    );
+
     const skip = (page - 1) * limit;
 
     // Build the query object
@@ -27,10 +39,20 @@ export const GET = async (req: Request) => {
       creator: {
         $nin: currentUser?.blocked,
       },
+      $or: [
+        { privacy: "public" },
+        { creator: session?.user.id },
+        {
+          $and: [
+            { privacy: "friend" },
+            { creator: { $in: currentFriendIds } },
+          ],
+        }, // Include private posts only if friend
+      ],
     };
 
     const userIds = [];
-    const categoryIds = categoryIdsParam.split(',').filter(id => id);
+    const categoryIds = categoryIdsParam.split(",").filter((id) => id);
 
     if (searchText) {
       // Step 2: Fetch matching users
@@ -50,7 +72,7 @@ export const GET = async (req: Request) => {
       query.categories = { $in: categoryIds };
     }
     const count = await Post.countDocuments(query);
-    
+
     const posts = await Post.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -60,9 +82,7 @@ export const GET = async (req: Request) => {
         path: "creator",
         select: "-email -password -createdAt -updatedAt -__v",
       })
-      .populate(
-        "categories"
-      )
+      .populate("categories");
 
     return NextResponse.json({ posts: posts, counts: count }, { status: 200 });
   } catch (error) {

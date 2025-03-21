@@ -2,28 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
+::-webkit-scrollbar {
+
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  
+  background: rgba(var(--primary),0.5);
+  border-radius: 10px;
+}
+
+/* Scrollbar Handle */
+::-webkit-scrollbar-thumb {
+  background: rgba(var(--accent),0.5);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--accent),1);
+} 
+
 .MessageRowBase {
-  @apply flex items-center gap-1
+  @apply flex items-center gap-1;
 }
 .MyMessageRow {
-  @apply MessageRowBase flex-row-reverse
+  @apply MessageRowBase flex-row-reverse;
 }
 .OtherMessageRow {
-  @apply MessageRowBase flex-row
+  @apply MessageRowBase flex-row;
 }
-
-
 
 .Message_base {
   @apply size-fit px-3 py-1 font-semibold break-all whitespace-normal text-sm;
 }
 
-
 .My_message {
   @apply Message_base bg-accent text-primary;
 }
 .My_message_upper {
-  @apply My_message rounded-l-2xl rounded-tr-2xl rounded-br-md ;
+  @apply My_message rounded-l-2xl rounded-tr-2xl rounded-br-md;
 }
 .My_message_under {
   @apply My_message rounded-l-2xl rounded-br-2xl rounded-tr-md;
@@ -33,12 +51,11 @@
   @apply My_message rounded-l-2xl rounded-r-md;
 }
 
-
 .Other_message {
   @apply Message_base bg-primary text-accent;
 }
 .Other_message_upper {
-  @apply Other_message rounded-r-2xl rounded-tl-2xl rounded-bl-md ;
+  @apply Other_message rounded-r-2xl rounded-tl-2xl rounded-bl-md;
 }
 .Other_message_under {
   @apply Other_message rounded-r-2xl rounded-bl-2xl rounded-tl-md;
@@ -47,9 +64,8 @@
   @apply Other_message rounded-r-2xl rounded-l-md;
 }
 
-
 .Theme_list {
-  @apply flex flex-wrap gap-2  h-48 w-[150px] rounded-lg overflow-y-scroll no-scrollbar;
+  @apply flex flex-wrap gap-2  h-48 w-[150px] rounded-lg overflow-y-scroll ;
 }
 .Theme_item {
   @apply cursor-pointer w-full h-8 grid grid-cols-4  rounded-lg overflow-hidden;
@@ -87,15 +103,21 @@
 }
 
 .Side_bar_menu {
-  @apply flex h-full justify-start bg-secondary-2 gap-3 py-2 sm:py-4 px-2 flex-row w-full items-center overflow-x-scroll no-scrollbar sm:flex-col sm:items-start;
+  @apply grid grid-rows-[1fr_auto] justify-start bg-secondary-2/80 backdrop-blur-sm gap-3 p-2 flex-col z-40;
+}
+.Side_bar_path_list {
+  @apply flex flex-col gap-2 overflow-y-auto;
+}
+.Side_bar_section {
+  @apply flex flex-col gap-2 bg-secondary-1/50 w-full p-2 rounded-lg  transition-all duration-200 ease-out;
 }
 
 .Side_bar_item {
-  @apply flex flex-row  rounded-xl gap-2 items-center sm:w-full text-left px-4 py-2 text-accent hover:bg-accent/50 hover:text-primary active:bg-accent active:text-primary font-bold;
+  @apply flex flex-row transition-all text-sm duration-200 ease-out  rounded-lg gap-2 items-center w-full text-left px-4 py-2 text-accent hover:bg-accent/50 hover:text-primary active:bg-accent active:text-primary font-bold;
 }
 
 .Side_bar_selected_item {
-  @apply flex flex-row rounded-xl gap-2 items-center sm:w-full text-left px-4 py-2 font-bold bg-accent text-primary;
+  @apply flex flex-row rounded-lg gap-2  text-sm items-center w-full text-left px-4 py-2 font-bold bg-accent text-primary;
 }
 
 .Notification_view_toggle_button {
@@ -230,7 +252,8 @@
 }
 @font-face {
   font-family: "AppName";
-  src: url("../public/Fonts/PlaywriteBEVLG-VariableFont_wght.ttf") format("woff2");
+  src: url("../public/Fonts/PlaywriteBEVLG-VariableFont_wght.ttf")
+    format("woff2");
   font-weight: normal;
   font-style: normal;
 }
@@ -398,4 +421,3 @@
     transform: scaleY(-1) rotate(-135deg);
   }
 }
-

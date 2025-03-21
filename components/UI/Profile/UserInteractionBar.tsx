@@ -42,7 +42,7 @@ export default function UserInteractionBar({
   const { setChatInfo } = useContext(ChatContext);
 
   const handleFriendButtonAction = async () => {
-    if(friendState===null) return
+    if (friendState === null) return;
     if (!session?.user.id) {
       const loginConfirm = await confirm("you need to login first");
       if (loginConfirm) {
@@ -52,13 +52,21 @@ export default function UserInteractionBar({
     }
     switch (friendState) {
       case FriendState.UNFRIEND:
+        setFriendState(FriendState.SENT);
+        sendFriendRequest(session.user.id, user._id);
+        break;
       case FriendState.PENDING:
+        setFriendState(FriendState.SENT);
         sendFriendRequest(session.user.id, user._id);
         break;
       case FriendState.FRIEND:
         const confirmation = await confirm("Do you want to unfriend");
         if (!confirmation) break;
+        setFriendState(FriendState.UNFRIEND);
+        removeFriendRequest(session.user.id, user._id);
+        break;
       case FriendState.SENT:
+        setFriendState(FriendState.UNFRIEND);
         removeFriendRequest(session.user.id, user._id);
         break;
     }
@@ -193,19 +201,19 @@ export default function UserInteractionBar({
         <>
           <MultipleOptionsButton>
             <button
-              className={`size-full font-bold px-2 py-1`}
+              className={`size-full px-2 py-1 flex flex-row items-center gap-2 p-1 text-sm font-bold justify-center text-nowrap`}
               onClick={handleChangeFollowState}
             >
               {renderFollowState(isFollowed)}
             </button>
             <button
-              className={`size-full font-bold px-2 py-1`}
+              className={`size-full font-bold px-2 py-1 flex flex-row items-center gap-2 p-1 text-sm justify-center text-nowrap`}
               onClick={handleFriendButtonAction}
             >
               {renderFriendMessage(friendState)}
             </button>
             <button
-              className={`size-full font-bold px-2 py-1`}
+              className={`size-full font-bold px-2 py-1 flex flex-row items-center gap-2 p-1 text-sm justify-center text-nowrap`}
               onClick={handleChangeBlockState}
             >
               Block

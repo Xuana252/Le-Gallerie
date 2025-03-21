@@ -38,9 +38,11 @@ import PostInteractionBarr from "./PostDetail/PostInteractionBar";
 import { renderPrivacy } from "@lib/Post/post";
 
 export default function PostDetail({
+  available = true,
   isLoading,
   post,
 }: {
+  available?: boolean;
   isLoading?: boolean;
   post: Post;
 }) {
@@ -96,7 +98,7 @@ export default function PostDetail({
             </div>
           </div>
         </>
-      ) : (
+      ) : available ? (
         <>
           <div className="flex items-center size-full relative sm:rounded-l-3xl sm:rounded-tr-none rounded-t-3xl overflow-hidden bg-secondary-2">
             {post.image && <PostImageSlider images={post.image} />}
@@ -144,6 +146,10 @@ export default function PostDetail({
             </div>
           </div>
         </>
+      ) : (
+        <div className="flex items-center size-full  bg-secondary-2">
+          Post unavailable
+        </div>
       )}
     </div>
   );

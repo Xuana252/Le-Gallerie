@@ -26,7 +26,7 @@ type FeedProps = {
   userIdFilter?: string;
   userIdLikedFilter?: boolean;
   categoryFilter?: Category[];
-  setPostCount?: Dispatch<SetStateAction<number>>;
+  setPostCount?: Dispatch<SetStateAction<number|null>>;
   showCateBar?: boolean;
   showResults?: boolean;
 };
