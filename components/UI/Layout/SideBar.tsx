@@ -131,7 +131,7 @@ export default function SideBar({ children }: { children: ReactNode }) {
       </div>
 
       <div
-        className="grow overflow-y-scroll p-4"
+        className="grow overflow-y-scroll p-4 overflow-x-hidden z-30"
         style={{
           maxHeight: `${windowHeight - 60}px`,
           height: `${windowHeight - 60}px`,
@@ -143,7 +143,7 @@ export default function SideBar({ children }: { children: ReactNode }) {
       <button
         className={`${
           isMinimize ? "block" : "hidden"
-        } hover:opacity-100 opacity-50 fixed bottom-[10px] left-[10px]  Button_variant_1`}
+        } hover:opacity-100 opacity-50 z-40 fixed bottom-[10px] left-[10px]  Button_variant_1`}
         onClick={() => setIsMinimize(false)}
       >
         <FontAwesomeIcon icon={faGripLines} />

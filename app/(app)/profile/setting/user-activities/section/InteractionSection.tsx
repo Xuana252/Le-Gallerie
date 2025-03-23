@@ -1,11 +1,12 @@
+import { NumberLoader } from "@components/UI/Loader";
 import { Reaction } from "@enum/reactionEnum";
 import { renderReaction } from "@lib/Emoji/render";
 import React, { useEffect, useRef, useState } from "react";
 
-export default function InteractionSection() {
+export default function InteractionSection({ isVisible }: { isVisible: boolean }) {
   const [postCount, setPostCount] = useState(null);
-  const [animated, setAnimate] = useState(false);
-  const sectionRef = useRef(null);
+  const [animated, setAnimate] = useState(isVisible);
+  useEffect (()=>{setAnimate(isVisible)},[isVisible])
 
   const reactionStyles = [
     {
@@ -94,34 +95,13 @@ export default function InteractionSection() {
     },
   ];
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setAnimate(true);
-        }
-      },
-      { threshold: 0.2 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
 
   return (
-    <section className="flex flex-col" ref={sectionRef}  style={{ opacity: animated ? 1 : 0 }}>
+    <section className="flex flex-col"  style={{ opacity: animated ? 1 : 0 }}>
       <span className={`title animate-slideLeft text-right ${animated ? "animate-slideLeft" : ""}`}>
         You've interacted{" "}
         {postCount || (
-          <span className="dots">
-          </span>
+          <NumberLoader/>
         )}{" "}
         times
       </span>

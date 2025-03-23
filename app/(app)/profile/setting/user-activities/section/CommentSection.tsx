@@ -1,9 +1,12 @@
+import { NumberLoader } from "@components/UI/Loader";
+import CommentProps from "@components/UI/Props/ComentProps";
 import React, { useEffect, useRef, useState } from "react";
 
-export default function CommentSection() {
+export default function CommentSection({ isVisible }: { isVisible: boolean }) {
   const [postCount, setPostCount] = useState(null);
-  const [animated, setAnimate] = useState(false);
-  const sectionRef = useRef(null);
+  const [animated, setAnimate] = useState(isVisible);
+
+  useEffect (()=>{setAnimate(isVisible)},[isVisible])
 
   const fixedPositions = [
     { left: "5%", top: "10%", scale: 0.8 },
@@ -16,39 +19,16 @@ export default function CommentSection() {
     { left: "80%", top: "15%", scale: 2 },
   ];
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setAnimate(true);
-        }
-      },
-      { threshold: 0.2 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
 
   return (
     <section
       className="flex flex-col"
-      ref={sectionRef}
       style={{ opacity: animated ? 1 : 0 }}
     >
       <span className={`title ${animated ? "animate-slideRight" : ""} mr-auto`}>
         You've commented{" "}
         {postCount || (
-          <span className="dots">
-
-          </span>
+         <NumberLoader/>
         )}{" "}
         times
       </span>
@@ -73,18 +53,7 @@ export default function CommentSection() {
                   filter: `blur(${2 - pos.scale}px)`, // Dynamic blur calculation
                 }}
               >
-                <div className="size-full relative shadow-none rounded-md bg-secondary-1/50 flex flex-row items-center justify-center p-1 gap-1">
-                  <div className="h-full aspect-square rounded-full bg-accent/50"></div>
-                  <div className="grow h-2/3 bg-accent rounded-md "></div>
-                </div>
-
-                <div
-                  className="w-[15%] h-[10%] bg-secondary-1/50 ml-2"
-                  style={{
-                    borderBottomLeftRadius: "0%",
-                    borderBottomRightRadius: "100%",
-                  }}
-                ></div>
+                <CommentProps />
                 <div className="shadow "></div>
               </div>
             </div>
