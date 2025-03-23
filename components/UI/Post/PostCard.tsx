@@ -27,7 +27,6 @@ export default function PostCard({ post, isLoading }: PostCardProps) {
   const [bgColor, setBgColor] = useState<string>("");
 
   useEffect(() => {
-    // Generate a stable random width on the client after hydration
     setMinHeight(Math.floor(Math.random() * 201) + 150);
     setBgColor(getRandomColor());
   }, []);
@@ -36,11 +35,11 @@ export default function PostCard({ post, isLoading }: PostCardProps) {
   const getRandomColor = () => {
     const colors = [
       "bg-gradient-to-b from-red-200 to-yellow-300",
-      "bg-gradient-to-b from-blue-200 to-indigo-300",
-      "bg-gradient-to-b from-green-200 to-teal-300",
-      "bg-gradient-to-b from-purple-200 to-pink-300",
-      "bg-gradient-to-b from-yellow-200 to-orange-300",
-      "bg-gradient-to-b from-gray-200 to-gray-300",
+      "bg-gradient-to-br from-blue-200 to-indigo-300",
+      "bg-gradient-to-tl from-green-200 to-teal-300",
+      "bg-gradient-to-t from-purple-200 to-pink-300",
+      "bg-gradient-to-l from-yellow-200 to-orange-300",
+      "bg-gradient-to-r from-gray-200 to-gray-300",
     ];
     return colors[Math.floor(Math.random() * colors.length)];
   };

@@ -34,8 +34,10 @@ export const GET = async (
       return NextResponse.json({ message: "Post not found" }, { status: 404 });
     }
 
-    if (
-      (post.privacy === PostPrivacy.PRIVATE &&post.creator._id.toString()!==session?.user.id) ||
+    if (post.creator._id.toString() === session?.user.id) {
+      return NextResponse.json(post, { status: 200 });
+    } else if (
+      post.privacy === PostPrivacy.PRIVATE ||
       (currentUser &&
         (currentUser.blocked.includes(post.creator._id.toString()) ||
           post.creator.blocked.includes(currentUser._id.toString())))

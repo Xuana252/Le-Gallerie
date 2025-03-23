@@ -66,13 +66,11 @@ export const fetchPostWithId = async (post: string) => {
   });
 
   const data = await response.json();
-  console.log(response)
 
   if (response.ok) return { status: 200, data: data };
-  else if (response.status === 403) {
-    return { status: 403, data: null };
+  else {
+    return { status: response.status, data: null };
   }
-  return { status: data.status, data: null };
 };
 
 export const createPost = async (post: Post, user: string) => {

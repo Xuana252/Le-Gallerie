@@ -63,7 +63,7 @@ export default function SideBar({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const handleResize = () => {
-      setWindowWidth(window.innerWidth);
+      setIsMinimize(window.innerWidth <720 )
       setWindowHeight(window.innerHeight);
     };
 
@@ -90,7 +90,7 @@ export default function SideBar({ children }: { children: ReactNode }) {
       onTouchEnd={handleTouchEnd}
     >
       <div
-        className={`Side_bar_menu transition-transform duration-200 absolute sm:static top-[60px] left-0 ${
+        className={`Side_bar_menu transition-transform duration-200 absolute sm:static top-[60px] left-0 h-full ${
           isMinimize ? "-translate-x-[100%] sm:translate-x-0" : "translate-x-0"
         }`}
         style={{

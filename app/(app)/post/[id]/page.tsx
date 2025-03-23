@@ -13,10 +13,9 @@ import mongoose, { Schema } from "mongoose";
 import { PostPrivacy } from "@enum/postPrivacyEnum";
 
 export default function Post({ params }: { params: { id: string } }) {
-  const { data: session } = useSession();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [availableState, setAvailableState] = useState(false);
+  const [availableState, setAvailableState] = useState(true);
   const [post, setPost] = useState<Post>({
     _id: "",
     creator: { _id: "" },
@@ -37,8 +36,9 @@ export default function Post({ params }: { params: { id: string } }) {
       if (data.data && JSON.stringify(data.data) !== JSON.stringify(post)) {
         setPost(data.data);
       }
+      setAvailableState(true);
     } else {
-      setAvailableState(false )
+      setAvailableState(false);
     }
 
     setIsLoading(false);

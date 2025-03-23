@@ -2,6 +2,10 @@ import toastError, { toastMessage } from "@components/Notification/Toaster";
 import { removeImage, updateImage, uploadImage } from "./upload";
 import { UploadImage } from "./types";
 
+
+
+
+
 export const testImageUrl = (url: string) => {
   return new Promise<boolean>((resolve) => {
     const img = new Image();
@@ -64,7 +68,7 @@ export const handleUpdateImage = async (
 
   const updateUrl = imageToUpdate.filter(
     (url: string) =>
-      imageList.findIndex((img: UploadImage) => img.url === url) !== -1
+      imageList.findIndex((img: UploadImage) => img.url === url) === -1
   );
 
   await Promise.all(

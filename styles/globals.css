@@ -3,25 +3,24 @@
 @tailwind utilities;
 
 ::-webkit-scrollbar {
-
   width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  
-  background: rgba(var(--primary),0.5);
+  background: rgba(var(--primary), 0.5);
   border-radius: 10px;
 }
 
 /* Scrollbar Handle */
 ::-webkit-scrollbar-thumb {
-  background: rgba(var(--accent),0.5);
+  background: rgba(var(--accent), 0.5);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(var(--accent),1);
-} 
+  background: rgba(var(--accent), 1);
+}
 
 .MessageRowBase {
   @apply flex items-center gap-1;
@@ -65,7 +64,7 @@
 }
 
 .Theme_list {
-  @apply flex flex-wrap gap-2  h-48 w-[150px] rounded-lg overflow-y-scroll ;
+  @apply flex flex-wrap gap-2  h-48 w-[150px] rounded-lg overflow-y-scroll;
 }
 .Theme_item {
   @apply cursor-pointer w-full h-8 grid grid-cols-4  rounded-lg overflow-hidden;
@@ -146,6 +145,53 @@
   }
 }
 
+.title {
+  @apply text-2xl font-extrabold italic z-40 ;
+  text-shadow: -5px 5px 5px rgba(var(--secondary-variant-1),0.5);
+}
+.shadow {
+  background: rgb(var(--accent));
+  opacity: 50%;
+  width: 90%;
+  height: 30px;
+  transform-origin: bottom;
+  border-top-left-radius: 72%;
+  border-top-right-radius: 89%;
+  border-bottom-right-radius: 76%;
+  border-bottom-left-radius: 90%;
+  /* transform: rotateX(80deg); */
+  transform: scaleY(0.3);
+  filter: blur(20px);
+}
+.bloom_left {
+  background: radial-gradient(
+    circle at 10% 90%,
+    rgba(var(--secondary), 0.7) 5%,
+    rgba(var(--secondary-variant-1), 0.4) 60%, transparent
+  );
+  filter: blur(50px);
+}
+
+.bloom_right {
+  background: radial-gradient(
+    circle at 90% 90%,
+    rgba(var(--secondary), 0.7) 5%,
+    rgba(var(--secondary-variant-1), 0.4) 60%, transparent
+  );
+  filter: blur(50px);
+}
+
+.bloom_up {
+  background: radial-gradient(
+    circle at 50% 90%,
+    rgba(var(--secondary), 0.7) 5%,
+    rgba(var(--secondary-variant-1), 0.4) 60%, transparent
+  );
+  filter: blur(50px);
+}
+
+
+
 .Sign_In_Form_Mobile {
   @apply size-full grid grid-rows-2 text-accent rounded-3xl relative overflow-hidden shadow-xl bg-secondary-1/90 border-2 border-accent/50 backdrop-blur-sm;
 }
@@ -189,7 +235,7 @@
 }
 
 .Cate_box {
-  @apply flex rounded-2xl items-center outline-none border-2 border-accent justify-start gap-2   text-lg p-2 overflow-hidden;
+  @apply flex rounded-2xl items-center outline-none border-2 border-accent justify-start gap-2   text-lg p-2 overflow-auto;
 }
 .Cate_tag {
   @apply flex select-none items-center justify-center px-2 py-1 bg-accent text-primary font-semibold rounded-xl gap-2 whitespace-nowrap;
@@ -420,4 +466,19 @@
   100% {
     transform: scaleY(-1) rotate(-135deg);
   }
+}
+
+
+.dots::after {
+  content: "";
+  display: inline-block;
+  animation: dots 2s infinite steps(4);
+}
+
+@keyframes dots {
+  0%   { content: ""; }
+  25%  { content: "."; }
+  50%  { content: ".."; }
+  75%  { content: "..."; }
+  100% { content: ""; }
 }

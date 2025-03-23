@@ -24,6 +24,8 @@ const config: Config = {
       animation: {
         fadeIn: "fadeIn 0.7s ease-in-out ",
         slideUp: 'slideUp 0.7s ease-in-out',
+        slideRight: 'slideRight 0.7s ease-in-out',
+        slideLeft: 'slideLeft 0.7s ease-in-out',
         highlight: 'highlighted 2s ease-in-out',
       },
       keyframes: {
@@ -33,6 +35,26 @@ const config: Config = {
           },
           "100%": {
             background:  "transparent",
+          },
+        },
+        slideRight: {
+          from: {
+            transform: "translateX(-30px)",
+            opacity: "0",
+          },
+          to: {
+            transform: "translateX(0px)",
+            opacity: "1",
+          },
+        },
+        slideLeft: {
+          from: {
+            transform: "translateX(30px)",
+            opacity: "0",
+          },
+          to: {
+            transform: "translateX(0px)",
+            opacity: "1",
           },
         },
         slideUp: {

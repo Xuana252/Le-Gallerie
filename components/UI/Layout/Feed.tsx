@@ -67,8 +67,7 @@ export default function Feed({
         : userIdLikedFilter
         ? await fetchUserLikedPost(userIdFilter, currentPage, limit)
         : await fetchUserPost(userIdFilter, currentPage, limit);
-
-      console.log(response.counts);
+        
       setPostCount && setPostCount(response.counts);
       if (searchText || categoriesFilter.length > 0) {
         setSearchCount(response.counts);

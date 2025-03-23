@@ -55,7 +55,7 @@ export const menuItems = [
     section: "Analytics",
     items: [
       {
-        path: "/profile/setting/block-list",
+        path: "/profile/setting/user-activities",
         name: "User Activities",
         icon: faChartSimple,
       },
