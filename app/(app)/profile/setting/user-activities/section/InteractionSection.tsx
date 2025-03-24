@@ -3,10 +3,17 @@ import { Reaction } from "@enum/reactionEnum";
 import { renderReaction } from "@lib/Emoji/render";
 import React, { useEffect, useRef, useState } from "react";
 
-export default function InteractionSection({ isVisible }: { isVisible: boolean }) {
-  const [postCount, setPostCount] = useState(null);
+export default function InteractionSection({ isVisible,likesCount,commentLikesCount }: { isVisible: boolean, likesCount:number,commentLikesCount:number }) {
+  const [count1, setCount1] = useState(likesCount);
+  const [count2, setCount2] = useState(commentLikesCount);
   const [animated, setAnimate] = useState(isVisible);
   useEffect (()=>{setAnimate(isVisible)},[isVisible])
+
+
+  useEffect(()=>{
+    setCount1(likesCount)
+    setCount2(commentLikesCount)
+  },[likesCount,commentLikesCount])
 
   const reactionStyles = [
     {
@@ -98,22 +105,22 @@ export default function InteractionSection({ isVisible }: { isVisible: boolean }
 
   return (
     <section className="flex flex-col"  style={{ opacity: animated ? 1 : 0 }}>
-      <span className={`title animate-slideLeft text-right ${animated ? "animate-slideLeft" : ""}`}>
+      <span className={`title animate-slideLeft ml-auto ${animated ? "animate-slideLeft" : ""}`}>
         You've interacted{" "}
-        {postCount || (
+        {count1 + count2 || (
           <NumberLoader/>
         )}{" "}
         times
       </span>
 
       <div className="relative w-full h-[200px]">
-        <div className="bloom_right size-full"></div>
-        <ul className={` `}>
+        <div className="bloom_right absolute size-full"></div>
+        <ul className={`size-full relative ${animated ? "animate-slideUp" : ""}`}>
           {reactionStyles.map(
             ({ reaction, top, right, rotate, scale }, index) => (
               <div
                 key={index}
-                className={`absolute size-6 md:size-8 ${animated ? "animate-slideUp" : ""}`}
+                className={`absolute size-6 md:size-8 `}
                 style={{
                   top,
                   right,

@@ -42,7 +42,7 @@ export default function SideBar({ children }: { children: ReactNode }) {
   const handleTouchEnd = () => {
     if (touchStartX < touchEndX - 50) {
       setIsMinimize(false); // Swipe Down → Minimize
-    } else if(touchEndX<touchStartX-50) {
+    } else if (touchEndX < touchStartX - 50) {
       setIsMinimize(true); // Swipe Down → Minimize
     }
   };
@@ -63,7 +63,7 @@ export default function SideBar({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMinimize(window.innerWidth <720 )
+      setIsMinimize(window.innerWidth < 720);
       setWindowHeight(window.innerHeight);
     };
 
@@ -131,7 +131,7 @@ export default function SideBar({ children }: { children: ReactNode }) {
       </div>
 
       <div
-        className="grow overflow-y-scroll p-4 overflow-x-hidden z-30"
+        className="grow overflow-y-scroll p-4 overflow-x-hidden z-30 relative bg-gradient-to-b from-secondary-1/30  to-secondary-2 "
         style={{
           maxHeight: `${windowHeight - 60}px`,
           height: `${windowHeight - 60}px`,

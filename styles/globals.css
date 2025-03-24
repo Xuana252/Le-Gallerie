@@ -196,7 +196,7 @@
 .light_bottom_right {
   background: radial-gradient(
     circle at 90% 90%,
-    rgba(255, 255, 255, 0.2) 1%,
+    rgba(255, 255, 255, 0.4) 1%,
     transparent
   );
   filter: blur(50px);
@@ -205,7 +205,7 @@
 .light_bottom_left {
   background: radial-gradient(
     circle at 10% 90%,
-    rgba(255, 255, 255, 0.2) 1%,
+    rgba(255, 255, 255, 0.4) 1%,
     transparent
   );
   filter: blur(50px);
@@ -296,7 +296,7 @@
 }
 
 .Icon_bigger {
-  @apply Icon_base size-16 text-3xl;
+  @apply Icon_base size-20 text-5xl;
 }
 
 .Highlighted {

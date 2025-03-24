@@ -18,7 +18,7 @@ import { checkFollowState } from "@actions/followsActions";
 // Define the base type for the props
 type BaseUserProfileIconProps = {
   currentUser: boolean;
-  size?: "Icon" | "Icon_small" | "Icon_big" | "Icon_smaller" | "Icon_message";
+  size?: "Icon" | "Icon_small" | "Icon_big" | "Icon_smaller" | "Icon_message" | "Icon_bigger";
 };
 
 // Define the type for when currentUser is false

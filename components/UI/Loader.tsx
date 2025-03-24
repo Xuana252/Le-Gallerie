@@ -1,3 +1,5 @@
+
+
 export default function Loader() {
   return (
     <div className="w-full flex justify-center mt-4">
@@ -25,7 +27,7 @@ export function NumberLoader() {
     <span className="max-h-[1em] w-fit overflow-auto no-scrollbar flex flex-row gap-1">
       <span
         className="number-scroll  w-fit "
-        style={{ animationDelay: `-${Math.random() * 2}s` }}
+        style={{ animationDelay: `-0.3s` }}
       >
         <span>1</span>
         <span>2</span>
@@ -34,7 +36,7 @@ export function NumberLoader() {
         <span>5</span>
       </span>
       <span className="number-scroll  w-fit"
-       style={{ animationDelay: `-${Math.random() * 2}s` }}>
+       style={{ animationDelay: `-0.1s` }}>
         <span>9</span>
         <span>3</span>
         <span>3</span>
@@ -43,7 +45,7 @@ export function NumberLoader() {
       </span>
 
       <span className="number-scroll w-fit"
-       style={{ animationDelay: `-${Math.random() * 2}s` }}>
+       style={{ animationDelay: `-0.2s` }}>
         <span>7</span>
         <span>4</span>
         <span>2</span>

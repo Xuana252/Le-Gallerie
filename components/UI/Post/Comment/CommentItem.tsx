@@ -1,4 +1,3 @@
-
 import ButtonWithTimeOut from "@components/Input/ButtonWithTimeOut";
 import EmojiInput from "@components/Input/EmojiInput";
 import { formatTimeAgoWithoutAgo } from "@lib/dateFormat";
@@ -17,7 +16,12 @@ import { Comment, Like } from "@lib/types";
 import ReactionButton from "@components/Input/ReactionInput";
 import { Reaction } from "@enum/reactionEnum";
 import { getTop3Reactions, renderReaction } from "@lib/Emoji/render";
-import { handleLikeComment, fetchCommentReplies, fetchCommentLikes, handleComment } from "@actions/commentAction";
+import {
+  handleLikeComment,
+  fetchCommentReplies,
+  fetchCommentLikes,
+  handleComment,
+} from "@actions/commentAction";
 
 export const CommentItem = ({
   comment,
@@ -243,18 +247,23 @@ export const CommentItem = ({
           </button>
         )}
       </div>
-      {commentLikes.length>0 && (<div className="flex flex-col items-center">
-        
+      {commentLikes.length > 0 && (
+        <div className="flex flex-col items-center">
           <div className="rounded-full w-fit flex flex-row p-1 pr-2 items-center bg-primary/50">
             {getTop3Reactions(commentLikes).map((reaction, index) => (
-              <div className={`size-4 -mr-1 `} style={{ zIndex: 3 - index }}>
+              <div
+                key={index}
+                className={`size-4 -mr-1 `}
+                style={{ zIndex: 3 - index }}
+              >
                 {renderReaction(reaction)}
               </div>
             ))}
           </div>
-        
-        <span className="text-xs">{likesCount}</span>
-      </div>)}
+
+          <span className="text-xs">{likesCount}</span>
+        </div>
+      )}
     </div>
   );
 };

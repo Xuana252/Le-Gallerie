@@ -36,8 +36,8 @@ export const fetchUserPost = async (
     }
   );
   if (response.ok) {
-    const data = await response.json();
-    return { posts: data.posts, counts: data.counts };
+    const {posts,counts} = await response.json();
+    return { posts, counts };
   }
   return { posts: [], counts: 0 };
 };

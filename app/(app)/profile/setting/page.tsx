@@ -18,7 +18,9 @@ export default function Setting() {
       </div>
       <ul className="flex flex-col gap-6 my-8">
         {sections.map((section: any, index) => (
-          <div key={index}>
+          <div key={index} className="relative">
+            <div className="absolute size-full light_bottom_right z-0"></div>
+            <div className="absolute size-full bloom_left z-0"></div>
             <div className="w-fit bg-secondary-1/50 px-2 py-1 rounded-t-xl text-secondary-2 font-bold text-base">{section.section}</div>
             <ul className="flex flex-wrap gap-6 p-4 bg-secondary-1/50 rounded-b-xl rounded-tr-xl">
               {section.items.map((item: any, index: number) => (

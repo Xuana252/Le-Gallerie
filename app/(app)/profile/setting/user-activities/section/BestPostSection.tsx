@@ -3,14 +3,73 @@ import PostCard from "@components/UI/Post/PostCard";
 import CommentProps from "@components/UI/Props/ComentProps";
 import { Reaction } from "@enum/reactionEnum";
 import { renderReaction } from "@lib/Emoji/render";
+import { Like, Post, Comment } from "@lib/types";
+import { faComment, faHeart } from "@node_modules/@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import React, { useEffect, useRef, useState } from "react";
 
-export default function BestPostSection({ isVisible }: { isVisible: boolean }) {
-  const [postCount, setPostCount] = useState(null);
+export default function BestPostSection({
+  isVisible,
+  postsLikes,
+  postsComments,
+  posts,
+}: {
+  isVisible: boolean;
+  postsLikes: Like[];
+  postsComments: Comment[];
+  posts: Post[];
+}) {
+  const [mostLikedPost, setMostLiked] = useState<Post>();
+  const [mostCommentedPost, setMostCommented] = useState<Post>();
+  const [likesCount, setLikesCount] = useState<number | null>(null);
+  const [commentsCount, setCommentsCount] = useState<number | null>(null);
   const [animated, setAnimate] = useState(isVisible);
 
+  useEffect(() => {
+    if (posts.length === 0) return;
 
-  useEffect (()=>{setAnimate(isVisible)},[isVisible])
+    const likeCounts = postsLikes.reduce((acc, { post }) => {
+      acc[post.toString()] = (acc[post.toString()] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const commentCounts = postsComments.reduce((acc, { post }) => {
+      acc[post.toString()] = (acc[post.toString()] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const mostLikedPostId = Object.keys(likeCounts).reduce(
+      (maxPost, postId) => {
+        return likeCounts[postId] > (likeCounts[maxPost] || 0)
+          ? postId
+          : maxPost;
+      },
+      ""
+    );
+
+    setMostLiked(
+      posts.find((post) => post._id === mostLikedPostId) ?? undefined
+    );
+    setLikesCount(likeCounts[mostLikedPostId]);
+
+    const mostCommentedPostId = Object.keys(commentCounts).reduce(
+      (maxPost, postId) => {
+        return commentCounts[postId] > (commentCounts[maxPost] || 0)
+          ? postId
+          : maxPost;
+      },
+      ""
+    );
+
+    setMostCommented(
+      posts.find((post) => post._id === mostCommentedPostId) ?? undefined
+    );
+    setCommentsCount(commentCounts[mostCommentedPostId]);
+  }, [posts, postsComments, postsLikes]);
+
+  useEffect(() => {
+    setAnimate(isVisible);
+  }, [isVisible]);
   const reactions = [
     {
       reaction: Reaction.LIKE,
@@ -138,90 +197,104 @@ export default function BestPostSection({ isVisible }: { isVisible: boolean }) {
         Your best posts
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 w-full p-2 gap-2">
-        <div className="min-h-[300px]   flex items-center justify-center relative">
-          <div className="bloom_right size-full absolute"></div>
-          <div className="grow h-full flex flex-col gap-2 relative">
-            <div className="light_bottom_right size-full absolute"></div>
-
-            <div className="light_bottom size-[50%] absolute bottom-0 left-[50%] -translate-x-1/2"></div>
-            <div
-              className={`title ${
-                animated ? "animate-slideRight" : ""
-              } m-auto`}
-            >
-              {postCount || <NumberLoader/>}
-            </div>
-
-            <div className="relative grow h-full">
-              {reactions.map((reaction, index) => (
-                <div
-                  key={index}
-                  className={`absolute size-6 md:size-8 ${
-                    animated ? "animate-slideUp" : ""
-                  }`}
-                  style={{
-                    top: reaction.top,
-                    left: reaction.left,
-                    filter: `blur(${1.5 - reaction.scale}px)`,
-                  }}
-                >
+      <div className="grid grid-cols-1 lg:grid-cols-2 w-full p-2 gap-4">
+        <div className="min-h-[300px]  flex flex-col gap-4  relative">
+          <div className="title mx-auto">Post that gets people crazy</div>
+          <div className="flex items-center justify-center grow">
+            <div className="bloom_right size-full absolute"></div>
+            <div className="grow h-full flex flex-col gap-2 relative">
+              <div className="light_bottom_right size-full absolute"></div>
+              <div className="light_bottom size-[50%] absolute bottom-0 left-[50%] -translate-x-1/2"></div>
+              <div
+                className={`title ${
+                  animated ? "animate-slideRight" : ""
+                } m-auto`}
+              >
+                {likesCount || <NumberLoader />} <FontAwesomeIcon icon={faHeart}/>
+              </div>
+              <div
+                className={`relative grow h-full ${
+                  animated ? "animate-slideUp" : ""
+                }`}
+              >
+                {reactions.map((reaction, index) => (
                   <div
+                    key={index}
+                    className={`absolute size-6 md:size-8 `}
                     style={{
-                      transform: `scale(${reaction.scale}) rotate(${reaction.rotate}deg)`,
+                      top: reaction.top,
+                      left: reaction.left,
+                      filter: `blur(${1.5 - reaction.scale}px)`,
                     }}
                   >
-                    <div className="size-10">
-                      {renderReaction(reaction.reaction)}
+                    <div
+                      style={{
+                        transform: `scale(${reaction.scale}) rotate(${reaction.rotate}deg)`,
+                      }}
+                    >
+                      <div className="size-10">
+                        {renderReaction(reaction.reaction)}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-
-          <div className="max-w-[250px] w-[50%]">
-            <PostCard isLoading={true} />
+            <div className="max-w-[250px] w-[50%]">
+              {<PostCard isLoading={!mostLikedPost} post={mostLikedPost} />}
+            </div>
           </div>
         </div>
-        <div className="min-h-[300px] relative  flex items-center justify-center">
-          <div className="bloom_left size-full absolute"></div>
-          <div className="max-w-[250px] w-[50%]">
-            <PostCard isLoading={true} />
-          </div>
 
-          <div className="grow h-full relative flex flex-col gap-2">
-            <div className="light_bottom_left size-full absolute"></div>
-            <div className="light_bottom size-[50%] absolute bottom-0 left-[50%] -translate-x-1/2"></div>
-            <div
-              className={`title ${
-                animated ? "animate-slideLeft" : ""
-              } m-auto`}
-            >
-              {postCount || <NumberLoader/>}
+        <div className="min-h-[300px]  flex flex-col gap-4  relative">
+          <div className="title mx-auto">Post that keeps people talking</div>
+          <div className="flex items-center justify-center grow">
+            <div className="max-w-[250px] w-[50%]">
+              {
+                <PostCard
+                  isLoading={!mostCommentedPost}
+                  post={mostCommentedPost}
+                />
+              }
             </div>
-            <div className="relative grow w-full">
-              {fixedPositions.map((pos, index) => (
-                <div
-                  key={index}
-                  className={`absolute  ${animated ? "animate-slideUp" : ""}`}
-                  style={{
-                    left: pos.left,
-                    top: pos.top,
-                    zIndex: index,
-                  }}
-                >
+
+            <div className="grow h-full relative flex flex-col gap-2">
+              <div className="light_bottom_left size-full absolute"></div>
+              <div className="light_bottom size-[50%] absolute bottom-0 left-[50%] -translate-x-1/2"></div>
+              <div
+                className={`title ${
+                  animated ? "animate-slideLeft" : ""
+                } m-auto`}
+              >
+                {commentsCount || <NumberLoader />} <FontAwesomeIcon icon={faComment}/>
+              </div>
+              <div
+                className={`relative grow w-full ${
+                  animated ? "animate-slideUp" : ""
+                }`}
+              >
+                {fixedPositions.map((pos, index) => (
                   <div
-                    className={`absolute h-[15px] w-[40px] md:h-[30px] md:w-[80px] `}
+                    key={index}
+                    className={`absolute  `}
                     style={{
-                      transform: `scale(${pos.scale})`,
-                      filter: `blur(${1.5 - pos.scale}px)`,
+                      left: pos.left,
+                      top: pos.top,
+                      zIndex: index,
                     }}
                   >
-                    <CommentProps />
+                    <div
+                      className={`absolute `}
+                      style={{
+                        transform: `scale(${pos.scale})`,
+                        filter: `blur(${1.5 - pos.scale}px)`,
+                      }}
+                    >
+                      <CommentProps />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>

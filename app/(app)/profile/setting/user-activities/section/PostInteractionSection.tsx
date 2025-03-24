@@ -5,6 +5,7 @@ import PostProps from "@components/UI/Props/PostProps";
 import { Reaction } from "@enum/reactionEnum";
 import { renderReaction } from "@lib/Emoji/render";
 import { getRandomColor } from "@lib/Post/post";
+import { Comment, Like } from "@lib/types";
 import {
   faComment,
   faHeart,
@@ -15,14 +16,29 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 
 export default function PostInteractionSection({
   isVisible,
+  postsLikes,
+  postsComments
 }: {
   isVisible: boolean;
+  postsLikes: Like[],
+  postsComments: Comment[],
 }) {
-  const [postCount, setPostCount] = useState(null);
+  const [likes, setLikes] = useState(postsLikes);
+  const [comments,setComments] = useState(postsComments);
   const [animated, setAnimate] = useState(isVisible);
   const [displayNumber, setIsDisplayNumber] = useState("");
 
-  useEffect (()=>{setAnimate(isVisible)},[isVisible])
+  useEffect(()=> {
+    setLikes(postsLikes)
+  },[postsLikes])
+
+  useEffect(()=> {
+    setComments(postsComments)
+  },[postsComments])
+
+  useEffect(() => {
+    setAnimate(isVisible);
+  }, [isVisible]);
 
   const reactions = [
     { type: Reaction.LIKE, left: "5%", top: "3%", scale: 1.2, zIndex: 40 },
@@ -39,10 +55,17 @@ export default function PostInteractionSection({
     { type: Reaction.ANGRY, left: "40%", top: "90%", scale: 0.9, zIndex: 0 },
   ];
 
+  const leftReaction = reactions.filter(
+    (reaction) => parseInt(reaction.left) <= 50
+  );
+  const rightReaction = reactions.filter(
+    (reaction) => parseInt(reaction.left) > 50
+  );
+
   const placeholders = [
-    { top: "80%", left: "60%", scale: 1.2 },
-    { top: "20%", left: "60%", scale: 0.8 },
-    { top: "40%", left: "26%", scale: 1 },
+    { top: "80%", left: "60%", scale: 1.4 },
+    { top: "20%", left: "60%", scale: 1.1 },
+    { top: "40%", left: "26%", scale: 1.3 },
   ];
 
   return (
@@ -53,49 +76,86 @@ export default function PostInteractionSection({
       }}
     >
       <div className={`title ${animated ? "animate-slideLeft" : ""} ml-auto`}>
-        Your posts have received {postCount || <NumberLoader/>}{" "}
-        reactions
+        Your posts have received {postsLikes.length + postsComments.length || <NumberLoader />} interactions
       </div>
 
-      <div className="relative self-center pt-[100px] w-full m-auto max-w-[700px]">
+      <div className="relative self-center mt-[100px] w-full m-auto max-w-[700px] max-h-[500px]">
         <div className="bloom_up  size-full absolute  "></div>
-        {reactions.map((reaction, index) => (
-          <div
-            onMouseEnter={() => setIsDisplayNumber("r" + index)}
-            onMouseLeave={() => setIsDisplayNumber("null")}
-            key={index}
-            className={`absolute flex flex-col items-center gap-1 size-10 ${
-              animated
-                ? parseFloat(reaction.left) <= 50
-                  ? "animate-slideLeft"
-                  : "animate-slideRight"
-                : ""
-            }`}
-            style={{
-              left: reaction.left,
-              top: reaction.top,
-              zIndex: reaction.zIndex,
-            }}
-          >
+        <div
+          className={`${
+            animated ? "animate-slideLeft" : ""
+          } size-full absolute`}
+        >
+          {leftReaction.map((reaction, index) => (
             <div
+              onMouseEnter={() => setIsDisplayNumber("lr" + index)}
+              onMouseLeave={() => setIsDisplayNumber("null")}
+              key={index}
+              className={`absolute flex flex-col items-center gap-1 size-10 `}
               style={{
-                transform: `scale(${reaction.scale})`,
-                filter: `blur(${1.7 - reaction.scale}px)`,
+                left: reaction.left,
+                top: reaction.top,
+                zIndex: reaction.zIndex,
               }}
             >
-              {renderReaction(reaction.type)}
+              <div
+                style={{
+                  transform: `scale(${reaction.scale})`,
+                  filter: `blur(${1.7 - reaction.scale}px)`,
+                }}
+              >
+                {renderReaction(reaction.type)}
+              </div>
+              <div
+                className={`${
+                  displayNumber === "lr" + index
+                    ? "animate-slideUp text-accent/70 text-xs font-semibold rounded-md bg-primary p-1 w-fit"
+                    : "hidden"
+                }`}
+              >
+                {postsLikes.filter(likes => likes.reaction === reaction.type).length}
+              </div>
             </div>
+          ))}
+        </div>
+        <div
+          className={`${
+            animated ? "animate-slideRight" : ""
+          } size-full absolute`}
+        >
+          {rightReaction.map((reaction, index) => (
             <div
-              className={`${
-                displayNumber === "r" + index
-                  ? "animate-slideUp text-accent/70 text-xs font-semibold rounded-md bg-primary p-1 w-fit"
-                  : "hidden"
-              }`}
+              onMouseEnter={() => setIsDisplayNumber("rr" + index)}
+              onMouseLeave={() => setIsDisplayNumber("null")}
+              key={index}
+              className={`absolute flex flex-col items-center gap-1 size-10 `}
+              style={{
+                left: reaction.left,
+                top: reaction.top,
+                zIndex: reaction.zIndex,
+              }}
             >
-              Number
+              <div
+                style={{
+                  transform: `scale(${reaction.scale})`,
+                  filter: `blur(${1.7 - reaction.scale}px)`,
+                }}
+              >
+                {renderReaction(reaction.type)}
+              </div>
+              <div
+                className={`${
+                  displayNumber === "rr" + index
+                    ? "animate-slideUp text-accent/70 text-xs font-semibold rounded-md bg-primary p-1 w-fit "
+                    : "hidden"
+                }`}
+              >
+                {postsLikes.filter(likes => likes.reaction === reaction.type).length}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+
         <div className="  max-w-[150px] min-w-[200px] m-auto z-50 aspect-[2/3]">
           <div className={`size-full ${animated ? "animate-slideUp" : ""}`}>
             <PostProps />
@@ -109,7 +169,7 @@ export default function PostInteractionSection({
             onMouseEnter={() => setIsDisplayNumber("c" + index)}
             onMouseLeave={() => setIsDisplayNumber("null")}
             key={index}
-            className={`absolute h-[40px] w-[100px] ${
+            className={`absolute  flex flex-col items-center gap-1 ${
               animated
                 ? parseFloat(pos.left) <= 50
                   ? "animate-slideRight"
@@ -122,11 +182,11 @@ export default function PostInteractionSection({
             <div
               className={`${
                 displayNumber === "c" + index
-                  ? "animate-slideUp text-accent/70 text-xs font-semibold rounded-md bg-primary p-1 w-fit"
+                  ? "animate-slideUp text-accent/70 text-xs font-semibold rounded-md bg-primary p-1 w-fit "
                   : "hidden"
               }`}
             >
-              Number
+              {postsComments.length}
             </div>
           </div>
         ))}

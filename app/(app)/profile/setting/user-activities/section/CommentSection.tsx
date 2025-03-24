@@ -1,12 +1,27 @@
+
 import { NumberLoader } from "@components/UI/Loader";
 import CommentProps from "@components/UI/Props/ComentProps";
+import { useSession } from "@node_modules/next-auth/react";
 import React, { useEffect, useRef, useState } from "react";
 
-export default function CommentSection({ isVisible }: { isVisible: boolean }) {
-  const [postCount, setPostCount] = useState(null);
+export default function CommentSection({
+  isVisible,
+  commentCount,
+}: {
+  isVisible: boolean;
+  commentCount: number;
+}) {
+  const { data: session } = useSession();
+  const [count, setCount] = useState(commentCount);
   const [animated, setAnimate] = useState(isVisible);
 
-  useEffect (()=>{setAnimate(isVisible)},[isVisible])
+  useEffect(() => {
+    setAnimate(isVisible);
+  }, [isVisible]);
+
+  useEffect(() => {
+    setCount(commentCount);
+  }, [commentCount]);
 
   const fixedPositions = [
     { left: "5%", top: "10%", scale: 0.8 },
@@ -19,27 +34,23 @@ export default function CommentSection({ isVisible }: { isVisible: boolean }) {
     { left: "80%", top: "15%", scale: 2 },
   ];
 
-
   return (
-    <section
-      className="flex flex-col"
-      style={{ opacity: animated ? 1 : 0 }}
-    >
+    <section className="flex flex-col" style={{ opacity: animated ? 1 : 0 }}>
       <span className={`title ${animated ? "animate-slideRight" : ""} mr-auto`}>
-        You've commented{" "}
-        {postCount || (
-         <NumberLoader/>
-        )}{" "}
-        times
+        You've made {count || <NumberLoader />} comments
       </span>
 
       <div className="relative min-w-[300px]  h-[200px]">
-        <div className="bloom_right size-full absolute"></div>
-        <div className="w-full flex flex-row gap-2 p-4 mb-4 h-[300px]">
+        <div className="bloom_left size-full absolute"></div>
+        <div
+          className={`w-full flex flex-row gap-2 p-4 mb-4 h-[300px] relative ${
+            animated ? "animate-slideUp" : ""
+          }`}
+        >
           {fixedPositions.map((pos, index) => (
             <div
               key={index}
-              className={`absolute  ${animated ? "animate-slideUp" : ""}`}
+              className={`absolute  `}
               style={{
                 left: pos.left,
                 top: pos.top,
@@ -47,7 +58,7 @@ export default function CommentSection({ isVisible }: { isVisible: boolean }) {
               }}
             >
               <div
-                className={`absolute h-[15px] w-[40px] md:h-[30px] md:w-[80px] `}
+                className={`absolute `}
                 style={{
                   transform: `scale(${pos.scale})`,
                   filter: `blur(${2 - pos.scale}px)`, // Dynamic blur calculation

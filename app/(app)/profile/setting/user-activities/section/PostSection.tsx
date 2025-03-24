@@ -10,11 +10,24 @@ import {
 } from "@node_modules/@react-spring/web/dist/react-spring_web.modern";
 import React, { useEffect, useRef, useState } from "react";
 
-export default function PostSection({ isVisible }: { isVisible: boolean }) {
-  const [postCount, setPostCount] = useState(null);
+export default function PostSection({
+  isVisible,
+  postCount,
+}: {
+  isVisible: boolean;
+  postCount: number;
+}) {
+  const [count, setCount] = useState(postCount)
   const [animated, setAnimate] = useState(isVisible);
 
-  useEffect (()=>{setAnimate(isVisible)},[isVisible])
+
+  useEffect(() => {
+    setCount(postCount);
+  }, [postCount]);
+
+  useEffect(() => {
+    setAnimate(isVisible);
+  }, [isVisible]);
 
   const fixedTransforms = [
     { x: 15, y: -10, z: 5, scale: 0.9, left: "0%", zIndex: 1, blur: 0.5 }, // Rotation for the first card
@@ -30,7 +43,7 @@ export default function PostSection({ isVisible }: { isVisible: boolean }) {
       }}
     >
       <div className={`title ${animated ? "animate-slideRight" : ""} mr-auto`}>
-        You've made {postCount || <NumberLoader/>} posts
+        You've made {count || <NumberLoader />} posts
       </div>
 
       <div className="relative  min-w-[300px] w-full sm:w-[50%]  rounded-lg ">
