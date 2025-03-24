@@ -24,6 +24,7 @@ import DropDownButton from "../Input/DropDownButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBell,
+  faCheck,
   faClose,
   faEye,
   faTrash,
@@ -33,7 +34,8 @@ import {
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { formatTimeAgo } from "@lib/dateFormat";
-import CustomImage from "@components/UI/Image";
+import CustomImage from "@components/UI/Image/Image";
+import { fetchFriendRequest, sendFriendRequest } from "@actions/friendActions";
 
 export default function NotificationList({
   returnUnseenCount,
@@ -46,12 +48,17 @@ export default function NotificationList({
     process.env.NEXT_PUBLIC_KNOCK_FEED_CHANNEL_ID as string
   );
   const { items, metadata } = useNotificationStore(feedClient);
+
   const router = useRouter();
   const [notificationView, setNotificationView] = useState<string>("All");
   const [draggingItem, setDraggingIndex] = useState<any>(null);
   const [x, setX] = useState(0);
   const [dragOffSet, setDragOffSet] = useState(0);
   const dragList = useRef<HTMLUListElement>(null);
+
+  const handleAccept = async (userId: string) => {
+    const response = await sendFriendRequest(knockClient.userId || "", userId);
+  };
 
   const onMouseDown = (e: React.MouseEvent<HTMLLIElement>, item: any) => {
     setDragOffSet(e.clientX);
@@ -109,6 +116,8 @@ export default function NotificationList({
         return items;
       case "Unread":
         return items.filter((item) => !item.read_at);
+      case "Friend Request":
+        return items.filter((item) => item.source.key === "friend-request");
       default:
         return items;
     }
@@ -193,6 +202,8 @@ export default function NotificationList({
       case "post-like":
         router.push(`/post/${item.data.postId}`);
         break;
+      case "friend-request":
+        break;
       case "user-follow":
         router.push(`/profile/${item.data.userId}`);
         break;
@@ -225,7 +236,31 @@ export default function NotificationList({
 
   const notificationList = (
     <div>
-      <h1 className="font-bold text-xl">Notification</h1>
+      <div className="flex flex-row justify-between items-center mb-2">
+        <span className="font-bold text-xl">Notification</span>
+        <div className="h-fit w-fit bg-primary/50 rounded-lg flex flex-row  py-1 justify-end gap-2 p-1">
+          <button
+            className="Icon_smaller"
+            title="Mark all as seen"
+            onClick={() => {
+              feedClient.markAsRead(finalList);
+            }}
+          >
+            <FontAwesomeIcon icon={faEye} />
+          </button>
+          <button
+            className="Icon_smaller"
+            title="Delete all"
+            onClick={() => {
+              feedClient.markAsArchived(
+                finalList.filter((item) => item.source.key !== "friend-request")
+              );
+            }}
+          >
+            <FontAwesomeIcon icon={faTrash} />
+          </button>
+        </div>
+      </div>
       <div className="grid grid-cols-3 text-xs">
         <button
           name="All"
@@ -237,19 +272,26 @@ export default function NotificationList({
           All
         </button>
         <button
-          name="FriendRequest"
+          name="Friend Request"
           onClick={handleToggleNotificationList}
           className={`font-bold ${
-            notificationView === "FriendRequest" && "Notification_view_toggle_button "
+            notificationView === "Friend Request" &&
+            "Notification_view_toggle_button "
           }`}
         >
           <div className="flex items-center justify-center gap-2 pointer-events-none">
             <div
               className={`${
-                metadata.unread_count > 0 ? "" : "hidden"
+                items.filter((item) => item.source.key === "friend-request")
+                  .length > 0
+                  ? ""
+                  : "hidden"
               } flex items-center justify-center rounded-full size-4 bg-accent text-primary text-xs font-bold `}
             >
-              {metadata.unread_count}
+              {
+                items.filter((item) => item.source.key === "friend-request")
+                  .length
+              }
             </div>
             Friend Request
           </div>
@@ -274,29 +316,8 @@ export default function NotificationList({
         </button>
       </div>
       <ul ref={dragList} className="Notification_list">
-        <div className="sticky top-0 z-10 h-fit">
-          <div className="flex flex-row backdrop-blur-sm bg-secondary-2 py-1 justify-end gap-2">
-            <button
-              className="Icon_smaller"
-              onClick={() => {
-                feedClient.markAsRead(finalList);
-              }}
-            >
-              <FontAwesomeIcon icon={faEye} />
-            </button>
-            <button
-              className="Icon_smaller"
-              onClick={() => {
-                feedClient.markAsArchived(finalList);
-              }}
-            >
-              <FontAwesomeIcon icon={faTrash} />
-            </button>
-          </div>
-          <hr className="border-0 bg-secondary-1 h-1" />
-        </div>
         {finalList.length > 0 &&
-          finalList.map((item: any, index) => (
+          finalList.map((item: any, index: number) => (
             <li
               key={index}
               onMouseDown={(e) => onMouseDown(e, item)}
@@ -309,7 +330,7 @@ export default function NotificationList({
               }}
             >
               {item.actors[0] ? (
-                <div className="Notification_item">
+                <div className={`Notification_item  relative `}>
                   {item.actors[0].avatar ? (
                     <div className="Icon_small">
                       <CustomImage
@@ -327,7 +348,7 @@ export default function NotificationList({
                       <FontAwesomeIcon icon={faUser} />
                     </div>
                   )}
-                  <div className="flex flex-col text-sm w-[70%]">
+                  <div className="flex flex-col text-sm">
                     <p>
                       <b className="break-all whitespace-normal">
                         {item.actors[0].name}
@@ -338,11 +359,20 @@ export default function NotificationList({
                       {formatTimeAgo(item.inserted_at)}
                     </p>
                   </div>
-                  <div className="w-7 h-[100%] ml-auto flex items-center justify-center">
-                    {item.read_at ? null : (
-                      <div className="size-3 rounded-full bg-primary"></div>
-                    )}
-                  </div>
+                  {item.source.key === "friend-request" && (
+                    <button
+                      className="Button_variant_1_5 w-fit ml-auto text-sm"
+                      onClick={() => {
+                        handleAccept(item.actors[0].id);
+                        feedClient.markAsArchived(item);
+                      }}
+                    >
+                      Accept
+                    </button>
+                  )}
+                  {item.read_at ? null : (
+                    <div className="absolute -top-1 -right-1 rounded-full bg-primary size-4 "></div>
+                  )}
                 </div>
               ) : null}
             </li>

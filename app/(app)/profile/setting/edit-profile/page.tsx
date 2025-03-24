@@ -11,10 +11,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { updateUser } from "@actions/accountActions";
 import ImageInput from "@components/Input/ImageInput";
 import { uploadImage, removeImage, updateImage } from "@lib/upload";
-import CustomImage from "@components/UI/Image";
+import CustomImage from "@components/UI/Image/Image";
 import DateTimePicker from "@components/Input/DateTimePicker";
 import toastError from "@components/Notification/Toaster";
-import { SubmitButtonState } from "@app/enum/submitButtonState";
+import { SubmitButtonState } from "@enum/submitButtonState";
 
 export default function EditPage() {
   const router = useRouter();

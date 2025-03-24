@@ -1,7 +1,7 @@
 import mongoose, { Schema, model, models } from "mongoose";
 import Post from "./postModel";
 import User from "./userModel";
-import { Reaction } from "@app/enum/reactionEnum";
+import { Reaction } from "@enum/reactionEnum";
 
 
 const LikeSchema = new Schema(

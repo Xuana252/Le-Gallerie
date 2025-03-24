@@ -1,6 +1,7 @@
 import mongoose, { Schema, model, models } from "mongoose";
 import Category from "./categoryModel";
 import User from "./userModel";
+import { PostPrivacy } from "@enum/postPrivacyEnum";
 
 const PostSchema = new Schema(
   {
@@ -14,19 +15,27 @@ const PostSchema = new Schema(
     description: {
       type: String,
     },
-    categories: [{
-      type: Schema.Types.ObjectId,
-      ref: Category,
-    }],
-    image: [{
-      type: String,
-      required: [true, "image is required"],
-    }],
+    categories: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: Category,
+      },
+    ],
+    image: [
+      {
+        type: String,
+        required: [true, "image is required"],
+      },
+    ],
     likes: {
       type: Number,
       required: false,
       default: 0,
-    }
+    },
+    privacy: {
+      type: String,
+      enum: Object.values(PostPrivacy),
+    },
   },
   {
     timestamps: true,
@@ -34,5 +43,5 @@ const PostSchema = new Schema(
 );
 
 
-const Post = models.Post||model('Post',PostSchema)
-export default Post
+const Post = models.Post || model("Post", PostSchema);
+export default Post;

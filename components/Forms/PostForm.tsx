@@ -2,12 +2,7 @@
 import React, { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import InputBox from "../Input/InputBox";
-import {
-  type Post,
-  type Category,
-  UploadPost,
-  UploadImage,
-} from "@lib/types";
+import { type Post, type Category, UploadPost, UploadImage } from "@lib/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faX } from "@fortawesome/free-solid-svg-icons";
 import SubmitButton from "@components/Input/SubmitButton";
@@ -18,13 +13,14 @@ import { createPost, updatePost } from "@actions/postActions";
 import { getCategories } from "@actions/categoriesActions";
 import { checkPostRateLimit } from "@actions/checkRateLimit";
 import toastError from "@components/Notification/Toaster";
-import {uploadImage,updateImage} from "@lib/upload";
+import { uploadImage, updateImage } from "@lib/upload";
 import withAuth from "@middleware";
-import { SubmitButtonState } from "@app/enum/submitButtonState";
+import { SubmitButtonState } from "@enum/submitButtonState";
 import { handleUpdateImage } from "@lib/image";
 import { CategoriesInput } from "@components/Input/CategoryInput";
-
-
+import { PostPrivacy } from "@enum/postPrivacyEnum";
+import MultipleOptionsButton from "@components/Input/MultipleOptionsButton";
+import { renderPrivacy } from "@lib/Post/post";
 
 type BasePostFormProps = {
   type: "Create" | "Edit";
@@ -45,8 +41,12 @@ export default function PostForm({ type, editPost }: PostFormProps) {
   const { data: session } = useSession();
   const router = useRouter();
 
-  const [submitState, setSubmitState] = useState<SubmitButtonState>(SubmitButtonState.IDLE);
-  const [imageToUpdate, setUpdateInfo] = useState(editPost?.image.map((img:any)=>img.url) || []);
+  const [submitState, setSubmitState] = useState<SubmitButtonState>(
+    SubmitButtonState.IDLE
+  );
+  const [imageToUpdate, setUpdateInfo] = useState(
+    editPost?.image.map((img: any) => img.url) || []
+  );
 
   const [post, setPost] = useState<UploadPost>(
     editPost || {
@@ -55,13 +55,13 @@ export default function PostForm({ type, editPost }: PostFormProps) {
       description: "",
       categories: [],
       image: [],
+      privacy: PostPrivacy.PUBLIC,
     }
   );
 
-
   const handleFormSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (post.image.length>0 && session?.user.id) {
+    if (post.image.length > 0 && session?.user.id) {
       try {
         setSubmitState(SubmitButtonState.PROCESSING);
         const isRateLimited = await checkPostRateLimit();
@@ -69,24 +69,22 @@ export default function PostForm({ type, editPost }: PostFormProps) {
           throw new Error("one post request per minute. please wait");
         }
         let response;
-        let imageUrlList = await handleUpdateImage(post.image,imageToUpdate,type)
-       
-        
+        let imageUrlList = await handleUpdateImage(post.image, imageToUpdate);
+
         const postToUpload: Post = {
-          _id:post._id,
+          _id: post._id,
           creator: post.creator,
           title: post.title,
           description: post.description,
           categories: post.categories,
           image: imageUrlList,
+          privacy: post.privacy,
         };
         switch (type) {
           case "Create":
-           
             response = await createPost(postToUpload, session?.user.id);
             break;
           case "Edit":
-           
             response = await updatePost(postToUpload);
             break;
         }
@@ -96,7 +94,10 @@ export default function PostForm({ type, editPost }: PostFormProps) {
             console.log(`Attempted to ${type} successfully`);
 
             type === "Edit"
-              ? localStorage.setItem("post", JSON.stringify({...post,image:postToUpload.image}))
+              ? localStorage.setItem(
+                  "post",
+                  JSON.stringify({ ...post, image: postToUpload.image })
+                )
               : null;
 
             setTimeout(() => router.push(`/post/${response._id}`), 1000);
@@ -112,7 +113,7 @@ export default function PostForm({ type, editPost }: PostFormProps) {
       }
     } else {
       toastError("Make sure you added an Image");
-    } 
+    }
   };
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -143,6 +144,10 @@ export default function PostForm({ type, editPost }: PostFormProps) {
     }));
   };
 
+  const handleChangePrivacy = (privacy: PostPrivacy) => {
+    setPost((p) => ({ ...p, privacy: privacy }));
+  };
+
   const handleTextChange = (
     e:
       | React.ChangeEvent<HTMLInputElement>
@@ -158,8 +163,43 @@ export default function PostForm({ type, editPost }: PostFormProps) {
         <ImageInput image={post.image} setImage={handleImageChange} />
       </div>
       <div className=" p-4 flex flex-col gap-2">
-        <div>
-          <h3>Title</h3>
+        <div className="flex flex-row justify-between items-center">
+          <h2 className="uppercase font-semibold text-xl text-primary bg-accent p-1 px-2 rounded-lg">
+            {type} form{" "}
+          </h2>
+
+          <MultipleOptionsButton selected={post.privacy===PostPrivacy.PUBLIC?0:post.privacy===PostPrivacy.FRIEND?1:2}>
+            <button
+              className="flex flex-row items-center gap-2 p-1 text-sm font-bold"
+              onClick={(e) => {
+                e.preventDefault();
+                handleChangePrivacy(PostPrivacy.PUBLIC);
+              }}
+            >
+              {PostPrivacy.PUBLIC} {renderPrivacy(PostPrivacy.PUBLIC)}
+            </button>
+            <button
+              className="flex flex-row items-center gap-2 p-1 text-sm font-bold"
+              onClick={(e) => {
+                e.preventDefault();
+                handleChangePrivacy(PostPrivacy.FRIEND);
+              }}
+            >
+              {PostPrivacy.FRIEND} {renderPrivacy(PostPrivacy.FRIEND)}
+            </button>
+            <button
+              className="flex flex-row items-center gap-2 p-1 text-sm font-bold"
+              onClick={(e) => {
+                e.preventDefault();
+                handleChangePrivacy(PostPrivacy.PRIVATE);
+              }}
+            >
+              {PostPrivacy.PRIVATE} {renderPrivacy(PostPrivacy.PRIVATE)}
+            </button>
+          </MultipleOptionsButton>
+        </div>
+        <label>
+          <b>Title</b>
           <InputBox
             onTextChange={handleTextChange}
             type="Input"
@@ -169,17 +209,17 @@ export default function PostForm({ type, editPost }: PostFormProps) {
           >
             add some cool title...
           </InputBox>
-        </div>
-        <div>
-          <h3>Categories</h3>
+        </label>
+        <label>
+          <b>Categories</b>
           <CategoriesInput
             selectedCategories={post.categories}
             onSelected={handleCategoryAdd}
             onRemoved={handleCategoryRemove}
           />
-        </div>
-        <div className="grow">
-          <h3>Description</h3>
+        </label>
+        <label className="grow">
+          <b>Description</b>
           <textarea
             name="description"
             value={post.description}
@@ -188,7 +228,7 @@ export default function PostForm({ type, editPost }: PostFormProps) {
             onChange={handleTextChange}
             spellCheck={false}
           />
-        </div>
+        </label>
         <div className="flex justify-end gap-3 mt-auto">
           <button onClick={handleCancel} className="Button_variant_2">
             Cancel

@@ -14,12 +14,11 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "@lib/firebase";
-import { ChatContext } from "@components/UI/Nav";
+import { ChatContext } from "@components/UI/Layout/Nav";
 import { formatTimeAgo } from "@lib/dateFormat";
-import { fetchUserFollowers } from "@actions/accountActions";
 import { User } from "@lib/types";
 import { useRouter } from "next/navigation";
-import Image from "@components/UI/Image";
+import Image from "@components/UI/Image/Image";
 import PopupButton from "@components/Input/PopupButton";
 import InputBox from "@components/Input/InputBox";
 import { startChat } from "@lib/Chat/chat";

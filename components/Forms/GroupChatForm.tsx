@@ -1,11 +1,11 @@
-import { SubmitButtonState } from "@app/enum/submitButtonState";
+import { SubmitButtonState } from "@enum/submitButtonState";
 import FriendSearchSection from "@components/Chat/ChatTabComponent/FriendSearchSection";
 import ImageInput from "@components/Input/ImageInput";
 import InputBox from "@components/Input/InputBox";
 import SubmitButton from "@components/Input/SubmitButton";
 import toastError, { confirm } from "@components/Notification/Toaster";
-import { ChatContext } from "@components/UI/Nav";
-import UserProfileIcon from "@components/UI/UserProfileIcon";
+import { ChatContext } from "@components/UI/Layout/Nav";
+import UserProfileIcon from "@components/UI/Profile/UserProfileIcon";
 import { createGroupChat } from "@lib/Chat/chat";
 import { UploadImage, User } from "@lib/types";
 import { uploadImage } from "@lib/upload";
@@ -17,10 +17,7 @@ import React, { use, useContext, useState } from "react";
 export default function GroupChatForm() {
   const router = useRouter();
   const { setChatInfo } = useContext(ChatContext);
-  const [groupPhoto, setGroupPhoto] = useState<{
-    file: File | null;
-    url: string;
-  }>({
+  const [groupPhoto, setGroupPhoto] = useState<UploadImage>({
     file: null,
     url: "",
   });
@@ -81,7 +78,7 @@ export default function GroupChatForm() {
       </InputBox>
       <ImageInput
         type="ProfileImage"
-        image={[groupPhoto.url]}
+        image={[groupPhoto]}
         setImage={handleImageChange}
       />
       <FriendSearchSection onSelected={handleAddMember} />

@@ -1,6 +1,6 @@
 import { signUp } from "@actions/accountActions";
 import { checkAuthRateLimit } from "@actions/checkRateLimit";
-import { SubmitButtonState } from "@app/enum/submitButtonState";
+import { SubmitButtonState } from "@enum/submitButtonState";
 import ImageInput from "@components/Input/ImageInput";
 import InputBox from "@components/Input/InputBox";
 import SubmitButton from "@components/Input/SubmitButton";

@@ -1,4 +1,4 @@
-import { fetchUserFollowers } from "@actions/accountActions";
+
 import InputBox from "@components/Input/InputBox";
 import { faUser } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
@@ -7,7 +7,8 @@ import { useSession } from "@node_modules/next-auth/react";
 import { User } from "@lib/types";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import CustomImage from "@components/UI/Image";
+import CustomImage from "@components/UI/Image/Image";
+import { fetchUserFollowers } from "@actions/followsActions";
 
 export default function FriendSearchSection({
   onSelected,

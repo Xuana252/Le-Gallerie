@@ -1,8 +1,8 @@
 import React, { Dispatch, FormEvent, SetStateAction, useState } from "react";
 import FriendSearchSection from "../ChatTabComponent/FriendSearchSection";
 import { User } from "@lib/types";
-import { ChatBoxView } from "@app/enum/chatBoxView";
-import UserProfileIcon from "@components/UI/UserProfileIcon";
+import { ChatBoxView } from "@enum/chatBoxView";
+import UserProfileIcon from "@components/UI/Profile/UserProfileIcon";
 import {
   faAngleLeft,
   faMinus,
@@ -12,7 +12,7 @@ import {
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import SubmitButton from "@components/Input/SubmitButton";
 import { faSquare } from "@node_modules/@fortawesome/free-regular-svg-icons";
-import { SubmitButtonState } from "@app/enum/submitButtonState";
+import { SubmitButtonState } from "@enum/submitButtonState";
 import { joinChat } from "@lib/Chat/chat";
 import { toast } from "@node_modules/sonner/dist";
 import { toastMessage } from "@components/Notification/Toaster";

@@ -1,8 +1,7 @@
-import { Reaction } from "@app/enum/reactionEnum";
-import { faHeart } from "@node_modules/@fortawesome/free-regular-svg-icons";
+import { Reaction } from "@enum/reactionEnum";
+import { faHeart, faSmile } from "@node_modules/@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { Like } from "../types";
-
 export const renderReaction = (reaction: Reaction | null) => {
   switch (reaction) {
     case "like":
@@ -18,7 +17,7 @@ export const renderReaction = (reaction: Reaction | null) => {
     case "angry":
       return <img src={`/icons/angry.png`} alt="angry" className="size-full" />;
     default:
-      return <FontAwesomeIcon icon={faHeart} />;
+      return <FontAwesomeIcon icon={faSmile} />;
   }
 };
 

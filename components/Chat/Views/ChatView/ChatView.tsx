@@ -1,7 +1,7 @@
 import EmojiInput from "@components/Input/EmojiInput";
 import ImageInput from "@components/Input/ImageInput";
 import InputBox from "@components/Input/InputBox";
-import CustomImage from "@components/UI/Image";
+import CustomImage from "@components/UI/Image/Image";
 import { formatTimeAgoWithoutAgo } from "@lib/dateFormat";
 import { db } from "@lib/firebase";
 import { uploadImage } from "@lib/upload";
@@ -24,15 +24,16 @@ import {
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { useSession } from "@node_modules/next-auth/react";
 import React, { useEffect, useRef, useState } from "react";
-import UserProfileIcon from "@components/UI/UserProfileIcon";
+import UserProfileIcon from "@components/UI/Profile/UserProfileIcon";
 import { User } from "@lib/types";
 import ReactionButton from "@components/Input/ReactionInput";
-import { Reaction } from "@app/enum/reactionEnum";
+import { Reaction } from "@enum/reactionEnum";
 import ChatItem from "./ChatItem";
 import {
   addChatItemReaction,
   pinMessage,
   removeChatItem,
+  RenderBackground,
   RenderLog,
 } from "@lib/Chat/chat";
 import { faUsb } from "@node_modules/@fortawesome/free-brands-svg-icons";
@@ -52,8 +53,9 @@ export default function ChatView({
 }) {
   const { data: session, update } = useSession();
   const messageListRef = useRef<HTMLUListElement>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+  const prevChatInfo = useRef(chatInfo); // Store previous value
 
   const chatItemRef = useRef<{ [key: string]: HTMLLIElement | null }>({});
 
@@ -83,13 +85,12 @@ export default function ChatView({
   };
 
   useEffect(() => {
-    setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 1000);
+    if (prevChatInfo.current !== chatInfo) {
+      setIsLoading(true);
+      setTimeout(() => setIsLoading(false), 1000);
+    }
+    prevChatInfo.current = chatInfo;
   }, [chatInfo?.chatId]);
-
-
-
- 
 
   useEffect(() => {
     messageListRef.current?.scrollTo({
@@ -162,7 +163,13 @@ export default function ChatView({
 
       <ul
         ref={messageListRef}
-        className="h-[400px] w-full bg-secondary-1/50 flex flex-col-reverse justify-items-end gap-1 py-4 px-2 overflow-y-scroll overflow-x-auto no-scrollbar relative z-40"
+        className={`h-[400px] w-full bg-secondary-1/50 flex flex-col-reverse justify-items-end gap-1 py-4 px-2 overflow-y-scroll overflow-x-auto no-scrollbar relative z-40`}
+        style={{
+          backgroundImage: `url(${RenderBackground(chat.theme)})`,
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "60%",
+        }}
         onScroll={handleScroll}
       >
         {showScrollToBottom && (
@@ -301,7 +308,7 @@ export default function ChatView({
                     message.type,
                     chatInfo.users.find(
                       (user: User) => user._id === message.userId
-                    ).username
+                    )?.username
                   )}
                 </li>
               )

@@ -1,4 +1,5 @@
-import { Reaction } from '@app/enum/reactionEnum';
+import { PostPrivacy } from '@enum/postPrivacyEnum';
+import { Reaction } from '@enum/reactionEnum';
 import { Date } from 'mongoose';
 import NextAuth from 'next-auth';
 import { DefaultUser } from 'next-auth';
@@ -87,6 +88,7 @@ export type Post = {
     description: string,
     categories: Category[],
     image: string[],
+    privacy: PostPrivacy,
     likes?:number,
     createdAt?: Date,
 }
@@ -98,6 +100,7 @@ export type UploadPost = {
     categories: Category[],
     image:UploadImage[],
     likes?:number,
+    privacy:PostPrivacy,
 }
 export type Category = {
     _id: string,

@@ -22,7 +22,7 @@ export default function PopupButton({ children, popupItem }: PopupButtonProps) {
       </button>
       {popupTransition((styles, item) =>
         item ? (
-          createPortal(<div className="fixed z-100 top-0 left-0 w-[100vw] h-[100vh] flex items-center justify-center z-50">
+          createPortal(<div className="fixed z-100 top-0 left-0 w-[100vw] h-[100vh] flex items-center justify-center z-50 text-accent">
             <animated.div
               style={styles}
               className="flex flex-col size-fit rounded-xl bg-secondary-1/50 backdrop-blur-md border-[1px] border-accent p-2"

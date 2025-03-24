@@ -4,7 +4,7 @@ import React from 'react';
 import { Spinner } from '@components/UI/Loader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faTriangleExclamation, faX } from '@fortawesome/free-solid-svg-icons';
-import { SubmitButtonState } from '@app/enum/submitButtonState';
+import { SubmitButtonState } from '@enum/submitButtonState';
 
 type SubmitButtonBaseProps = {
     children? :React.ReactNode,

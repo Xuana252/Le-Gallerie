@@ -2,23 +2,20 @@
 
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faArrowLeft,
-} from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
-import Feed from "@components/UI/Feed";
+import Feed from "@components/UI/Layout/Feed";
 import { Category, Comment, User, type Post } from "@lib/types";
 import { useSession } from "next-auth/react";
-import {
-  fetchPostWithId,
-} from "@actions/postActions";
-import PostDetail from "@components/UI/PostDetail";
+import { fetchPostWithId } from "@actions/postActions";
+import PostDetail from "@components/UI/Post/PostDetail";
 import mongoose, { Schema } from "mongoose";
+import { PostPrivacy } from "@enum/postPrivacyEnum";
 
 export default function Post({ params }: { params: { id: string } }) {
-  const { data: session } = useSession();
   const router = useRouter();
-  const [isLoading,setIsLoading] = useState<boolean>(true)
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [availableState, setAvailableState] = useState(true);
   const [post, setPost] = useState<Post>({
     _id: "",
     creator: { _id: "" },
@@ -28,20 +25,24 @@ export default function Post({ params }: { params: { id: string } }) {
     image: [],
     likes: 0,
     createdAt: undefined,
+    privacy: PostPrivacy.PUBLIC,
   });
 
-
   const fetchPost = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     const data = await fetchPostWithId(params.id);
 
-    if (data && JSON.stringify(data) !== JSON.stringify(post)) {
-      setPost(data);
+    if (data.status === 200) {
+      if (data.data && JSON.stringify(data.data) !== JSON.stringify(post)) {
+        setPost(data.data);
+      }
+      setAvailableState(true);
+    } else {
+      setAvailableState(false);
     }
-    setIsLoading(false)
+
+    setIsLoading(false);
   };
-
-
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -55,14 +56,11 @@ export default function Post({ params }: { params: { id: string } }) {
         const post = JSON.parse(storePost);
         setPost(post);
         localStorage.removeItem("post"); // Remove after setting state
-        setIsLoading(false)
+        setIsLoading(false);
       }
     };
     handleLocalStorage();
   }, []);
-
-
- 
 
   return (
     <section className="min-h-screen text-accent">
@@ -75,7 +73,11 @@ export default function Post({ params }: { params: { id: string } }) {
         >
           <FontAwesomeIcon icon={faArrowLeft} />
         </button>
-          <PostDetail post={post} isLoading={isLoading}/>
+        <PostDetail
+          available={availableState}
+          post={post}
+          isLoading={isLoading}
+        />
       </div>
       <br />
       <h1 className="text-center text-xl ">

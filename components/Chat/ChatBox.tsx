@@ -1,7 +1,7 @@
 "use client";
 import InputBox from "@components/Input/InputBox";
-import { ChatContext } from "@components/UI/Nav";
-import UserProfileIcon from "@components/UI/UserProfileIcon";
+import { ChatContext } from "@components/UI/Layout/Nav";
+import UserProfileIcon from "@components/UI/Profile/UserProfileIcon";
 import {
   faAngleDoubleDown,
   faAngleDoubleUp,
@@ -57,10 +57,10 @@ import SettingView from "./Views/SettingView";
 import ChatView from "./Views/ChatView/ChatView";
 import ThemeView from "./Views/ThemeView";
 import { User } from "@lib/types";
-import CustomImage from "@components/UI/Image";
-import { ChatBoxView } from "@app/enum/chatBoxView";
+import CustomImage from "@components/UI/Image/Image";
+import { ChatBoxView } from "@enum/chatBoxView";
 import AddMemberView from "./Views/AddMemberView";
-import ImageGroupDisplay from "@components/UI/ImageGroupDisplay";
+import ImageGroupDisplay from "@components/UI/Image/ImageGroupDisplay";
 import MemberView from "./Views/MemberView";
 
 export default function ChatBox() {

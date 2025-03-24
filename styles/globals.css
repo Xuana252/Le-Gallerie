@@ -2,28 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(var(--primary), 0.5);
+  border-radius: 10px;
+}
+
+/* Scrollbar Handle */
+::-webkit-scrollbar-thumb {
+  background: rgba(var(--accent), 0.5);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--accent), 1);
+}
+
 .MessageRowBase {
-  @apply flex items-center gap-1
+  @apply flex items-center gap-1;
 }
 .MyMessageRow {
-  @apply MessageRowBase flex-row-reverse
+  @apply MessageRowBase flex-row-reverse;
 }
 .OtherMessageRow {
-  @apply MessageRowBase flex-row
+  @apply MessageRowBase flex-row;
 }
-
-
 
 .Message_base {
   @apply size-fit px-3 py-1 font-semibold break-all whitespace-normal text-sm;
 }
 
-
 .My_message {
   @apply Message_base bg-accent text-primary;
 }
 .My_message_upper {
-  @apply My_message rounded-l-2xl rounded-tr-2xl rounded-br-md ;
+  @apply My_message rounded-l-2xl rounded-tr-2xl rounded-br-md;
 }
 .My_message_under {
   @apply My_message rounded-l-2xl rounded-br-2xl rounded-tr-md;
@@ -33,12 +50,11 @@
   @apply My_message rounded-l-2xl rounded-r-md;
 }
 
-
 .Other_message {
   @apply Message_base bg-primary text-accent;
 }
 .Other_message_upper {
-  @apply Other_message rounded-r-2xl rounded-tl-2xl rounded-bl-md ;
+  @apply Other_message rounded-r-2xl rounded-tl-2xl rounded-bl-md;
 }
 .Other_message_under {
   @apply Other_message rounded-r-2xl rounded-bl-2xl rounded-tl-md;
@@ -47,9 +63,8 @@
   @apply Other_message rounded-r-2xl rounded-l-md;
 }
 
-
 .Theme_list {
-  @apply flex flex-wrap gap-2  h-48 w-[150px] rounded-lg overflow-y-scroll no-scrollbar;
+  @apply flex flex-wrap gap-2  h-48 w-[150px] rounded-lg overflow-y-scroll;
 }
 .Theme_item {
   @apply cursor-pointer w-full h-8 grid grid-cols-4  rounded-lg overflow-hidden;
@@ -87,15 +102,21 @@
 }
 
 .Side_bar_menu {
-  @apply flex h-full justify-start bg-secondary-2 gap-3 py-2 sm:py-4 px-2 flex-row w-full items-center overflow-x-scroll no-scrollbar sm:flex-col sm:items-start;
+  @apply grid grid-rows-[1fr_auto] justify-start bg-secondary-2/80 backdrop-blur-sm gap-3 p-2 flex-col z-40;
+}
+.Side_bar_path_list {
+  @apply flex flex-col gap-2 overflow-y-auto;
+}
+.Side_bar_section {
+  @apply flex flex-col gap-2 bg-secondary-1/50 w-full p-2 rounded-lg  transition-all duration-200 ease-out;
 }
 
 .Side_bar_item {
-  @apply flex flex-row  rounded-xl gap-2 items-center sm:w-full text-left px-4 py-2 text-accent hover:bg-accent/50 hover:text-primary active:bg-accent active:text-primary font-bold;
+  @apply flex flex-row transition-all text-sm duration-150 ease-in-out origin-bottom-left hover:border-l-4 hover:border-b-4 border-primary active:border-none rounded-lg gap-2 items-center w-full text-left px-4 py-2 text-accent hover:bg-accent/50 hover:text-primary active:bg-accent active:text-primary font-bold;
 }
 
 .Side_bar_selected_item {
-  @apply flex flex-row rounded-xl gap-2 items-center sm:w-full text-left px-4 py-2 font-bold bg-accent text-primary;
+  @apply flex flex-row rounded-lg gap-2 border-l-4 border-b-4 border-primary  text-sm items-center w-full text-left px-4 py-2 font-bold bg-accent text-primary;
 }
 
 .Notification_view_toggle_button {
@@ -103,10 +124,10 @@
 }
 
 .Notification_list {
-  @apply w-[300px] h-[400px] sm:w-[350px] overflow-y-scroll no-scrollbar flex flex-col gap-2 px-2 pb-2 pt-0 bg-secondary-2 rounded-lg;
+  @apply w-[300px] h-[400px] sm:w-[350px] overflow-y-scroll no-scrollbar flex flex-col gap-2 p-2 bg-secondary-2 rounded-lg;
 }
 .Notification_item {
-  @apply flex gap-2 items-center p-2 rounded-xl bg-accent h-fit w-full text-primary select-none cursor-pointer;
+  @apply grid grid-cols-[auto_1fr_auto] gap-2 items-center p-2 rounded-xl bg-accent h-fit w-full text-primary select-none cursor-pointer;
 }
 .Toast_item {
   @apply flex gap-2 items-center p-2 rounded-xl bg-accent h-fit min-w-[350px] text-primary select-none cursor-pointer;
@@ -122,6 +143,77 @@
   .Sign_In_Form_Desktop {
     @apply text-accent grid grid-cols-2 rounded-3xl w-full max-w-[1080px] min-h-[400px] shadow-xl m-auto bg-secondary-1/90 border-2 border-accent/50 backdrop-blur-sm overflow-hidden h-[80%]  relative;
   }
+}
+
+.title {
+  @apply text-xl sm:text-2xl font-extrabold italic z-30 flex flex-row flex-wrap gap-2 items-center;
+  text-shadow: -5px 5px 5px rgba(var(--secondary-variant-1), 0.5);
+}
+.shadow {
+  background: rgb(var(--accent));
+  opacity: 50%;
+  width: 90%;
+  height: 30px;
+  transform-origin: bottom;
+  border-top-left-radius: 72%;
+  border-top-right-radius: 89%;
+  border-bottom-right-radius: 76%;
+  border-bottom-left-radius: 90%;
+  /* transform: rotateX(80deg); */
+  transform: scaleY(0.3);
+  filter: blur(20px);
+}
+.bloom_left {
+  background: radial-gradient(
+    circle at 10% 90%,
+    rgba(var(--secondary), 0.7) 5%,
+    rgba(var(--secondary-variant-1), 0.4) 60%,
+    transparent
+  );
+  filter: blur(50px);
+}
+
+.bloom_right {
+  background: radial-gradient(
+    circle at 90% 90%,
+    rgba(var(--secondary), 0.7) 5%,
+    rgba(var(--secondary-variant-1), 0.4) 60%,
+    transparent
+  );
+  filter: blur(50px);
+}
+
+.bloom_up {
+  background: radial-gradient(
+    circle at 50% 90%,
+    rgba(var(--secondary), 0.7) 5%,
+    rgba(var(--secondary-variant-1), 0.4) 60%,
+    transparent
+  );
+  filter: blur(50px);
+}
+
+.light_bottom_right {
+  background: radial-gradient(
+    circle at 90% 90%,
+    rgba(255, 255, 255, 0.4) 1%,
+    transparent
+  );
+  filter: blur(50px);
+}
+
+.light_bottom_left {
+  background: radial-gradient(
+    circle at 10% 90%,
+    rgba(255, 255, 255, 0.4) 1%,
+    transparent
+  );
+  filter: blur(50px);
+}
+
+.light_bottom {
+  background: radial-gradient(circle at 50% 90%, white 1%, transparent);
+  filter: blur(50px);
 }
 
 .Sign_In_Form_Mobile {
@@ -167,7 +259,7 @@
 }
 
 .Cate_box {
-  @apply flex rounded-2xl items-center outline-none border-2 border-accent justify-start gap-2   text-lg p-2 overflow-hidden;
+  @apply flex rounded-2xl items-center outline-none border-2 border-accent justify-start gap-2   text-lg p-2 overflow-auto;
 }
 .Cate_tag {
   @apply flex select-none items-center justify-center px-2 py-1 bg-accent text-primary font-semibold rounded-xl gap-2 whitespace-nowrap;
@@ -203,6 +295,10 @@
   @apply Icon_base size-12 text-3xl;
 }
 
+.Icon_bigger {
+  @apply Icon_base size-20 text-5xl;
+}
+
 .Highlighted {
   @apply animate-highlight rounded-lg;
 }
@@ -224,13 +320,14 @@
 
 @font-face {
   font-family: "AppLogo";
-  src: url("../Fonts/icomoon.ttf") format("woff2");
+  src: url("../public/Fonts/icomoon.ttf") format("woff2");
   font-weight: normal;
   font-style: normal;
 }
 @font-face {
   font-family: "AppName";
-  src: url("../Fonts/PlaywriteBEVLG-VariableFont_wght.ttf") format("woff2");
+  src: url("../public/Fonts/PlaywriteBEVLG-VariableFont_wght.ttf")
+    format("woff2");
   font-weight: normal;
   font-style: normal;
 }
@@ -399,3 +496,20 @@
   }
 }
 
+.number-scroll {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  font-weight: bold;
+  animation: scrollNumbers 5s infinite ;
+}
+
+.number-scroll span {
+  display: block;
+}
+
+@keyframes scrollNumbers {
+  0% { transform: translateY(0%); }
+  50% { transform: translateY(-400%); } /* Moves up by 5 numbers */
+  0% { transform: translateY(0%); }
+}

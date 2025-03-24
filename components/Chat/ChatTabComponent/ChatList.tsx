@@ -8,10 +8,10 @@ import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { doc, updateDoc } from "firebase/firestore";
 import { useSession } from "@node_modules/next-auth/react";
 import React, { useContext } from "react";
-import { ChatContext } from "@components/UI/Nav";
+import { ChatContext } from "@components/UI/Layout/Nav";
 import { User } from "@lib/types";
-import CustomImage from "@components/UI/Image";
-import ImageGroupDisplay from "@components/UI/ImageGroupDisplay";
+import CustomImage from "@components/UI/Image/Image";
+import ImageGroupDisplay from "@components/UI/Image/ImageGroupDisplay";
 
 export default function ChatList({
   chatList,

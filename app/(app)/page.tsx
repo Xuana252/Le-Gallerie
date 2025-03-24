@@ -1,6 +1,6 @@
 
-import Feed from "@components/UI/Feed";
-import UsersBar from "@components/UI/UsersBar";
+import Feed from "@components/UI/Layout/Feed";
+import UsersBar from "@components/UI/Layout/UsersBar";
 
 export default function Home() {
 
