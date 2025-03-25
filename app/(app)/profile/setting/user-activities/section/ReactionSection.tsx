@@ -3,7 +3,7 @@ import { Reaction } from "@enum/reactionEnum";
 import { renderReaction } from "@lib/Emoji/render";
 import React, { useEffect, useRef, useState } from "react";
 
-export default function InteractionSection({ isVisible,likesCount,commentLikesCount }: { isVisible: boolean, likesCount:number,commentLikesCount:number }) {
+export default function ReactionSection({ isVisible,likesCount,commentLikesCount }: { isVisible: boolean, likesCount:number,commentLikesCount:number }) {
   const [count1, setCount1] = useState(likesCount);
   const [count2, setCount2] = useState(commentLikesCount);
   const [animated, setAnimate] = useState(isVisible);
@@ -106,7 +106,7 @@ export default function InteractionSection({ isVisible,likesCount,commentLikesCo
   return (
     <section className="flex flex-col"  style={{ opacity: animated ? 1 : 0 }}>
       <span className={`title animate-slideLeft ml-auto ${animated ? "animate-slideLeft" : ""}`}>
-        You've interacted{" "}
+        You've reacted {" "}
         {count1 + count2 || (
           <NumberLoader/>
         )}{" "}

@@ -13,17 +13,19 @@ import {
   faUserLock,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Ultra } from "@node_modules/next/font/google";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import React, { ReactNode, useEffect, useState } from "react";
 import { pathToFileURL } from "url";
 
 export default function SideBar({ children }: { children: ReactNode }) {
   const pathName = usePathname();
+  const searchParam = useSearchParams();
+  const subPath = searchParam.get("sub");
   const [windowWidth, setWindowWidth] = useState(0);
   const [windowHeight, setWindowHeight] = useState(0);
   const [isMinimize, setIsMinimize] = useState(false);
-  const [selectedMenuIndex, setSelectedMenuIndex] = useState(-1);
 
   const [touchStartX, setTouchStartX] = useState(0);
   const [touchEndX, setTouchEndX] = useState(0);
@@ -46,20 +48,6 @@ export default function SideBar({ children }: { children: ReactNode }) {
       setIsMinimize(true); // Swipe Down → Minimize
     }
   };
-
-  const getIndex = (path: string) => {
-    let index = -1;
-
-    const items = menuItems.flatMap((section) => section.items);
-
-    index = items.findIndex((items) => items.path === path);
-
-    return index;
-  };
-
-  useEffect(() => {
-    setSelectedMenuIndex(getIndex(pathName));
-  }, [pathName]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -100,22 +88,48 @@ export default function SideBar({ children }: { children: ReactNode }) {
       >
         <div className="Side_bar_path_list">
           {menuItems.map((section, sectionIndex) => (
-            <ul key={sectionIndex} className="Side_bar_section">
+            <ul
+              key={sectionIndex}
+              className="Side_bar_section transition-all duration-200 ease-in-out"
+            >
               <li className="text-primary text-sm">{section.section}</li>
               <hr className="border-none bg-primary h-[1px]" />
               {section.items.map((item, index) => (
-                <Link
-                  href={item.path}
-                  key={index}
-                  className={`${
-                    selectedMenuIndex === getIndex(item.path)
-                      ? "Side_bar_selected_item"
-                      : "Side_bar_item"
-                  }`}
-                >
-                  <FontAwesomeIcon icon={item.icon} />
-                  {item.name}
-                </Link>
+                <div className="w-full">
+                  <Link
+                    href={item.path}
+                    key={index}
+                    className={`${
+                      item.path === pathName
+                        ? "Side_bar_selected_item"
+                        : "Side_bar_item"
+                    }`}
+                  >
+                    <FontAwesomeIcon icon={item.icon} />
+                    {item.name}
+                  </Link>
+                  {item.subPath.length > 0 && (
+                    <ul
+                    className={`flex flex-col overflow-hidden transition-all duration-200 origin-top ${
+                      pathName === item.path ? "scale-y-100 ease-in-out" : "scale-y-0 h-0"
+                    }`}
+                    >
+                      {item.subPath.map((sub, index) => (
+                        <Link
+                          key={index}
+                          href={item.path + `?sub=${sub}&scroll=true`}
+                          className={`${
+                            item.path === pathName && sub === subPath
+                              ? "Side_bar_selected_sub_item "
+                              : "Side_bar_sub_item "
+                          } `}
+                        >
+                          {sub}
+                        </Link>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               ))}
             </ul>
           ))}
