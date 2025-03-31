@@ -3,7 +3,7 @@ import React, { MouseEventHandler, useRef, useState } from "react";
 import InputBox from "./InputBox";
 import { formatDate, formatDateForInput } from "@lib/dateFormat";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCableCar, faX } from "@fortawesome/free-solid-svg-icons";
+import { faCableCar, faClose, faX } from "@fortawesome/free-solid-svg-icons";
 import { faCalendar } from "@fortawesome/free-regular-svg-icons";
 
 export default function DateTimePicker({
@@ -56,7 +56,7 @@ export default function DateTimePicker({
         <div className="flex items-center size-8 justify-center Input_box_base cursor-pointer">
           {value && (
             <button onClick={handleClearText} tabIndex={-1}>
-              <FontAwesomeIcon icon={faX} size="sm" />
+              <FontAwesomeIcon icon={faClose} size="sm" />
             </button>
           )}
         </div>

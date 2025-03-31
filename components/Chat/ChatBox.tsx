@@ -156,7 +156,7 @@ export default function ChatBox() {
       ) : (
         <div className={`${chat?.theme}`}>
           <div
-            className={`fixed text-accent bottom-0 right-0   sm:right-20 mx-[20px] sm:w-[400px] sm:max-h-[500px] w-[300px]   flex flex-col rounded-t-2xl z-40 backdrop-blur-lg border-x-[1px] border-t-[1px] shadow-xl border-accent`}
+            className={`fixed text-accent bottom-0 sm:right-0 sm:mx-[20px]  sm:w-[400px] sm:max-h-[500px] w-screen   flex flex-col rounded-t-2xl z-40 backdrop-blur-lg border-x-[1px] border-t-[1px] shadow-xl border-accent`}
           >
             <div className="flex flex-row items-center  bg-secondary-2/70 p-2 gap-4 shadow-md h-[50px] rounded-t-2xl ">
               <label className="flex flex-row items-center gap-2 bg-primary rounded-full pr-4">

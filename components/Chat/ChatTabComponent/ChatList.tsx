@@ -3,6 +3,7 @@ import { db } from "@lib/firebase";
 import {
   faUser,
   faCircle,
+  faBoxArchive,
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { doc, updateDoc } from "firebase/firestore";
@@ -26,7 +27,7 @@ export default function ChatList({
   const handleSelectChat = async (chat: any) => {
     if (!session) return;
     const usersChat = chatList.map((item: any) => {
-      const { users, image, name, type,memberIds, ...rest } = item;
+      const { users, image, name, type, memberIds, ...rest } = item;
       return rest;
     });
 
@@ -53,7 +54,10 @@ export default function ChatList({
     `}
     >
       {!isLoading && chatList.length === 0 ? (
-        <span>you have no chat to show:(</span>
+        <div className="size-full flex flex-col items-center justify-center">
+          <FontAwesomeIcon icon={faBoxArchive} size="2xl" />
+          <p>Nothing's here yet:/</p>
+        </div>
       ) : isLoading ? (
         Array.from({ length: 5 }).map((_, index) => (
           <li
@@ -79,7 +83,22 @@ export default function ChatList({
             onClick={() => handleSelectChat(chat)}
           >
             <div className={`size-10`}>
-              <ImageGroupDisplay images={chat.type==="group"?chat.image?[chat.image]:chat.users.filter((user:User)=>chat.memberIds.findIndex((id:string)=>id===user._id)!==-1).map(((u:User)=>u.image)):[chat.users[0].image]} />
+              <ImageGroupDisplay
+                images={
+                  chat.type === "group"
+                    ? chat.image
+                      ? [chat.image]
+                      : chat.users
+                          .filter(
+                            (user: User) =>
+                              chat.memberIds.findIndex(
+                                (id: string) => id === user._id
+                              ) !== -1
+                          )
+                          .map((u: User) => u.image)
+                    : [chat.users[0].image]
+                }
+              />
             </div>
             <div className="flex flex-col grow justify-around items-baseline pointer-events-none">
               <span className="font-bold">

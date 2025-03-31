@@ -39,7 +39,7 @@ export default function Info() {
           </div>
           <div className="w-full py-2 flex flex-row">
             <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">Bio</div>
-            <p className="break-words w-[70%]">{session?.user.bio}</p>
+            <p className="whitespace-pre-wrap w-[70%]">{session?.user.bio}</p>
           </div>
           <div className="w-full py-2 flex flex-row">
             <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">Fullname</div>

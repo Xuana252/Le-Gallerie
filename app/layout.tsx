@@ -1,4 +1,6 @@
-
+import "@fortawesome/fontawesome-svg-core/styles.css";
+import { config } from "@fortawesome/fontawesome-svg-core";
+config.autoAddCss = false;
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
@@ -23,9 +25,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="min-h-[100vh] flex flex-col">
-      {/* Nav will appear on top  */}
-      <Nav>{children}</Nav>
-    </div>
+    <html lang="en">
+      <ThemeManager>
+        <Provider>
+          <div className="min-h-[100vh] flex flex-col">
+            {/* Nav will appear on top  */}
+            {children}
+          </div>
+          <Toaster richColors position="top-left" />
+        </Provider>
+      </ThemeManager>
+    </html>
   );
 }

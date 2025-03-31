@@ -9,6 +9,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 
 import CustomImage from "@components/UI/Image/Image";
 import { fetchUserFollowers } from "@actions/followsActions";
+import { fetchUserFriends } from "@actions/friendActions";
 
 export default function FriendSearchSection({
   onSelected,
@@ -19,19 +20,19 @@ export default function FriendSearchSection({
 }) {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(true);
-  const [followers, setFollowers] = useState<User[]>([]);
+  const [friends, setFriends] = useState<User[]>([]);
 
   const [searchText, setSearchText] = useState("");
 
-  const fetchFollowers = async () => {
+  const fetchFriend = async () => {
     setIsLoading(true);
-    const response = await fetchUserFollowers(session?.user.id || "");
-    setFollowers(response?.users.filter((user:User)=>filter.findIndex(id=>id===user._id)===-1) || []);
+    const response = await fetchUserFriends(session?.user.id || "");
+    setFriends(response?.users.filter((user:User)=>filter.findIndex(id=>id===user._id)===-1) || []);
     setIsLoading(false);
   };
 
   useEffect(() => {
-    fetchFollowers();
+    fetchFriend();
   }, []);
 
   const handleSearchTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,7 +60,7 @@ export default function FriendSearchSection({
                 <span className="w-[50px] bg-accent animate-pulse h-2 rounded-lg"></span>
               </div>
             ))
-          : followers
+          : friends
               .filter((follower) =>
                 follower.username
                   ?.toLowerCase()

@@ -1,21 +1,19 @@
 "use client";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import PostSection from "./section/PostSection";
 import CommentSection from "./section/CommentSection";
 import PostInteractionSection from "./section/PostInteractionSection";
 import BestPostSection from "./section/BestPostSection";
-import FrequentlyInteractedSection from "./section/FrequentlyInteractedSection";
 import BestBuddySection from "./section/BestBuddySection";
 import { useSession } from "@node_modules/next-auth/react";
 import { fetchUserPost } from "@actions/postActions";
-import { Like, Post, Comment } from "@lib/types";
+import { Like, Post, Comment, User } from "@lib/types";
 import {
   fetchUserCommentLikes,
   fetchUserComments,
   fetchUserPostsComments,
 } from "@actions/commentAction";
 import { fetchUserLikes, fetchUserPostsLikes } from "@actions/likesAction";
-import { userAgent } from "@node_modules/next/server";
 import BiggestFansSection from "./section/BiggestFansSection";
 import ReactionSection from "./section/ReactionSection";
 import {
@@ -25,12 +23,18 @@ import {
 } from "@node_modules/next/navigation";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { faChartSimple } from "@node_modules/@fortawesome/free-solid-svg-icons";
+import ActivitiesHighlightsSection from "./section/ActivitiesHighlightsSection";
+import FavoriteTopicsSection from "./section/FavoriteTopicsSection";
+import { SubPathContext } from "@components/UI/Layout/SideBar";
+import FollowsAndFriendsSection from "./section/FollowsAndFriendsSection";
+import { fetchUserFollowers } from "@actions/followsActions";
+import { fetchUserFriends } from "@actions/friendActions";
 
 export default function UserActivities() {
   const { data: session } = useSession();
+  const { subPath, setSubPath } = useContext(SubPathContext);
   const router = useRouter();
   const pathName = usePathname();
-  const searchParams = useSearchParams();
 
   const [animatedSections, setAnimatedSections] = useState<
     Record<string, boolean>
@@ -42,71 +46,90 @@ export default function UserActivities() {
   const [postsLikes, setPostsLikes] = useState<Like[]>([]);
   const [postsComments, setPostsComments] = useState<Comment[]>([]);
   const [commentLikes, setCommentLikes] = useState<Like[]>([]);
+  const [followers, setFollowers] = useState<User[]>([]);
+  const [following, setFollowing] = useState<User[]>([]);
+  const [friends, setFriends] = useState<User[]>([]);
 
   const sectionsRef = useRef<Record<string, HTMLDivElement | null>>({
     "Total Post": null,
     "Total Reaction": null,
     "Total Comment": null,
     "Received Interactions": null,
+    "Follows & Friends": null,
     "Biggest Fans": null,
     "Best Posts": null,
     "Activities Highlights": null,
+    "Favorite Topics": null,
     "Best Buddy": null,
   });
 
   const sectionKeys = Object.keys(sectionsRef.current);
 
   const fetchPosts = async (id: string) => {
-    fetchUserPost(id, 1, 0).then((res) => {
-      setPosts(res.posts);
-    });
+    const res = await fetchUserPost(id, 1, 0);
+    setPosts(res.posts);
   };
 
+  const fetchFollower = async (id: string) => {
+    const res = await fetchUserFollowers(id);
+    setFollowers(res?.users);
+  };
+
+  const fetchFollowing = async (id: string) => {
+    const res = await fetchUserFollowers(id);
+    setFollowing(res?.users);
+  };
+  const fetchFriends = async (id: string) => {
+    const res = await fetchUserFriends(id);
+    setFriends(res?.users);
+  };
   const fetchComments = async (id: string) => {
-    fetchUserComments(id).then((res) => {
-      setComments(res.comments);
-    });
+    const res = await fetchUserComments(id);
+    setComments(res.comments);
   };
 
   const fetchLikes = async (id: string) => {
-    fetchUserLikes(id).then((res) => {
-      setLikes(res.likes);
-    });
+    const res = await fetchUserLikes(id);
+    setLikes(res.likes);
   };
 
   const fetchCommentLikes = async (id: string) => {
-    fetchUserCommentLikes(id).then((res) => {
-      setCommentLikes(res.commentLikes);
-    });
+    const res = await fetchUserCommentLikes(id);
+    setCommentLikes(res.commentLikes);
   };
 
   const fetchPostsLikes = async (id: string) => {
-    fetchUserPostsLikes(id).then((res) => {
-      setPostsLikes(res.likes);
-    });
+    const res = await fetchUserPostsLikes(id);
+    setPostsLikes(res.likes);
   };
 
   const fetchPostsComments = async (id: string) => {
-    fetchUserPostsComments(id).then((res) => {
-      setPostsComments(res.comments);
-    });
+    const res = await fetchUserPostsComments(id);
+    setPostsComments(res.comments);
   };
 
   const fetchData = async () => {
     const userId = session?.user.id;
     if (!userId) return;
-    await Promise.all([
-      fetchPosts(userId),
-      fetchComments(userId),
-      fetchLikes(userId),
-      fetchCommentLikes(userId),
-      fetchPostsLikes(userId),
-      fetchPostsComments(userId),
-    ]);
+    try {
+      await Promise.all([
+        fetchPosts(userId),
+        fetchComments(userId),
+        fetchLikes(userId),
+        fetchCommentLikes(userId),
+        fetchPostsLikes(userId),
+        fetchPostsComments(userId),
+        fetchFollower(userId),
+        fetchFollowing(userId),
+        fetchFriends(userId),
+      ]);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
-    // fetchData();
+    fetchData();
   }, [session?.user.id]);
 
   useEffect(() => {
@@ -120,12 +143,7 @@ export default function UserActivities() {
               [section || ""]: true,
             }));
             if (section) {
-              const newParams = new URLSearchParams(searchParams);
-              newParams.set("sub", section);
-
-              router.replace(`${pathName}?${newParams.toString()}`, {
-                scroll: false,
-              });
+              setSubPath({ path: section, scroll: false });
             }
           }
         });
@@ -145,32 +163,22 @@ export default function UserActivities() {
   }, []);
 
   useEffect(() => {
-    const sub = searchParams.get("sub");
-    const scroll = searchParams.get("scroll");
-
-    if (sub && scroll === "true" && sectionsRef.current[sub]) {
-      const section = sectionsRef.current[sub];
+    if (subPath.path && subPath.scroll && sectionsRef.current[subPath.path]) {
+      const section = sectionsRef.current[subPath.path];
       if (!section) return;
 
       section.scrollIntoView({ behavior: "auto", block: "center" });
-
-      // Remove "scroll=true" to prevent re-triggering
-      const newParams = new URLSearchParams(searchParams);
-      newParams.set("sub", sub);
-      newParams.delete("scroll");
-
-      router.replace(`${pathName}?${newParams.toString()}`, { scroll: false });
     }
-  }, [searchParams]);
+  }, [subPath]);
 
   return (
-    <section className="flex flex-col gap-20  ">
+    <section className="flex flex-col gap-20">
       <div className="text-3xl font-extrabold text-accent relative">
         <FontAwesomeIcon icon={faChartSimple} /> Your Activities
       </div>
 
       <div
-        className="min-h-[50vh]"
+        className="min-h-[50vh] "
         ref={(el) => {
           sectionsRef.current["Total Post"] = el;
         }}
@@ -181,7 +189,7 @@ export default function UserActivities() {
         />
       </div>
       <div
-        className="min-h-[50vh]"
+        className="min-h-[50vh] "
         ref={(el) => {
           sectionsRef.current["Total Reaction"] = el;
         }}
@@ -193,7 +201,7 @@ export default function UserActivities() {
         />
       </div>
       <div
-        className="min-h-[50vh]"
+        className="min-h-[50vh] "
         ref={(el) => {
           sectionsRef.current["Total Comment"] = el;
         }}
@@ -204,7 +212,7 @@ export default function UserActivities() {
         />
       </div>
       <div
-        className="min-h-[50vh]"
+        className="min-h-[50vh] "
         ref={(el) => {
           sectionsRef.current["Received Interactions"] = el;
         }}
@@ -217,7 +225,21 @@ export default function UserActivities() {
       </div>
 
       <div
-        className="min-h-[50vh]"
+        className="min-h-[50vh] "
+        ref={(el) => {
+          sectionsRef.current["Follows & Friends"] = el;
+        }}
+      >
+        <FollowsAndFriendsSection
+          isVisible={animatedSections["Follows & Friends"]}
+          followers={followers}
+          following={following}
+          friends={friends}
+        />
+      </div>
+
+      <div
+        className="min-h-[50vh] "
         ref={(el) => {
           sectionsRef.current["Biggest Fans"] = el;
         }}
@@ -230,7 +252,7 @@ export default function UserActivities() {
       </div>
 
       <div
-        className="min-h-[50vh]"
+        className="min-h-[50vh] "
         ref={(el) => {
           sectionsRef.current["Best Posts"] = el;
         }}
@@ -244,12 +266,12 @@ export default function UserActivities() {
       </div>
 
       <div
-        className="min-h-[50vh]"
+        className="min-h-[50vh] "
         ref={(el) => {
           sectionsRef.current["Activities Highlights"] = el;
         }}
       >
-        <FrequentlyInteractedSection
+        <ActivitiesHighlightsSection
           isVisible={animatedSections["Activities Highlights"]}
           likes={likes}
           comments={comments}
@@ -257,7 +279,19 @@ export default function UserActivities() {
       </div>
 
       <div
-        className="min-h-[50vh]"
+        className="min-h-[50vh] "
+        ref={(el) => {
+          sectionsRef.current["Favorite Topics"] = el;
+        }}
+      >
+        <FavoriteTopicsSection
+          isVisible={animatedSections["Favorite Topics"]}
+          posts={posts}
+        />
+      </div>
+
+      <div
+        className="min-h-[50vh] "
         ref={(el) => {
           sectionsRef.current["Best Buddy"] = el;
         }}
@@ -267,16 +301,18 @@ export default function UserActivities() {
 
       <div className="text-justify w-fit mx-auto bg-gradient-to-b from-secondary-1/20 to-secondary-2/20 shadow-lg p-6 md:p-8 lg:p-10 text-accent">
         <div className="text-center text-xl font-bold text-accent/50">
-          Hey <b className="text-accent" >🚀{session?.user.name} 🚀!!</b>
+          Hey <b className="text-accent">🚀{session?.user.name} 🚀!!</b>
         </div>
         <div className="mt-6 leading-relaxed text-lg">
           We just wanted to take a moment to{" "}
-          <b className="text-red-500 font-semibold">thank you</b> for being part of
-          {" "}<span className="text-red-500 font-semibold"> our community</span>
+          <b className="text-red-500 font-semibold">thank you</b> for being part
+          of <span className="text-red-500 font-semibold"> our community</span>
           !
           <br /> Your engagement{" "}
-          <span className="text-red-500 font-semibold">means the world to us</span>,
-          and we <i className="font-bold">love</i> seeing you
+          <span className="text-red-500 font-semibold">
+            means the world to us
+          </span>
+          , and we <i className="font-bold">love</i> seeing you
           <span className="text-red-500 font-semibold ">
             {" "}
             share, connect, and interact
@@ -286,7 +322,7 @@ export default function UserActivities() {
         <div className="mt-6 leading-relaxed text-lg">
           Keep <b className="text-red-500">exploring</b>,
           <b className="text-red-500"> posting</b>, and
-          <b > making new connections</b>.
+          <b> making new connections</b>.
           <br /> We’re always working on making the experience
           <span className="text-red-500 font-semibold">
             {" "}
@@ -298,8 +334,7 @@ export default function UserActivities() {
           you around!🥂
         </div>
         <div className="text-center italic mt-8">
-          - <span className="font-semibold">Le-Gallerie Team</span>{" "}
-          -
+          - <span className="font-semibold">Le-Gallerie Team</span> -
         </div>
       </div>
     </section>

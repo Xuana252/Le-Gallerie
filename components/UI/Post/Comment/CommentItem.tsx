@@ -87,7 +87,7 @@ export const CommentItem = ({
   };
 
   const handleReply = async () => {
-    if (!comment.post._id || !session?.user.id) {
+    if (!comment.post._id || !session?.user.id || !replyContent) {
       return;
     }
     setIsReplying(false);
@@ -97,6 +97,7 @@ export const CommentItem = ({
       comment._id,
       replyContent
     );
+    setReplyContent("");
     fetchReplies();
   };
 
@@ -179,7 +180,7 @@ export const CommentItem = ({
           </div>
         </div>
         <div
-          className={`flex gap-2 text-accent/50 items-center ${
+          className={`flex gap-2 text-accent/50 items-center w-full ${
             size === "small" ? "text-xs" : "text-[0.7em]"
           }`}
         >
@@ -198,6 +199,7 @@ export const CommentItem = ({
             reaction={myReaction}
             action={(r: Reaction | null) => handleLikeState(r)}
           />
+          <button className="ml-auto hover:text-accent">Report</button>
         </div>
         {isReplying && (
           <div className="flex flex-row items-start gap-2 border-l-2 border-accent p-2">

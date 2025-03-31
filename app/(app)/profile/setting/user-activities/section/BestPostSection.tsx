@@ -199,7 +199,7 @@ export default function BestPostSection({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 w-full p-2 gap-4">
         <div className="min-h-[300px]  flex flex-col gap-4  relative">
-          <div className="title mx-auto">Post that gets people crazy</div>
+          <div className="subtitle mx-auto">Post that gets people crazy</div>
           <div className="flex items-center justify-center grow">
             <div className="bloom_right size-full absolute"></div>
             <div className="grow h-full flex flex-col gap-2 relative">
@@ -247,7 +247,7 @@ export default function BestPostSection({
         </div>
 
         <div className="min-h-[300px]  flex flex-col gap-4  relative">
-          <div className="title mx-auto">Post that keeps people talking</div>
+          <div className="subtitle mx-auto">Post that keeps people talking</div>
           <div className="flex items-center justify-center grow">
             <div className="max-w-[250px] w-[50%]">
               {

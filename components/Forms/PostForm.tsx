@@ -21,6 +21,7 @@ import { CategoriesInput } from "@components/Input/CategoryInput";
 import { PostPrivacy } from "@enum/postPrivacyEnum";
 import MultipleOptionsButton from "@components/Input/MultipleOptionsButton";
 import { renderPrivacy } from "@lib/Post/post";
+import TextAreaInput from "@components/Input/TextAreaInput";
 
 type BasePostFormProps = {
   type: "Create" | "Edit";
@@ -168,7 +169,15 @@ export default function PostForm({ type, editPost }: PostFormProps) {
             {type} form{" "}
           </h2>
 
-          <MultipleOptionsButton selected={post.privacy===PostPrivacy.PUBLIC?0:post.privacy===PostPrivacy.FRIEND?1:2}>
+          <MultipleOptionsButton
+            selected={
+              post.privacy === PostPrivacy.PUBLIC
+                ? 0
+                : post.privacy === PostPrivacy.FRIEND
+                ? 1
+                : 2
+            }
+          >
             <button
               className="flex flex-row items-center gap-2 p-1 text-sm font-bold"
               onClick={(e) => {
@@ -220,12 +229,12 @@ export default function PostForm({ type, editPost }: PostFormProps) {
         </label>
         <label className="grow">
           <b>Description</b>
-          <textarea
+          <TextAreaInput
             name="description"
             value={post.description}
             placeholder="tell us something about your post..."
-            className="Input_box_variant_1 p-2 w-full h-[80%]"
-            onChange={handleTextChange}
+            height={"full"}
+            onTextChange={handleTextChange}
             spellCheck={false}
           />
         </label>

@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
   faDownload,
+  faHammer,
   faPenToSquare,
   faShare,
   faTrash,
@@ -14,6 +15,7 @@ import { type User } from "@lib/types";
 import CustomImage from "../Image/Image";
 import { useEffect, useState } from "react";
 import { checkFollowState } from "@actions/followsActions";
+import { UserRole } from "@enum/userRolesEnum";
 
 // Define the base type for the props
 type BaseUserProfileIconProps = {
@@ -66,20 +68,28 @@ export default function UserProfileIcon({
   const userImg = currentUser ? session?.user.image ?? "" : user?.image ?? "";
 
   return (
-    <button className={`bg-secondary-2 relative ${size}`} onClick={handleClick}>
-      {userImg ? (
-        <CustomImage
-          src={userImg}
-          alt="profile picture"
-          className="size-full"
-          width={0}
-          height={0}
-          transformation={[{ quality: 10 }]}
-          style={{ objectFit: "cover" }}
-        />
-      ) : (
-        <FontAwesomeIcon icon={faUser} className="m-0" />
+    <div className="relative">
+      <button className={`bg-secondary-2 relative ${size} ${user?.role?.includes(UserRole.ADMIN)?"border-2 border-white":""}`} onClick={handleClick}>
+        {userImg ? (
+          <CustomImage
+            src={userImg}
+            alt="profile picture"
+            className="size-full"
+            width={0}
+            height={0}
+            transformation={[{ quality: 10 }]}
+            style={{ objectFit: "cover" }}
+          />
+        ) : (
+          <FontAwesomeIcon icon={faUser} className="m-0" />
+        )}
+      
+      </button>
+      {user?.role?.includes(UserRole.ADMIN) && (
+        <div className="absolute text-xs bottom-0 right-0 z-50 text-white rounded-full bg-black">
+          <FontAwesomeIcon icon={faHammer} />
+        </div>
       )}
-    </button>
+    </div>
   );
 }

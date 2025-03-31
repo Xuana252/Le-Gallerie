@@ -44,7 +44,7 @@ export default function PostDetail({
 }: {
   available?: boolean;
   isLoading?: boolean;
-  post: Post;
+  post: Post|null;
 }) {
   const { handleSetCategory } = useContext(SearchContext);
   const router = useRouter();
@@ -66,7 +66,7 @@ export default function PostDetail({
         </div>
       ) : (
         <div className={`Form`}>
-          {isLoading ? (
+          {isLoading ||!post ? (
             <>
               <div className="size-full bg-secondary-2 animate-pulse relative sm:rounded-l-3xl sm:rounded-tr-none rounded-t-3xl overflow-hidden"></div>
               <div className="w-full p-4 flex flex-col gap-0 ">
@@ -151,7 +151,7 @@ export default function PostDetail({
                       </li>
                     ))}
                   </ul>
-                  <p className="italic">{post?.description}</p>
+                  <p className="text-sm whitespace-pre-wrap bg-secondary-2/40 rounded-lg p-1 overflow-auto max-h-[300px]">{post?.description}</p>
                 </div>
                 <div className="mt-auto">
                   {post._id && <CommentSection postId={post._id} />}

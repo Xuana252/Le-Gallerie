@@ -43,6 +43,11 @@ export default function GroupChatForm() {
 
   const handleCreateGroup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if(members.length === 0) {
+      toastError("Please add at least one member to create a group chat");
+      return;
+     }
+
     const result = await confirm("Do you want to create group chat?");
     if (!result) return;
     setCreateState(SubmitButtonState.PROCESSING);
@@ -78,7 +83,7 @@ export default function GroupChatForm() {
       </InputBox>
       <ImageInput
         type="ProfileImage"
-        image={[groupPhoto]}
+        image={groupPhoto.url?[groupPhoto]:[]}
         setImage={handleImageChange}
       />
       <FriendSearchSection onSelected={handleAddMember} />

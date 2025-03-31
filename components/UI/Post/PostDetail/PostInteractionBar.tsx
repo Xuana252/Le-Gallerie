@@ -10,6 +10,8 @@ import {
   faTrash,
   faPen,
   faShare,
+  faFlag,
+  faBars,
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { useSession } from "@node_modules/next-auth/react";
@@ -20,11 +22,12 @@ import { confirm } from "@components/Notification/Toaster";
 
 export default function PostInteractionBarr({ post }: { post: Post }) {
   const { data: session } = useSession();
-  const router= useRouter();
+  const router = useRouter();
   const [postLikes, setPostLikes] = useState<number>(post.likes || 0);
   const [reaction, setReaction] = useState<Reaction | null>(null);
   const [likes, setLikes] = useState<Like[]>([]);
   const [isLoadingLikes, setIsLoadingLikes] = useState<boolean>(true);
+  const [isToggle, setIsToggle] = useState<boolean>(false);
 
   useEffect(() => {
     fetchLikesUsers();
@@ -152,7 +155,7 @@ export default function PostInteractionBarr({ post }: { post: Post }) {
   };
 
   return (
-    <div className="flex-row py-2 h-fit z-20 flex sticky bg-secondary-1 items-center top-[59px] gap-2">
+    <div className="flex flex-row py-2 h-[60px] overflow-y-visible z-20  sticky bg-secondary-1 items-start sm:items-center top-[59px] gap-2">
       {isLoadingLikes ? (
         <div className="flex justify-start items-center gap-1">
           <button className="Icon_small animate-pulse bg-secondary-2">
@@ -173,29 +176,63 @@ export default function PostInteractionBarr({ post }: { post: Post }) {
           </PopupButton>
         </div>
       )}
-      <div className="flex-row flex ml-auto justify-end rounded-full gap-2 bg-primary h-fit p-1">
-        {session?.user && session?.user.id === post?.creator._id && (
-          <>
-            <button
-              className="hover:bg-secondary-2 Icon_smaller "
-              onClick={() => handleDeletePost()}
-            >
-              <FontAwesomeIcon icon={faTrash} title="Delete Post" />
-            </button>
-            <button
-              className="hover:bg-secondary-2 Icon_smaller"
-              onClick={handleEditButtonClick}
-            >
-              <FontAwesomeIcon icon={faPen} title="Edit Post" />
-            </button>
-          </>
-        )}
-        <button
-          className="hover:bg-secondary-2 Icon_smaller "
-          onClick={handleShare}
+      <div
+        className={` flex relative sm:top-auto flex-col-reverse items-center sm:flex-row ml-auto justify-center rounded-full h-fit transition-all duration-150 ease-in-out overflow-hidden w-fit `}
+      >
+        <div
+          className={`flex flex-col-reverse  p-1 sm:flex-row gap-2  grow overflow-hidden bg-primary  ${
+            isToggle
+              ? "translate-y-[0%] sm:translate-y-[0%] sm:translate-x-[0%]  "
+              : "translate-y-[-100%] sm:translate-y-[0%] sm:translate-x-[100%] opacity-0"
+          } transition-all duration-300 ease-in-out `}
         >
-          <FontAwesomeIcon icon={faShare} title="Share Image" />
-        </button>
+          {session?.user && (
+            <>
+              {session?.user.id === post?.creator._id && (
+                <>
+                  <button
+                    className="hover:bg-secondary-2 Icon_smaller "
+                    onClick={() => handleDeletePost()}
+                  >
+                    <FontAwesomeIcon icon={faTrash} title="Delete Post" />
+                  </button>
+                  <button
+                    className="hover:bg-secondary-2 Icon_smaller"
+                    onClick={handleEditButtonClick}
+                  >
+                    <FontAwesomeIcon icon={faPen} title="Edit Post" />
+                  </button>
+                </>
+              )}
+              <button
+                className="hover:bg-secondary-2 Icon_smaller "
+                onClick={handleShare}
+              >
+                <FontAwesomeIcon icon={faFlag} title="Report Post" />
+              </button>
+            </>
+          )}
+          <button
+            className="hover:bg-secondary-2 Icon_smaller "
+            onClick={handleShare}
+          >
+            <FontAwesomeIcon icon={faShare} title="Share Image" />
+          </button>
+          <div className="Icon_smaller"></div>
+        </div>
+
+        <div
+          className={`-p-1 bg-primary absolute rounded-full right-0 top-0 z-20 `}
+        >
+          <button
+            className={`"hover:bg-secondary-2  Icon_smaller  m-1 ${
+              isToggle ? "rotate-90" : ""
+            } transition-all duration-150 ease-in-out "`}
+            onClick={() => setIsToggle((prev) => !prev)}
+          >
+            <FontAwesomeIcon icon={faBars} className="text-accent/70" />
+          </button>
+        </div>
       </div>
     </div>
   );

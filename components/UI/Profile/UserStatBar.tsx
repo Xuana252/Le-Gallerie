@@ -216,7 +216,7 @@ export default function UserStatBar({
           onClick={() => setFollowType("Followers")}
         >
           {followers ? (
-            <span className="font-semibold">{followers.length || 0}</span>
+            <span className="font-bold">{followers.length || 0}</span>
           ) : (
             <span className=" w-6 rounded-lg animate-pulse bg-accent">
               <div className="opacity-0">9999</div>
@@ -231,7 +231,7 @@ export default function UserStatBar({
           onClick={() => setFollowType("Following")}
         >
           {following ? (
-            <span className="font-semibold">{following.length || 0}</span>
+            <span className="font-bold">{following.length || 0}</span>
           ) : (
             <span className=" w-6 rounded-lg animate-pulse bg-accent">
               <div className="opacity-0">9999</div>
@@ -246,7 +246,7 @@ export default function UserStatBar({
           onClick={() => setFollowType("Friends")}
         >
           {friends ? (
-            <span className="font-semibold">{friends.length || 0}</span>
+            <span className="font-bold">{friends.length || 0}</span>
           ) : (
             <span className=" w-6 rounded-lg animate-pulse bg-accent">
               <div className="opacity-0">9999</div>

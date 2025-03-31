@@ -14,11 +14,13 @@ import {
   doc,
   arrayUnion,
   getDoc,
+  increment,
 } from "firebase/firestore";
 import { useSession } from "@node_modules/next-auth/react";
 import React, { useState } from "react";
 import { text } from "stream/consumers";
 import { v4 as uuidv4 } from "uuid";
+import TextAreaInput from "@components/Input/TextAreaInput";
 
 export default function ChatBar({
   chatInfo,
@@ -36,8 +38,7 @@ export default function ChatBar({
   >([]);
 
 
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
   };
 
@@ -67,11 +68,13 @@ export default function ChatBar({
           id: uuidv4(),
           senderId: session.user.id,
           text,
+          // text:text.replaceAll("\\n", "\n"),
           image: imageURLList || [],
           delete: false,
           reactions: [],
           createdAt: new Date(),
         }),
+        count: increment(1),
       });
 
       const usersIds = [
@@ -108,7 +111,7 @@ export default function ChatBar({
     }
   };
   return (
-    <div className="grid grid-cols-[auto_1fr_auto_auto] items-center bg-secondary-1 p-1 min-h-[50px] fixed bottom-0 shadow-md gap-2 z-40">
+    <div className="grid grid-cols-[auto_1fr_auto_auto] items-center bg-secondary-1 p-1 min-h-[50px] grow fixed bottom-0 shadow-md gap-2 w-full z-40">
       {!(isBlocked || blocked) ? (
         <>
           <ImageInput image={[]} type="TextImage" setImage={handleAddImage} />
@@ -130,7 +133,7 @@ export default function ChatBar({
                 ))}
               </ul>
             )}
-            <InputBox
+            <TextAreaInput
               value={text}
               onKeyDown={(e) => {
                 e.key === "Enter" && handleSend();
@@ -140,7 +143,7 @@ export default function ChatBar({
               type="Input"
             >
               Say something
-            </InputBox>
+            </TextAreaInput>
           </div>
           <EmojiInput setEmoji={setText} />
           <button className="Icon_small" onClick={handleSend}>

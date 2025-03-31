@@ -5,11 +5,20 @@ import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import React, { useEffect, useMemo, useState } from "react";
 
 export default function PostProps() {
-  const [background, setBackground] = useState("");
 
-  useEffect(() => {
-    setBackground(getRandomColor());
-  }, []);
+  // const getRandomColor = () => {
+  //   const colors = [
+  //     "bg-gradient-to-t from-red-500 to-yellow-300",
+  //     "bg-gradient-to-br from-blue-200 to-indigo-300",
+  //     "bg-gradient-to-tl from-green-200 to-teal-300",
+  //     "bg-gradient-to-t from-purple-200 to-pink-300",
+  //     "bg-gradient-to-t from-yellow-200 to-orange-300",
+  //     "bg-gradient-to-r from-gray-200 to-gray-300",
+  //   ];
+  //   return colors[Math.floor(Math.random() * colors.length)];
+  // };
+
+  const background = useMemo(()=>getRandomColor(),[])
   return (
     <div
       className={` relative w-full h-full grid grid-cols-1 gap-2 rounded-xl overflow-hidden cursor-pointer z-0 shadow-md`}

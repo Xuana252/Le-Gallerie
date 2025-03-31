@@ -1,5 +1,6 @@
 import { PostPrivacy } from '@enum/postPrivacyEnum';
 import { Reaction } from '@enum/reactionEnum';
+import { UserRole } from '@enum/userRolesEnum';
 import { Date } from 'mongoose';
 import NextAuth from 'next-auth';
 import { DefaultUser } from 'next-auth';
@@ -57,6 +58,7 @@ export type User = {
   following?:number,
   followed?:boolean,
   blocked?:string[],
+  role?:UserRole,
 }
 export type UploadUser = {
   _id:string,

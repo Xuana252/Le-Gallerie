@@ -144,8 +144,8 @@
   color: rgb(var(--accent));
 }
 .theme-spiderman-classic {
-  --primary: 0, 87, 183; /* Red (Suit Base) */
-  --secondary: 255, 0, 0; /* Blue (Suit Accents) */
+  --primary: 240, 0, 0; /* Blue (Suit Accents) */
+  --secondary: 0, 87, 183; /* Red (Suit Base) */
   --secondary-variant-1: 0, 0, 0; /* Black (Webbing & Logo) */
   --accent: 255, 255, 255; /* White (Eyes) */
   background-color: rgb(var(--primary));
@@ -163,7 +163,7 @@
   --primary: 0, 0, 50; /* Deep Midnight Blue (Suit Base) */
   --secondary: 255, 0, 0; /* Vivid Red (Emblem & Claw Accents) */
   --secondary-variant-1: 30, 30, 80; /* Dark Blue Variant (Subtle Suit Shadows) */
-  --accent: 0, 255, 255; /* Neon Cyan (Futuristic Glow Highlights) */
+  --accent: 0, 250, 250; /* Neon Cyan (Futuristic Glow Highlights) */
   background-color: rgb(var(--primary));
   color: rgb(var(--accent));
 }

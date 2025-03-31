@@ -10,6 +10,7 @@ import { checkVerifyRateLimit } from "@actions/checkRateLimit";
 import { useRouter } from "next/navigation";
 import React, { FormEvent, useEffect, useRef, useState } from "react";
 import { SubmitButtonState } from "@enum/submitButtonState";
+import { signOut } from "@node_modules/next-auth/react";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -195,7 +196,11 @@ export default function SignInPage() {
           >
             repeat password
           </InputBox>
-          <div className="items ml-auto">
+          <div className=" ml-auto flex flex-row gap-2 items-center">
+            <button className="Button_variant_2" onClick={(e)=>{
+              e.preventDefault();
+              router.back()
+            }}>Back</button>
             <SubmitButton state={submitState} changeState={setSubmitState}>
               Change password
             </SubmitButton>

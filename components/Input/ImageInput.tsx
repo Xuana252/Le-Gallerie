@@ -260,7 +260,7 @@ export default function ImageInput({
   const ProfileImage = (
     <div className="h-fit w-full flex flex-col items-center gap-4">
       <div className=" relative ">
-        {!isLoading && image && !error && (
+        {!isLoading && image.length>0 && !error && (
           <ul className="absolute h-full right-0 z-10 flex flex-col justify-between">
             <button
               className="rounded-full size-8 bg-primary text-accent  text-base "

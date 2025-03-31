@@ -8,12 +8,13 @@ export const fetchAllPost = async (
   currentPage: number,
   limit: number,
   searchText: string,
-  categoryFilter: Category[]
+  categoryFilter: Category[],
+  relatedPostFilter: string,
 ) => {
   const categoryIds = categoryFilter.map((category) => category._id).join(",");
 
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/posts?page=${currentPage}&limit=${limit}&searchText=${searchText}&categoryIds=${categoryIds}`,
+    `${process.env.DOMAIN_NAME}/api/posts?page=${currentPage}&limit=${limit}&searchText=${searchText}&categoryIds=${categoryIds}&relatedPostId=${relatedPostFilter}`,
     {
       headers: new Headers(headers()),
     }
@@ -24,6 +25,8 @@ export const fetchAllPost = async (
   }
   return { posts: [], counts: 0 };
 };
+
+
 export const fetchUserPost = async (
   user: string,
   currentPage: number,

@@ -39,8 +39,6 @@ export const fetchUserWithId = async (user: string) => {
   return data;
 };
 
-
-
 export const blockUser = async (user: string, blockUser: string) => {
   try {
     const response = await fetch(
@@ -84,6 +82,19 @@ export const sendVerificationCode = async (email: String) => {
   }
 };
 
+export const checkExistingEmail = async (email: String) => {
+  try {
+    const response = await fetch(
+      `${process.env.DOMAIN_NAME}/api/users/verify/${email}/exist`
+    );
+    if (response.ok) return true;
+    return false;
+  } catch (error) {
+    console.log("Failed to check existing email", error);
+    return false;
+  }
+};
+
 export const changeUserPassword = async (user: string, newpassword: string) => {
   const response = await fetch(
     `${process.env.DOMAIN_NAME}/api/users/${user}/change-password`,
@@ -101,13 +112,14 @@ export const changeUserPassword = async (user: string, newpassword: string) => {
   return false;
 };
 
-export const fetchUsers = async (searchText:string) => {
-    const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users?searchText=${searchText}`,{
-        headers: new Headers(headers())
-      }
-    );
-    const data = await response.json();
-    if (response.ok) return {users:data.users, counts:data.counts};
-    return {users:[],counts:0}
-}
+export const fetchUsers = async (searchText: string) => {
+  const response = await fetch(
+    `${process.env.DOMAIN_NAME}/api/users?searchText=${searchText}`,
+    {
+      headers: new Headers(headers()),
+    }
+  );
+  const data = await response.json();
+  if (response.ok) return { users: data.users, counts: data.counts };
+  return { users: [], counts: 0 };
+};

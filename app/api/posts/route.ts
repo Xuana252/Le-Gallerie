@@ -6,6 +6,7 @@ import { NextResponse } from "@node_modules/next/server";
 import { connectToDB } from "@utils/database";
 import Friend from "@models/friendModel";
 import { FriendState } from "@enum/friendStateEnum";
+import mongoose from "mongoose";
 
 export const GET = async (req: Request) => {
   const { searchParams } = new URL(req.url);
@@ -13,6 +14,7 @@ export const GET = async (req: Request) => {
   const limit = parseInt(searchParams.get("limit") || "10");
   const searchText = searchParams.get("searchText") || "";
   const categoryIdsParam = searchParams.get("categoryIds") || "";
+  const relatedPostId = searchParams.get("relatedPostId") || "";
 
   try {
     await connectToDB();
@@ -43,13 +45,25 @@ export const GET = async (req: Request) => {
         { privacy: "public" },
         { creator: session?.user.id },
         {
-          $and: [
-            { privacy: "friend" },
-            { creator: { $in: currentFriendIds } },
-          ],
+          $and: [{ privacy: "friend" }, { creator: { $in: currentFriendIds } }],
         }, // Include private posts only if friend
       ],
     };
+
+    if (relatedPostId&& mongoose.Types.ObjectId.isValid(relatedPostId)) {
+      const relatedPost = await Post.findById(relatedPostId);
+
+      if (relatedPost) {
+        const relatedPostCreatorId = relatedPost.creator.toString();
+        const relatedPostCategoryIds = relatedPost.categories.map(
+          (category: any) => category._id.toString()
+        );
+        query.$or = [
+          { creator: relatedPostCreatorId },
+          { categories: { $in: relatedPostCategoryIds } },
+        ];
+      }
+    }
 
     const userIds = [];
     const categoryIds = categoryIdsParam.split(",").filter((id) => id);

@@ -53,7 +53,6 @@ export default function ChatItem({
   ];
 
   useEffect(() => {
-    console.log(message);
     if (messageRef.current) {
       const width = messageRef.current.clientWidth;
 
@@ -159,8 +158,16 @@ export default function ChatItem({
               <>
                 {message.image.length > 0 && (
                   <ul className="rounded-xl flex flex-wrap overflow-hidden grow -mr-2 -ml-2 gap-1">
-                    {message.image.map((url: string) => (
-                      <div className="" style={{flex: "1 1 0", minWidth: "30%", aspectRatio: "1 / 1"}}>
+                    {message.image.map((url: string, index: number) => (
+                      <div
+                        key={index}
+                        className=""
+                        style={{
+                          flex: "1 1 0",
+                          minWidth: "30%",
+                          aspectRatio: "1 / 1",
+                        }}
+                      >
                         <CustomImage
                           zoomable={true}
                           src={url}
@@ -171,12 +178,13 @@ export default function ChatItem({
                           transformation={[{ quality: 10 }]}
                           style={{ objectFit: "cover" }}
                         />
-                        
                       </div>
                     ))}
                   </ul>
                 )}
-                <p>{message.text}</p>
+                <div className="whitespace-pre-line break-words">
+                  {message.text}
+                </div>
               </>
             )}
           </div>
@@ -186,16 +194,17 @@ export default function ChatItem({
                 messageClass.includes("My_message") ? "mr-auto" : "ml-auto"
               }`}
             >
-              {getTop3Reactions(message.reactions).map((reaction, index) => (
-                <PopupButton popupItem={reactionsTab}>
+              <PopupButton popupItem={reactionsTab}>
+                {getTop3Reactions(message.reactions).map((reaction, index) => (
                   <div
+                    key={index}
                     className={`size-4 -mr-1 `}
                     style={{ zIndex: 3 - index }}
                   >
                     {renderReaction(reaction)}
                   </div>
-                </PopupButton>
-              ))}
+                ))}
+              </PopupButton>
             </div>
           )}
         </div>

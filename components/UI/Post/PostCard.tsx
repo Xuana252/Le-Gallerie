@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { type Post } from "@lib/types";
 import CustomImage from "../Image/Image";
@@ -15,6 +15,8 @@ import {
   formatTimeAgo,
   formatTimeAgoWithoutAgo,
 } from "@lib/dateFormat";
+import { getRandomColor } from "@lib/Post/post";
+import { UserRole } from "@enum/userRolesEnum";
 
 type PostCardProps = {
   post?: Post;
@@ -23,26 +25,23 @@ type PostCardProps = {
 
 export default function PostCard({ post, isLoading }: PostCardProps) {
   const { data: session } = useSession();
-  const [minHeight, setMinHeight] = useState<number | null>(null);
-  const [bgColor, setBgColor] = useState<string>("");
 
-  useEffect(() => {
-    setMinHeight(Math.floor(Math.random() * 201) + 150);
-    setBgColor(getRandomColor());
-  }, []);
+  // const getRandomColor = () => {
+  //   const colors = [
+  //     "bg-gradient-to-t from-red-500 to-yellow-300",
+  //     "bg-gradient-to-br from-blue-500 to-indigo-300",
+  //     "bg-gradient-to-tl from-green-500 to-teal-300",
+  //     "bg-gradient-to-t from-purple-500 to-pink-300",
+  //     "bg-gradient-to-t from-yellow-500 to-orange-300",
+  //     "bg-gradient-to-r from-gray-500 to-gray-300",
+  //   ];
+  //   return colors[Math.floor(Math.random() * colors.length)];
+  // };
+    
+  const minHeight = useMemo(() => Math.floor(Math.random() * 201) + 150, []);
+  const bgColor = useMemo(() => getRandomColor(), []);
 
 
-  const getRandomColor = () => {
-    const colors = [
-      "bg-gradient-to-b from-red-200 to-yellow-300",
-      "bg-gradient-to-br from-blue-200 to-indigo-300",
-      "bg-gradient-to-tl from-green-200 to-teal-300",
-      "bg-gradient-to-t from-purple-200 to-pink-300",
-      "bg-gradient-to-l from-yellow-200 to-orange-300",
-      "bg-gradient-to-r from-gray-200 to-gray-300",
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
-  };
 
   const handlePostCardClick = () => {
     if (
@@ -87,12 +86,12 @@ export default function PostCard({ post, isLoading }: PostCardProps) {
       <Link
         href={`/post/${post._id}`}
         onClick={handlePostCardClick}
-        className="w-full h-fit relative animate-slideUp "
+        className={`w-full h-fit relative animate-slideUp `}
       >
         {post.image.length > 1 && (
           <div className="size-full bg-accent/50 absolute bottom-1 left-1 rounded-xl "></div>
         )}
-        <div className=" relative w-full h-fit grid grid-cols-1 gap-2 rounded-xl overflow-hidden cursor-pointer animate-slideUp  shadow-sm hover:scale-105 transition-all duration-300 ease-out">
+        <div className={`${post.creator.role?.includes(UserRole.ADMIN)?"border-4 border-red-500 shadow-xl shadow-white":""} relative w-full h-fit grid grid-cols-1 gap-2 rounded-xl overflow-hidden cursor-pointer animate-slideUp  shadow-sm hover:scale-105 transition-all duration-300 ease-out`}>
           <CustomImage
             src={post.image[0]}
             alt={post.title}

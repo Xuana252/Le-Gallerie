@@ -159,7 +159,7 @@ export default function Nav({ children }: { children: React.ReactNode }) {
                 <button
                   className="flex gap-2 items-center px-2"
                   onClick={() => {
-                    router.push("/"), handleSearch("");
+                    router.push("/home"), handleSearch("");
                   }}
                 >
                   <div className="font-AppLogo text-3xl">AppLogo</div>
@@ -169,7 +169,7 @@ export default function Nav({ children }: { children: React.ReactNode }) {
                 </button>
               </div>
 
-              {pathName === "/" && (
+              {pathName === "/home" && (
                 <InputBox
                   onTextChange={handleSearchTextChange}
                   onKeyDown={handleSearchKeyPress}

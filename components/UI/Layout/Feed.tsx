@@ -25,8 +25,8 @@ import { set } from "mongoose";
 type FeedProps = {
   userIdFilter?: string;
   userIdLikedFilter?: boolean;
-  categoryFilter?: Category[];
-  setPostCount?: Dispatch<SetStateAction<number|null>>;
+  relatePostFilter?: string;
+  setPostCount?: Dispatch<SetStateAction<number | null>>;
   showCateBar?: boolean;
   showResults?: boolean;
 };
@@ -34,8 +34,8 @@ type FeedProps = {
 export default function Feed({
   userIdFilter,
   userIdLikedFilter,
-  categoryFilter = [],
   showCateBar = true,
+  relatePostFilter,
   setPostCount,
   showResults = false,
 }: FeedProps) {
@@ -54,20 +54,28 @@ export default function Feed({
   const [limit] = useState(10); // Number of posts per page
   const [hasMore, setHasMore] = useState(true); // Whether there are more posts to load
   const observerRef = useRef<IntersectionObserver | null>(null); // Ref to handle scroll observation
+  const feedRef = useRef<HTMLUListElement>(null); // Ref to the feed container
 
   const fetchPosts = async (
     currentPage = 1,
     searchText = "",
-    categoriesFilter: Category[]
+    categoriesFilter: Category[],
+    relatePostFilter = ""
   ) => {
     setLoading(true);
     try {
       const response = !userIdFilter
-        ? await fetchAllPost(currentPage, limit, searchText, categoriesFilter)
+        ? await fetchAllPost(
+            currentPage,
+            limit,
+            searchText,
+            categoriesFilter,
+            relatePostFilter
+          )
         : userIdLikedFilter
         ? await fetchUserLikedPost(userIdFilter, currentPage, limit)
         : await fetchUserPost(userIdFilter, currentPage, limit);
-        
+
       setPostCount && setPostCount(response.counts);
       if (searchText || categoriesFilter.length > 0) {
         setSearchCount(response.counts);
@@ -89,10 +97,6 @@ export default function Feed({
   };
 
   useEffect(() => {
-    setCategoriesFilter(categoryFilter);
-  }, [categoryFilter.toString()]);
-
-  useEffect(() => {
     setPage(1);
     setPosts([]); // Reset posts on search
     setHasMore(true); // Reset hasMore for new search
@@ -103,8 +107,15 @@ export default function Feed({
   }, [category]);
 
   useEffect(() => {
-    fetchPosts(page, searchText, categoriesFilter);
-  }, [page, userIdFilter, userIdLikedFilter, searchText, categoriesFilter]);
+    fetchPosts(page, searchText, categoriesFilter, relatePostFilter);
+  }, [
+    page,
+    userIdFilter,
+    userIdLikedFilter,
+    searchText,
+    categoriesFilter,
+    relatePostFilter,
+  ]);
 
   const handleCategoriesFilerChange = (categories: Category[]) => {
     setCategoriesFilter(categories);
@@ -139,21 +150,23 @@ export default function Feed({
   };
 
   useEffect(() => {
-    // Function to handle resizing
     const handleResize = () => {
-      if (window.innerWidth > 1600) {
+      if (!feedRef.current) return;
+      const width = feedRef.current.offsetWidth;
+
+      if (width > 1600) {
         setGridColStyle("grid-cols-7");
         setColsNum(7);
-      } else if (window.innerWidth > 1280) {
+      } else if (width > 1280) {
         setGridColStyle("grid-cols-6");
         setColsNum(6);
-      } else if (window.innerWidth > 900) {
+      } else if (width > 900) {
         setGridColStyle("grid-cols-5");
         setColsNum(5);
-      } else if (window.innerWidth > 720) {
+      } else if (width > 720) {
         setGridColStyle("grid-cols-4");
         setColsNum(4);
-      } else if (window.innerWidth > 600) {
+      } else if (width > 600) {
         setGridColStyle("grid-cols-3");
         setColsNum(3);
       } else {
@@ -165,13 +178,11 @@ export default function Feed({
     // Initial check
     handleResize();
 
-    // Add event listener
+    // Listen to window resize
     window.addEventListener("resize", handleResize);
 
-    // Cleanup event listener
     return () => window.removeEventListener("resize", handleResize);
-  }, []); // Empty dependency array means this effect runs once, on mount
-
+  }, []);
   return (
     <section className="size-full min-h-[400px]">
       {showCateBar && (
@@ -182,11 +193,9 @@ export default function Feed({
       )}
       {error ? (
         <div>Error:{error}</div>
-      ) : searchCount === 0 &&
-        (searchText || categoriesFilter.length > 0) &&
-        !isLoading ? (
+      ) : posts.length === 0 && !isLoading ? (
         <div className="text-accent text-center text-xl my-8">
-          Sorry, we couldn't find anything:/
+          Sorry, we couldn't find anything :/
         </div>
       ) : (
         <>
@@ -198,6 +207,7 @@ export default function Feed({
               </div>
             )}
           <ul
+            ref={feedRef}
             className={`grid ${gridColStyle} gap-x-3 h-fit min-w-full p-5 justify-center `}
           >
             {Array.from(Array(colsNum).keys()).map((columnIndex) => (

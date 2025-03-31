@@ -9,10 +9,12 @@ const UserSchema = new Schema ({
     username: {
         type:String,
         required: [true, 'Username is required!'],
+        maxlength: [16, 'Username cannot exceed 16 characters']
     },
     fullname: {
         type:String,
-        require: [false]
+        require: [false],
+        maxlength: [30, 'Full name cannot exceed 30 characters']
     },
     birthdate: {
         type:String,
@@ -42,6 +44,11 @@ const UserSchema = new Schema ({
         type: Schema.Types.ObjectId,
         ref: "User",
         required: false,
+    }],
+    role: [{
+        type: String,
+        enum: ['admin', 'user'],
+        default: 'user',
     }]
 },
 {

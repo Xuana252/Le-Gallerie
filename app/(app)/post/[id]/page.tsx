@@ -16,17 +16,7 @@ export default function Post({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [availableState, setAvailableState] = useState(true);
-  const [post, setPost] = useState<Post>({
-    _id: "",
-    creator: { _id: "" },
-    title: "",
-    description: "",
-    categories: [],
-    image: [],
-    likes: 0,
-    createdAt: undefined,
-    privacy: PostPrivacy.PUBLIC,
-  });
+  const [post, setPost] = useState<Post|null>(null);
 
   const fetchPost = async () => {
     setIsLoading(true);
@@ -83,7 +73,7 @@ export default function Post({ params }: { params: { id: string } }) {
       <h1 className="text-center text-xl ">
         Explore more contents just like this
       </h1>
-      <Feed categoryFilter={post.categories}></Feed>
+      <Feed relatePostFilter={params.id} showCateBar={false}></Feed>
     </section>
   );
 }

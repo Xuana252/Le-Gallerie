@@ -11,6 +11,11 @@ import {
   arrayUnion,
   arrayRemove,
   deleteDoc,
+  query,
+  getDocs,
+  limit,
+  orderBy,
+  where,
 } from "firebase/firestore";
 import { useContext } from "react";
 import { getSession } from "next-auth/react";
@@ -56,6 +61,45 @@ export const RenderLog = (type: number, username: String) => {
   }
 };
 
+export const getLongestChat = async (userId: string) => {
+  const userChatSnap = await getDoc(doc(usersChatRef, userId));
+
+  if (!userChatSnap.exists()) return null;
+
+  const chatRooms = userChatSnap.data()?.chat || [];
+
+  const chatRoomsIds = chatRooms.map((room: any) => room.chatId);
+
+  if (chatRoomsIds.length === 0) return null;
+
+  const q = query(
+    chatRef,
+    where("__name__", "in", chatRoomsIds),
+    where("type", "==", "single"),
+    orderBy("count", "desc"),
+    limit(1)
+  );
+
+  const chatSnapshot = await getDocs(q);
+
+  if (chatSnapshot.empty) return null;
+
+  const longestChat = chatSnapshot.docs[0].data();
+  const chatId = chatSnapshot.docs[0].id;
+
+  const chatRoom = chatRooms.find((room: any) => room.chatId === chatId);
+
+  if (!chatRoom) return null;
+
+  const receiverId = chatRoom.receiverIds[0];
+
+  return {
+    chatId,
+    receiverId,
+    chatLength: longestChat.count || 0,
+  };
+};
+
 export const removeChatFromUserChat = async (
   chatId: string,
   userId: string
@@ -75,6 +119,32 @@ export const removeChatFromUserChat = async (
       await updateDoc(doc(usersChatRef, userId), {
         chat: arrayRemove(chatToRemove),
       });
+
+      const chatDoc = await getDoc(doc(chatRef, chatId));
+      if (chatDoc.exists()) {
+        const chatData = chatDoc.data();
+        const memberIds = chatData.memberIds || [];
+        memberIds.forEach(async (element: string) => {
+          const userChatDoc = await getDoc(doc(usersChatRef, element));
+          if (userChatDoc.exists()) {
+            const userChatData = userChatDoc.data();
+            const chatArray = userChatData.chat || [];
+            const chat = chatArray.find((chat: any) => chat.chatId === chatId);
+            if (chat) {
+              await updateDoc(doc(usersChatRef, element), {
+                chat: chatArray.map((chat: any) => {
+                  if (chat.chatId === chatId) {
+                    chat.receiverIds = chat.receiverIds.filter(
+                      (id: string) => id !== userId
+                    );
+                  }
+                  return chat;
+                }),
+              });
+            }
+          }
+        });
+      }
     }
   }
 };
@@ -109,12 +179,29 @@ export const joinChat = async (chatId: string, userId: string) => {
   const chatData = chatDoc.data();
 
   const memberIds = chatData.memberIds || [];
+  memberIds.forEach(async (element: string) => {
+    const memberChatDoc = await getDoc(doc(usersChatRef, element));
+    if (memberChatDoc.exists()) {
+      const userChatData = memberChatDoc.data();
+      const chatArray = userChatData.chat || [];
+      updateDoc(doc(usersChatRef, element), {
+        chat: chatArray.map((chat: any) => {
+          if (chat.chatId === chatId) {
+            chat.receiverIds = [...chat.receiverIds, userId];
+          }
+          return chat;
+        }),
+      });
+    }
+  });
+
   if (!userChatDoc.exists()) {
     await setDoc(doc(usersChatRef, userId), {
       chat: [
         {
           chatId: chatId,
-          lastMessage: "",
+          lastMessage: "you were added to the chat",
+          isSeen: false,
           receiverIds: [...memberIds],
           updatedAt: Date.now(),
         },
@@ -129,7 +216,8 @@ export const joinChat = async (chatId: string, userId: string) => {
       await updateDoc(doc(usersChatRef, userId), {
         chat: arrayUnion({
           chatId: chatId,
-          lastMessage: "",
+          lastMessage: "you were added to the chat",
+          isSeen: false,
           receiverIds: [...memberIds],
           updatedAt: Date.now(),
         }),

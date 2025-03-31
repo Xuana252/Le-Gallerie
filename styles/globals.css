@@ -33,7 +33,7 @@
 }
 
 .Message_base {
-  @apply size-fit px-3 py-1 font-semibold break-all whitespace-normal text-sm;
+  @apply px-3 py-1 font-semibold w-full text-sm;
 }
 
 .My_message {
@@ -73,25 +73,32 @@
   @apply w-full h-5 bg-secondary-2 absolute text-accent flex items-center justify-center;
 }
 .User_Profile_Layout {
-  @apply flex flex-col sm:flex-row sm:justify-start justify-center w-full gap-5 p-5 items-center text-accent;
+  @apply flex flex-col md:flex-row   w-full gap-2 items-center md:items-start text-accent;
+  height: calc(100vh - 60px);
+}
+.User_Info_Container {
+  @apply flex flex-col gap-2 items-center md:bg-gradient-to-b from-secondary-1/50 to-secondary-2/50 p-2 md:shadow-md  md:h-full h-fit;
+}
+.User_Profile_Page_Picture_Container {
+  @apply flex flex-row sm:flex-col items-center justify-center gap-2 w-full h-fit;
 }
 .User_Profile_Page_Picture {
-  @apply flex rounded-full size-44 overflow-hidden bg-secondary-2 relative shadow-xl text-9xl;
+  @apply flex flex-col rounded-full w-20 aspect-square sm:w-32 lg:w-44 overflow-hidden bg-secondary-2 relative shadow-xl ;
 }
 .User_Profile_Page_Username {
-  @apply text-4xl w-full text-accent text-center sm:text-left font-bold break-words underline;
+  @apply text-xl sm:text-4xl w-full text-accent text-center font-bold break-words underline;
 }
 .User_Profile_Page_Bio {
-  @apply text-xl text-center sm:text-left break-words;
+  @apply text-sm  whitespace-pre-wrap bg-secondary-2/70 p-2 rounded-lg text-accent/80 shadow-md w-full max-h-[100px] overflow-y-auto;
 }
 .User_Profile_Page_Fullname {
   @apply text-xl text-center font-bold sm:text-left;
 }
 .User_Profile_Page_Interactive_Bar {
-  @apply flex gap-3 px-4 my-2 sm:justify-end justify-center;
+  @apply flex flex-wrap gap-3 px-4 my-2 sm:justify-end justify-center;
 }
 .User_Profile_Page_Stat_Bar {
-  @apply flex flex-row w-full sm:w-fit  items-start grow justify-evenly gap-4 sm:text-2xl text-lg bg-secondary-2/30 shadow-md rounded-xl  px-2 py-4;
+  @apply flex flex-row w-full h-fit sm:w-fit  items-start  justify-evenly gap-5 sm:text-xl text-base bg-secondary-2/30 shadow-md rounded-xl  p-2 sm:p-4;
 }
 .Category {
   font-style: italic;
@@ -148,12 +155,114 @@
 }
 @screen sm {
   .Sign_In_Form_Desktop {
-    @apply text-accent grid grid-cols-2 rounded-3xl w-full max-w-[1080px] min-h-[400px] shadow-xl m-auto bg-secondary-1/90 border-2 border-accent/50 backdrop-blur-sm overflow-hidden h-[80%]  relative;
+    @apply text-accent grid grid-cols-2 rounded-3xl w-full max-w-[1080px] min-h-[400px] shadow-xl m-auto bg-secondary-1/30 border-2 border-accent/50 backdrop-blur-sm overflow-hidden h-[80%]  relative;
   }
+}
+
+
+
+.Sign_In_Form_Mobile {
+  @apply size-full grid grid-rows-2 text-accent  relative overflow-hidden shadow-xl bg-secondary-1/30 border-2 border-accent/50 backdrop-blur-sm;
+}
+@screen sm {
+  .Sign_In_Form_Mobile {
+    @apply hidden;
+  }
+}
+
+.Edit_button {
+  @apply rounded-full text-lg size-8 sm:text-xl sm:size-10 bg-secondary-1/30 backdrop-blur-sm transition-transform hover:scale-110 active:scale-90 duration-200 origin-center flex items-center justify-center cursor-pointer;
+}
+
+.Button_base {
+  @apply rounded-lg font-semibold py-1 px-2 select-none;
+}
+.Button_variant_1 {
+  @apply Button_base border-2 border-accent  bg-accent min-h-fit text-primary hover:scale-y-110 hover:scale-x-105 transition-transform duration-150 active:text-accent active:bg-primary;
+}
+.Button_variant_1_5 {
+  @apply Button_base border-2 border-accent bg-primary min-h-fit text-accent hover:bg-secondary-2 active:text-primary active:bg-accent;
+}
+.Button_variant_2 {
+  @apply Button_base text-accent hover:bg-secondary-2;
+}
+
+.Invalid_input {
+  @apply placeholder:text-red-500 text-red-500 italic;
+}
+
+.Input_box_variant_2 {
+  @apply text-accent bg-transparent outline-none placeholder:text-inherit placeholder:opacity-50 border-primary  border-b-2 pb-2 text-xl px-1 flex;
+}
+
+.Input_box_variant_1 {
+  @apply text-accent bg-secondary-2/20 flex rounded-2xl placeholder:text-accent placeholder:opacity-50  items-center grow outline-none justify-between  text-lg px-1 overflow-hidden;
+}
+
+.Input_box_variant_3 {
+  @apply text-accent bg-secondary-2 rounded-lg outline-none placeholder:text-accent placeholder:opacity-50 text-sm p-2;
+}
+
+.Cate_box {
+  @apply flex rounded-2xl items-center outline-none border-2 border-accent justify-start gap-2   text-lg p-2 overflow-auto;
+}
+.Cate_tag {
+  @apply flex select-none items-center justify-center px-2 py-1 bg-accent text-primary font-semibold rounded-xl gap-2 whitespace-nowrap;
+}
+.Nav_bar {
+  @apply sticky z-50 top-0 left-0 w-full h-[60px] bg-gradient-to-r from-secondary-1 via-primary to-secondary-2 text-accent  shadow-md border-b-2 border-accent/50;
+}
+
+.Buttons_container {
+  @apply hidden;
+}
+@screen sm {
+  .Buttons_container {
+    @apply flex h-full w-fit justify-end items-center gap-2;
+  }
+}
+.Icon_base {
+  @apply flex items-center justify-center rounded-full overflow-hidden hover:bg-secondary-2 text-accent bg-secondary-2/20;
+}
+.Icon {
+  @apply Icon_base size-10 text-2xl;
+}
+.Icon_small {
+  @apply Icon_base  size-9 text-xl;
+}
+.Icon_smaller {
+  @apply Icon_base size-6 text-base;
+}
+.Icon_message {
+  @apply Icon_base size-4 text-xs;
+}
+.Icon_big {
+  @apply Icon_base size-12 text-3xl;
+}
+
+.Icon_bigger {
+  @apply Icon_base size-20 text-5xl;
+}
+
+.Highlighted {
+  @apply animate-highlight rounded-lg;
+}
+
+.ReactionItem {
+  @apply hover:scale-150 transition-all duration-200 ease-in-out active:scale-90;
+}
+
+.text_panel {
+  @apply p-2 rounded-md shadow-md bg-gradient-to-br from-primary/40 to-secondary-1/40 border-2 border-accent/20 backdrop-blur-sm size-fit
 }
 
 .title {
   @apply text-xl sm:text-2xl font-extrabold italic z-30 flex flex-row flex-wrap gap-2 items-center;
+  text-shadow: -5px 5px 5px rgba(var(--secondary-variant-1), 0.5);
+}
+
+.subtitle {
+  @apply text-lg sm:text-xl font-semibold italic z-30 flex flex-row flex-wrap gap-2 text-primary items-center;
   text-shadow: -5px 5px 5px rgba(var(--secondary-variant-1), 0.5);
 }
 .shadow {
@@ -223,96 +332,7 @@
   filter: blur(50px);
 }
 
-.Sign_In_Form_Mobile {
-  @apply size-full grid grid-rows-2 text-accent rounded-3xl relative overflow-hidden shadow-xl bg-secondary-1/90 border-2 border-accent/50 backdrop-blur-sm;
-}
-@screen sm {
-  .Sign_In_Form_Mobile {
-    @apply hidden;
-  }
-}
 
-.Edit_button {
-  @apply rounded-full text-lg size-8 sm:text-xl sm:size-10 bg-secondary-1/30 backdrop-blur-sm transition-transform hover:scale-110 active:scale-90 duration-200 origin-center flex items-center justify-center cursor-pointer;
-}
-
-.Button_base {
-  @apply rounded-lg font-semibold py-1 px-2 select-none;
-}
-.Button_variant_1 {
-  @apply Button_base border-2 border-accent  bg-accent min-h-fit text-primary hover:scale-y-110 hover:scale-x-105 transition-transform duration-150 active:text-accent active:bg-primary;
-}
-.Button_variant_1_5 {
-  @apply Button_base border-2 border-accent bg-primary min-h-fit text-accent hover:bg-secondary-2 active:text-primary active:bg-accent;
-}
-.Button_variant_2 {
-  @apply Button_base text-accent hover:bg-secondary-2;
-}
-
-.Invalid_input {
-  @apply placeholder:text-red-500 text-red-500 italic;
-}
-
-.Input_box_variant_2 {
-  @apply text-accent bg-transparent outline-none placeholder:text-inherit placeholder:opacity-50 border-primary  border-b-2 pb-2 text-xl px-1 flex;
-}
-
-.Input_box_variant_1 {
-  @apply text-accent bg-secondary-2/20 flex rounded-2xl placeholder:text-accent placeholder:opacity-50  items-center grow outline-none justify-between  text-lg px-1 overflow-hidden;
-}
-
-.Input_box_variant_3 {
-  @apply text-accent bg-secondary-2 rounded-lg outline-none placeholder:text-accent placeholder:opacity-50 text-sm p-2;
-}
-
-.Cate_box {
-  @apply flex rounded-2xl items-center outline-none border-2 border-accent justify-start gap-2   text-lg p-2 overflow-auto;
-}
-.Cate_tag {
-  @apply flex select-none items-center justify-center px-2 py-1 bg-accent text-primary font-semibold rounded-xl gap-2 whitespace-nowrap;
-}
-.Nav_bar {
-  @apply sticky z-50 top-0 left-0 w-full h-[60px] bg-secondary-1 text-accent  shadow-md;
-}
-
-.Buttons_container {
-  @apply hidden;
-}
-@screen sm {
-  .Buttons_container {
-    @apply flex h-full w-fit justify-end items-center gap-2;
-  }
-}
-.Icon_base {
-  @apply flex items-center justify-center rounded-full overflow-hidden hover:bg-secondary-2 text-accent bg-secondary-2/20;
-}
-.Icon {
-  @apply Icon_base size-10 text-2xl;
-}
-.Icon_small {
-  @apply Icon_base  size-9 text-xl;
-}
-.Icon_smaller {
-  @apply Icon_base size-6 text-base;
-}
-.Icon_message {
-  @apply Icon_base size-4 text-xs;
-}
-.Icon_big {
-  @apply Icon_base size-12 text-3xl;
-}
-
-.Icon_bigger {
-  @apply Icon_base size-20 text-5xl;
-}
-
-.Highlighted {
-  @apply animate-highlight rounded-lg;
-}
-
-.ReactionItem {
-  @apply hover:scale-150 transition-all duration-200 ease-in-out active:scale-90;
-}
 @layer base {
   /* Hide scrollbar for Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {

@@ -49,7 +49,6 @@ export default function UserProfile({ params }: { params: { id: string } }) {
   const [blocked, setBlocked] = useState<boolean>(false); //us blocking the other user
   const [interactFlag, setInteractFlag] = useState(true);
 
-
   const [user, setUser] = useState<User | null>({
     _id: "",
     username: "",
@@ -114,49 +113,49 @@ export default function UserProfile({ params }: { params: { id: string } }) {
   return (
     <>
       {status === "loading" || blocked || isBlocked || !user?._id ? (
-        <section className="text-accent">
-          <div className="px-4 py-2">
-            <div className="User_Profile_Page_Username bg-secondary-2 rounded-lg animate-pulse sm:m-auto w-fit">
+        <section className="User_Profile_Layout">
+          <div className="User_Info_Container">
+            <h1 className="User_Profile_Page_Username animate-pulse bg-secondary-2 rounded-lg text-transparent">
               <span className="opacity-0">UserInfo</span>
+            </h1>
+            <div className="User_Profile_Page_Picture_Container">
+              <div className=" User_Profile_Page_Picture ">
+                <div className="size-full animate-pulse bg-secondary-2" />
+              </div>
+              <div className="User_Profile_Page_Stat_Bar">
+                <span className="flex flex-col items-center justify-start bg-secondary-2 rounded-lg animate-pulse text-transparent">
+                  <span className="font-semibold">0</span>
+                  UserStat
+                </span>
+                <span className="flex flex-col items-center justify-start bg-secondary-2 rounded-lg animate-pulse text-transparent">
+                  <span className="font-semibold">0</span>
+                  UserStat
+                </span>
+                <span className="flex flex-col items-center justify-start bg-secondary-2 rounded-lg animate-pulse text-transparent">
+                  <span className="font-semibold">0</span>
+                  UserStat
+                </span>
+              </div>
             </div>
-          </div>
-          <div className="User_Profile_Layout">
-            <div className=" User_Profile_Page_Picture ">
-              <div className="size-full animate-pulse bg-secondary-2" />
-            </div>
-            <div className="User_Profile_Page_Stat_Bar">
-              <span className="flex flex-col items-center justify-start bg-secondary-2 rounded-lg animate-pulse text-transparent">
-                <span className="font-semibold">0</span>
-                UserStat
-              </span>
-              <span className="flex flex-col items-center justify-start bg-secondary-2 rounded-lg animate-pulse text-transparent">
-                <span className="font-semibold">0</span>
-                UserStat
-              </span>
-              <span className="flex flex-col items-center justify-start bg-secondary-2 rounded-lg animate-pulse text-transparent">
-                <span className="font-semibold">0</span>
-                UserStat
-              </span>
-            </div>
-          </div>
-          <div className="px-4 py-2 flex flex-col gap-2">
-            <div className="User_Profile_Page_Fullname text-transparent bg-secondary-2 rounded-lg animate-pulse sm:ml-0 m-auto w-fit">
+
+            <div className="User_Profile_Page_Fullname text-transparent bg-secondary-2 rounded-lg animate-pulse ">
               UserInfoLong
             </div>
-            <div className="User_Profile_Page_Bio text-transparent bg-secondary-2 rounded-lg animate-pulse sm:ml-0 m-auto w-fit">
+            <div className="User_Profile_Page_Bio text-transparent bg-secondary-2 rounded-lg animate-pulse">
               UserInfo
             </div>
-          </div>
-          <div className="User_Profile_Page_Interactive_Bar">
-            <div className="rounded-lg bg-accent animate-pulse p-2 ">
-              <span className="opacity-0">User Button</span>
+
+            <div className="User_Profile_Page_Interactive_Bar">
+              <div className="rounded-lg bg-accent animate-pulse p-2 ">
+                <span className="opacity-0">User Button</span>
+              </div>
+              <div className="rounded-lg bg-accent animate-pulse p-2 ">
+                <span className="opacity-0">User Button</span>
+              </div>
             </div>
-            <div className="rounded-lg bg-accent animate-pulse p-2 ">
-              <span className="opacity-0">User Button</span>
-            </div>
           </div>
-          <h1 className="text-center text-xl my-4 ">See posts</h1>
-          <div className="shadow-inner bg-secondary-2/20 rounded-xl">
+
+          <div className="shadow-inner bg-secondary-2/20 grow h-full w-full rounded-xl">
             {isBlocked || blocked ? (
               <div className="text-4xl font-semibold text-center">
                 You're not allowed to view this user profile
@@ -167,48 +166,38 @@ export default function UserProfile({ params }: { params: { id: string } }) {
           </div>
         </section>
       ) : (
-        <section className="text-accent">
-          <div className="px-4 py-2">
+        <section className="User_Profile_Layout">
+          <div className="User_Info_Container">
             <h1 className="User_Profile_Page_Username">{user?.username}</h1>
-          </div>
-          <div className="User_Profile_Layout">
-            <div className=" User_Profile_Page_Picture ">
-              {user?.image ? (
-                <CustomImage
-                  src={user.image}
-                  alt={"profile picture"}
-                  className="size-full"
-                  width={0}
-                  height={0}
-                  style={{ objectFit: "cover" }}
-                  transformation={[{ quality: 80 }]}
-                  lqip={{ active: true, quality: 20 }}
-                />
-              ) : (
-                <FontAwesomeIcon
-                  icon={faUser}
-                  size="xl"
-                  className="size-full"
-                />
-              )}
+            <div className="User_Profile_Page_Picture_Container">
+              <div className=" User_Profile_Page_Picture ">
+                {user?.image ? (
+                  <CustomImage
+                    src={user?.image}
+                    alt={"profile picture"}
+                    className="size-full"
+                    width={0}
+                    height={0}
+                    style={{ objectFit: "cover" }}
+                    transformation={[{ quality: 80 }]}
+                    lqip={{ active: true, quality: 20 }}
+                  />
+                ) : (
+                  <FontAwesomeIcon icon={faUser} className="grow" />
+                )}
+              </div>
+              <UserStatBar userId={params.id} updateFlag={interactFlag} />
             </div>
-            <UserStatBar
-              userId={params.id}
-              updateFlag={interactFlag}
-        
-            />
-          </div>
-          <div className="px-4 py-2">
+
             <h2 className="User_Profile_Page_Fullname">{user?.fullname}</h2>
             <h2 className="User_Profile_Page_Bio">{user?.bio}</h2>
+            <UserInteractionBar
+              user={user}
+              updateCallback={() => setInteractFlag((prev) => !prev)}
+            />
           </div>
 
-          <UserInteractionBar
-            user={user}
-            updateCallback={() => setInteractFlag((prev) => !prev)}
-          />
-
-          <UserPostFeed userId={user._id}/>
+          <UserPostFeed userId={user._id || ""} />
         </section>
       )}
     </>

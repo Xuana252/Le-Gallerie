@@ -20,9 +20,10 @@ export default function ChatButton({
   const { data: session } = useSession();
 
   useEffect(() => {
+    if (!session?.user?.id) return;
     setIsLoading(true);
     const unSub = onSnapshot(
-      doc(db, "usersChat", session?.user.id || ""),
+      doc(db, "usersChat", session.user.id),
       async (res) => {
         const items = res.data()?.chat;
         let count = 0;

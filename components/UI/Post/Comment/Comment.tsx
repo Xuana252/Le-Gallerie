@@ -5,6 +5,7 @@ import { faHeart as RegularHeart } from "@fortawesome/free-regular-svg-icons";
 import {
   faAngleDown,
   faAngleUp,
+  faArrowUp,
   faFaceSmile,
   faHeart as SolidHeart,
 } from "@fortawesome/free-solid-svg-icons";
@@ -26,6 +27,7 @@ import EmojiInput from "@components/Input/EmojiInput";
 import ButtonWithTimeOut from "@components/Input/ButtonWithTimeOut";
 import { CommentItem } from "./CommentItem";
 import { fetchPostComment, handleComment } from "@actions/commentAction";
+import TextAreaInput from "@components/Input/TextAreaInput";
 
 export const CommentSection = ({ postId }: { postId: string }) => {
   const router = useRouter();
@@ -56,7 +58,7 @@ export const CommentSection = ({ postId }: { postId: string }) => {
     setIsLoading(false);
   };
 
-  const handleCommentTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCommentTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setComment(e.target.value);
   };
 
@@ -119,17 +121,16 @@ export const CommentSection = ({ postId }: { postId: string }) => {
         </ul>
       </div>
       {session?.user && (
-        <div className="bg-secondary-1 py-2 flex flex-row items-center justify-between  w-full h-[60px] gap-2">
-          <UserProfileIcon currentUser={true} />
-          <InputBox
+        <div className="bg-secondary-1 py-2 flex flex-row items-center justify-between  w-full min-h-[60px] h-fit gap-2">
+          <TextAreaInput
             type="Input"
             value={comment}
             onTextChange={handleCommentTextChange}
           >
             Make a comment...
-          </InputBox>
-          <button className="Icon" onClick={handleMakeComment}>
-            <FontAwesomeIcon icon={faPaperPlane} />
+          </TextAreaInput>
+          <button className="Button_variant_1 text-xl" onClick={handleMakeComment}>
+            <FontAwesomeIcon icon={faArrowUp} className="font-bold" />
           </button>
         </div>
       )}

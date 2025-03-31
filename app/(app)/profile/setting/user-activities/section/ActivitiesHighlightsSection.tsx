@@ -12,7 +12,7 @@ import {
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import React, { Profiler, use, useEffect, useRef, useState } from "react";
 
-export default function FrequentlyInteractedSection({
+export default function ActivitiesHighlightsSection({
   isVisible,
   likes,
   comments,
@@ -101,7 +101,6 @@ export default function FrequentlyInteractedSection({
 
       setTop3Category(top3Categories);
 
-      console.log(top3Users,top3Categories)
     };
 
     getTop3();
@@ -114,9 +113,9 @@ export default function FrequentlyInteractedSection({
   ];
 
   const categoriesPos = [
-    { x: -5, y: 10, z: 10, scale: 1.1, left: "45%", top: "30%" }, // Rotation for the second card
+    { x: -5, y: 10, z: 10, scale: 1.1, left: "35%", top: "30%" }, // Rotation for the second card
     { x: 10, y: 20, z: 2, scale: 0.9, left: "70%", top: "60%" }, // Rotation for the second card
-    { x: 30, y: -10, z: 5, scale: 0.8, left: "25%", top: "70%" }, // Rotation for the first card
+    { x: 30, y: -10, z: 5, scale: 0.8, left: "10%", top: "70%" }, // Rotation for the first card
   ];
 
   return (
@@ -173,8 +172,8 @@ export default function FrequentlyInteractedSection({
                         size="Icon_bigger"
                       />
                     ) : (
-                      <div className="rounded-full size-20 bg-secondary-1  overflow-hidden  shadow-md">
-                        <FontAwesomeIcon icon={faUser} className="size-full" />
+                      <div className="rounded-full size-20 flex flex-col bg-secondary-1  overflow-hidden  shadow-md">
+                        <FontAwesomeIcon icon={faUser} className="grow" />
                       </div>
                     )}
                   </div>
@@ -186,7 +185,7 @@ export default function FrequentlyInteractedSection({
           <div
             className={`${
               animated ? "animate-slideRight" : ""
-            } title m-auto mt-6`}
+            } subtitle m-auto mt-6`}
           >
             People You Engage With
           </div>
@@ -228,7 +227,7 @@ export default function FrequentlyInteractedSection({
                     className="bg-secondary-2 shadow-md p-2 rounded-xl italic text-xl"
                     style={{ scale: category.scale }}
                   >
-                    #{categories[index]?.category||"hastag"}
+                    #{categories[index]?.category||"Hashtag"}
                   </div>
                 </div>
               </div>
@@ -237,7 +236,7 @@ export default function FrequentlyInteractedSection({
           <div
             className={`${
               animated ? "animate-slideLeft" : ""
-            } title m-auto mt-6`}
+            } subtitle m-auto mt-6`}
           >
             Things you care about
           </div>

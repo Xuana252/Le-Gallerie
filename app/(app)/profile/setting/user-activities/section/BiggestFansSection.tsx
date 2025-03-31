@@ -80,6 +80,13 @@ export default function BiggestFansSection({
     { x: 30, y: -10, z: 10, scale: 0.9, left: "20%", top: "50%" }, // Rotation for the first card
     { x: 10, y: 10, z: -20, scale: 1, left: "65%", top: "60%" }, // Rotation for the second card
   ];
+
+  const propsPos = [
+    { x: 20, y: -30, z: -40, scale: 0.5, left: "10%", top: "10%" }, // Rotation for the second card
+    { x: 0, y: -40, z: 38, scale: 0.6, left: "30%", top: "50%" }, // Rotation for the first card
+    { x: 50, y: 20, z: 140, scale: 0.8, left: "80%", top: "10%" }, // Rotation for the second card
+    { x: 40, y: 20, z: -30, scale: 0.7, left: "50%", top: "20%" }, // Rotation for the second card
+  ];
   return (
     <section>
       <div className="h-[300px] flex flex-col relative">
@@ -94,7 +101,29 @@ export default function BiggestFansSection({
         <div className="light_bottom_right size-full absolute"></div>
         <div className="bloom_left size-full absolute bottom-0"></div>
         <div className="bloom_up size-full absolute bottom-0 left-[50%] -translate-x-1/2"></div>
-        <div className="relative grow mb-2">
+        <div className={`relative grow ${animated ? "animate-slideUp" : ""}`}>
+          <div>
+            {propsPos.map((props, index) => (
+              <div
+                key={index}
+                className="absolute "
+                style={{
+                  left: props.left,
+                  top: props.top,
+                  transform: `rotateX(${props.x}deg) rotateY(${props.y}deg) rotateZ(${props.z}deg) `,
+                }}
+              >
+                <div
+                  className="size-20 flex flex-col text-accent rounded-full bg-secondary-1 overflow-hidden "
+                  style={{
+                    transform: `scale(${props.scale})`,
+                  }}
+                >
+                  <FontAwesomeIcon icon={faUser} className="grow" />
+                </div>
+              </div>
+            ))}
+          </div>
           {peoplePos.map((person, index) => (
             <div
               onMouseEnter={() => setIsDisplayNumber("p" + index)}
@@ -107,6 +136,7 @@ export default function BiggestFansSection({
                 transform: `rotateX(${person.x}deg) rotateY(${person.y}deg) rotateZ(${person.z}deg)`,
               }}
             >
+              <div className="light_bottom size-full absolute"></div>
               {users[index] && (
                 <div
                   className={`${
@@ -123,11 +153,7 @@ export default function BiggestFansSection({
                   </span>
                 </div>
               )}
-              <div
-                className={`${
-                  animated ? "animate-slideUp" : ""
-                } flex flex-col items-center`}
-              >
+              <div className={`flex flex-col items-center`}>
                 <div style={{ scale: person.scale }}>
                   {users[index] ? (
                     <UserProfileIcon
@@ -136,8 +162,8 @@ export default function BiggestFansSection({
                       size="Icon_bigger"
                     />
                   ) : (
-                    <div className="rounded-full size-20 bg-secondary-1  overflow-hidden  shadow-md">
-                      <FontAwesomeIcon icon={faUser} className="size-full" />
+                    <div className="rounded-full size-20 flex flex-col bg-secondary-1  overflow-hidden  shadow-md">
+                      <FontAwesomeIcon icon={faUser} className="grow" />
                     </div>
                   )}
                 </div>

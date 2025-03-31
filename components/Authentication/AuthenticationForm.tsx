@@ -12,7 +12,7 @@ import { getProviders, signIn } from "next-auth/react";
 import Link from "next/link";
 
 import { SignUpCredentials, UploadUser } from "@lib/types";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSpring, animated, useTransition } from "@react-spring/web";
 import { signUp } from "@actions/accountActions";
 import ImageInput from "@components/Input/ImageInput";
@@ -33,7 +33,9 @@ export default function AuthenticationForm({
 }: {
   providers: string[];
 }) {
-  const [isSignUp, setIsSignUp] = useState(false);
+  const searchParams= useSearchParams()
+  const signUp = searchParams.get('signUp') === "true"
+  const [isSignUp, setIsSignUp] = useState(signUp);
 
   const DesktopSliderAnimation = useSpring({
     transform: isSignUp ? "translateX(100%)" : "translateX(0%)",

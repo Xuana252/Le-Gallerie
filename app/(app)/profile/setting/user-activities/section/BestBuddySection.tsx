@@ -1,8 +1,11 @@
+import { fetchUserWithId } from "@actions/accountActions";
 import UserProfileIcon from "@components/UI/Profile/UserProfileIcon";
 import ChatBoxProps from "@components/UI/Props/ChatBoxProps";
+import { getLongestChat } from "@lib/Chat/chat";
 import { User } from "@lib/types";
 import { faUser } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
+import { useSession } from "@node_modules/next-auth/react";
 import React, { useEffect, useState } from "react";
 
 export default function BestBuddySection({
@@ -10,8 +13,24 @@ export default function BestBuddySection({
 }: {
   isVisible: boolean;
 }) {
-  const [user, setUser] = useState<User>();
+  const { data: session } = useSession();
+  const [user, setUser] = useState<User | null>();
+  const [chatLength, setChatLength] = useState<number | null>();
   const [animated, setAnimate] = useState(isVisible);
+
+  useEffect(() => {
+    if (!session?.user.id) return;
+
+    getLongestChat(session.user.id).then(async (res) => {
+      if (!res) return;
+
+      // Fetch the user details using fetchUserWithId
+      const userData = await fetchUserWithId(res.receiverId);
+
+      setUser(userData);
+      setChatLength(res.chatLength);
+    });
+  }, [session?.user.id]);
 
   useEffect(() => {
     setAnimate(isVisible);
@@ -65,17 +84,20 @@ export default function BestBuddySection({
         <div className="absolute top-[20%] z-40 flex flex-col items-center">
           <div className="light_bottom size-full absolute"></div>
           {user ? (
-            <UserProfileIcon
-              currentUser={false}
-              user={user}
-              size="Icon_bigger"
-            />
+            <>
+              <UserProfileIcon
+                currentUser={false}
+                user={user}
+                size="Icon_bigger"
+              />
+              <span className="font-bold">{user.username}</span>
+            </>
           ) : (
             <div className="Icon_bigger shadow-md">
               <FontAwesomeIcon icon={faUser} className="size-full" />
             </div>
           )}
-          <div className="title">10000 messages sent</div>
+          {chatLength && <div className="title">{chatLength} messages sent</div>}
         </div>
       </div>
     </section>
