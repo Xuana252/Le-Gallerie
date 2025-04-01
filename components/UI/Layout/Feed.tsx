@@ -14,9 +14,14 @@ import CategoryBar from "./CategoriesBar";
 import { SearchContext } from "./Nav";
 import { usePathname } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlassMinus } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArchive,
+  faMagnifyingGlassMinus,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   fetchAllPost,
+  fetchUserFollowPost,
+  fetchUserFriendPost,
   fetchUserLikedPost,
   fetchUserPost,
 } from "@actions/postActions";
@@ -25,19 +30,25 @@ import { set } from "mongoose";
 type FeedProps = {
   userIdFilter?: string;
   userIdLikedFilter?: boolean;
+  userIdFollowFilter?: boolean;
+  userIdFriendFilter?: boolean;
   relatePostFilter?: string;
   setPostCount?: Dispatch<SetStateAction<number | null>>;
   showCateBar?: boolean;
   showResults?: boolean;
+  searchFeed?: boolean;
 };
 
 export default function Feed({
   userIdFilter,
+  userIdFollowFilter,
+  userIdFriendFilter,
   userIdLikedFilter,
-  showCateBar = true,
+  showCateBar = false,
   relatePostFilter,
   setPostCount,
   showResults = false,
+  searchFeed = false,
 }: FeedProps) {
   const { searchText, category } = useContext(SearchContext);
   const [categoriesFilter, setCategoriesFilter] = useState<Category[]>([]);
@@ -74,6 +85,10 @@ export default function Feed({
           )
         : userIdLikedFilter
         ? await fetchUserLikedPost(userIdFilter, currentPage, limit)
+        : userIdFollowFilter
+        ? await fetchUserFollowPost(userIdFilter, currentPage, limit)
+        : userIdFriendFilter
+        ? await fetchUserFriendPost(userIdFilter, currentPage, limit)
         : await fetchUserPost(userIdFilter, currentPage, limit);
 
       setPostCount && setPostCount(response.counts);
@@ -107,7 +122,11 @@ export default function Feed({
   }, [category]);
 
   useEffect(() => {
-    fetchPosts(page, searchText, categoriesFilter, relatePostFilter);
+    if (searchFeed) {
+      fetchPosts(page, searchText, categoriesFilter, relatePostFilter);
+    } else {
+      fetchPosts(page, "", [], "");
+    }
   }, [
     page,
     userIdFilter,
@@ -184,7 +203,7 @@ export default function Feed({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
   return (
-    <section className="size-full min-h-[400px]">
+    <section className="w-full h-fit min-h-screen ">
       {showCateBar && (
         <CategoryBar
           onCategoriesChange={handleCategoriesFilerChange}
@@ -194,8 +213,9 @@ export default function Feed({
       {error ? (
         <div>Error:{error}</div>
       ) : posts.length === 0 && !isLoading ? (
-        <div className="text-accent text-center text-xl my-8">
-          Sorry, we couldn't find anything :/
+        <div className="text-accent text-center text-xl size-fit p-4 h-screen w-full bg-accent/20 justify-center flex flex-col gap-2 ">
+          <FontAwesomeIcon icon={faArchive} size="2xl" />
+          No post found :/
         </div>
       ) : (
         <>

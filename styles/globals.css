@@ -89,7 +89,7 @@
   @apply text-xl sm:text-4xl w-full text-accent text-center font-bold break-words underline;
 }
 .User_Profile_Page_Bio {
-  @apply text-sm  whitespace-pre-wrap bg-secondary-2/70 p-2 rounded-lg text-accent/80 shadow-md w-full max-h-[100px] overflow-y-auto;
+  @apply text-sm font-mono whitespace-pre-wrap bg-secondary-2/70 p-2 rounded-lg text-accent/80 shadow-md w-full overflow-y-auto;
 }
 .User_Profile_Page_Fullname {
   @apply text-xl text-center font-bold sm:text-left;

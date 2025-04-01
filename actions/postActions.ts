@@ -63,6 +63,42 @@ export const fetchUserLikedPost = async (
   return { posts: [], counts: 0 };
 };
 
+export const fetchUserFollowPost = async (
+  user: string,
+  currentPage: number,
+  limit: number
+) => {
+  const response = await fetch(
+    `${process.env.DOMAIN_NAME}/api/users/${user}/posts/follow-posts?page=${currentPage}&limit=${limit}`,
+    {
+      headers: new Headers(headers()),
+    }
+  );
+  if (response.ok) {
+    const data = await response.json();
+    return { posts: data.posts, counts: data.counts };
+  }
+  return { posts: [], counts: 0 };
+};
+
+export const fetchUserFriendPost = async (
+  user: string,
+  currentPage: number,
+  limit: number
+) => {
+  const response = await fetch(
+    `${process.env.DOMAIN_NAME}/api/users/${user}/posts/friend-posts?page=${currentPage}&limit=${limit}`,
+    {
+      headers: new Headers(headers()),
+    }
+  );
+  if (response.ok) {
+    const data = await response.json();
+    return { posts: data.posts, counts: data.counts };
+  }
+  return { posts: [], counts: 0 };
+};
+
 export const fetchPostWithId = async (post: string) => {
   const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}`, {
     headers: new Headers(headers()),

@@ -47,13 +47,7 @@ export default function PostDetail({
   post: Post|null;
 }) {
   const { handleSetCategory } = useContext(SearchContext);
-  const router = useRouter();
   const { data: session } = useSession();
-
-  const handleCategoryCLick = (category: Category) => {
-    handleSetCategory(category);
-    router.push("/");
-  };
 
   return (
     <>
@@ -145,7 +139,7 @@ export default function PostDetail({
                       <li
                         key={category._id}
                         className="text-sm Category hover:font-bold cursor-pointer bg-secondary-2/40 size-fit px-2 py-1 rounded-xl"
-                        onClick={() => handleCategoryCLick(category)}
+                        onClick={() => handleSetCategory(category)}
                       >
                         {category.name}
                       </li>

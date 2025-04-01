@@ -127,8 +127,8 @@ export default function AuthenticationForm({
               zIndex: 10,
             }}
           >
-            <Link href={"/"} className={`text-xl hover:font-bold z-10`}>
-              skip for now
+            <Link href={"/home"} className={`text-xl hover:font-bold z-10`}>
+            Visit as guest
             </Link>
           </animated.div>
         ))}
@@ -177,8 +177,8 @@ export default function AuthenticationForm({
               zIndex: 10,
             }}
           >
-            <Link href={"/"} className={`text-xl hover:font-bold z-10`}>
-              skip for now
+            <Link href={"/home"} className={`text-xl hover:font-bold z-10`}>
+              Visit as guest
             </Link>
           </animated.div>
         ))}

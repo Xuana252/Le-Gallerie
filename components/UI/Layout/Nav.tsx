@@ -9,7 +9,7 @@ import {
   faImage,
   faEllipsisVertical,
 } from "@fortawesome/free-solid-svg-icons";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import InputBox from "../../Input/InputBox";
 import DropDownButton from "../../Input/DropDownButton";
 import { signOut, useSession } from "next-auth/react";
@@ -113,13 +113,15 @@ export const ChatContext = createContext<ChatContextType>({
 });
 
 export default function Nav({ children }: { children: React.ReactNode }) {
-  const [pendingText, setPendingText] = useState("");
-  const [searchText, setSearchText] = useState("");
+  const searchParams = useSearchParams();
+  const pathName = usePathname();
+  const textParams = searchParams.get("text")||""
+  const router = useRouter();
+
+  const [pendingText, setPendingText] = useState(textParams);
+  const [searchText, setSearchText] = useState(textParams);
   const [category,setCategory] = useState<Category[]>([])
   const [chatInfo, setChat] = useState(null);
-
-  const pathName = usePathname();
-  const router = useRouter();
 
   const handleSetCategory = (category: Category) => {
     setCategory([category])
@@ -143,10 +145,20 @@ export default function Nav({ children }: { children: React.ReactNode }) {
         .trim()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase();
       handleSearch(finalText);
     }
   };
+
+  useEffect(()=>{
+    if(searchText||category.length>0) {
+      router.push(`/search?text=${searchText}`)
+    }
+  },[searchText,category])
+
+  useEffect(()=>{
+    setPendingText(textParams)
+    setSearchText(textParams)
+  },[textParams])
   
 
   return (
@@ -169,7 +181,7 @@ export default function Nav({ children }: { children: React.ReactNode }) {
                 </button>
               </div>
 
-              {pathName === "/home" && (
+              {
                 <InputBox
                   onTextChange={handleSearchTextChange}
                   onKeyDown={handleSearchKeyPress}
@@ -178,7 +190,7 @@ export default function Nav({ children }: { children: React.ReactNode }) {
                 >
                   Search for posts...
                 </InputBox>
-              )}
+              }
 
               <ButtonSet />
             </div>

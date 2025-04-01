@@ -41,7 +41,7 @@ import {
 } from "@actions/followsActions";
 import UserStatBar from "@components/UI/Profile/UserStatBar";
 import UserInteractionBar from "@components/UI/Profile/UserInteractionBar";
-import UserPostFeed from "@components/UI/Profile/UserPostFeed";
+import MultiTabContainer from "@components/UI/Layout/MultiTabContainer";
 
 export default function UserProfile({ params }: { params: { id: string } }) {
   const { data: session, status, update } = useSession();
@@ -197,7 +197,28 @@ export default function UserProfile({ params }: { params: { id: string } }) {
             />
           </div>
 
-          <UserPostFeed userId={user._id || ""} />
+          <MultiTabContainer
+                tabs={[
+                  {
+                    head: (
+                      <>
+                        <FontAwesomeIcon icon={faBorderAll} /> All
+                      </>
+                    ),
+                    body: <Feed userIdFilter={user._id} />,
+                  },
+                  {
+                    head: (
+                      <>
+                        <FontAwesomeIcon icon={faHeart} /> Liked
+                      </>
+                    ),
+                    body: (
+                      <Feed userIdFilter={user._id} userIdLikedFilter={true} />
+                    ),
+                  },
+                ]}
+              />
         </section>
       )}
     </>
