@@ -20,9 +20,10 @@ export default function ChatButton({
   const { data: session } = useSession();
 
   useEffect(() => {
+    if (!session?.user.id) return;
     setIsLoading(true);
     const unSub = onSnapshot(
-      doc(db, "usersChat", session?.user.id || ""),
+      doc(db, "usersChat", session.user.id),
       async (res) => {
         const items = res.data()?.chat;
         let count = 0;
@@ -38,10 +39,10 @@ export default function ChatButton({
             if (!item.isSeen) count++;
             return {
               ...item,
-              memberIds:chatData.memberIds||[],
-              type:chatData.type,
-              image:chatData.image||"",
-              name:chatData.name||"",
+              memberIds: chatData.memberIds || [],
+              type: chatData.type,
+              image: chatData.image || "",
+              name: chatData.name || "",
               users: [
                 ...users,
                 {
@@ -52,7 +53,7 @@ export default function ChatButton({
               ],
             };
           } else {
-            return null
+            return null;
           }
         });
         const chatData = promises ? await Promise.all(promises) : [];

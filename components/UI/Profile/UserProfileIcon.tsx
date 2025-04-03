@@ -12,8 +12,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { type User } from "@lib/types";
 import CustomImage from "../Image/Image";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { checkFollowState } from "@actions/followsActions";
+import { ChatContext } from "../Layout/Nav";
 
 // Define the base type for the props
 type BaseUserProfileIconProps = {
@@ -43,9 +44,12 @@ export default function UserProfileIcon({
 }: UserProfileIconProps) {
   const router = useRouter();
   const { data: session } = useSession();
+  const {chatInfo}=useContext(ChatContext)
 
   const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if(chatInfo.type==="ai"&&!currentUser)
+      return
     if (currentUser || session?.user.id === user._id) {
       router.push("/profile");
     } else {

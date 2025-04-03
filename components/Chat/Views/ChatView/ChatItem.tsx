@@ -17,7 +17,8 @@ import {
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { useSession } from "@node_modules/next-auth/react";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { ChatContext } from "@components/UI/Layout/Nav";
 
 export default function ChatItem({
   message,
@@ -37,6 +38,7 @@ export default function ChatItem({
   handlePin: any;
 }) {
   const { data: session } = useSession();
+  const { chatInfo, setChatInfo } = useContext(ChatContext);
   const [isHovering, setIsHovering] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const [isSetting, setIsSetting] = useState(false);
@@ -53,7 +55,6 @@ export default function ChatItem({
   ];
 
   useEffect(() => {
-    console.log(message);
     if (messageRef.current) {
       const width = messageRef.current.clientWidth;
 
@@ -113,11 +114,16 @@ export default function ChatItem({
           isClicked ? "max-h-10 opacity-100" : "max-h-0  opacity-0"
         }`}
       >
-        {formatDateTime(message.createdAt.toDate())}
+        {
+        formatDateTime(
+          message.senderId==="user"||message.senderId==="gemini-ai"
+            ? message.createdAt // Nếu từ AI (MongoDB)
+            : message.createdAt.toDate() // Nếu từ người dùng (Firestore)
+        )}
       </div>
       <div
         className={`${
-          message.senderId === session?.user.id
+          message.senderId === session?.user.id||message.senderId ==="user"
             ? "MyMessageRow"
             : "OtherMessageRow"
         }`}
@@ -160,7 +166,14 @@ export default function ChatItem({
                 {message.image.length > 0 && (
                   <ul className="rounded-xl flex flex-wrap overflow-hidden grow -mr-2 -ml-2 gap-1">
                     {message.image.map((url: string) => (
-                      <div className="" style={{flex: "1 1 0", minWidth: "30%", aspectRatio: "1 / 1"}}>
+                      <div
+                        className=""
+                        style={{
+                          flex: "1 1 0",
+                          minWidth: "30%",
+                          aspectRatio: "1 / 1",
+                        }}
+                      >
                         <CustomImage
                           zoomable={true}
                           src={url}
@@ -171,7 +184,6 @@ export default function ChatItem({
                           transformation={[{ quality: 10 }]}
                           style={{ objectFit: "cover" }}
                         />
-                        
                       </div>
                     ))}
                   </ul>
@@ -243,3 +255,5 @@ export default function ChatItem({
     </div>
   );
 }
+
+

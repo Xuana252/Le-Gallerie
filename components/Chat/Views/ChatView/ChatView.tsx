@@ -39,6 +39,7 @@ import {
 import { faUsb } from "@node_modules/@fortawesome/free-brands-svg-icons";
 import { v4 as uuidv4 } from "uuid";
 import ChatBar from "./ChatBar";
+import { getAiMessage } from "@actions/chatGemini";
 
 export default function ChatView({
   chat,
@@ -51,13 +52,18 @@ export default function ChatView({
   isBlocked: boolean;
   blocked: boolean;
 }) {
+
   const { data: session, update } = useSession();
+
   const messageListRef = useRef<HTMLUListElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+
   const prevChatInfo = useRef(chatInfo); // Store previous value
 
   const chatItemRef = useRef<{ [key: string]: HTMLLIElement | null }>({});
+
+  const [refreshTrigger, setRefreshTrigger] = useState(false); // Thêm state này
 
   const handleMoveToPin = () => {
     chatItemRef.current[chat.pinned] &&
@@ -84,13 +90,9 @@ export default function ChatView({
     });
   };
 
-  useEffect(() => {
-    if (prevChatInfo.current !== chatInfo) {
-      setIsLoading(true);
-      setTimeout(() => setIsLoading(false), 1000);
-    }
-    prevChatInfo.current = chatInfo;
-  }, [chatInfo?.chatId]);
+const handleload=()=>{
+  setRefreshTrigger((prev) => !prev);
+}
 
   useEffect(() => {
     messageListRef.current?.scrollTo({
@@ -99,8 +101,26 @@ export default function ChatView({
     });
   }, [chat?.message?.length, chatInfo]);
 
+  const [messages, setMessages] = useState(chat?.message || []);
+
+useEffect(() => {
+  const fetchMessages = async () => {
+    if (chatInfo.type === "ai") { 
+      const newMessages = await getAiMessage(chatInfo.admin);
+
+      // Chỉ cập nhật nếu có thay đổi
+      if (JSON.stringify(newMessages) !== JSON.stringify(messages)) {
+        chat.message=newMessages   
+        setMessages(newMessages); // Cập nhật state
+      }
+    }
+  };
+
+  fetchMessages();
+}, [refreshTrigger, chatInfo.type, chatInfo.admin]); // Gọi lại khi refreshTrigger thay đổi
+
   const getMessageClass = (message: any) => {
-    const isMine = message.senderId === session?.user.id;
+    const isMine = message.senderId === session?.user.id ||message.senderId === "user";
     const baseClass = isMine ? "My_message" : "Other_message";
 
     const currentIndex = chat.message.findIndex(
@@ -239,7 +259,7 @@ export default function ChatView({
                       })),
                     }}
                     isPinned={chat.pinned === message.id}
-                    user={chatInfo.users.find(
+                    user={chatInfo.users?.find(
                       (user: User) => user._id === message.senderId
                     )}
                     messageClass={getMessageClass(message)}
@@ -265,12 +285,16 @@ export default function ChatView({
                   {index === 0 && (
                     <span
                       className={`${
-                        message.senderId === session?.user.id
+                        message.senderId === session?.user.id||message.senderId ==="user"
                           ? "text-right"
                           : "text-left"
                       } text-xs`}
                     >
-                      {formatTimeAgoWithoutAgo(message.createdAt.toDate())}
+                      {formatTimeAgoWithoutAgo(
+                        chatInfo.type === "ai"
+                          ? message.createdAt // Nếu từ AI (MongoDB)
+                          : message.createdAt.toDate() // Nếu từ người dùng (Firestore)
+                      )}
                     </span>
                   )}
                 </li>
@@ -315,7 +339,7 @@ export default function ChatView({
             )
         )}
       </ul>
-      <ChatBar chatInfo={chatInfo} isBlocked={isBlocked} blocked={blocked} />
+      <ChatBar chatInfo={chatInfo} isBlocked={isBlocked} blocked={blocked} onMessageSent={handleload} />
     </>
   );
 }

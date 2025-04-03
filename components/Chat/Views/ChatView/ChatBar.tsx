@@ -19,22 +19,25 @@ import { useSession } from "@node_modules/next-auth/react";
 import React, { useState } from "react";
 import { text } from "stream/consumers";
 import { v4 as uuidv4 } from "uuid";
+import { getAIResponse } from "@actions/chatGemini";
 
 export default function ChatBar({
   chatInfo,
   isBlocked,
   blocked,
+  onMessageSent, // Thêm prop này
 }: {
   chatInfo: any;
   isBlocked: boolean;
   blocked: boolean;
+ onMessageSent: () => void; // Callback sau khi gửi tin nhắn
 }) {
   const { data: session } = useSession();
   const [text, setText] = useState("");
   const [imageQueue, setImageQueue] = useState<
     UploadImage[]
   >([]);
-
+  const [isWaiting, setIsWaiting] = useState(false);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -54,6 +57,15 @@ export default function ChatBar({
     setImageQueue([])
     if (!session) return;
     if ((!imageQueue.length && text === "") || isBlocked) return;
+
+    if(chatInfo.type==="ai")
+    {
+      setIsWaiting(true)
+      getAIResponse(text,session.user.id)
+      setIsWaiting(false)
+      onMessageSent()
+      return
+    }
 
     const imageURLList = await Promise.all(
       imageQueue

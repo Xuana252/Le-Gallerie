@@ -117,7 +117,8 @@ export default function SettingView({
         <div className="size-28">
           <ImageGroupDisplay
             images={
-              chat.type === "group"
+              chat.type==="ai"? [chat.image="https://img.freepik.com/premium-vector/ai-logo-template-vector-with-white-background_1023984-15069.jpg"]
+              :chat.type === "group"
                 ? chat.image?[chat.image]:chatInfo.users
                     .filter(
                       (user: User) =>
