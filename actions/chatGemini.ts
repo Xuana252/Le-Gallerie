@@ -14,6 +14,8 @@ export const getAIResponse = async (userMessage: string,userId:string|undefined)
 
     const data = await response.json();
 
+    const reply=data.reply.replaceAll("**",'')
+
     await connectToDB();
 
     let chat = await AiChatBox.findOne({ chatId: userId });
@@ -30,12 +32,13 @@ export const getAIResponse = async (userMessage: string,userId:string|undefined)
      chat.messages.push({ senderId: "user", text: userMessage, createdAt: Date.now() });
 
      // Thêm phản hồi của AI vào lịch sử chat
-     chat.messages.push({ senderId: "gemini-ai", text: data.reply, createdAt: Date.now()+5*1000 });
- 
+     chat.messages.push({ senderId: "gemini-ai", text: reply, createdAt: Date.now()+5*1000 });
+    
+     console.log(data.reply)
      // Lưu lại vào database
      await chat.save();
 
-    return data.reply || "Xin lỗi, tôi không hiểu.";
+    return reply || "Xin lỗi, tôi không hiểu.";
   } catch (error) {
     console.error("Lỗi khi gọi AI:", error);
     return "Xin lỗi, có lỗi xảy ra.";

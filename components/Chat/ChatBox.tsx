@@ -130,7 +130,6 @@ export default function ChatBox() {
       if (res.exists()) {
         const data = res.data();
         setChat(data);
-        console.log(data.message)
         data.type === "single" && checkChatUserBLock(chatInfo.users[0]._id);
 
         setBlocked(

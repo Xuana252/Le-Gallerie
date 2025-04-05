@@ -52,7 +52,6 @@ export default function ChatView({
   isBlocked: boolean;
   blocked: boolean;
 }) {
-
   const { data: session, update } = useSession();
 
   const messageListRef = useRef<HTMLUListElement>(null);
@@ -90,9 +89,9 @@ export default function ChatView({
     });
   };
 
-const handleload=()=>{
-  setRefreshTrigger((prev) => !prev);
-}
+  const handleload = () => {
+    setRefreshTrigger((prev) => !prev);
+  };
 
   useEffect(() => {
     messageListRef.current?.scrollTo({
@@ -103,24 +102,25 @@ const handleload=()=>{
 
   const [messages, setMessages] = useState(chat?.message || []);
 
-useEffect(() => {
-  const fetchMessages = async () => {
-    if (chatInfo.type === "ai") { 
-      const newMessages = await getAiMessage(chatInfo.admin);
 
-      // Chỉ cập nhật nếu có thay đổi
-      if (JSON.stringify(newMessages) !== JSON.stringify(messages)) {
-        chat.message=newMessages   
-        setMessages(newMessages); // Cập nhật state
+  useEffect(() => {
+    console.log("rerender")
+    const fetchMessages = async () => {
+      if (chatInfo.type === "ai") {
+         const newMessages = await getAiMessage(chatInfo.admin);
+
+        if (JSON.stringify(newMessages) !== JSON.stringify(messages)) {
+          chat.message = newMessages;
+          setMessages(newMessages);
+        }
       }
-    }
-  };
-
-  fetchMessages();
-}, [refreshTrigger, chatInfo.type, chatInfo.admin]); // Gọi lại khi refreshTrigger thay đổi
+    };
+    fetchMessages();
+  }, [refreshTrigger]); // Gọi lại khi refreshTrigger thay đổi
 
   const getMessageClass = (message: any) => {
-    const isMine = message.senderId === session?.user.id ||message.senderId === "user";
+    const isMine =
+      message.senderId === session?.user.id || message.senderId === "user";
     const baseClass = isMine ? "My_message" : "Other_message";
 
     const currentIndex = chat.message.findIndex(
@@ -285,7 +285,8 @@ useEffect(() => {
                   {index === 0 && (
                     <span
                       className={`${
-                        message.senderId === session?.user.id||message.senderId ==="user"
+                        message.senderId === session?.user.id ||
+                        message.senderId === "user"
                           ? "text-right"
                           : "text-left"
                       } text-xs`}
@@ -293,7 +294,8 @@ useEffect(() => {
                       {formatTimeAgoWithoutAgo(
                         chatInfo.type === "ai"
                           ? message.createdAt // Nếu từ AI (MongoDB)
-                          : message.createdAt.toDate() // Nếu từ người dùng (Firestore)
+                          : message.createdAt?.toDate?.() ||
+                              new Date(message.createdAt) // Nếu từ người dùng (Firestore)
                       )}
                     </span>
                   )}
@@ -330,7 +332,7 @@ useEffect(() => {
                   }{" "}
                   {RenderLog(
                     message.type,
-                    chatInfo.users.find(
+                    chatInfo.users?.find(
                       (user: User) => user._id === message.userId
                     )?.username
                   )}
@@ -339,7 +341,12 @@ useEffect(() => {
             )
         )}
       </ul>
-      <ChatBar chatInfo={chatInfo} isBlocked={isBlocked} blocked={blocked} onMessageSent={handleload} />
+      <ChatBar
+        chatInfo={chatInfo}
+        isBlocked={isBlocked}
+        blocked={blocked}
+        onMessageSent={handleload}
+      />
     </>
   );
 }

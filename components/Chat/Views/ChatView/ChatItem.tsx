@@ -114,16 +114,15 @@ export default function ChatItem({
           isClicked ? "max-h-10 opacity-100" : "max-h-0  opacity-0"
         }`}
       >
-        {
-        formatDateTime(
-          message.senderId==="user"||message.senderId==="gemini-ai"
+        {formatDateTime(
+          message.senderId === "user" || message.senderId === "gemini-ai"
             ? message.createdAt // Nếu từ AI (MongoDB)
             : message.createdAt.toDate() // Nếu từ người dùng (Firestore)
         )}
       </div>
       <div
         className={`${
-          message.senderId === session?.user.id||message.senderId ==="user"
+          message.senderId === session?.user.id || message.senderId === "user"
             ? "MyMessageRow"
             : "OtherMessageRow"
         }`}
@@ -188,7 +187,16 @@ export default function ChatItem({
                     ))}
                   </ul>
                 )}
-                <p>{message.text}</p>
+                <div
+                  style={{
+                    width: "100%", 
+                    whiteSpace: "pre-line", 
+                    overflowWrap: "break-word", 
+                    wordBreak: "normal", 
+                  }}
+                >
+                  {message.text}
+                </div>
               </>
             )}
           </div>
@@ -255,5 +263,3 @@ export default function ChatItem({
     </div>
   );
 }
-
-

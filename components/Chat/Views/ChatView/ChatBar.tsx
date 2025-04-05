@@ -30,7 +30,7 @@ export default function ChatBar({
   chatInfo: any;
   isBlocked: boolean;
   blocked: boolean;
- onMessageSent: () => void; // Callback sau khi gửi tin nhắn
+  onMessageSent: () => void; // Callback sau khi gửi tin nhắn
 }) {
   const { data: session } = useSession();
   const [text, setText] = useState("");
@@ -60,10 +60,10 @@ export default function ChatBar({
 
     if(chatInfo.type==="ai")
     {
+      onMessageSent()
       setIsWaiting(true)
       getAIResponse(text,session.user.id)
       setIsWaiting(false)
-      onMessageSent()
       return
     }
 
