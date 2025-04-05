@@ -31,7 +31,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
   };
 
   const handleSignIn = (provider: string) => {
-    signIn(provider, { callbackUrl: "/" });
+    signIn(provider, { callbackUrl: "/home" });
   };
 
   const handleCredentialsSignIn = async () => {
@@ -54,7 +54,7 @@ export default function SignInForm({ providers }: { providers: string[] }) {
           toastError(response.error);
         } else if (response?.ok) {
           setSubmitState(SubmitButtonState.SUCCESS);
-          setTimeout(() => router.push("/"));
+          setTimeout(() => router.push("/home"));
         }
       } catch (error) {
         console.log(error);

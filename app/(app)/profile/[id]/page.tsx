@@ -44,7 +44,7 @@ import UserInteractionBar from "@components/UI/Profile/UserInteractionBar";
 import MultiTabContainer from "@components/UI/Layout/MultiTabContainer";
 
 export default function UserProfile({ params }: { params: { id: string } }) {
-  const { data: session, status, update } = useSession();
+  const { data: session, status } = useSession();
   const [isBlocked, setIsBlocked] = useState<boolean>(false); //from the other user
   const [blocked, setBlocked] = useState<boolean>(false); //us blocking the other user
   const [interactFlag, setInteractFlag] = useState(true);
@@ -141,8 +141,8 @@ export default function UserProfile({ params }: { params: { id: string } }) {
             <div className="User_Profile_Page_Fullname text-transparent bg-secondary-2 rounded-lg animate-pulse ">
               UserInfoLong
             </div>
-            <div className="User_Profile_Page_Bio text-transparent bg-secondary-2 rounded-lg animate-pulse">
-              UserInfo
+            <div className="User_Profile_Page_Bio text-transparent h-10 animate-pulse">
+              
             </div>
 
             <div className="User_Profile_Page_Interactive_Bar">
@@ -155,10 +155,10 @@ export default function UserProfile({ params }: { params: { id: string } }) {
             </div>
           </div>
 
-          <div className="shadow-inner bg-secondary-2/20 grow h-full w-full rounded-xl">
+          <div className="shadow-inner flex items-center justify-center text-center grow h-full w-full rounded-xl">
             {isBlocked || blocked ? (
               <div className="text-4xl font-semibold text-center">
-                You're not allowed to view this user profile
+                You're unable to view this user profile
               </div>
             ) : (
               <div className="h-[500px]"></div>

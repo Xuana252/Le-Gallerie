@@ -4,7 +4,7 @@ import { User } from "@lib/types";
 import { headers } from "next/headers";
 
 export const signUp = async (user: any) => {
-  const response = await fetch(`${process.env.DOMAIN_NAME}/api/users/new`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/new`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -20,7 +20,7 @@ export const signUp = async (user: any) => {
 
 export const updateUser = async (user: User) => {
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/users/${user._id}`,
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user._id}`,
     {
       method: "PATCH",
       headers: {
@@ -34,7 +34,7 @@ export const updateUser = async (user: User) => {
 };
 
 export const fetchUserWithId = async (user: string) => {
-  const response = await fetch(`${process.env.DOMAIN_NAME}/api/users/${user}`);
+  const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user}`);
   const data = await response.json();
   return data;
 };
@@ -42,7 +42,7 @@ export const fetchUserWithId = async (user: string) => {
 export const blockUser = async (user: string, blockUser: string) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users/${user}/blocks/${blockUser}`,
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user}/blocks/${blockUser}`,
       {
         method: "PATCH",
         body: JSON.stringify({}),
@@ -59,7 +59,7 @@ export const blockUser = async (user: string, blockUser: string) => {
 export const fetchUserBlockedList = async (user: string) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users/${user}/blocks`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user}/blocks`
     );
     const data = await response.json();
     if (response.ok) return data;
@@ -72,7 +72,7 @@ export const fetchUserBlockedList = async (user: string) => {
 export const sendVerificationCode = async (email: String) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users/verify/${email}`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/verify/${email}`
     );
     const data = await response.json();
     if (response.ok) return { id: data.id, code: data.code };
@@ -85,7 +85,7 @@ export const sendVerificationCode = async (email: String) => {
 export const checkExistingEmail = async (email: String) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users/verify/${email}/exist`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/verify/${email}/exist`
     );
     if (response.ok) return true;
     return false;
@@ -97,7 +97,7 @@ export const checkExistingEmail = async (email: String) => {
 
 export const changeUserPassword = async (user: string, newpassword: string) => {
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/users/${user}/change-password`,
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user}/change-password`,
     {
       method: "PATCH",
       headers: {
@@ -112,9 +112,13 @@ export const changeUserPassword = async (user: string, newpassword: string) => {
   return false;
 };
 
-export const fetchUsers = async (searchText: string) => {
+export const fetchUsers = async (
+  limit: number,
+  currentPage: number,
+  searchText: string
+) => {
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/users?searchText=${searchText}`,
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users?searchText=${searchText}&page=${currentPage}&limit=${limit}`,
     {
       headers: new Headers(headers()),
     }

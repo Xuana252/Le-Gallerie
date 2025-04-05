@@ -6,16 +6,13 @@ export default function HoverButton({
 }: {
   buttonSet: { name: string; func: any }[];
 }) {
-  const [gridCols, setGridCols] = useState("grid-cols-1");
+
   const [hoverIndex, setHoverIndex] = useState(0);
 
-  useEffect(() => {
-    setGridCols(`grid-cols-${buttonSet.length}`);
-  }, [buttonSet]);
 
   return (
     <div
-      className={`grid ${gridCols} gap-2 items-center content-center rounded-full bg-primary relative overflow-hidden p-1 border-4 border-primary`}
+      className={`grid ${`grid-cols-${buttonSet.length}`} gap-2 items-center w-fit content-center rounded-full bg-primary relative overflow-hidden p-1 border-4 border-primary`}
     >
       <div
         className={`h-full bg-accent  absolute z-0 rounded-full transition-all duration-500 ease-in-out`}

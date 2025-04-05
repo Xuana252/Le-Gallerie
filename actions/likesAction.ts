@@ -10,7 +10,7 @@ export const handleLike = async (
   const isRateLimited = await checkLikeRateLimit();
   if (isRateLimited) return;
   try {
-    await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}/likes`, {
+    await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}/likes`, {
       method: "PATCH",
       body: JSON.stringify({
         userId: user,
@@ -25,7 +25,7 @@ export const handleLike = async (
 export const fetchPostLikedUser = async (post: string) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/posts/${post}/likes`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}/likes`
     );
     const data = await response.json();
     return data;
@@ -38,7 +38,7 @@ export const fetchPostLikedUser = async (post: string) => {
 export const fetchUserLikes = async (userId: string) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users/${userId}/likes`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${userId}/likes`
     );
     if (response.ok) {
       const { likes, counts } = await response.json();
@@ -55,7 +55,7 @@ export const fetchUserLikes = async (userId: string) => {
 export const fetchUserPostsLikes = async (userId: string) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users/${userId}/posts/likes`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${userId}/posts/likes`
     );
 
     if (response.ok) {

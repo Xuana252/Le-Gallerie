@@ -7,8 +7,8 @@ import CredentialsProvider, {
   CredentialInput,
 } from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
-import {db} from '@lib/firebase'
-import { setDoc,doc } from "firebase/firestore";
+import { db } from "@lib/firebase";
+import { setDoc, doc } from "firebase/firestore";
 import { knock } from "@lib/knock";
 
 export const options: NextAuthOptions = {
@@ -74,16 +74,19 @@ export const options: NextAuthOptions = {
     }),
   ],
   pages: {
-    signIn: "/sign-in", // Use your custom sign-in page
+    signIn: "/sign-in", 
     signOut: "/",
     error: "/",
   },
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      return url.startsWith(baseUrl) ? url : `${baseUrl}/home`;
+    },
+    
     async signIn({ user, account, profile, email, credentials }) {
       if (credentials) {
-        if (credentials?.error) 
-          return false;
-        return true
+        if (credentials?.error) return false;
+        return true;
       }
       try {
         await connectToDB();
@@ -108,24 +111,24 @@ export const options: NextAuthOptions = {
 
           const newUser = await User.create({
             username: user.name ?? "unknown",
-            fullname:"",
-            birthdate:"",
+            fullname: "",
+            birthdate: "",
             email: user.email,
             password: hashedPassword,
             image: "",
             bio: "",
-            follower:0,
-            following:0,
-            blocked:[],
+            follower: 0,
+            following: 0,
+            blocked: [],
           });
 
-          const knockUser = await knock.users.identify(newUser._id.toString(),{
-            name:user.name||'',
-            email:user.email||'',
-          })
+          const knockUser = await knock.users.identify(newUser._id.toString(), {
+            name: user.name || "",
+            email: user.email || "",
+          });
 
-          await setDoc(doc(db, 'usersChat', newUser._id.toString()), {
-            chat: []
+          await setDoc(doc(db, "usersChat", newUser._id.toString()), {
+            chat: [],
           });
         }
         return true;
@@ -134,26 +137,58 @@ export const options: NextAuthOptions = {
         return false;
       }
     },
-    async session({ session, token }) {
-      if (session?.user?.email) {
+    async jwt({ token, user }) {
+      // If user logs in, store user data in token
+      if (user) {
+        token.id = user.id;
+        token.name = user.name || "";
+        token.image = user.image || "";
+        token.bio = user.bio || "";
+        token.follower = user.follower || 0;
+        token.following = user.following || 0;
+        token.blocked = user.blocked?.map((u: any) => u.toString()) || [];
+        token.createdAt = user.createdAt || null;
+        token.fullname = user.fullname || "";
+        token.birthdate = user.birthdate || "";
+      }
+
+      // If token already contains user data, avoid DB query
+      if (token.id) {
         try {
-          const sessionUser = await User.findOne({ email: session.user.email });
+          const sessionUser = await User.findOne({ email: token.email });
           if (sessionUser) {
-            session.user.name = sessionUser.username || "";
-            session.user.image = sessionUser.image || "";
-            session.user.id = sessionUser._id.toString();
-            session.user.bio = sessionUser.bio || "";
-            session.user.follower = sessionUser.follower||0;
-            session.user.following = sessionUser.following||0;
-            session.user.blocked = sessionUser.blocked.map((user:any)=>user.toString())||[];
-            session.user.createdAt = sessionUser.createdAt||null;
-            session.user.fullname = sessionUser.fullname||"";
-            session.user.birthdate = sessionUser.birthdate||"";
+            token.id = sessionUser._id.toString();
+            token.name = sessionUser.username || "";
+            token.image = sessionUser.image || "";
+            token.bio = sessionUser.bio || "";
+            token.follower = sessionUser.follower || 0;
+            token.following = sessionUser.following || 0;
+            token.blocked =
+              sessionUser.blocked.map((u: any) => u.toString()) || [];
+            token.createdAt = sessionUser.createdAt || null;
+            token.fullname = sessionUser.fullname || "";
+            token.birthdate = sessionUser.birthdate || "";
           }
         } catch (error) {
-          console.log("Error fetching user for session:", error);
+          console.error("Error fetching user for JWT:", error);
         }
       }
+      return token;
+    },
+
+    async session({ session, token }) {
+      session.user = {
+        id: token.id as string,
+        name: token.name as string,
+        image: token.image as string ,
+        bio: token.bio as string,
+        follower: token.follower as number,
+        following: token.following as number,
+        blocked: token.blocked as any,
+        createdAt: token.createdAt as any,
+        fullname: token.fullname as string,
+        birthdate: token.birthdate as string,
+      };
       return session;
     },
   },

@@ -23,7 +23,7 @@ import {
   faPalette,
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
-import { getSession, useSession } from "@node_modules/next-auth/react";
+import { getSession, signIn, useSession } from "@node_modules/next-auth/react";
 import React, { Dispatch, SetStateAction, useState } from "react";
 import { useRouter } from "@node_modules/next/navigation";
 import { deleteChat, leaveChat } from "@lib/Chat/chat";
@@ -71,8 +71,7 @@ export default function SettingView({
     }
     try {
       const response = await blockUser(session.user.id, userId);
-      const newSession = await getSession();
-      await update(newSession);
+      update()
       if (!response) {
         setBlocked(!blocked);
       }
@@ -118,14 +117,16 @@ export default function SettingView({
           <ImageGroupDisplay
             images={
               chat.type === "group"
-                ? chat.image?[chat.image]:chatInfo.users
-                    .filter(
-                      (user: User) =>
-                        chat.memberIds.findIndex(
-                          (id: string) => id === user._id
-                        ) !== -1
-                    )
-                    .map((u: User) => u.image)
+                ? chat.image
+                  ? [chat.image]
+                  : chatInfo.users
+                      .filter(
+                        (user: User) =>
+                          chat.memberIds.findIndex(
+                            (id: string) => id === user._id
+                          ) !== -1
+                      )
+                      .map((u: User) => u.image)
                 : [chatInfo.users[0].image]
             }
           />

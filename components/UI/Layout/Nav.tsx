@@ -13,7 +13,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import InputBox from "../../Input/InputBox";
 import DropDownButton from "../../Input/DropDownButton";
 import { signOut, useSession } from "next-auth/react";
-import { SetStateAction, useEffect, useState } from "react";
+import { SetStateAction, useEffect, useReducer, useState } from "react";
 import UserProfileIcon from "../Profile/UserProfileIcon";
 import { createContext, Dispatch } from "react";
 import ThemeList from "@theme/ThemesList";
@@ -26,8 +26,8 @@ export const ButtonSet = () => {
   const { data: session } = useSession();
   const pathName = usePathname();
   const [windowSize, setSize] = useState(0);
-  const [unseenMessageCount,setUnseenMessageCount] = useState(0)
-  const [unseenNotificationCount,setUnseenNotificationCount] = useState(0)
+  const [unseenMessageCount, setUnseenMessageCount] = useState(0);
+  const [unseenNotificationCount, setUnseenNotificationCount] = useState(0);
 
   useEffect(() => {
     const handleResize = () => setSize(window.innerWidth);
@@ -37,9 +37,9 @@ export const ButtonSet = () => {
     };
   }, []);
 
-  useEffect(()=> {
-    setSize(window.innerWidth)
-  },[])
+  useEffect(() => {
+    setSize(window.innerWidth);
+  }, []);
 
   const ButtonSet = (
     <>
@@ -51,7 +51,7 @@ export const ButtonSet = () => {
             </button>
           </Link>
           <ChatButton returnUnseenCount={setUnseenMessageCount} />
-          <NotificationButton  returnUnseenCount={setUnseenNotificationCount} />
+          <NotificationButton returnUnseenCount={setUnseenNotificationCount} />
         </>
       )}
       <DropDownButton dropDownList={<ThemeList />}>
@@ -77,10 +77,10 @@ export const ButtonSet = () => {
           <div className="Icon relative">
             <div
               className={`${
-                unseenMessageCount+unseenNotificationCount > 0 ? "" : "hidden"
+                unseenMessageCount + unseenNotificationCount > 0 ? "" : "hidden"
               } absolute top-1 right-1 rounded-full size-4 bg-primary text-accent text-xs font-bold `}
             >
-              {unseenMessageCount+unseenNotificationCount}
+              {unseenMessageCount + unseenNotificationCount}
             </div>
             <FontAwesomeIcon icon={faEllipsisVertical} />
           </div>
@@ -90,7 +90,7 @@ export const ButtonSet = () => {
   );
 };
 type SearchContextType = {
-  category: Category[],
+  category: Category[];
   searchText: string;
   handleSetCategory: (category: Category) => void;
   handleSearch: (text: string) => void;
@@ -100,10 +100,11 @@ type ChatContextType = {
   chatInfo: any;
   setChatInfo: (chat: any) => void;
 };
+
 export const SearchContext = createContext<SearchContextType>({
   category: [],
   searchText: "",
-  handleSetCategory: ()=> {},
+  handleSetCategory: () => {},
   handleSearch: () => {},
 });
 
@@ -112,20 +113,46 @@ export const ChatContext = createContext<ChatContextType>({
   setChatInfo: () => {},
 });
 
+type SearchState = {
+  text: string;
+  category: Category[];
+};
+
+type SearchAction =
+  | { type: "Search"; payload: string }
+  | { type: "Select_Category"; payload: Category[] };
+
+const reducer = (state: SearchState, action: SearchAction): SearchState => {
+  switch (action.type) {
+    case "Search":
+      return { ...state, text: action.payload };
+    case "Select_Category":
+      return { ...state, category: action.payload };
+    default:
+      return state;
+  }
+};
+
+const initialState = { text: "", category: [] };
+
 export default function Nav({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
-  const pathName = usePathname();
-  const textParams = searchParams.get("text")||""
+  const textParams = searchParams.get("text") || "";
   const router = useRouter();
 
+  const [searchState, dispatch] = useReducer(reducer, initialState);
+
   const [pendingText, setPendingText] = useState(textParams);
-  const [searchText, setSearchText] = useState(textParams);
-  const [category,setCategory] = useState<Category[]>([])
+
   const [chatInfo, setChat] = useState(null);
 
   const handleSetCategory = (category: Category) => {
-    setCategory([category])
-  }
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.set("category", category.name);
+
+    router.push(`/search?${newParams.toString()}`);
+    dispatch({ type: "Select_Category", payload: [category] });
+  };
   const handleSearchTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPendingText(e.target.value);
   };
@@ -135,43 +162,46 @@ export default function Nav({ children }: { children: React.ReactNode }) {
   };
 
   const handleSearch = (text: string) => {
-    setPendingText(text);
-    setSearchText(text);
+    if(!text) return
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.set("text", text);
+
+    router.push(`/search?${newParams.toString()}`);
+    dispatch({ type: "Search", payload: text });
   };
+
   const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-
       const finalText = pendingText
         .trim()
         .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[\u0300-\u036f]/g, "");
       handleSearch(finalText);
     }
   };
 
-  useEffect(()=>{
-    if(searchText||category.length>0) {
-      router.push(`/search?text=${searchText}`)
-    }
-  },[searchText,category])
-
-  useEffect(()=>{
-    setPendingText(textParams)
-    setSearchText(textParams)
-  },[textParams])
-  
+  useEffect(() => {
+    textParams !== "" && handleSearch(textParams);
+  }, [textParams]);
 
   return (
     <>
       <ChatContext.Provider value={{ chatInfo, setChatInfo }}>
-        <SearchContext.Provider value={{ searchText, category ,handleSetCategory, handleSearch }}>
+        <SearchContext.Provider
+          value={{
+            searchText: searchState.text,
+            category: searchState.category,
+            handleSetCategory,
+            handleSearch,
+          }}
+        >
           <nav className="Nav_bar">
             <div className="justify-between pointer-events-auto h-full w-full gap-1 px-2 items-center flex">
               <div className="flex items-center">
                 <button
                   className="flex gap-2 items-center px-2"
                   onClick={() => {
-                    router.push("/home"), handleSearch("");
+                    router.push("/home");setPendingText("")
                   }}
                 >
                   <div className="font-AppLogo text-3xl">AppLogo</div>
@@ -196,7 +226,7 @@ export default function Nav({ children }: { children: React.ReactNode }) {
             </div>
           </nav>
           {children}
-          {chatInfo&&<ChatBox />}
+          {chatInfo && <ChatBox />}
         </SearchContext.Provider>
       </ChatContext.Provider>
     </>

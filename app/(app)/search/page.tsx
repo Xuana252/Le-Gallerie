@@ -1,8 +1,7 @@
 "use client";
 import Feed from "@components/UI/Layout/Feed";
 import MultiTabContainer from "@components/UI/Layout/MultiTabContainer";
-
-import UsersBar from "@components/UI/Layout/UsersBar";
+import UsersTab from "@components/UI/Layout/UsersTab";
 import {
   faBorderAll,
   faHeart,
@@ -29,15 +28,13 @@ export default function Search() {
           ),
         },
         {
-            head: (
-              <>
-                <FontAwesomeIcon icon={faPortrait} /> Users
-              </>
-            ),
-            body: (
-             <UsersBar/>
-            ),
-          },
+          head: (
+            <>
+              <FontAwesomeIcon icon={faPortrait} /> Users
+            </>
+          ),
+          body: (<UsersTab />),
+        },
       ]}
     />
   );

@@ -22,8 +22,8 @@ const config: Config = {
         accent: "rgba(var(--accent))",
       },
       animation: {
-        fadeIn: "fadeIn 0.7s ease-in-out ",
-        slideUp: 'slideUp 0.7s ease-in-out',
+        fadeIn: "fadeIn 0.5s ease-in-out ",
+        slideUp: 'slideUp 0.5s ease-in-out',
         slideRight: 'slideRight 0.7s ease-in-out',
         slideLeft: 'slideLeft 0.7s ease-in-out',
         highlight: 'highlighted 2s ease-in-out',

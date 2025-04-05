@@ -100,7 +100,7 @@ export default function SideBar({ children }: { children: ReactNode }) {
                 key={sectionIndex}
                 className="Side_bar_section transition-all duration-200 ease-in-out"
               >
-                <li className="text-primary text-sm">{section.section}</li>
+                <li className="text-accent/50 text-sm">{section.section}</li>
                 <hr className="border-none bg-primary h-[1px]" />
                 {section.items.map((item, index) => (
                   <div className="w-full" key={index}>

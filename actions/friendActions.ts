@@ -5,7 +5,7 @@ import { FriendState } from "@enum/friendStateEnum";
 export const checkFriendState = async (userId1: string, userId2: string) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users/${userId1}/friends/${userId2}`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${userId1}/friends/${userId2}`
     );
     const data = await response.json();
     if (response.ok) return data.state ?? FriendState.UNFRIEND;
@@ -17,7 +17,7 @@ export const checkFriendState = async (userId1: string, userId2: string) => {
 
 export const sendFriendRequest = async (userId1: string, userId2: string) => {
   try {
-    await fetch(`${process.env.DOMAIN_NAME}/api/friends`, {
+    await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/friends`, {
       method: "PATCH",
       body: JSON.stringify({ userId1: userId1, userId2: userId2 }),
     });
@@ -28,7 +28,7 @@ export const sendFriendRequest = async (userId1: string, userId2: string) => {
 
 export const removeFriendRequest = async (userId1: string, userId2: string) => {
   try {
-    await fetch(`${process.env.DOMAIN_NAME}/api/friends`, {
+    await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/friends`, {
       method: "DELETE",
       body: JSON.stringify({ userId1: userId1, userId2: userId2 }),
     });
@@ -40,7 +40,7 @@ export const removeFriendRequest = async (userId1: string, userId2: string) => {
 export const fetchFriendRequest = async (userId: string) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/user/${userId}/friends/request`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/user/${userId}/friends/request`
     );
     return response.ok ? await response.json() : [];
   } catch (error) {
@@ -52,7 +52,7 @@ export const fetchFriendRequest = async (userId: string) => {
 export const fetchUserFriends = async (userId:string) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users/${userId}/friends`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${userId}/friends`
     );
     const data = await response.json();
     if (response.ok) return { users: data.users, length: data.length };

@@ -2,6 +2,7 @@
 import React, {
   Dispatch,
   SetStateAction,
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -27,6 +28,7 @@ import {
 } from "@actions/postActions";
 import { useSession } from "next-auth/react";
 import { set } from "mongoose";
+import toastError from "@components/Notification/Toaster";
 type FeedProps = {
   userIdFilter?: string;
   userIdLikedFilter?: boolean;
@@ -37,6 +39,8 @@ type FeedProps = {
   showCateBar?: boolean;
   showResults?: boolean;
   searchFeed?: boolean;
+  state?: any;
+  updatestate?: (newState: any) => void;
 };
 
 export default function Feed({
@@ -49,23 +53,66 @@ export default function Feed({
   setPostCount,
   showResults = false,
   searchFeed = false,
+  state,
+  updatestate,
 }: FeedProps) {
   const { searchText, category } = useContext(SearchContext);
   const [categoriesFilter, setCategoriesFilter] = useState<Category[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>();
 
-  const [gridColStyle, setGridColStyle] = useState("grid-colds-1");
-  const [colsNum, setColsNum] = useState(1);
+  const [isMount, setIsMount] = useState(false);
+  const [gridColStyle, setGridColStyle] = useState("grid-colds-2");
+  const [colsNum, setColsNum] = useState(2);
 
   const [searchCount, setSearchCount] = useState(0);
 
-  const [page, setPage] = useState(1); // Track the current page
-  const [limit] = useState(10); // Number of posts per page
+  const [page, setPage] = useState<number>(1); // Track the current page
+  const [limit] = useState(30); // Number of posts per page
   const [hasMore, setHasMore] = useState(true); // Whether there are more posts to load
   const observerRef = useRef<IntersectionObserver | null>(null); // Ref to handle scroll observation
   const feedRef = useRef<HTMLUListElement>(null); // Ref to the feed container
+
+  const handleResize = useCallback(() => {
+    const width = feedRef.current?.offsetWidth || window.innerWidth;
+
+    if (width > 1600) {
+      setGridColStyle("grid-cols-7");
+      setColsNum(7);
+    } else if (width > 1280) {
+      setGridColStyle("grid-cols-6");
+      setColsNum(6);
+    } else if (width > 900) {
+      setGridColStyle("grid-cols-5");
+      setColsNum(5);
+    } else if (width > 720) {
+      setGridColStyle("grid-cols-4");
+      setColsNum(4);
+    } else if (width > 600) {
+      setGridColStyle("grid-cols-3");
+      setColsNum(3);
+    } else {
+      setGridColStyle("grid-cols-2");
+      setColsNum(2);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (feedRef.current) handleResize();
+  }, [feedRef.current]);
+
+  useEffect(() => {
+    setLoading(Object.keys(state || {}).length === 0);
+    setIsMount(true);
+
+    // Initial check
+    handleResize();
+
+    // Listen to window resize
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const fetchPosts = async (
     currentPage = 1,
@@ -92,62 +139,74 @@ export default function Feed({
         : await fetchUserPost(userIdFilter, currentPage, limit);
 
       setPostCount && setPostCount(response.counts);
-      if (searchText || categoriesFilter.length > 0) {
-        setSearchCount(response.counts);
-      }
-      if (response.posts.length + posts.length === response.counts) {
-        setHasMore(false); // No more posts to load
-      }
+
+      setSearchCount(response.counts);
+
+      const hasmore = response.posts.length + posts.length < response.counts;
+
+      setHasMore(hasmore);
+
       if (currentPage === 1) {
         setPosts(response.posts); // Replace posts if it's the first page
       } else {
         setPosts((prevPosts) => [...prevPosts, ...response.posts]); // Append posts for subsequent pages
       }
     } catch (error) {
-      setError("Failed to fetch for post: " + error);
+      toastError("Failed to fetch for posts");
     }
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
+    setLoading(false);
   };
 
   useEffect(() => {
+    return () => {
+      updatestate &&
+        !isLoading &&
+        updatestate({
+          posts,
+          count: searchCount,
+          hasMore,
+          page,
+        });
+    };
+  }, [posts, searchCount, hasMore, page]);
+
+  useEffect(() => {
+    if (Object.keys(state || {}).length !== 0) {
+      setPosts(state.posts || []);
+      setSearchCount(state.count || 0);
+      setPage(state.page || 1);
+      setHasMore(state.hasMore || false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isMount && Object.keys(state || {}).length !== 0) return;
+
     setPage(1);
-    setPosts([]); // Reset posts on search
-    setHasMore(true); // Reset hasMore for new search
+    setSearchCount(0);
+    setPosts([]);
+    setHasMore(true);
   }, [searchText, categoriesFilter]);
 
   useEffect(() => {
+    if (!isMount && Object.keys(state || {}).length !== 0) return;
     setCategoriesFilter(category);
   }, [category]);
 
   useEffect(() => {
-    if (searchFeed) {
-      fetchPosts(page, searchText, categoriesFilter, relatePostFilter);
+    if (!isMount && Object.keys(state || {}).length !== 0) return;
+
+    if (relatePostFilter) {
+      fetchPosts(page, "", [], relatePostFilter);
+    } else if (searchFeed) {
+      fetchPosts(page, searchText, categoriesFilter, "");
     } else {
       fetchPosts(page, "", [], "");
     }
-  }, [
-    page,
-    userIdFilter,
-    userIdLikedFilter,
-    searchText,
-    categoriesFilter,
-    relatePostFilter,
-  ]);
+  }, [searchText, categoriesFilter, relatePostFilter]);
 
   const handleCategoriesFilerChange = (categories: Category[]) => {
     setCategoriesFilter(categories);
-  };
-
-  const debounce = (func: Function, delay: number) => {
-    let timeoutId: NodeJS.Timeout;
-    return (...args: any) => {
-      if (timeoutId) clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        func(...args);
-      }, delay);
-    };
   };
 
   // Infinite scroll logic
@@ -155,53 +214,28 @@ export default function Feed({
     if (isLoading || !hasMore) return;
     if (observerRef.current) observerRef.current.disconnect();
 
-    observerRef.current = new IntersectionObserver(
-      debounce((entries: any) => {
-        entries.forEach((entry: any) => {
-          if (entry.isIntersecting && hasMore) {
-            setPage((prevPage) => prevPage + 1);
+    observerRef.current = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && hasMore) {
+          if (searchFeed) {
+            fetchPosts(
+              page + 1,
+              searchText,
+              categoriesFilter,
+              relatePostFilter
+            );
+          } else {
+            fetchPosts(page + 1, "", [], "");
           }
-        });
-      }, 500)
-    );
+          observerRef.current?.disconnect();
+          setPage((prevPage) => prevPage + 1);
+        }
+      });
+    });
 
     if (node) observerRef.current.observe(node);
   };
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (!feedRef.current) return;
-      const width = feedRef.current.offsetWidth;
-
-      if (width > 1600) {
-        setGridColStyle("grid-cols-7");
-        setColsNum(7);
-      } else if (width > 1280) {
-        setGridColStyle("grid-cols-6");
-        setColsNum(6);
-      } else if (width > 900) {
-        setGridColStyle("grid-cols-5");
-        setColsNum(5);
-      } else if (width > 720) {
-        setGridColStyle("grid-cols-4");
-        setColsNum(4);
-      } else if (width > 600) {
-        setGridColStyle("grid-cols-3");
-        setColsNum(3);
-      } else {
-        setGridColStyle("grid-cols-2");
-        setColsNum(2);
-      }
-    };
-
-    // Initial check
-    handleResize();
-
-    // Listen to window resize
-    window.addEventListener("resize", handleResize);
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
   return (
     <section className="w-full h-fit min-h-screen ">
       {showCateBar && (
@@ -210,9 +244,7 @@ export default function Feed({
           selected={categoriesFilter}
         />
       )}
-      {error ? (
-        <div>Error:{error}</div>
-      ) : posts.length === 0 && !isLoading ? (
+      {posts.length === 0 && !isLoading ? (
         <div className="text-accent text-center text-xl size-fit p-4 h-screen w-full bg-accent/20 justify-center flex flex-col gap-2 ">
           <FontAwesomeIcon icon={faArchive} size="2xl" />
           No post found :/
@@ -222,7 +254,7 @@ export default function Feed({
           {showResults &&
             searchCount > 0 &&
             (searchText || categoriesFilter.length > 0) && (
-              <div className="text-left text-2xl p-2 text-accent font-bold">
+              <div className="text-left animate-slideRight text-2xl p-2 text-accent font-bold">
                 Found {searchCount} posts
               </div>
             )}
@@ -240,7 +272,12 @@ export default function Feed({
                     return (
                       <div
                         key={post._id}
-                        ref={index === posts.length - 1 ? lastPostRef : null}
+                        ref={
+                          index === posts.length - 1 && hasMore
+                            ? lastPostRef
+                            : null
+                        }
+                        className="hover:scale-105 transition-all duration-300 ease-out animate-slideUp "
                       >
                         <PostCard post={post} isLoading={false} />
                       </div>

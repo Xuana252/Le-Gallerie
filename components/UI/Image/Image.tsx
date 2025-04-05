@@ -18,6 +18,7 @@ export default function CustomImage({ src, zoomable = false, ...props }: any) {
   const [isZoomed, setIsZoomed] = useState(false);
   const [imageSource, setImageSource] = useState<string | null>(null);
   const [isErrored, setIsErrored] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true); 
 
   const testImageUrl = (url: string) => {
     return new Promise<boolean>((resolve) => {
@@ -33,11 +34,13 @@ export default function CustomImage({ src, zoomable = false, ...props }: any) {
 
 
     const checkError = async (newSrc: string) => {
+      setIsLoading(true);
       const validUrl = await testImageUrl(newSrc);
       if (isMounted) {
         requestAnimationFrame(() => {
           setImageSource(validUrl ? newSrc : null);
           setIsErrored(false);
+          setIsLoading(false);
         });
       }
     };
@@ -51,7 +54,7 @@ export default function CustomImage({ src, zoomable = false, ...props }: any) {
 
   return (
     <>
-      {isErrored ||!imageSource ? (
+      {isErrored ||!imageSource || isLoading? (
         <div className="size-full flex items-center justify-center bg-secondary-2/30 backdrop-blur-sm">
           <span className="font-AppLogo text-[2.5em] select-none">AppLogo</span>
         </div>

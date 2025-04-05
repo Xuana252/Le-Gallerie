@@ -1,54 +1,116 @@
 "use client";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import {
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "@node_modules/next/navigation";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 export default function MultiTabContainer({
   tabs = [],
 }: {
   tabs: { head: any; body: any }[];
 }) {
-  const [gridCols, setGridCols] = useState();
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const router = useRouter();
+  const pathName = usePathname();
+  const searchParams = useSearchParams();
+  const tabIndex = searchParams.get("tab");
+  const tabsStateRef = useRef<Record<number, any>>(
+    tabs.reduce((acc, _, i) => ({ ...acc, [i]: {} }), {})
+  );
+
+  const updateTabState = useCallback((index: number, newState: any) => {
+    // Update the tab state in the ref
+
+    tabsStateRef.current[index] = {
+      ...tabsStateRef.current[index],
+      ...newState,
+    };
+  }, []);
+
+  const [selectedIndex, setSelectedIndex] = useState(
+    tabIndex ? parseInt(tabIndex) : 0
+  );
 
   const viewRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+
+
 
   useEffect(() => {
     viewRefs.current = tabs.map((_, i) => viewRefs.current[i] || null);
   }, [tabs]);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const tabIndex = viewRefs.current.findIndex(
-              (tab) => tab === entry.target
-            );
-            if (tabIndex !== -1) {
-              setSelectedIndex(tabIndex);
-            }
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
+    if (!tabIndex) return;
+    const index = parseInt(tabIndex);
+    setSelectedIndex(index >= tabs.length ? 0 : index);
+    scrollToView(index);
+  }, [tabIndex, tabs.length]);
 
-    viewRefs.current.forEach((ref) => {
-      if (ref) observer.observe(ref);
+  const handleSelectTab = (index: number) => {
+    const scrollTop = viewRefs.current[selectedIndex]?.scrollTop;
+
+    updateTabState(selectedIndex, {
+      scrollTop: scrollTop || 0,
     });
+    scrollToView(index);
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.set("tab", index.toString());
 
-    return () => {
-      viewRefs.current.forEach((ref) => {
-        if (ref) observer.unobserve(ref);
-      });
-    };
+    router.push(`?${newParams.toString()}`, { scroll: false });
+  };
+
+  useEffect(() => {
+    if (viewRefs.current[selectedIndex]) {
+      const scrollTop = tabsStateRef.current[selectedIndex]?.scrollTop || 0;
+
+      setTimeout(() => {
+        viewRefs.current[selectedIndex]?.scrollTo({
+          top: scrollTop,
+          behavior: "smooth",
+        });
+      }, 500);
+    }
+  }, [selectedIndex]);
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const handleScroll = () => {
+        const scrollLeft = scrollContainerRef.current?.scrollLeft ?? 0;
+        const tabWidth = scrollContainerRef.current?.clientWidth ?? 1;
+
+        const currentIndex = Math.round(scrollLeft / tabWidth);
+        const gap = Math.abs(scrollLeft -currentIndex - selectedIndex );
+
+        if (gap > tabWidth * 0.3) {
+          setSelectedIndex(currentIndex);
+        }
+      };
+
+      const container = scrollContainerRef.current;
+      container.addEventListener("scroll", handleScroll);
+
+      // Clean up the event listener
+      return () => {
+        container.removeEventListener("scroll", handleScroll);
+      };
+    }
   }, []);
 
   const scrollToView = (index: number) => {
     viewRefs.current[index]?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
+      behavior: "auto",
     });
   };
+
   return (
     <div
       className="w-full flex flex-col  h-full  "
@@ -69,23 +131,33 @@ export default function MultiTabContainer({
             key={index}
             className={`
                  hover:text-accent flex flex-row gap-2 items-center justify-center`}
-            onClick={() => scrollToView(index)}
+            onClick={() => handleSelectTab(index)}
           >
             {tab.head}
           </button>
         ))}
       </div>
 
-      <div className="shadow-inner grow overflow-x-scroll flex flex-row snap-x snap-mandatory no-scrollbar">
+      <div
+        ref={scrollContainerRef}
+        className="shadow-inner grow overflow-x-scroll flex flex-row snap-x snap-mandatory no-scrollbar"
+      >
         {tabs.map((tab: any, index) => (
           <div
-          key={index}
+            key={index}
             ref={(el) => {
               viewRefs.current[index] = el;
             }}
-            className={` snap-start min-w-full overflow-y-scroll no-scrollbar`}
+            className="snap-start min-w-full overflow-y-scroll no-scrollbar"
           >
-            {tab.body}
+            {index === selectedIndex ? (
+              React.cloneElement(tab.body, {
+                state: tabsStateRef.current[index],
+                updatestate: (newState: any) => updateTabState(index, newState),
+              })
+            ) : (
+              <div className="size-full"></div>
+            )}
           </div>
         ))}
       </div>

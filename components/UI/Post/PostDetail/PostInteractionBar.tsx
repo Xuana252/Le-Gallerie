@@ -180,7 +180,7 @@ export default function PostInteractionBarr({ post }: { post: Post }) {
         className={` flex relative sm:top-auto flex-col-reverse items-center sm:flex-row ml-auto justify-center rounded-full h-fit transition-all duration-150 ease-in-out overflow-hidden w-fit `}
       >
         <div
-          className={`flex flex-col-reverse  p-1 sm:flex-row gap-2  grow overflow-hidden bg-primary  ${
+          className={`flex flex-col-reverse  p-1 sm:flex-row gap-2 rounded-full grow overflow-hidden bg-primary  ${
             isToggle
               ? "translate-y-[0%] sm:translate-y-[0%] sm:translate-x-[0%]  "
               : "translate-y-[-100%] sm:translate-y-[0%] sm:translate-x-[100%] opacity-0"

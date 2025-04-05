@@ -1,7 +1,7 @@
 "use server";
 export const followUser = async (user: string, follower: string) => {
   try {
-    await fetch(`${process.env.DOMAIN_NAME}/api/users/${user}/follows`, {
+    await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user}/follows`, {
       method: "PATCH",
       body: JSON.stringify({ userId: follower }),
     });
@@ -13,7 +13,7 @@ export const followUser = async (user: string, follower: string) => {
 export const checkFollowState = async (user: string, follower: string) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users/${follower}/follows/${user}`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${follower}/follows/${user}`
     );
     const data = await response.json();
     if (response.ok) return data.followed ?? false;
@@ -26,7 +26,7 @@ export const checkFollowState = async (user: string, follower: string) => {
 export const fetchUserFollowers = async (user: string) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users/${user}/follows/followers`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user}/follows/followers`
     );
     const data = await response.json();
     if (response.ok) return { users: data.users, length: data.length };
@@ -39,7 +39,7 @@ export const fetchUserFollowers = async (user: string) => {
 export const fetchUserFollowing = async (user: string) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users/${user}/follows`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user}/follows`
     );
     const data = await response.json();
     if (response.ok) return { users: data.users, length: data.length };

@@ -81,7 +81,11 @@ export default function MyProfile() {
                 <FontAwesomeIcon icon={faBorderAll} /> All
               </>
             ),
-            body: <Feed userIdFilter={session?.user.id} />,
+            body: session?.user.id ? (
+              <Feed userIdFilter={session.user.id} />
+            ) : (
+              <div></div>
+            ),
           },
           {
             head: (
@@ -89,8 +93,10 @@ export default function MyProfile() {
                 <FontAwesomeIcon icon={faHeart} /> Liked
               </>
             ),
-            body: (
-              <Feed userIdFilter={session?.user.id} userIdLikedFilter={true} />
+            body: session?.user.id ? (
+              <Feed userIdFilter={session.user.id} userIdLikedFilter={true} />
+            ) : (
+              <div></div>
             ),
           },
         ]}

@@ -11,7 +11,7 @@ import {
   faRemove,
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
-import { useSession, getSession } from "@node_modules/next-auth/react";
+import { useSession, getSession, signIn } from "@node_modules/next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useContext, useEffect, useState } from "react";
 import { ChatContext } from "../Layout/Nav";
@@ -106,8 +106,7 @@ export default function UserInteractionBar({
     }
     try {
       const response = await blockUser(session.user.id, user._id);
-      const newSession = await getSession();
-      await update(newSession);
+      update();
       if (!response) {
         setBlocked((prev) => !prev);
       }

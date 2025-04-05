@@ -20,7 +20,13 @@ import { UserRole } from "@enum/userRolesEnum";
 // Define the base type for the props
 type BaseUserProfileIconProps = {
   currentUser: boolean;
-  size?: "Icon" | "Icon_small" | "Icon_big" | "Icon_smaller" | "Icon_message" | "Icon_bigger";
+  size?:
+    | "Icon"
+    | "Icon_small"
+    | "Icon_big"
+    | "Icon_smaller"
+    | "Icon_message"
+    | "Icon_bigger";
 };
 
 // Define the type for when currentUser is false
@@ -69,7 +75,12 @@ export default function UserProfileIcon({
 
   return (
     <div className="relative">
-      <button className={`bg-secondary-2 relative ${size} ${user?.role?.includes(UserRole.ADMIN)?"border-2 border-white":""}`} onClick={handleClick}>
+      <button
+        className={`bg-secondary-2 relative ${size} ${
+          user?.role?.includes(UserRole.ADMIN) ? "border-2 border-white" : ""
+        }`}
+        onClick={handleClick}
+      >
         {userImg ? (
           <CustomImage
             src={userImg}
@@ -83,7 +94,6 @@ export default function UserProfileIcon({
         ) : (
           <FontAwesomeIcon icon={faUser} className="m-0" />
         )}
-      
       </button>
       {user?.role?.includes(UserRole.ADMIN) && (
         <div className="absolute text-xs bottom-0 right-0 z-50 text-white rounded-full bg-black">

@@ -33,11 +33,11 @@
 }
 
 .Message_base {
-  @apply px-3 py-1 font-semibold w-full text-sm;
+  @apply overflow-hidden  font-semibold w-full text-sm;
 }
 
 .My_message {
-  @apply Message_base bg-accent text-primary;
+  @apply Message_base bg-accent  text-primary;
 }
 .My_message_upper {
   @apply My_message rounded-l-2xl rounded-tr-2xl rounded-br-md;

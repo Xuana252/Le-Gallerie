@@ -4,7 +4,7 @@ import { Reaction } from "@enum/reactionEnum";
 export const fetchPostComment = async (post: string) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/posts/${post}/comments`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}/comments`
     );
     const data = await response.json();
     return data;
@@ -16,7 +16,7 @@ export const fetchPostComment = async (post: string) => {
 export const fetchCommentReplies = async (comment: string) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/comments/${comment}/replies`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/comments/${comment}/replies`
     );
     const data = await response.json();
     return data;
@@ -33,7 +33,7 @@ export const handleComment = async (
   content: string
 ) => {
   try {
-    await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}/comments/new`, {
+    await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}/comments/new`, {
       method: "POST",
       body: JSON.stringify({
         post,
@@ -54,7 +54,7 @@ export const handleLikeComment = async (
 ) => {
   //add rate limiting if you want
   try {
-    await fetch(`${process.env.DOMAIN_NAME}/api/comments/${commentId}/likes`, {
+    await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/comments/${commentId}/likes`, {
       method: "PATCH",
       body: JSON.stringify({
         userId: userId,
@@ -69,7 +69,7 @@ export const handleLikeComment = async (
 export const fetchCommentLikes = async (commentId: string, postId: string) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/comments/${commentId}/likes`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/comments/${commentId}/likes`
     );
     const data = await response.json();
     return data;
@@ -82,7 +82,7 @@ export const fetchCommentLikes = async (commentId: string, postId: string) => {
 export const fetchUserComments = async (userId: string) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users/${userId}/comments`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${userId}/comments`
     );
 
     if (response.ok) {
@@ -100,7 +100,7 @@ export const fetchUserComments = async (userId: string) => {
 export const fetchUserCommentLikes = async (userId: string) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users/${userId}/commentslikes`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${userId}/commentslikes`
     );
 
     if (response.ok) {
@@ -118,7 +118,7 @@ export const fetchUserCommentLikes = async (userId: string) => {
 export const fetchUserPostsComments = async (userId: string) => {
   try {
     const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users/${userId}/posts/comments`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${userId}/posts/comments`
     );
 
     if (response.ok) {

@@ -1,5 +1,5 @@
 /* 🌞 LIGHT THEME - Elegant & Vibrant */
-.theme1 {
+.theme-light-elegant {
   --primary: 250, 250, 250; /* Softer white */
   --secondary: 230, 230, 230; /* Lighter gray */
   --secondary-variant-1: 150, 150, 150; /* Balanced contrast */
@@ -10,7 +10,7 @@
 }
 
 /* 🌙 DARK THEME - Sleek & Premium */
-.theme2 {
+.theme-dark-premium {
   --primary: 30, 30, 30; /* Richer dark background */
   --secondary: 70, 70, 70; /* Smooth dark gray */
   --secondary-variant-1: 110, 110, 110; /* Muted but visible */
@@ -23,16 +23,16 @@
   ); /* Soft gradient */
   color: rgb(var(--accent)); /* Light text for readability */
 }
-.theme3 {
+.theme-ocean-breeze {
   --primary: 245, 245, 245;
   --secondary: 72, 207, 203;
   --secondary-variant-1: 34, 151, 153;
   --accent: 66, 66, 66;
   background-color: rgb(var(--primary));
-  
+
   color: rgb(var(--accent));
 }
-.theme4 {
+.theme-crimson-night {
   --primary: 21, 21, 21;
   --secondary: 169, 29, 58;
   --secondary-variant-1: 199, 54, 89;
@@ -40,7 +40,7 @@
   background-color: rgb(var(--primary));
   color: rgb(var(--accent));
 }
-.theme5 {
+.theme-deep-space {
   --primary: 10, 29, 86;
   --secondary: 73, 46, 135;
   --secondary-variant-1: 55, 181, 182;
@@ -48,7 +48,7 @@
   background-color: rgb(var(--primary));
   color: rgb(var(--accent));
 }
-.theme6 {
+.theme-earthy-warm {
   --primary: 255, 248, 232;
   --secondary: 247, 238, 211;
   --secondary-variant-1: 170, 179, 150;
@@ -56,7 +56,7 @@
   background-color: rgb(var(--primary));
   color: rgb(var(--accent));
 }
-.theme7 {
+.theme-sunset-glow {
   --primary: 140, 185, 189;
   --secondary: 254, 251, 246;
   --secondary-variant-1: 236, 177, 89;
@@ -64,7 +64,7 @@
   background-color: rgb(var(--primary));
   color: rgb(var(--accent));
 }
-.theme8 {
+.theme-spring-garden {
   --primary: 245, 247, 248;
   --secondary: 252, 222, 112;
   --secondary-variant-1: 232, 184, 109;
@@ -72,7 +72,7 @@
   background-color: rgb(var(--primary));
   color: rgb(var(--accent));
 }
-.theme9 {
+.theme-coastal-vibes {
   --primary: 71, 147, 175;
   --secondary: 255, 196, 112;
   --secondary-variant-1: 221, 87, 70;
@@ -80,7 +80,7 @@
   background-color: rgb(var(--primary));
   color: rgb(var(--accent));
 }
-.theme10 {
+.theme-midnight-ruby {
   --primary: 43, 42, 76;
   --secondary: 179, 19, 18;
   --secondary-variant-1: 234, 144, 108;
@@ -88,7 +88,7 @@
   background-color: rgb(var(--primary));
   color: rgb(var(--accent));
 }
-.theme11 {
+.theme-dark-inferno {
   --primary: 0, 0, 0;
   --secondary: 207, 10, 10;
   --secondary-variant-1: 220, 95, 0;
@@ -96,7 +96,7 @@
   background-color: rgb(var(--primary));
   color: rgb(var(--accent));
 }
-.theme12 {
+.theme-modern-contrast {
   --primary: 232, 232, 232;
   --secondary: 240, 84, 84;
   --secondary-variant-1: 48, 71, 94;
@@ -104,7 +104,7 @@
   background-color: rgb(var(--primary));
   color: rgb(var(--accent));
 }
-.theme13 {
+.theme-vibrant-violet {
   --primary: 56, 20, 96;
   --secondary: 178, 31, 102;
   --secondary-variant-1: 254, 52, 110;
@@ -112,34 +112,34 @@
   background-color: rgb(var(--primary));
   color: rgb(var(--accent));
 }
-.theme14 {
+.theme-peach-dream {
   --primary: 255, 230, 200; /* Warmer peach */
   --secondary: 255, 245, 190; /* Soft buttery yellow */
   --secondary-variant-1: 165, 215, 255; /* Muted sky blue */
   --accent: 155, 150, 255; /* Deep lavender accent */
-  
-  background: linear-gradient(180deg, rgb(var(--primary)), rgb(255, 210, 180)); 
+
+  background: linear-gradient(180deg, rgb(var(--primary)), rgb(255, 210, 180));
   color: rgb(var(--accent));
 }
 
 /* 🌸 Theme 15 - Soft Blossom */
-.theme15 {
+.theme-soft-blossom {
   --primary: 250, 240, 230; /* Gentle cream */
   --secondary: 255, 245, 220; /* Warm beige */
   --secondary-variant-1: 240, 210, 195; /* Subtle blush */
   --accent: 220, 140, 160; /* Rosy pink */
-  
+
   background: linear-gradient(180deg, rgb(var(--primary)), rgb(255, 235, 215));
   color: rgb(var(--accent));
 }
 
 /* 🌿 Theme 16 - Spring Breeze */
-.theme16 {
+.theme-spring-breeze {
   --primary: 250, 250, 170; /* Pastel yellow */
   --secondary: 190, 255, 200; /* Fresh mint */
   --secondary-variant-1: 170, 225, 250; /* Soft sky blue */
   --accent: 155, 150, 255; /* Lavender blue */
-  
+
   background: linear-gradient(180deg, rgb(var(--primary)), rgb(245, 255, 200));
   color: rgb(var(--accent));
 }
@@ -180,6 +180,65 @@
   --secondary: 255, 20, 147; /* Deep Pink (Webbing Accents) */
   --secondary-variant-1: 50, 205, 255; /* Light Blue (Shoes & Hood Lining) */
   --accent: 30, 30, 30; /* Dark Gray (Shadows & Details) */
+  background-color: rgb(var(--primary));
+  color: rgb(var(--accent));
+}
+
+.theme-playstation {
+  --primary: 46, 109, 180;
+  --secondary: 223, 0, 36;
+  --secondary-variant-1: 0, 171, 159;
+  --accent: 243, 195, 0;
+  background-color: rgb(var(--primary));
+  color: rgb(var(--accent));
+}
+
+.theme-legend-of-zelda {
+  --primary: 78, 99, 108;
+  --secondary: 234, 234, 234;
+  --secondary-variant-1: 181, 12, 15;
+  --accent: 49, 10, 11;
+  background-color: rgb(var(--primary));
+  color: rgb(var(--accent));
+}
+.theme-legend-of-zelda {
+  --primary: 255, 255, 255;
+  --secondary: 250, 233, 6;
+  --secondary-variant-1: 194, 216, 73;
+  --accent: 82, 174, 65;
+  background-color: rgb(var(--primary));
+  color: rgb(var(--accent));
+}
+.theme-animal-crossing {
+  --primary: 157, 255, 176;
+  --secondary: 129, 241, 247;
+  --secondary-variant-1: 255, 255, 250;
+  --accent: 196, 141, 63;
+  background-color: rgb(var(--primary));
+  color: rgb(var(--accent));
+}
+.theme-red-dead-redemption {
+  --primary: 189, 8, 26;
+  --secondary: 254, 172, 1;
+  --secondary-variant-1: 185, 3, 3;
+  --accent: 2, 0, 2;
+  background-color: rgb(var(--primary));
+  color: rgb(var(--accent));
+}
+.theme-cyberpunk2077 {
+  --primary: 0,0,0;
+  --secondary: 254, 232, 1;
+  --secondary-variant-1:197,0,60; 
+  --accent: 85,234,212;
+  background-color: rgb(var(--primary));
+  color: rgb(var(--accent));
+}
+
+.theme-max-caulfield {
+  --primary: 255,247,196;
+  --secondary: 255,185,242;
+  --secondary-variant-1:186,186,186; 
+  --accent: 64,64,64;
   background-color: rgb(var(--primary));
   color: rgb(var(--accent));
 }

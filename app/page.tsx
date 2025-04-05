@@ -19,7 +19,7 @@ export default function Website() {
   const router = useRouter();
   const { data: session } = useSession();
 
-  // if (session?.user) router.replace("home");
+  if (session?.user) router.replace("home");
 
   const fixedPositions = [
     { left: "5%", top: "10%", scale: 0.8 },

@@ -21,9 +21,102 @@ import { useContext } from "react";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Reaction } from "@enum/reactionEnum";
+import { fetchPostWithId } from "@actions/postActions";
+import PostCard from "@components/UI/Post/PostCard";
 
 const chatRef = collection(db, "chat");
 const usersChatRef = collection(db, "usersChat");
+
+export const isLink = (text: string) => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  return urlRegex.test(text);
+};
+
+export const extractDomain = (url: string) => {
+  try {
+    const domain = new URL(url).hostname;
+    return domain;
+  } catch (error) {
+    return "";
+  }
+};
+
+export const renderAppLink = async (text: string, index = 1) => {
+  try {
+    const url = new URL(text);
+    const pathname = url.pathname;
+
+    const postRegex = /^\/post\/[a-zA-Z0-9_-]+$/;
+    if (postRegex.test(pathname)) {
+      const postId = pathname.split("/")[2];
+      const post = await fetchPostWithId(postId);
+      if (post.data !== null) {
+        return <PostCard key={index} isLoading={false} post={post.data} />;
+      }
+    }
+  } catch (error) {
+    console.error("Error in renderAppLink:", error);
+  }
+  
+  return (
+    <a
+      key={index}
+      href={text}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={` inline-block whitespace-pre-line word-normal break-all text-xs  my-2 bg-primary text-accent rounded-lg  `}
+    >
+      <div className="underline m-1">{text}</div>
+      <div className="flex flex-row gap-2 items-center text-sm mt-2 bg-accent/50 p-1 text-primary">
+        <span className="font-AppLogo text-base">AppLogo</span>
+        <span className="font-AppName text-xs">Le Gallerie</span>
+      </div>
+    </a>
+  );
+};
+
+export const renderLink = (link: string, index = 1) => {
+  return (
+    <a
+      key={index}
+      href={link}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={` inline-block whitespace-pre-line word-normal break-all text-xs  my-2 bg-primary text-accent rounded-lg  `}
+    >
+      <div className="underline m-1">{link}</div>
+      <div className="text-sm mt-2 bg-accent/50 p-1 text-primary">
+        {extractDomain(link)}
+      </div>
+    </a>
+  );
+};
+
+export const renderTextWithLinks = (text: string) => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = text.split(urlRegex);
+
+  const currentDomain = extractDomain(
+    process.env.NEXT_PUBLIC_DOMAIN_NAME || "http://localhost:3000"
+  );
+
+  return parts.map((part) => {
+    if (urlRegex.test(part)) {
+      const domain = extractDomain(part);
+
+      if (domain === currentDomain) {
+        // App-specific link
+        return { type: "appLink", content: part };
+      } else {
+        // Regular external link
+        return { type: "link", content: part };
+      }
+    }
+
+    // Plain text
+    return { type: "text", content: part };
+  });
+};
 
 export const RenderBackground = (theme: string) => {
   switch (theme) {

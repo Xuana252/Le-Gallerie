@@ -14,7 +14,7 @@ export const fetchAllPost = async (
   const categoryIds = categoryFilter.map((category) => category._id).join(",");
 
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/posts?page=${currentPage}&limit=${limit}&searchText=${searchText}&categoryIds=${categoryIds}&relatedPostId=${relatedPostFilter}`,
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts?page=${currentPage}&limit=${limit}&searchText=${searchText}&categoryIds=${categoryIds}&relatedPostId=${relatedPostFilter}`,
     {
       headers: new Headers(headers()),
     }
@@ -33,7 +33,7 @@ export const fetchUserPost = async (
   limit: number
 ) => {
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/users/${user}/posts?page=${currentPage}&limit=${limit}`,
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user}/posts?page=${currentPage}&limit=${limit}`,
     {
       headers: new Headers(headers()),
     }
@@ -51,7 +51,7 @@ export const fetchUserLikedPost = async (
   limit: number
 ) => {
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/users/${user}/posts/liked-posts?page=${currentPage}&limit=${limit}`,
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user}/posts/liked-posts?page=${currentPage}&limit=${limit}`,
     {
       headers: new Headers(headers()),
     }
@@ -69,7 +69,7 @@ export const fetchUserFollowPost = async (
   limit: number
 ) => {
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/users/${user}/posts/follow-posts?page=${currentPage}&limit=${limit}`,
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user}/posts/follow-posts?page=${currentPage}&limit=${limit}`,
     {
       headers: new Headers(headers()),
     }
@@ -87,7 +87,7 @@ export const fetchUserFriendPost = async (
   limit: number
 ) => {
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/users/${user}/posts/friend-posts?page=${currentPage}&limit=${limit}`,
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user}/posts/friend-posts?page=${currentPage}&limit=${limit}`,
     {
       headers: new Headers(headers()),
     }
@@ -100,7 +100,7 @@ export const fetchUserFriendPost = async (
 };
 
 export const fetchPostWithId = async (post: string) => {
-  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}`, {
     headers: new Headers(headers()),
   });
 
@@ -113,7 +113,7 @@ export const fetchPostWithId = async (post: string) => {
 };
 
 export const createPost = async (post: Post, user: string) => {
-  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts/new`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/new`, {
     method: "POST",
     body: JSON.stringify({ ...post, creator: user }),
   });
@@ -126,7 +126,7 @@ export const createPost = async (post: Post, user: string) => {
 
 export const updatePost = async (post: Post) => {
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/posts/${post._id}`,
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post._id}`,
     {
       method: "PATCH",
       body: JSON.stringify(post),
@@ -140,7 +140,7 @@ export const updatePost = async (post: Post) => {
 };
 
 export const deletePost = async (post: string) => {
-  await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}`, {
+  await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}`, {
     method: "DELETE",
   });
 };

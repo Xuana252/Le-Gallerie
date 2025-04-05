@@ -135,9 +135,6 @@ export default function ChatBar({
             )}
             <TextAreaInput
               value={text}
-              onKeyDown={(e) => {
-                e.key === "Enter" && handleSend();
-              }}
               style={{ border: "none" }}
               onTextChange={handleTextChange}
               type="Input"

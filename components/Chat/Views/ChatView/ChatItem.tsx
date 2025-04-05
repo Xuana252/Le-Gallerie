@@ -4,7 +4,13 @@ import PopupButton from "@components/Input/PopupButton";
 import ReactionButton from "@components/Input/ReactionInput";
 import CustomImage from "@components/UI/Image/Image";
 import UserProfileIcon from "@components/UI/Profile/UserProfileIcon";
-import { addChatItemReaction } from "@lib/Chat/chat";
+import {
+  addChatItemReaction,
+  isLink,
+  renderAppLink,
+  renderLink,
+  renderTextWithLinks,
+} from "@lib/Chat/chat";
 import { formatDateTime } from "@lib/dateFormat";
 import { getTop3Reactions, renderReaction } from "@lib/Emoji/render";
 import { User } from "@lib/types";
@@ -18,6 +24,7 @@ import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { useSession } from "@node_modules/next-auth/react";
 
 import React, { useEffect, useRef, useState } from "react";
+import { render } from "@node_modules/@types/react-dom";
 
 export default function ChatItem({
   message,
@@ -42,6 +49,35 @@ export default function ChatItem({
   const [isSetting, setIsSetting] = useState(false);
   const [dropDirection, setDropDirection] = useState<"left" | "right">("left");
   const messageRef = useRef<HTMLDivElement>(null);
+
+  const [processedMessage, setProcessMessage] = useState<string | JSX.Element[]>(
+    message.text
+  );
+
+  useEffect(() => {
+    const processLinks = async () => {
+      if (isLink(message.text)) {
+        const parts = renderTextWithLinks(message.text);
+
+        const renderPart = await Promise.all(
+          parts.map(async (part, index) => {
+            if (part.type === "appLink") {
+              return await renderAppLink(part.content, index);
+            } else if (part.type === "link") {
+              return renderLink(part.content, index);
+            } else {
+              return <span key={index}>{part.content}</span>;
+            }
+          })
+        );
+        setProcessMessage(renderPart);
+      } else {
+        setProcessMessage(message.text);
+      }
+    };
+
+    processLinks();
+  }, [message.text]);
 
   useEffect(() => {
     !isHovering && setIsSetting(false);
@@ -153,11 +189,11 @@ export default function ChatItem({
             onClick={() => setIsClicked((prev) => !prev)}
           >
             {message.delete ? (
-              <p className="italic font-normal">Message deleted</p>
+              <p className="italic font-normal px-3 py-1">Message deleted</p>
             ) : (
               <>
                 {message.image.length > 0 && (
-                  <ul className="rounded-xl flex flex-wrap overflow-hidden grow -mr-2 -ml-2 gap-1">
+                  <ul className=" flex flex-wrap overflow-hidden grow  gap-[2px]">
                     {message.image.map((url: string, index: number) => (
                       <div
                         key={index}
@@ -182,9 +218,11 @@ export default function ChatItem({
                     ))}
                   </ul>
                 )}
-                <div className="whitespace-pre-line break-words">
-                  {message.text}
-                </div>
+                {message.text && (
+                  <div className="whitespace-pre-wrap break-words px-3 py-1 ">
+                    {processedMessage}
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -219,8 +257,8 @@ export default function ChatItem({
             />
             <div
               className="relative flex flex-col z-auto"
-              onMouseEnter={() => setIsSetting(true)}
-              onMouseLeave={() => setIsSetting(false)}
+              onClick={() => setIsSetting((prev) => !prev)}
+              onBlur={() => setIsSetting(false)}
             >
               {isSetting && (
                 <div className="absolute bottom-[110%] rounded-lg bg-secondary-2 p-1 z-50 text-sm">
