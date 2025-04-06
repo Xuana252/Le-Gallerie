@@ -1,6 +1,6 @@
 "use server";
 import { Category, type Post } from "@lib/types";
-import { headers } from "next/headers";
+
 import { checkLikeRateLimit } from "./checkRateLimit";
 
 import { headers, cookies } from "next/headers";
