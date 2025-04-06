@@ -1,4 +1,6 @@
 'use server'
+
+//Get Categories  
 export const getCategories = async () => {
     const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/categories`);
     if(response.ok) {
