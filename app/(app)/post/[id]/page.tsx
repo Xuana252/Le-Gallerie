@@ -13,6 +13,8 @@ import mongoose, { Schema } from "mongoose";
 import { PostPrivacy } from "@enum/postPrivacyEnum";
 import Head from "next/head";
 
+
+
 export default function Post({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -53,22 +55,28 @@ export default function Post({ params }: { params: { id: string } }) {
     handleLocalStorage();
   }, []);
 
+  useEffect(() => {
+    if (post) {
+      document.title = post.title;
+      const ogImage = post.image[0] ? post.image[0] : '/default-image.jpg'; // Fallback image
+      const ogUrl = `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/post/${post._id}`;
+      
+      // Updating Open Graph metadata dynamically
+      const head = document.querySelector('head');
+      const metaTitle = document.querySelector('meta[property="og:title"]');
+      const metaDescription = document.querySelector('meta[property="og:description"]');
+      const metaImage = document.querySelector('meta[property="og:image"]');
+      const metaUrl = document.querySelector('meta[property="og:url"]');
+
+      if (metaTitle) metaTitle.setAttribute('content', post.title);
+      if (metaDescription) metaDescription.setAttribute('content', "Check out this amazing photo!");
+      if (metaImage) metaImage.setAttribute('content', ogImage);
+      if (metaUrl) metaUrl.setAttribute('content', ogUrl);
+    }
+  }, [post]);
+
   return (
     <section className="min-h-screen text-accent">
-      <Head>
-        <title>{post?.title}</title>
-        <meta property="og:title" content={post?.title} />
-        <meta
-          property="og:description"
-          content="Check out this amazing photo!"
-        />
-        <meta property="og:image" content={post?.image[0]} />
-        <meta
-          property="og:url"
-          content={`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/post/${post?._id}`}
-        />
-        <meta property="og:type" content="website" />
-      </Head>
       <div className="mt-4">
         <button
           className="fixed top-[110px] left-4  shadow-lg bg-secondary-1 z-40 Icon "
