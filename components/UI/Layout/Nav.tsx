@@ -98,7 +98,9 @@ type SearchContextType = {
 
 type ChatContextType = {
   chatInfo: any;
-  setChatInfo: (chat: any) => void;
+  chatList: any[];
+  setChatList: Dispatch<SetStateAction<any[]>>;
+  setChatInfo: Dispatch<SetStateAction<any>>;
 };
 
 export const SearchContext = createContext<SearchContextType>({
@@ -110,6 +112,8 @@ export const SearchContext = createContext<SearchContextType>({
 
 export const ChatContext = createContext<ChatContextType>({
   chatInfo: null,
+  chatList: [],
+  setChatList: () => {},
   setChatInfo: () => {},
 });
 
@@ -142,6 +146,8 @@ export default function Nav({ children }: { children: React.ReactNode }) {
 
   const [searchState, dispatch] = useReducer(reducer, initialState);
 
+  const [chatList, setChatList] = useState<any[]>([]);
+
   const [pendingText, setPendingText] = useState(textParams);
 
   const [chatInfo, setChat] = useState(null);
@@ -162,7 +168,7 @@ export default function Nav({ children }: { children: React.ReactNode }) {
   };
 
   const handleSearch = (text: string) => {
-    if(!text) return
+    if (!text) return;
     const newParams = new URLSearchParams(searchParams.toString());
     newParams.set("text", text);
 
@@ -186,7 +192,7 @@ export default function Nav({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <ChatContext.Provider value={{ chatInfo, setChatInfo }}>
+      <ChatContext.Provider value={{ chatInfo,chatList, setChatInfo,setChatList }}>
         <SearchContext.Provider
           value={{
             searchText: searchState.text,
@@ -201,7 +207,8 @@ export default function Nav({ children }: { children: React.ReactNode }) {
                 <button
                   className="flex gap-2 items-center px-2"
                   onClick={() => {
-                    router.push("/home");setPendingText("")
+                    router.push("/home");
+                    setPendingText("");
                   }}
                 >
                   <div className="font-AppLogo text-3xl">AppLogo</div>

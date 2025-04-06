@@ -19,6 +19,7 @@ import React, { useEffect, useState } from "react";
 import LikedUserTab from "./LikedUserTab";
 import { useRouter } from "@node_modules/next/navigation";
 import { confirm } from "@components/Notification/Toaster";
+import SharePostForm from "@components/Forms/SharePostFrom";
 
 export default function PostInteractionBarr({ post }: { post: Post }) {
   const { data: session } = useSession();
@@ -110,25 +111,7 @@ export default function PostInteractionBarr({ post }: { post: Post }) {
     }
   };
 
-  const handleShare = () => {
-    if (!post._id) return;
-    // if (navigator.share) {
-    //   // Use the Web Share API if available
-    //   navigator
-    //     .share({
-    //       title: post.title,
-    //       text: "check out this photo",
-    //       url: post.image,
-    //     })
-    //     .catch((error) => console.error("Error sharing:", error));
-    // } else {
-    //   // Fallback for browsers that do not support the Web Share API
-    //   const shareUrl = `https://twitter.com/intent/tweet?text=Check%20out%20this%20photo!&url=${encodeURIComponent(
-    //     post.image
-    //   )}`;
-    //   window.open(shareUrl, "_blank");
-    // }
-  };
+
 
   const handleDeletePost = async () => {
     const hasConfirmed = await confirm(
@@ -206,18 +189,17 @@ export default function PostInteractionBarr({ post }: { post: Post }) {
               )}
               <button
                 className="hover:bg-secondary-2 Icon_smaller "
-                onClick={handleShare}
+               
               >
                 <FontAwesomeIcon icon={faFlag} title="Report Post" />
               </button>
             </>
           )}
-          <button
-            className="hover:bg-secondary-2 Icon_smaller "
-            onClick={handleShare}
-          >
-            <FontAwesomeIcon icon={faShare} title="Share Image" />
-          </button>
+          <PopupButton popupItem={<SharePostForm post={post} />}>
+            <button className="hover:bg-secondary-2 Icon_smaller ">
+              <FontAwesomeIcon icon={faShare} title="Share Image" />
+            </button>
+          </PopupButton>
           <div className="Icon_smaller"></div>
         </div>
 

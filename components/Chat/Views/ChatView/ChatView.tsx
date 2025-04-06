@@ -33,12 +33,12 @@ import {
   addChatItemReaction,
   pinMessage,
   removeChatItem,
-  RenderBackground,
-  RenderLog,
 } from "@lib/Chat/chat";
 import { faUsb } from "@node_modules/@fortawesome/free-brands-svg-icons";
 import { v4 as uuidv4 } from "uuid";
 import ChatBar from "./ChatBar";
+import { AppLogoLoader } from "@components/UI/Loader";
+import { RenderBackground, RenderLog } from "@lib/Chat/render";
 
 export default function ChatView({
   chat,
@@ -125,7 +125,10 @@ export default function ChatView({
   };
 
   return (
-    <>
+    <div className="relative h-[400px] w-full ">
+      <div className="absolute inset-0 z-0 opacity-70 ">
+        {RenderBackground(chat?.theme)}
+      </div>
       {chat.pinned && (
         <div
           className="absolute left-[50%] -translate-x-[50%] rounded-full bg-accent w-fit p-2 mt-2 text-primary flex flex-row items-center gap-2 hover:-translate-y-[4px] hover:opacity-100 opacity-50 z-50 duration-200 ease-in-out "
@@ -163,13 +166,7 @@ export default function ChatView({
 
       <ul
         ref={messageListRef}
-        className={`h-[400px] w-full bg-secondary-1/50 flex flex-col-reverse justify-items-end gap-1 py-4 px-2 overflow-y-scroll overflow-x-auto no-scrollbar relative z-40`}
-        style={{
-          backgroundImage: `url(${RenderBackground(chat.theme)})`,
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "60%",
-        }}
+        className={`h-[400px] w-full flex flex-col-reverse justify-items-end gap-1 py-4 px-2 overflow-y-scroll overflow-x-auto no-scrollbar relative z-40`}
         onScroll={handleScroll}
       >
         {showScrollToBottom && (
@@ -182,33 +179,7 @@ export default function ChatView({
           </button>
         )}
         {isLoading ? (
-          <>
-            <div className="OtherMessageRow">
-              <div className="Other_message rounded-2xl  animate-pulse">
-                <span className="opacity-0">randomDummyText</span>
-              </div>
-            </div>
-            <div className="MyMessageRow">
-              <div className="My_message rounded-2xl  animate-pulse">
-                <span className="opacity-0">randomDummyTextButLonger</span>
-              </div>
-            </div>
-            <div className="OtherMessageRow">
-              <div className="Other_message_under  animate-pulse">
-                <span className="opacity-0">randomDummyTextShort</span>
-              </div>
-            </div>
-            <div className="OtherMessageRow">
-              <div className="Other_message_upper   animate-pulse">
-                <span className="opacity-0">No</span>
-              </div>
-            </div>
-            <div className="MyMessageRow">
-              <div className="My_message rounded-2xl  animate-pulse">
-                <span className="opacity-0">OK</span>
-              </div>
-            </div>
-          </>
+          <AppLogoLoader />
         ) : (
           [
             ...chat.message.map((message: any) => ({
@@ -316,6 +287,6 @@ export default function ChatView({
         )}
       </ul>
       <ChatBar chatInfo={chatInfo} isBlocked={isBlocked} blocked={blocked} />
-    </>
+    </div>
   );
 }

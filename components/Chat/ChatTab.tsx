@@ -31,10 +31,8 @@ import GroupChatForm from "@components/Forms/GroupChatForm";
 import { faBots } from "@node_modules/@fortawesome/free-brands-svg-icons";
 
 export default function ChatTab({
-  chatList,
   isLoading,
 }: {
-  chatList: any;
   isLoading: boolean;
 }) {
   const router = useRouter();
@@ -63,7 +61,7 @@ export default function ChatTab({
         </div>
         <div className=" w-[300px] h-[400px]  sm:w-[400px] sm:h-[500px] flex flex-col gap-2 bg-secondary-2/50 rounded-t-lg rounded-b-lg p-2">
           <FriendSearchSection onSelected={handleSelectFriend} />
-          <ChatList chatList={chatList} isLoading={isLoading} />
+          <ChatList  isLoading={isLoading} />
         </div>
       </div>
     </>

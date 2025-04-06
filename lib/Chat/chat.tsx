@@ -41,118 +41,7 @@ export const extractDomain = (url: string) => {
   }
 };
 
-export const renderAppLink = async (text: string, index = 1) => {
-  try {
-    const url = new URL(text);
-    const pathname = url.pathname;
 
-    const postRegex = /^\/post\/[a-zA-Z0-9_-]+$/;
-    if (postRegex.test(pathname)) {
-      const postId = pathname.split("/")[2];
-      const post = await fetchPostWithId(postId);
-      if (post.data !== null) {
-        return <PostCard key={index} isLoading={false} post={post.data} />;
-      }
-    }
-  } catch (error) {
-    console.error("Error in renderAppLink:", error);
-  }
-  
-  return (
-    <a
-      key={index}
-      href={text}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={` inline-block whitespace-pre-line word-normal break-all text-xs  my-2 bg-primary text-accent rounded-lg  `}
-    >
-      <div className="underline m-1">{text}</div>
-      <div className="flex flex-row gap-2 items-center text-sm mt-2 bg-accent/50 p-1 text-primary">
-        <span className="font-AppLogo text-base">AppLogo</span>
-        <span className="font-AppName text-xs">Le Gallerie</span>
-      </div>
-    </a>
-  );
-};
-
-export const renderLink = (link: string, index = 1) => {
-  return (
-    <a
-      key={index}
-      href={link}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={` inline-block whitespace-pre-line word-normal break-all text-xs  my-2 bg-primary text-accent rounded-lg  `}
-    >
-      <div className="underline m-1">{link}</div>
-      <div className="text-sm mt-2 bg-accent/50 p-1 text-primary">
-        {extractDomain(link)}
-      </div>
-    </a>
-  );
-};
-
-export const renderTextWithLinks = (text: string) => {
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-  const parts = text.split(urlRegex);
-
-  const currentDomain = extractDomain(
-    process.env.NEXT_PUBLIC_DOMAIN_NAME || "http://localhost:3000"
-  );
-
-  return parts.map((part) => {
-    if (urlRegex.test(part)) {
-      const domain = extractDomain(part);
-
-      if (domain === currentDomain) {
-        // App-specific link
-        return { type: "appLink", content: part };
-      } else {
-        // Regular external link
-        return { type: "link", content: part };
-      }
-    }
-
-    // Plain text
-    return { type: "text", content: part };
-  });
-};
-
-export const RenderBackground = (theme: string) => {
-  switch (theme) {
-    case "theme-spiderman-classic":
-      return "backgrounds/Spiderman/Spiderman.png";
-    case "theme-spiderman-miles":
-      return "backgrounds/Spiderman/MilesMorales2.png";
-    case "theme-spiderman-2099":
-      return "backgrounds/Spiderman/Spider2099.png";
-    case "theme-spiderman-symbiote":
-      return "backgrounds/Spiderman/Venom.png";
-    case "theme-spiderman-gwen":
-      return "backgrounds/Spiderman/SpiderGwen.png";
-    default:
-      return "";
-  }
-};
-
-export const RenderLog = (type: number, username: String) => {
-  switch (type) {
-    case 0:
-      return `${username} created chat`;
-    case 1:
-      return `${username} pinned a message`;
-    case 2:
-      return `${username} left the chat`;
-    case 3:
-      return `${username} was added to the chat`;
-    case 4:
-      return `${username} was kicked out`;
-    case 5:
-      return `${username} changed the theme`;
-    case 6:
-      return `${username} is the new admin`;
-  }
-};
 
 export const getLongestChat = async (userId: string) => {
   const userChatSnap = await getDoc(doc(usersChatRef, userId));
@@ -548,13 +437,14 @@ export const startChat = async (
       const newChat = await setDoc(newChatRef, {
         createAt: serverTimestamp(),
         message: [],
+        memberIds: [user._id, session.user.id],
         type: "single",
         admin: "",
         pinned: "",
         log: [
           { createdAt: new Date(), type: 0, userId: session.user.id || "" },
         ],
-        theme: "theme1",
+        theme: "theme-light-elegant",
       });
 
       await updateDoc(doc(usersChatRef, user._id), {
@@ -658,7 +548,7 @@ export const createGroupChat = async (
       admin: session.user.id || "",
       pinned: "",
       log: [{ createdAt: new Date(), type: 0, userId: session.user.id || "" }],
-      theme: "theme1",
+      theme: "theme-light-elegant",
       image: image,
     });
 

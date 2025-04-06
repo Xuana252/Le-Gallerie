@@ -33,7 +33,7 @@
 }
 
 .Message_base {
-  @apply overflow-hidden  font-semibold w-full text-sm;
+  @apply overflow-hidden  font-semibold  text-sm;
 }
 
 .My_message {

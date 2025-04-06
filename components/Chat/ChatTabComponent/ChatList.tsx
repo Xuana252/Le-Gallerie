@@ -15,14 +15,13 @@ import CustomImage from "@components/UI/Image/Image";
 import ImageGroupDisplay from "@components/UI/Image/ImageGroupDisplay";
 
 export default function ChatList({
-  chatList,
   isLoading,
 }: {
-  chatList: any;
   isLoading: boolean;
 }) {
+
   const { data: session } = useSession();
-  const { setChatInfo } = useContext(ChatContext);
+  const { setChatInfo,chatList } = useContext(ChatContext);
 
   const handleSelectChat = async (chat: any) => {
     if (!session) return;

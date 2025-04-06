@@ -2,19 +2,20 @@
 import DropDownButton from "@components/Input/DropDownButton";
 import { faCommentDots } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@lib/firebase";
 import { fetchUserWithId } from "@actions/accountActions";
 import ChatTab from "./ChatTab";
+import { ChatContext } from "@components/UI/Layout/Nav";
 
 export default function ChatButton({
   returnUnseenCount,
 }: {
   returnUnseenCount: Dispatch<SetStateAction<number>>;
 }) {
-  const [chatList, setChatList] = useState<any>([]);
+  const {setChatList}= useContext(ChatContext);
   const [unseenMessageCount, setUnseenMessageCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const { data: session } = useSession();
@@ -70,7 +71,7 @@ export default function ChatButton({
 
   return (
     <DropDownButton
-      dropDownList={<ChatTab chatList={chatList} isLoading={isLoading} />}
+      dropDownList={<ChatTab  isLoading={isLoading} />}
       Zindex={50}
     >
       <div className="relative Icon">

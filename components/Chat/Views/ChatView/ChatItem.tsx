@@ -7,9 +7,6 @@ import UserProfileIcon from "@components/UI/Profile/UserProfileIcon";
 import {
   addChatItemReaction,
   isLink,
-  renderAppLink,
-  renderLink,
-  renderTextWithLinks,
 } from "@lib/Chat/chat";
 import { formatDateTime } from "@lib/dateFormat";
 import { getTop3Reactions, renderReaction } from "@lib/Emoji/render";
@@ -25,6 +22,7 @@ import { useSession } from "@node_modules/next-auth/react";
 
 import React, { useEffect, useRef, useState } from "react";
 import { render } from "@node_modules/@types/react-dom";
+import { renderTextWithLinks, renderAppLink, renderLink } from "@lib/Chat/render";
 
 export default function ChatItem({
   message,

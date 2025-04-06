@@ -11,12 +11,13 @@ import { fetchPostWithId } from "@actions/postActions";
 import PostDetail from "@components/UI/Post/PostDetail";
 import mongoose, { Schema } from "mongoose";
 import { PostPrivacy } from "@enum/postPrivacyEnum";
+import Head from "next/head";
 
 export default function Post({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [availableState, setAvailableState] = useState(true);
-  const [post, setPost] = useState<Post|null>(null);
+  const [post, setPost] = useState<Post | null>(null);
 
   const fetchPost = async () => {
     setIsLoading(true);
@@ -54,6 +55,20 @@ export default function Post({ params }: { params: { id: string } }) {
 
   return (
     <section className="min-h-screen text-accent">
+      <Head>
+        <title>{post?.title}</title>
+        <meta property="og:title" content={post?.title} />
+        <meta
+          property="og:description"
+          content="Check out this amazing photo!"
+        />
+        <meta property="og:image" content={post?.image[0]} />
+        <meta
+          property="og:url"
+          content={`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/post/${post?._id}`}
+        />
+        <meta property="og:type" content="website" />
+      </Head>
       <div className="mt-4">
         <button
           className="fixed top-[110px] left-4  shadow-lg bg-secondary-1 z-40 Icon "

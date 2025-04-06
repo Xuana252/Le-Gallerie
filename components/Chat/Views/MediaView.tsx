@@ -29,8 +29,8 @@ export default function MediaView({
         </span>
       </div>
       <div className="grid grid-cols-3 h-[420px] overflow-y-scroll no-scrollbar gap-1 w-full p-1">
-        {chat?.message?.map((message: any, index: number) =>
-          message.image.length > 0
+        {chat?.message?.reverse().map((message: any, index: number) =>
+          message.image.length > 0 && !message.delete
             ? message.image.map((url: string) => (
                 <div
                   key={index}

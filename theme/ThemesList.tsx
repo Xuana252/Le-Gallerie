@@ -44,11 +44,17 @@ export const themeCategories = [
     name: "Gaming",
     list: [
       "theme-playstation",
+      "theme-the-witcher-3",
       "theme-legend-of-zelda",
       "theme-animal-crossing",
       "theme-red-dead-redemption",
       "theme-cyberpunk2077",
-      "theme-max-caulfield"
+      "theme-max-caulfield",
+      "theme-god-of-war",
+      "theme-elden-ring",
+      "theme-final-fantasy-vii",
+      "theme-dark-souls",
+      "theme-minecraft",
     ],
   },
 ];
@@ -63,7 +69,7 @@ export default function ThemeList() {
       <ul className={`Theme_list `} ref={themeList}>
         {themeCategories.map((category, index) => (
           <div key={index} className="w-full">
-            <div className="sticky top-0 bg-accent text-primary my-2 font-bold px-2 pb-1">
+            <div className="sticky top-0 bg-accent text-primary my-2 font-bold px-2 pb-1 font-mono">
               {category.name}
             </div>
             <div className="flex flex-wrap gap-2">
