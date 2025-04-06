@@ -1,6 +1,8 @@
 "use server";
-import { Category, Comment, type Post } from "@lib/types";
+import { Category, type Post } from "@lib/types";
+import { headers } from "next/headers";
 import { checkLikeRateLimit } from "./checkRateLimit";
+
 import { headers, cookies } from "next/headers";
 import { Reaction } from "@enum/reactionEnum";
 
@@ -25,6 +27,7 @@ export const fetchAllPost = async (
   }
   return { posts: [], counts: 0 };
 };
+
 
 
 export const fetchUserPost = async (

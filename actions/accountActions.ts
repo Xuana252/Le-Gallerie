@@ -3,6 +3,7 @@
 import { User } from "@lib/types";
 import { headers } from "next/headers";
 
+
 export const signUp = async (user: any) => {
   const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/new`, {
     method: "POST",
@@ -112,6 +113,7 @@ export const changeUserPassword = async (user: string, newpassword: string) => {
   return false;
 };
 
+
 export const fetchUsers = async (
   limit: number,
   currentPage: number,
@@ -127,3 +129,5 @@ export const fetchUsers = async (
   if (response.ok) return { users: data.users, counts: data.counts };
   return { users: [], counts: 0 };
 };
+
+
