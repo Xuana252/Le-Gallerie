@@ -6,6 +6,10 @@ import { NextApiRequest } from "next";
 import { getServerSession } from "next-auth";
 import { options } from "@app/api/auth/[...nextauth]/options";
 import User from "@models/userModel";
+import { FriendState } from "@enum/friendStateEnum";
+import Friend from "@models/friendModel";
+import { PostPrivacy } from "@enum/postPrivacyEnum";
+import { checkFriendState } from "@actions/friendActions";
 
 export const GET = async (
   req: NextRequest,
@@ -19,7 +23,7 @@ export const GET = async (
     const currentUser = await User.findById(session?.user.id);
 
     const post = await Post.findById(params.id)
-      .select("_id creator title categories description image likes createdAt")
+      .select("-updatedAt -__v")
       .populate({
         path: "creator",
         select: "-email -password -createdAt -updatedAt -__v",
@@ -30,15 +34,34 @@ export const GET = async (
       return NextResponse.json({ message: "Post not found" }, { status: 404 });
     }
 
-    if (currentUser&&(currentUser.blocked.includes(post.creator._id.toString())||post.creator.blocked.includes(currentUser._id.toString()))) {
+    if (post.creator._id.toString() === session?.user.id) {
+      return NextResponse.json(post, { status: 200 });
+    } else if (
+      post.privacy === PostPrivacy.PRIVATE ||
+      (currentUser &&
+        (currentUser.blocked.includes(post.creator._id.toString()) ||
+          post.creator.blocked.includes(currentUser._id.toString())))
+    ) {
       return NextResponse.json(
         { message: "Post not available" },
         { status: 403 }
       );
+    } else if (post.privacy === PostPrivacy.FRIEND) {
+      const state = await checkFriendState(
+        post.creator._id.toString(),
+        session?.user.id || ""
+      );
+      if (state !== FriendState.FRIEND) {
+        return NextResponse.json(
+          { message: "Post not available" },
+          { status: 403 }
+        );
+      } else {
+        return NextResponse.json(post, { status: 200 });
+      }
     } else {
       return NextResponse.json(post, { status: 200 });
     }
-
   } catch (error) {
     console.log(error);
     return NextResponse.json(
@@ -52,7 +75,7 @@ export const PATCH = async (
   req: NextRequest,
   { params }: { params: { id: string } }
 ) => {
-  const { image, categories, title, description } = await req.json();
+  const { image, categories, title, description, privacy } = await req.json();
   try {
     await connectToDB();
     const updatedPost = {
@@ -60,6 +83,7 @@ export const PATCH = async (
       categories: categories,
       title: title,
       description: description,
+      privacy: privacy,
     };
     const post = await Post.findByIdAndUpdate(params.id, updatedPost, {
       new: true,

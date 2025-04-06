@@ -3,22 +3,25 @@ import InputBox from "@components/Input/InputBox";
 import SubmitButton from "@components/Input/SubmitButton";
 import { faCheck, faL, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { UploadUser, User } from "@lib/types";
+import { UploadImage, UploadUser, User } from "@lib/types";
 import { getSession, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
-import { type SubmitButtonState } from "@lib/types";
 import { updateUser } from "@actions/accountActions";
 import ImageInput from "@components/Input/ImageInput";
 import { uploadImage, removeImage, updateImage } from "@lib/upload";
-import CustomImage from "@components/UI/Image";
+import CustomImage from "@components/UI/Image/Image";
 import DateTimePicker from "@components/Input/DateTimePicker";
 import toastError from "@components/Notification/Toaster";
+import { SubmitButtonState } from "@enum/submitButtonState";
+import TextAreaInput from "@components/Input/TextAreaInput";
 
 export default function EditPage() {
   const router = useRouter();
-  const [submitState, setSubmitState] = useState<SubmitButtonState>("");
+  const [submitState, setSubmitState] = useState<SubmitButtonState>(
+    SubmitButtonState.IDLE
+  );
   const { data: session, update } = useSession();
   const [imageToUpdate, setUpdateImage] = useState<string>(
     session?.user.image || ""
@@ -50,7 +53,7 @@ export default function EditPage() {
       });
       setUpdateImage(session.user.image || "");
     }
-  }, [session]);
+  }, []);
 
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -59,7 +62,7 @@ export default function EditPage() {
       return;
     }
     try {
-      setSubmitState("Processing");
+      setSubmitState(SubmitButtonState.PROCESSING);
       let imageUrl = "";
       if (updateInfo.image?.url) {
         if (updateInfo.image?.file) {
@@ -93,22 +96,22 @@ export default function EditPage() {
         const newSession = await getSession();
         await update(newSession);
         console.log("User updated");
-        setSubmitState("Succeeded");
+        setSubmitState(SubmitButtonState.SUCCESS);
         setTimeout(() => router.push("/profile/setting/info"), 1000);
       } else {
-        setSubmitState("Failed");
+        setSubmitState(SubmitButtonState.FAILED);
         console.log("Failed to update user");
       }
     } catch (error) {
-      setSubmitState("Failed");
+      setSubmitState(SubmitButtonState.FAILED);
       console.log("Error while updating user", error);
     }
   };
 
-  const handleImageChange = (image: { file: File | null; url: string }) => {
+  const handleImageChange = (image: UploadImage[]) => {
     setUpdateInfo((u) => ({
       ...u,
-      image,
+      image: image[0],
     }));
   };
 
@@ -119,7 +122,11 @@ export default function EditPage() {
     }));
   };
 
-  const handleInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInfoChange = (
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setUpdateInfo((c) => ({ ...c, [name]: value }));
   };
@@ -137,7 +144,7 @@ export default function EditPage() {
           <div>
             <ImageInput
               type="ProfileImage"
-              image={updateInfo.image?.url || ""}
+              image={updateInfo.image?.url ? [updateInfo.image] : []}
               setImage={handleImageChange}
             />
           </div>
@@ -145,22 +152,23 @@ export default function EditPage() {
             <InputBox
               type="Input"
               name="username"
+              maxLength={16}
               onTextChange={handleInfoChange}
               value={updateInfo.username}
             >
               Username
             </InputBox>
-            <InputBox
-              type="Input"
+            <TextAreaInput
               name="bio"
               onTextChange={handleInfoChange}
               value={updateInfo.bio}
             >
               Bio
-            </InputBox>
+            </TextAreaInput>
             <InputBox
               type="Input"
               name="fullname"
+              maxLength={30}
               onTextChange={handleInfoChange}
               value={updateInfo.fullname}
             >
@@ -183,45 +191,51 @@ export default function EditPage() {
         <h1 className="text-primary font-bold text-2xl bg-accent/30 rounded-md px-2 py-1">
           User profile preview
         </h1>
-        <h1 className="User_Profile_Page_Username">
-            {updateInfo.username || "username"}
-          </h1>
         <div className="User_Profile_Layout">
-          <div className="User_Profile_Page_Picture ">
-            {updateInfo.image?.url ? (
-              <img
-                src={updateInfo.image?.url}
-                alt={"profile picture"}
-                className="size-full"
-                width={0}
-                height={0}
-                style={{ objectFit: "cover" }}
-              />
-            ) : (
-              <FontAwesomeIcon icon={faUser} size="xl" className="size-full" />
-            )}
+          <div className="User_Info_Container">
+            <h1 className="User_Profile_Page_Username">
+              {updateInfo.username || "username"}
+            </h1>
+            <div className="User_Profile_Page_Picture_Container">
+              <div className="User_Profile_Page_Picture ">
+                {updateInfo.image?.url ? (
+                  <img
+                    src={updateInfo.image?.url}
+                    alt={"profile picture"}
+                    className="size-full"
+                    width={0}
+                    height={0}
+                    style={{ objectFit: "cover" }}
+                  />
+                ) : (
+                  <FontAwesomeIcon
+                    icon={faUser}
+                    size="xl"
+                    className="size-full"
+                  />
+                )}
+              </div>
+              <div className="User_Profile_Page_Stat_Bar">
+                <h1 className="flex flex-col items-center justify-start">
+                  <span className="font-semibold">{0}</span>
+                  Followers
+                </h1>
+                <h1 className="flex flex-col items-center justify-start">
+                  <span className="font-semibold">{0}</span>
+                  Following
+                </h1>
+                <h1 className="flex flex-col items-center justify-start">
+                  <span className="font-semibold">{0}</span>Posts
+                </h1>
+              </div>
+            </div>
+            <h2 className="User_Profile_Page_Fullname">
+              {updateInfo.fullname || "fullname"}
+            </h2>
+            <h2 className="User_Profile_Page_Bio">{updateInfo.bio || "bio"}</h2>
           </div>
-          <div className="User_Profile_Page_Stat_Bar">
-            <h1 className="flex flex-col items-center justify-start">
-              <span className="font-semibold">{0}</span>
-              Followers
-            </h1>
-            <h1 className="flex flex-col items-center justify-start">
-              <span className="font-semibold">{0}</span>
-              Following
-            </h1>
-            <h1 className="flex flex-col items-center justify-start">
-              <span className="font-semibold">{0}</span>Posts
-            </h1>
-          </div>
-        </div>
-        <div className="text-accent">
-          <h2 className="User_Profile_Page_Fullname">
-            {updateInfo.fullname || "fullname"}
-          </h2>
-          <h2 className="User_Profile_Page_Bio">
-            {updateInfo.bio || "bio"}
-          </h2>
+
+          <div className="grow size-full rounded-lg bg-secondary-2/70"></div>
         </div>
       </div>
 
@@ -231,7 +245,7 @@ export default function EditPage() {
         </h1>
         <div className="flex items-center justify-center my-2">
           <div className="User_Profile_Page_Picture ">
-            {session?.user?.image ? (
+            {updateInfo.image?.url ? (
               <img
                 src={updateInfo.image?.url}
                 alt={"profile picture"}
@@ -256,7 +270,9 @@ export default function EditPage() {
             <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">
               Bio
             </div>
-            <p className="w-[70%]">{updateInfo.bio || "bio"}</p>
+            <p className="w-[70%] whitespace-pre-wrap">
+              {updateInfo.bio || "bio"}
+            </p>
           </div>
           <div className="w-full py-2 flex flex-row">
             <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">

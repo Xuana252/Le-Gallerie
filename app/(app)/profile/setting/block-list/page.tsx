@@ -1,12 +1,17 @@
 "use client";
 import InputBox from "@components/Input/InputBox";
 import toastError from "@components/Notification/Toaster";
-import UserProfileIcon from "@components/UI/UserProfileIcon";
+import UserProfileIcon from "@components/UI/Profile/UserProfileIcon";
 import { User } from "@lib/types";
 import { blockUser, fetchUserBlockedList } from "@actions/accountActions";
 import { getSession, useSession } from "next-auth/react";
 import { useEffect, useId, useState } from "react";
 import { text } from "stream/consumers";
+import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
+import {
+  faBox,
+  faBoxArchive,
+} from "@node_modules/@fortawesome/free-solid-svg-icons";
 
 export default function BlockList() {
   const [pendingText, setPendingText] = useState("");
@@ -20,12 +25,12 @@ export default function BlockList() {
   };
 
   const handleTextClear = () => {
-    setFilterText("")
-  }
-  
+    setFilterText("");
+  };
+
   const handleSearch = () => {
-    setFilterText(pendingText)
-  }
+    setFilterText(pendingText);
+  };
   const handleUnblock = async (userId: string) => {
     if (!session?.user.id) return;
     setBlockedList((list) => list.filter((user) => user._id !== userId));
@@ -61,11 +66,12 @@ export default function BlockList() {
         "i" // Case-insensitive search
       );
       return (
-        searchPattern.test(user.fullname||"") || searchPattern.test(user.username||"")
+        searchPattern.test(user.fullname || "") ||
+        searchPattern.test(user.username || "")
       );
     });
-    setFilteredList(finalList)
-  }, [blockedList,filterText]);
+    setFilteredList(finalList);
+  }, [blockedList, filterText]);
   return (
     <section className="flex flex-col gap-4">
       <div className=" bg-secondary-1/70 rounded-lg p-4 flex flex-row gap-4">
@@ -75,13 +81,21 @@ export default function BlockList() {
           onTextChange={handleTextChange}
           onClear={handleTextClear}
         />
-        <button className="Button_variant_1" onClick={()=>handleSearch()}>Search</button>
+        <button className="Button_variant_1" onClick={() => handleSearch()}>
+          Search
+        </button>
       </div>
       <div className=" bg-secondary-1/70 rounded-lg p-4 flex flex-col gap-4">
         <h1 className="text-primary font-bold text-2xl bg-accent/30 rounded-md px-2 py-1">
           Blocked users
         </h1>
-        <ul className="flex flex-col gap-4">
+        <ul className="flex flex-col gap-4 min-h-[300px]">
+          {filteredList.length === 0 && (
+            <div className="grow rounded-xl bg-secondary-2/30 flex flex-col justify-center items-center text-xl opacity-70">
+              <FontAwesomeIcon icon={faBoxArchive} size="2xl" />
+              <p>Nothing's here yet:/</p>
+            </div>
+          )}
           {filteredList.map((user: User, index) => (
             <li
               key={index}

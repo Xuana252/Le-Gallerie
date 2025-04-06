@@ -2,7 +2,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
-import SideBar from "@components/UI/SideBar";
+import SideBar from "@components/UI/Layout/SideBar";
 import { useEffect, useState } from "react";
 
 export const metadata: Metadata = {

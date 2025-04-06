@@ -1,3 +1,6 @@
+import { PostPrivacy } from '@enum/postPrivacyEnum';
+import { Reaction } from '@enum/reactionEnum';
+import { UserRole } from '@enum/userRolesEnum';
 import { Date } from 'mongoose';
 import NextAuth from 'next-auth';
 import { DefaultUser } from 'next-auth';
@@ -19,7 +22,7 @@ declare module 'next-auth' {
   }
 }
 
-export type SubmitButtonState = 'Succeeded'|'Failed'|'Processing'|''
+
 
 export type RateLimitObject = {
   windowStart: any,
@@ -40,7 +43,9 @@ export type Like = {
   _id:string,
   user:User,
   post:Post,
+  reaction: Reaction,
 }
+
 export type User = {
   _id:string,
   email?:string,
@@ -53,6 +58,7 @@ export type User = {
   following?:number,
   followed?:boolean,
   blocked?:string[],
+  role?:UserRole,
 }
 export type UploadUser = {
   _id:string,
@@ -60,11 +66,13 @@ export type UploadUser = {
   username?:string,
   fullname?:string,
   birthdate?:string,
-  image?: {
-    file:File|null,
-    url:string,
-  },
+  image?: UploadImage,
   bio?:string,
+}
+
+export type UploadImage = {
+  file:File|null,
+  url:string,
 }
 
 export type SignUpCredentials = {
@@ -72,10 +80,7 @@ export type SignUpCredentials = {
   username: string;
   password: string;
   repeatedPassword: string;
-  image: {
-    file: File | null; // file can be a File or null
-    url: string;
-  };
+  image: UploadImage;
 };
 
 export type Post = {
@@ -84,7 +89,8 @@ export type Post = {
     title: string,
     description: string,
     categories: Category[],
-    image: string,
+    image: string[],
+    privacy: PostPrivacy,
     likes?:number,
     createdAt?: Date,
 }
@@ -94,11 +100,9 @@ export type UploadPost = {
     title: string,
     description: string,
     categories: Category[],
-    image: {
-      file:File|null,
-      url:string,
-    },
+    image:UploadImage[],
     likes?:number,
+    privacy:PostPrivacy,
 }
 export type Category = {
     _id: string,

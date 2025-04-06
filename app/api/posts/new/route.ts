@@ -3,7 +3,7 @@ import Post from "@models/postModel";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest, res: NextResponse) => {
-  const { creator, title, description, categories, image } = await req.json();
+  const { creator, title, description, categories, image,privacy } = await req.json();
 
   try {
     await connectToDB();
@@ -15,6 +15,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       categories: categories,
       image: image,
       likes: 0,
+      privacy: privacy,
     });
 
     await newPost.save();

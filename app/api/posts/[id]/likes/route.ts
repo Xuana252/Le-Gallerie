@@ -15,8 +15,7 @@ export const GET = async (
         await connectToDB()
 
         const postLikes = await Like.find({post:params.id}).populate({ path: "user", select: "-email -password -createdAt -updatedAt -__v" })
-        const users = postLikes.map(like => like.user);
-        return NextResponse.json(users,{status:200})
+        return NextResponse.json(postLikes,{status:200})
     } catch(error) {
         console.log('Failed to fetch for post likes',error)
         return NextResponse.json(
@@ -30,7 +29,8 @@ export const PATCH = async (
   req: NextRequest,
   { params }: { params: { id: string } }
 ) => {
-  const {userId} = await req.json();
+  const {userId,reaction} = await req.json();
+  console.log(reaction)
   try {
     await connectToDB();
 
@@ -39,13 +39,19 @@ export const PATCH = async (
       return NextResponse.json({ message: "Post not found" }, { status: 400 });
     }
     const liked = await Like.findOne({post:params.id,user:userId})
-    const creator = await User.findOne({_id:post.creator._id})
+    const creator = await User.findById(post.creator)
 
     if (liked) {
-      await Like.findOneAndDelete({ post: params.id, user: userId });
-      post.likes -= 1;
+      if(liked.reaction === reaction) {
+        await Like.findOneAndDelete({ post: params.id, user: userId });
+        post.likes -= 1;
+      } else {
+        liked.reaction = reaction;
+        await liked.save()
+      }
     } else {
-      const like = await Like.create({ post: params.id, user: userId });
+      const like = await Like.create({ post: params.id, user: userId,reaction:reaction });
+      console.log(like)
       post.likes += 1;
       if(userId!==post.creator._id.toString()) {
         await knock.workflows.trigger('post-like',{

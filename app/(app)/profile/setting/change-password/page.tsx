@@ -2,17 +2,17 @@
 import InputBox from "@components/Input/InputBox";
 import SubmitButton from "@components/Input/SubmitButton";
 import toastError from "@components/Notification/Toaster";
-import { SubmitButtonState } from "@lib/types";
 import { changeUserPassword, sendVerificationCode } from "@actions/accountActions";
 import { checkVerifyRateLimit } from "@actions/checkRateLimit";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useRef, useState } from "react";
+import { SubmitButtonState } from "@enum/submitButtonState";
 
 export default function ChangePassword() {
   const router = useRouter();
   const { data: session } = useSession();
-  const [submitState, setSubmitState] = useState<SubmitButtonState>("");
+  const [submitState, setSubmitState] = useState<SubmitButtonState>(SubmitButtonState.IDLE);
   const [isTimeout, setIsTimeout] = useState(false);
   const [verificationCodeText, setVerificationCodeText] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -75,16 +75,16 @@ export default function ChangePassword() {
     }
 
     try {
-      setSubmitState("Processing")
+      setSubmitState(SubmitButtonState.PROCESSING)
       const response = await changeUserPassword(session.user.id, newPassword.trim())
       if(response) {
-        setSubmitState("Succeeded")
+        setSubmitState(SubmitButtonState.SUCCESS)
         setTimeout(()=>{router.push('/sign-in')},1000)
       } else {
         throw new Error('failed to change password')
       }
     } catch (error) {
-      setSubmitState("Failed")
+      setSubmitState(SubmitButtonState.FAILED)
       toastError('failed to change password. Please try again later')
       console.log(error)
     }

@@ -1,59 +1,122 @@
 "use server";
 import { Category, type Post } from "@lib/types";
-import { headers } from "next/headers";
+
 import { checkLikeRateLimit } from "./checkRateLimit";
 
+import { headers, cookies } from "next/headers";
+import { Reaction } from "@enum/reactionEnum";
 
-export const fetchAllPost = async (currentPage: number, limit:number,searchText:string, categoryFilter:Category[]) => {
-  const categoryIds = categoryFilter.map(category => category._id).join(',');
-  
-  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts?page=${currentPage}&limit=${limit}&searchText=${searchText}&categoryIds=${categoryIds}` ,{
-    headers:new Headers(headers())
-  });
-  if (response.ok) {
-    const data = await response.json();
-    return {posts:data.posts,counts:data.counts};
-  }
-  return {posts:[],counts:0};
-};
-export const fetchUserPost = async (user: string,currentPage: number, limit:number) => {
+export const fetchAllPost = async (
+  currentPage: number,
+  limit: number,
+  searchText: string,
+  categoryFilter: Category[],
+  relatedPostFilter: string,
+) => {
+  const categoryIds = categoryFilter.map((category) => category._id).join(",");
+
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/users/${user}/posts?page=${currentPage}&limit=${limit}`,{
-      headers:new Headers(headers())
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts?page=${currentPage}&limit=${limit}&searchText=${searchText}&categoryIds=${categoryIds}&relatedPostId=${relatedPostFilter}`,
+    {
+      headers: new Headers(headers()),
     }
   );
   if (response.ok) {
     const data = await response.json();
-    return {posts:data.posts,counts:data.counts};
+    return { posts: data.posts, counts: data.counts };
   }
-  return {posts:[],counts:0};
+  return { posts: [], counts: 0 };
 };
 
-export const fetchUserLikedPost = async (user: string,currentPage: number, limit:number) => {
+
+
+export const fetchUserPost = async (
+  user: string,
+  currentPage: number,
+  limit: number
+) => {
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/users/${user}/posts/liked-posts?page=${currentPage}&limit=${limit}`,{
-      headers:new Headers(headers())
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user}/posts?page=${currentPage}&limit=${limit}`,
+    {
+      headers: new Headers(headers()),
+    }
+  );
+  if (response.ok) {
+    const {posts,counts} = await response.json();
+    return { posts, counts };
+  }
+  return { posts: [], counts: 0 };
+};
+
+export const fetchUserLikedPost = async (
+  user: string,
+  currentPage: number,
+  limit: number
+) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user}/posts/liked-posts?page=${currentPage}&limit=${limit}`,
+    {
+      headers: new Headers(headers()),
     }
   );
   if (response.ok) {
     const data = await response.json();
-    return {posts:data.posts,counts:data.counts};
+    return { posts: data.posts, counts: data.counts };
   }
-  return {posts:[],counts:0};
+  return { posts: [], counts: 0 };
+};
+
+export const fetchUserFollowPost = async (
+  user: string,
+  currentPage: number,
+  limit: number
+) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user}/posts/follow-posts?page=${currentPage}&limit=${limit}`,
+    {
+      headers: new Headers(headers()),
+    }
+  );
+  if (response.ok) {
+    const data = await response.json();
+    return { posts: data.posts, counts: data.counts };
+  }
+  return { posts: [], counts: 0 };
+};
+
+export const fetchUserFriendPost = async (
+  user: string,
+  currentPage: number,
+  limit: number
+) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user}/posts/friend-posts?page=${currentPage}&limit=${limit}`,
+    {
+      headers: new Headers(headers()),
+    }
+  );
+  if (response.ok) {
+    const data = await response.json();
+    return { posts: data.posts, counts: data.counts };
+  }
+  return { posts: [], counts: 0 };
 };
 
 export const fetchPostWithId = async (post: string) => {
-  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}`,{
-    headers:new Headers(headers())
+  const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}`, {
+    headers: new Headers(headers()),
   });
+
   const data = await response.json();
 
-  if (response.ok) return data;
-  return null;
+  if (response.ok) return { status: 200, data: data };
+  else {
+    return { status: response.status, data: null };
+  }
 };
 
 export const createPost = async (post: Post, user: string) => {
-  const response = await fetch(`${process.env.DOMAIN_NAME}/api/posts/new`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/new`, {
     method: "POST",
     body: JSON.stringify({ ...post, creator: user }),
   });
@@ -66,7 +129,7 @@ export const createPost = async (post: Post, user: string) => {
 
 export const updatePost = async (post: Post) => {
   const response = await fetch(
-    `${process.env.DOMAIN_NAME}/api/posts/${post._id}`,
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post._id}`,
     {
       method: "PATCH",
       body: JSON.stringify(post),
@@ -79,116 +142,8 @@ export const updatePost = async (post: Post) => {
   return null;
 };
 
-
-
-export const checkUserHasLiked = async (user: string, id: string,type:"comment"|"post") => {
-  try {
-    const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/users/${user}/has-liked/${id}/${type}`
-    );
-    const data = await response.json();
-    if (response.ok) {
-      return data.liked ?? false;
-    }
-  } catch (error) {
-    console.log("Failed to check user has liked");
-    return false;
-  }
-};
-
-export const handleLike = async (user: string, post: string) => {
-  const isRateLimited = await checkLikeRateLimit();
-  if (isRateLimited) return;
-  try {
-    await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}/likes`, {
-      method: "PATCH",
-      body: JSON.stringify({
-        userId: user,
-      }),
-    });
-  } catch (error) {
-    console.error("Failed to update post likes", error);
-  }
-};
-
-export const fetchPostLikedUser = async (post: string) => {
-  try {
-    const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/posts/${post}/likes`
-    );
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Failed to update post likes", error);
-    return [];
-  }
-};
-
 export const deletePost = async (post: string) => {
-  await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}`, {
+  await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}`, {
     method: "DELETE",
   });
 };
-
-export const fetchPostComment = async (post: string) => {
-  try {
-    const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/posts/${post}/comments`
-    );
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Failed to fetch for post comments", error);
-    return [];
-  }
-};
-export const fetchCommentReplies = async (comment: string) => {
-  try {
-    const response = await fetch(
-      `${process.env.DOMAIN_NAME}/api/comments/${comment}/replies`
-    );
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Failed to fetch for comment replies", error);
-    return [];
-  }
-};
-
-export const handleComment = async (
-  post: string,
-  user: string,
-  parent: string,
-  content: string
-) => {
-  try {
-    await fetch(`${process.env.DOMAIN_NAME}/api/posts/${post}/comments/new`, {
-      method: "POST",
-      body: JSON.stringify({
-        post,
-        user,
-        parent,
-        content,
-      }),
-    });
-  } catch (error) {
-    console.error("Failed to post comments", error);
-  }
-};
-
-export const handleLikeComment = async (
-  comment:string,
-  user:string
-) => {
-  //add rate limiting if you want
-  try {
-    await fetch(`${process.env.DOMAIN_NAME}/api/comments/${comment}/likes`, {
-      method: "PATCH",
-      body: JSON.stringify({
-        userId: user,
-      }),
-    });
-  } catch (error) {
-    console.error("Failed to update comment likes", error);
-  }
-}

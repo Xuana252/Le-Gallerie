@@ -1,10 +1,12 @@
-
 import Post from "@models/postModel";
 import { getServerSession } from "next-auth";
 import { options } from "@app/api/auth/[...nextauth]/options";
 import User from "@models/userModel";
 import { NextResponse } from "@node_modules/next/server";
 import { connectToDB } from "@utils/database";
+import Friend from "@models/friendModel";
+import { FriendState } from "@enum/friendStateEnum";
+import mongoose from "mongoose";
 
 export const GET = async (req: Request) => {
   const { searchParams } = new URL(req.url);
@@ -12,6 +14,7 @@ export const GET = async (req: Request) => {
   const limit = parseInt(searchParams.get("limit") || "10");
   const searchText = searchParams.get("searchText") || "";
   const categoryIdsParam = searchParams.get("categoryIds") || "";
+  const relatedPostId = searchParams.get("relatedPostId") || "";
 
   try {
     await connectToDB();
@@ -20,6 +23,17 @@ export const GET = async (req: Request) => {
 
     const currentUser = await User.findById(session?.user.id);
 
+    const currentFriend = await Friend.find({
+      $or: [{ user1: session?.user.id }, { user2: session?.user.id }],
+      state: FriendState.FRIEND,
+    });
+
+    const currentFriendIds = currentFriend.map((friend) =>
+      friend.user1.toString() === session?.user.id
+        ? friend.user2.toString()
+        : friend.user1.toString()
+    );
+
     const skip = (page - 1) * limit;
 
     // Build the query object
@@ -27,10 +41,32 @@ export const GET = async (req: Request) => {
       creator: {
         $nin: currentUser?.blocked,
       },
+      $or: [
+        { privacy: "public" },
+        { creator: session?.user.id },
+        {
+          $and: [{ privacy: "friend" }, { creator: { $in: currentFriendIds } }],
+        }, // Include private posts only if friend
+      ],
     };
 
+    if (relatedPostId&& mongoose.Types.ObjectId.isValid(relatedPostId)) {
+      const relatedPost = await Post.findById(relatedPostId);
+
+      if (relatedPost) {
+        const relatedPostCreatorId = relatedPost.creator.toString();
+        const relatedPostCategoryIds = relatedPost.categories.map(
+          (category: any) => category._id.toString()
+        );
+        query.$or = [
+          { creator: relatedPostCreatorId },
+          { categories: { $in: relatedPostCategoryIds } },
+        ];
+      }
+    }
+
     const userIds = [];
-    const categoryIds = categoryIdsParam.split(',').filter(id => id);
+    const categoryIds = categoryIdsParam.split(",").filter((id) => id);
 
     if (searchText) {
       // Step 2: Fetch matching users
@@ -50,19 +86,17 @@ export const GET = async (req: Request) => {
       query.categories = { $in: categoryIds };
     }
     const count = await Post.countDocuments(query);
-    
+
     const posts = await Post.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .select("_id creator title categories description image likes createdAt")
+      .select("-updatedAt -__v")
       .populate({
         path: "creator",
         select: "-email -password -createdAt -updatedAt -__v",
       })
-      .populate(
-        "categories"
-      )
+      .populate("categories");
 
     return NextResponse.json({ posts: posts, counts: count }, { status: 200 });
   } catch (error) {
