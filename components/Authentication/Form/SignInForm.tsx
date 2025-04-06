@@ -3,25 +3,46 @@ import InputBox from "@components/Input/InputBox";
 import SubmitButton from "@components/Input/SubmitButton";
 import toastError from "@components/Notification/Toaster";
 import { checkInvalidInput, handleInvalid } from "@lib/Authentication/Auth";
-import { faGithub, faGoogle } from "@node_modules/@fortawesome/free-brands-svg-icons";
+import {
+  faFacebook,
+  faGithub,
+  faGoogle,
+} from "@node_modules/@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
-import { signIn } from "next-auth/react";
+import { getProviders, signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const providerIcons: Record<string, any> = {
   github: faGithub,
   google: faGoogle,
+  facebook: faFacebook,
 };
-
-export default function SignInForm({ providers }: { providers: string[] }) {
+export default function SignInForm() {
   const router = useRouter();
-  const [submitState, setSubmitState] = useState<SubmitButtonState>(SubmitButtonState.IDLE);
+  const [providers, setProviders] = useState<any[]>([]);
+  const [submitState, setSubmitState] = useState<SubmitButtonState>(
+    SubmitButtonState.IDLE
+  );
   const [signInCredentials, setSignInCredentials] = useState({
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    const fetchProviders = async () => {
+      const res = await getProviders();
+
+      if (res) {
+        // Filter out any invalid or missing providers
+        setProviders(Object.values(res));
+      }
+    };
+
+    fetchProviders();
+  }, []);
+
   const handleSignInCredentialsChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -63,8 +84,6 @@ export default function SignInForm({ providers }: { providers: string[] }) {
     }
   };
 
-
-
   return (
     <div className="flex flex-col items-center justify-center gap-2 py-2 size-full">
       <form
@@ -105,20 +124,20 @@ export default function SignInForm({ providers }: { providers: string[] }) {
         Forget password
       </Link>
       {/* Ask for sign up */}
-      <h1>or</h1>
+      <h1>or sign in with</h1>
       {/* other Sign in methods */}
       <div>
-        <ul className="flex flex-col gap-2">
-          {providers.map((provider) => {
-            if (provider !== "credentials")
+        <ul className="flex flex-wrap gap-2">
+          {providers?.map((provider) => {
+            if (provider.id !== "credentials")
               return (
                 <li
-                  key={provider}
-                  className="Button_variant_1 cursor-pointer flex gap-3"
-                  onClick={() => handleSignIn(provider)}
+                  key={provider.id}
+                  className="grow min-w-[40%] Button_variant_1_5 cursor-pointer flex gap-3 items-center justify-center"
+                  onClick={() => handleSignIn(provider.id)}
                 >
-                  {"Sign in with "}
-                  <FontAwesomeIcon icon={providerIcons[provider]} size="lg" />
+                  {provider.name}
+                  <FontAwesomeIcon icon={providerIcons[provider.id]} size="lg" />
                 </li>
               );
           })}

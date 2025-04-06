@@ -1,6 +1,7 @@
 import { NextAuthOptions, Session } from "next-auth";
 import GoogleProvider, { GoogleProfile } from "next-auth/providers/google";
 import GithubProvider, { GithubProfile } from "next-auth/providers/github";
+import FacebookProvider from "next-auth/providers/facebook";
 import { connectToDB } from "@utils/database";
 import User from "@models/userModel";
 import CredentialsProvider, {
@@ -16,6 +17,10 @@ export const options: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENTID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    }),
+    FacebookProvider({
+      clientId: process.env.FACEBOOK_CLIENTID as string,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
     }),
     GithubProvider({
       clientId: process.env.GITHUB_CLIENTID as string,
@@ -74,7 +79,7 @@ export const options: NextAuthOptions = {
     }),
   ],
   pages: {
-    signIn: "/sign-in", 
+    signIn: "/sign-in",
     signOut: "/",
     error: "/",
   },
@@ -82,7 +87,7 @@ export const options: NextAuthOptions = {
     async redirect({ url, baseUrl }) {
       return url.startsWith(baseUrl) ? url : `${baseUrl}/home`;
     },
-    
+
     async signIn({ user, account, profile, email, credentials }) {
       if (credentials) {
         if (credentials?.error) return false;
@@ -180,7 +185,7 @@ export const options: NextAuthOptions = {
       session.user = {
         id: token.id as string,
         name: token.name as string,
-        image: token.image as string ,
+        image: token.image as string,
         bio: token.bio as string,
         follower: token.follower as number,
         following: token.following as number,

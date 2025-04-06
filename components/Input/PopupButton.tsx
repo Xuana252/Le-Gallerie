@@ -27,12 +27,12 @@ export default function PopupButton({ children, popupItem }: PopupButtonProps) {
               style={styles}
               className="flex flex-col size-fit rounded-xl bg-secondary-1/50 backdrop-blur-md border-[1px] border-accent p-2"
             >
-              <button
+              <div
                 className="Icon_smaller self-end"
                 onClick={() => setPopupVisibility(false)}
               >
                 <FontAwesomeIcon icon={faGripLines} />
-              </button>
+              </div>
               {popupItem}
             </animated.div>
           </div>,document.body)

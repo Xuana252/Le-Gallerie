@@ -5,7 +5,11 @@ import {
   faCheck,
   faLessThanEqual,
 } from "@fortawesome/free-solid-svg-icons";
-import { faGithub, faGoogle } from "@fortawesome/free-brands-svg-icons";
+import {
+  faFacebook,
+  faGithub,
+  faGoogle,
+} from "@fortawesome/free-brands-svg-icons";
 import SubmitButton from "@components/Input/SubmitButton";
 import React, { useEffect, useRef, useState } from "react";
 import { getProviders, signIn } from "next-auth/react";
@@ -23,18 +27,9 @@ import toastError from "@components/Notification/Toaster";
 import SignUpForm from "./Form/SignUpForm";
 import SignInForm from "./Form/SignInForm";
 
-const providerIcons: Record<string, any> = {
-  github: faGithub,
-  google: faGoogle,
-};
-
-export default function AuthenticationForm({
-  providers,
-}: {
-  providers: string[];
-}) {
-  const searchParams= useSearchParams()
-  const signUp = searchParams.get('signUp') === "true"
+export default function AuthenticationForm() {
+  const searchParams = useSearchParams();
+  const signUp = searchParams.get("signUp") === "true";
   const [isSignUp, setIsSignUp] = useState(signUp);
 
   const DesktopSliderAnimation = useSpring({
@@ -128,7 +123,7 @@ export default function AuthenticationForm({
             }}
           >
             <Link href={"/home"} className={`text-xl hover:font-bold z-10`}>
-            Visit as guest
+              Visit as guest
             </Link>
           </animated.div>
         ))}
@@ -143,7 +138,6 @@ export default function AuthenticationForm({
                 width: "50%",
                 height: "100%",
               }}
-             
             >
               {<SignUpForm />}
             </animated.div>
@@ -156,9 +150,8 @@ export default function AuthenticationForm({
                 width: "50%",
                 height: "100%",
               }}
-           
             >
-              {<SignInForm providers={providers} />}
+              {<SignInForm/>}
             </animated.div>
           )
         )}
@@ -193,7 +186,6 @@ export default function AuthenticationForm({
                 height: "75%",
                 top: 0,
               }}
-             
             >
               {<SignUpForm />}
             </animated.div>
@@ -206,9 +198,8 @@ export default function AuthenticationForm({
                 height: "75%",
                 top: 0,
               }}
-             
             >
-              {<SignInForm providers={providers} />}
+              {<SignInForm/>}
             </animated.div>
           )
         )}

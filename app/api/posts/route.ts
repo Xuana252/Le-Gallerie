@@ -38,6 +38,7 @@ export const GET = async (req: Request) => {
 
     // Build the query object
     const query: any = {
+      privacy: { $ne: "private" },
       creator: {
         $nin: currentUser?.blocked,
       },
