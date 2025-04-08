@@ -22,6 +22,8 @@ import {
   fetchCommentLikes,
   handleComment,
 } from "@actions/commentAction";
+import PopupButton from "@components/Input/PopupButton";
+import ReportForm from "@components/Forms/ReportForm";
 
 export const CommentItem = ({
   comment,
@@ -199,7 +201,12 @@ export const CommentItem = ({
             reaction={myReaction}
             action={(r: Reaction | null) => handleLikeState(r)}
           />
-          <button className="ml-auto hover:text-accent">Report</button>
+          <PopupButton
+            className="ml-auto"
+            popupItem={<ReportForm type="Comment" content={comment} />}
+          >
+            <button className="hover:text-accent">Report</button>
+          </PopupButton>
         </div>
         {isReplying && (
           <div className="flex flex-row items-start gap-2 border-l-2 border-accent p-2">

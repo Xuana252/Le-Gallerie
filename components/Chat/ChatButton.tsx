@@ -74,7 +74,7 @@ export default function ChatButton({
       dropDownList={<ChatTab  isLoading={isLoading} />}
       Zindex={50}
     >
-      <div className="relative Icon">
+      <div className="relative Icon" title="Chat">
         <div
           className={`${
             unseenMessageCount > 0 ? "" : "hidden"

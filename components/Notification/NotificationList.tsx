@@ -383,7 +383,7 @@ export default function NotificationList({
 
   return (
     <DropDownButton dropDownList={notificationList} Zindex={40}>
-      <div className="relative Icon" onClick={() => feedClient.markAllAsSeen()}>
+      <div className="relative Icon" onClick={() => feedClient.markAllAsSeen()} title="Notification">
         <div
           className={`${
             metadata.unseen_count > 0 ? "" : "hidden"

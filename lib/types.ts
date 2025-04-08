@@ -1,6 +1,7 @@
 import { PostPrivacy } from '@enum/postPrivacyEnum';
 import { Reaction } from '@enum/reactionEnum';
 import { UserRole } from '@enum/userRolesEnum';
+import { IconDefinition } from '@node_modules/@fortawesome/fontawesome-svg-core';
 import { Date } from 'mongoose';
 import NextAuth from 'next-auth';
 import { DefaultUser } from 'next-auth';
@@ -109,3 +110,15 @@ export type Category = {
     name:string,
 }
 
+export type SidebarSection = {
+  section: string;
+  items: SidebarItem[];
+};
+
+export type SidebarItem = {
+  path: string;
+  name: string;
+  icon: IconDefinition;
+  description: string;
+  subPath: string[];
+};

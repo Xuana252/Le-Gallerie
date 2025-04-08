@@ -130,4 +130,17 @@ export const fetchUsers = async (
   return { users: [], counts: 0 };
 };
 
+export const fetchSystemUserData = async () => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/admin/users`,
+    {
+      headers: new Headers(headers()),
+    }
+  );
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+  return null;
+};
 

@@ -55,25 +55,6 @@ export default function Post({ params }: { params: { id: string } }) {
     handleLocalStorage();
   }, []);
 
-  useEffect(() => {
-    if (post) {
-      document.title = post.title;
-      const ogImage = post.image[0] ? post.image[0] : '/default-image.jpg'; // Fallback image
-      const ogUrl = `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/post/${post._id}`;
-      
-      // Updating Open Graph metadata dynamically
-      const head = document.querySelector('head');
-      const metaTitle = document.querySelector('meta[property="og:title"]');
-      const metaDescription = document.querySelector('meta[property="og:description"]');
-      const metaImage = document.querySelector('meta[property="og:image"]');
-      const metaUrl = document.querySelector('meta[property="og:url"]');
-
-      if (metaTitle) metaTitle.setAttribute('content', post.title);
-      if (metaDescription) metaDescription.setAttribute('content', "Check out this amazing photo!");
-      if (metaImage) metaImage.setAttribute('content', ogImage);
-      if (metaUrl) metaUrl.setAttribute('content', ogUrl);
-    }
-  }, [post]);
 
   return (
     <section className="min-h-screen text-accent">

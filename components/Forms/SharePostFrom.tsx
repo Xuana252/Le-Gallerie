@@ -11,6 +11,7 @@ import {
   faTwitter,
 } from "@node_modules/@fortawesome/free-brands-svg-icons";
 import {
+  faCheck,
   faLink,
   faListDots,
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
@@ -19,18 +20,29 @@ import { useSession } from "@node_modules/next-auth/react";
 import React, { useContext, useRef, useState } from "react";
 
 export default function SharePostForm({ post }: { post: Post }) {
+  const [chatIds, setChatIds] = useState<string[]>([]);
   const { chatList } = useContext(ChatContext);
   const url = `${window.location.origin}/post/${post._id}`;
 
   const [filterText, setFilterText] = useState("");
 
-  const handleShareToChat = async (chatId: string) => {
-    const result = await confirm(
-      "Do you want to share this post to this chat?"
-    );
-    if (!result) return;
+  const handleSelectChat = (chatId: string) => {
+    setChatIds((prevChatIds) => {
+      if (prevChatIds.includes(chatId)) {
+        return prevChatIds.filter((id) => id !== chatId);
+      } else {
+        return [...prevChatIds, chatId];
+      }
+    });
+  };
 
-    sendMessage(url, [], chatId);
+  const handleShareToChat = async () => {
+    setChatIds([])
+    Promise.all(
+      chatIds.map(async (id) => {
+        sendMessage(url, [], id);
+      })
+    );
   };
 
   const handleCopyLink = () => {
@@ -71,17 +83,6 @@ export default function SharePostForm({ post }: { post: Post }) {
     window.open(mailtoLink, "_blank");
   };
 
-  const handleShareToMessenger = () => {
-    if (!post._id) return;
-
-    const messengerShareUrl = `https://www.facebook.com/dialog/send?link=${encodeURIComponent(
-      url
-    )}&app_id=1715168069356791&redirect_uri=${encodeURIComponent(
-      window.location.href
-    )}`;
-    window.open(messengerShareUrl, "_blank", "noopener,noreferrer");
-  };
-
   const handleShareToTelegram = () => {
     if (!post._id) return;
 
@@ -109,7 +110,7 @@ export default function SharePostForm({ post }: { post: Post }) {
   return (
     <div className="flex flex-col gap-2  max-w-[300px] sm:max-w-[400px] ">
       <div>Share</div>
-      <ul className="p-2 bg-primary/50 flex flex-row gap-4 items-end justify-around w-full overflow-x-auto ">
+      <ul className="p-2 bg-primary/50 flex flex-row gap-4 items-end justify-around w-full overflow-x-auto rounded-lg ">
         <li className="cursor-pointer flex flex-col gap-1 items-center ">
           <div
             className="Icon_small bg-secondary-1"
@@ -130,17 +131,6 @@ export default function SharePostForm({ post }: { post: Post }) {
             title="share to Facebook"
           />
           <div className="text-xs opacity-50">Facebook</div>
-        </li>
-
-        <li className="cursor-pointer flex flex-col gap-1 items-center ">
-          <img
-            className="min-w-9 w-9 "
-            src="/providers/messenger.png"
-            alt="facebook"
-            onClick={handleShareToMessenger}
-            title="share to Messenger"
-          />
-          <div className="text-xs opacity-50">Messenger</div>
         </li>
 
         <li className="cursor-pointer flex flex-col gap-1 items-center ">
@@ -188,52 +178,75 @@ export default function SharePostForm({ post }: { post: Post }) {
         </li>
       </ul>
 
-      <div>Or</div>
-      <div className="bg-primary/50 p-2 flex flex-col gap-2 rounded-lg">
-        <InputBox
-          type="SearchBox"
-          value={filterText}
-          onTextChange={(t) => setFilterText(t.target.value)}
-        />
-        <ul className="w-full flex flex-row gap-4  overflow-x-auto">
-          {[...chatList, ...chatList, ...chatList]?.map((chat, index) =>
-            (chat.type === "group" &&
-              chat.name.toLowerCase().includes(filterText.toLowerCase())) ||
-            (chat.type === "single" &&
-              chat.users[0].username
-                .toLowerCase()
-                .includes(filterText.toLowerCase())) ? (
-              <li
-                key={index}
-                className="flex flex-col gap-1 items-center cursor-pointer hover:bg-primary p-1"
-                onClick={() => handleShareToChat(chat.chatId)}
-              >
-                <div className={`size-10`}>
-                  <ImageGroupDisplay
-                    images={
-                      chat.type === "group"
-                        ? chat.image
-                          ? [chat.image]
-                          : chat.users
-                              .filter(
-                                (user: User) =>
-                                  chat.memberIds.findIndex(
-                                    (id: string) => id === user._id
-                                  ) !== -1
-                              )
-                              .map((u: User) => u.image)
-                        : [chat.users[0].image]
-                    }
-                  />
-                </div>
-                <span className="text-xs overflow-hidden text-ellipsis whitespace-nowrap max-w-[100px]">
-                  {chat.type === "group" ? chat.name : chat.users[0].username}
-                </span>
-              </li>
-            ) : null
-          )}
-        </ul>
-      </div>
+      {chatList.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <div>Or</div>
+          <div className="bg-primary/50 p-2 flex flex-col gap-2 rounded-lg">
+            <InputBox
+              type="SearchBox"
+              value={filterText}
+              onTextChange={(t) => setFilterText(t.target.value)}
+              placeholder="Find chat"
+              style={{ fontSize: "0.9em" }}
+            />
+            <ul className="w-full flex flex-row gap-4  overflow-x-auto">
+              {chatList?.map((chat, index) =>
+                (chat.type === "group" &&
+                  chat.name.toLowerCase().includes(filterText.toLowerCase())) ||
+                (chat.type === "single" &&
+                  chat.users[0].username
+                    .toLowerCase()
+                    .includes(filterText.toLowerCase())) ? (
+                  <li
+                    key={index}
+                    className="flex flex-col gap-1 items-center cursor-pointer p-1"
+                    onClick={() => handleSelectChat(chat.chatId)}
+                  >
+                    <div className={`size-10 relative`}>
+                      <ImageGroupDisplay
+                        images={
+                          chat.type === "group"
+                            ? chat.image
+                              ? [chat.image]
+                              : chat.users
+                                  .filter(
+                                    (user: User) =>
+                                      chat.memberIds.findIndex(
+                                        (id: string) => id === user._id
+                                      ) !== -1
+                                  )
+                                  .map((u: User) => u.image)
+                            : [chat.users[0].image]
+                        }
+                      />
+                      {chatIds.includes(chat.chatId) && (
+                        <FontAwesomeIcon
+                          icon={faCheck}
+                          className="p-1 text-xs bg-accent text-primary rounded-full absolute top-0 right-0 translate-x-1/2 font-bold"
+                        />
+                      )}
+                    </div>
+                    <span className="text-xs overflow-hidden text-ellipsis whitespace-nowrap max-w-[100px]">
+                      {chat.type === "group"
+                        ? chat.name
+                        : chat.users[0].username}
+                    </span>
+                  </li>
+                ) : null
+              )}
+            </ul>
+          </div>
+          <button
+            className={`${
+              chatIds.length > 0 ? "bg-accent" : "bg-accent/50"
+            } rounded-lg text-primary p-1 font-semibold`}
+            onClick={handleShareToChat}
+            disabled={chatIds.length === 0}
+          >
+            Send
+          </button>
+        </div>
+      )}
     </div>
   );
 }

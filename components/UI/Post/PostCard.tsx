@@ -91,7 +91,7 @@ export default function PostCard({ post, isLoading }: PostCardProps) {
         {post.image.length > 1 && (
           <div className="size-full bg-accent/50 absolute bottom-1 left-1 rounded-xl "></div>
         )}
-        <div className={`${post.creator.role?.includes(UserRole.ADMIN)?"border-4 border-red-500 shadow-xl shadow-white":""} relative w-full h-fit grid grid-cols-1 gap-2 rounded-xl overflow-hidden cursor-pointer animate-slideUp  shadow-sm transition-all duration-300 ease-out`}>
+        <div className={`${post.creator.role?.includes(UserRole.ADMIN)?"border-4 border-red-500 shadow-xl shadow-white":""} relative w-full h-fit grid grid-cols-1 gap-2 rounded-xl overflow-hidden cursor-pointer  shadow-sm transition-all duration-300 ease-out`}>
           <CustomImage
             src={post.image[0]}
             alt={post.title}

@@ -180,7 +180,7 @@ export default function Feed({
   }, []);
 
   useEffect(() => {
-    if (!isMount && Object.keys(state || {}).length !== 0) return;
+    if (!isMount && Object.keys(state || {}).length !== 0 ) return;
 
     setPage(1);
     setSearchCount(0);
@@ -237,7 +237,7 @@ export default function Feed({
   };
 
   return (
-    <section className="w-full h-fit min-h-screen ">
+    <section className="w-full  min-h-fit h-auto">
       {showCateBar && (
         <CategoryBar
           onCategoriesChange={handleCategoriesFilerChange}
@@ -254,13 +254,13 @@ export default function Feed({
           {showResults &&
             searchCount > 0 &&
             (searchText || categoriesFilter.length > 0) && (
-              <div className="text-left animate-slideRight text-2xl p-2 text-accent font-bold">
+              <div className="text-left text-2xl p-2 text-accent font-bold">
                 Found {searchCount} posts
               </div>
             )}
           <ul
             ref={feedRef}
-            className={`grid ${gridColStyle} gap-x-3 h-fit min-w-full p-5 justify-center `}
+            className={`grid ${gridColStyle} gap-x-3 min-w-full h-auto p-5 justify-center `}
           >
             {Array.from(Array(colsNum).keys()).map((columnIndex) => (
               <ul
@@ -277,7 +277,11 @@ export default function Feed({
                             ? lastPostRef
                             : null
                         }
-                        className="hover:scale-105 transition-all duration-300 ease-out animate-slideUp "
+                        className={`hover:scale-105 transition-all duration-300 ease-out ${
+                          state?.posts?.some((p: Post) => p._id === post._id)
+                            ? ""
+                            : "animate-slideUp"
+                        } `}
                       >
                         <PostCard post={post} isLoading={false} />
                       </div>

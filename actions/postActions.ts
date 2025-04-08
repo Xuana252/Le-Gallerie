@@ -11,7 +11,7 @@ export const fetchAllPost = async (
   limit: number,
   searchText: string,
   categoryFilter: Category[],
-  relatedPostFilter: string,
+  relatedPostFilter: string
 ) => {
   const categoryIds = categoryFilter.map((category) => category._id).join(",");
 
@@ -28,8 +28,6 @@ export const fetchAllPost = async (
   return { posts: [], counts: 0 };
 };
 
-
-
 export const fetchUserPost = async (
   user: string,
   currentPage: number,
@@ -42,7 +40,7 @@ export const fetchUserPost = async (
     }
   );
   if (response.ok) {
-    const {posts,counts} = await response.json();
+    const { posts, counts } = await response.json();
     return { posts, counts };
   }
   return { posts: [], counts: 0 };
@@ -103,9 +101,12 @@ export const fetchUserFriendPost = async (
 };
 
 export const fetchPostWithId = async (post: string) => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}`, {
-    headers: new Headers(headers()),
-  });
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}`,
+    {
+      headers: new Headers(headers()),
+    }
+  );
 
   const data = await response.json();
 
@@ -116,10 +117,13 @@ export const fetchPostWithId = async (post: string) => {
 };
 
 export const createPost = async (post: Post, user: string) => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/new`, {
-    method: "POST",
-    body: JSON.stringify({ ...post, creator: user }),
-  });
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/new`,
+    {
+      method: "POST",
+      body: JSON.stringify({ ...post, creator: user }),
+    }
+  );
   if (response.ok) {
     const data = await response.json();
     return data;
@@ -146,4 +150,18 @@ export const deletePost = async (post: string) => {
   await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}`, {
     method: "DELETE",
   });
+};
+
+export const fetchSystemPostData = async () => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/admin/posts`,
+    {
+      headers: new Headers(headers()),
+    }
+  );
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+  return null;
 };

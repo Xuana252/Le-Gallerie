@@ -40,19 +40,20 @@ export const GET = async (
         : friend.user1.toString()
     );
 
-
     const followPostCount = await Post.countDocuments({
-        creator: { $in: currentFollowIds },
-        $or: [
-          { privacy: "public" },
-          { creator: session?.user.id },
-          {
-            $and: [{ privacy: "friend" }, { creator: { $in: currentFriendIds } }],
-          }, // Include private posts only if friend
-        ],
-      })
+      privacy: { $ne: "private" },
+      creator: { $in: currentFollowIds },
+      $or: [
+        { privacy: "public" },
+        { creator: session?.user.id },
+        {
+          $and: [{ privacy: "friend" }, { creator: { $in: currentFriendIds } }],
+        }, // Include private posts only if friend
+      ],
+    });
 
     const followPosts = await Post.find({
+      privacy: { $ne: "private" },
       creator: { $in: currentFollowIds },
       $or: [
         { privacy: "public" },

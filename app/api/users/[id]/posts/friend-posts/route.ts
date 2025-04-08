@@ -34,6 +34,7 @@ export const GET = async (
     );
 
     const friendPostCount = await Post.countDocuments({
+      privacy: { $ne: "private" },
       creator: { $in: currentFriendIds },
       $or: [
         { privacy: "public" },
@@ -45,6 +46,7 @@ export const GET = async (
     });
 
     const friendPosts = await Post.find({
+      privacy: { $ne: "private" },
       creator: { $in: currentFriendIds },
       $or: [
         { privacy: "public" },

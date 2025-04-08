@@ -1,5 +1,4 @@
 "use client";
-import { menuItems } from "@constant/settingRoutes";
 import {
   faAngleLeft,
   faAngleRight,
@@ -13,6 +12,7 @@ import {
   faUserLock,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { SidebarItem, SidebarSection } from "@lib/types";
 import { Ultra } from "@node_modules/next/font/google";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -26,7 +26,7 @@ export const SubPathContext = createContext<{
   setSubPath: () => {},
 });
 
-export default function SideBar({ children }: { children: ReactNode }) {
+export default function SideBar({menu, children }: {menu:SidebarSection[], children: ReactNode }) {
   const pathName = usePathname();
   const [subPath, setSubPath] = useState<{path:string,scroll:boolean}>({path:"",scroll:false});
   const [windowHeight, setWindowHeight] = useState(0);
@@ -75,7 +75,7 @@ export default function SideBar({ children }: { children: ReactNode }) {
   return (
     <SubPathContext.Provider value={{ subPath, setSubPath }}>
       <div
-        className="flex flex-row text-accent"
+        className="grid grid-cols-[auto_1fr] text-accent"
         style={{
           height: `calc(100vh - 60px)`,
         }}
@@ -84,7 +84,7 @@ export default function SideBar({ children }: { children: ReactNode }) {
         onTouchEnd={handleTouchEnd}
       >
         <div
-          className={`Side_bar_menu transition-transform duration-200 absolute sm:static top-[60px] left-0 h-full ${
+          className={`Side_bar_menu w-fit transition-transform duration-200 absolute sm:static top-[60px] left-0 h-full ${
             isMinimize
               ? "-translate-x-[100%] sm:translate-x-0"
               : "translate-x-0"
@@ -95,14 +95,14 @@ export default function SideBar({ children }: { children: ReactNode }) {
           }}
         >
           <div className="Side_bar_path_list">
-            {menuItems.map((section, sectionIndex) => (
+            {menu.map((section, sectionIndex) => (
               <ul
                 key={sectionIndex}
                 className="Side_bar_section transition-all duration-200 ease-in-out"
               >
                 <li className="text-accent/50 text-sm">{section.section}</li>
                 <hr className="border-none bg-primary h-[1px]" />
-                {section.items.map((item, index) => (
+                {section.items.map((item:SidebarItem, index) => (
                   <div className="w-full" key={index}>
                     <Link
                       href={item.path}

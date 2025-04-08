@@ -1,4 +1,4 @@
-import { menuItems } from "@constant/settingRoutes";
+import { settingRoutes } from "@constant/settingRoutes";
 import {
   faKey,
   faUser,
@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 
 export default function Setting() {
-  const sections = menuItems.slice(1, menuItems.length);
+  const sections = settingRoutes.slice(1, settingRoutes.length);
   return (
     <section>
       <div className="w-full text-center text-3xl font-bold text-accent">

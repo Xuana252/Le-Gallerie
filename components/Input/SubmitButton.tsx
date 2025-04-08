@@ -6,24 +6,17 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faTriangleExclamation, faX } from '@fortawesome/free-solid-svg-icons';
 import { SubmitButtonState } from '@enum/submitButtonState';
 
-type SubmitButtonBaseProps = {
+type SubmitButtonProps = {
     children? :React.ReactNode,
     state?: SubmitButtonState,
     changeState?: React.Dispatch<React.SetStateAction<SubmitButtonState>>,
     style?:string
+    variant?: "Button_variant_1"|"Button_variant_1_5"|"Button_variant_2"|"Button_variant_2_5"
 }
 
-type SubmitButtonWithStateProps = {
-    children?:React.ReactNode,
-    state: SubmitButtonState,
-    changeState: React.Dispatch<React.SetStateAction<SubmitButtonState>>
-    style?:string
-}
-
-type SubmitButtonProps = SubmitButtonBaseProps|SubmitButtonWithStateProps
 
 
-export default function SubmitButton({children,state,changeState,style}:SubmitButtonProps) {
+export default function SubmitButton({children,state,changeState,style,variant="Button_variant_1"}:SubmitButtonProps) {
     let content:React.ReactNode = children||'Submit'
 
     switch(state) {
@@ -43,7 +36,7 @@ export default function SubmitButton({children,state,changeState,style}:SubmitBu
             break
     }
   return (
-     <button type='submit' className={`Button_variant_1 min-h-[35px] h-[35px] ${style}`} disabled={state === 'Processing'}>
+     <button type='submit' className={`${variant} min-h-[35px] h-[35px] ${style}`} disabled={state === 'Processing'}>
        {content}
      </button>
   );

@@ -148,6 +148,7 @@ export const options: NextAuthOptions = {
         token.id = user.id;
         token.name = user.name || "";
         token.image = user.image || "";
+        token.email = user.email ||"";
         token.bio = user.bio || "";
         token.follower = user.follower || 0;
         token.following = user.following || 0;
@@ -164,6 +165,7 @@ export const options: NextAuthOptions = {
           if (sessionUser) {
             token.id = sessionUser._id.toString();
             token.name = sessionUser.username || "";
+            token.email = sessionUser.email ||"";
             token.image = sessionUser.image || "";
             token.bio = sessionUser.bio || "";
             token.follower = sessionUser.follower || 0;
@@ -173,6 +175,7 @@ export const options: NextAuthOptions = {
             token.createdAt = sessionUser.createdAt || null;
             token.fullname = sessionUser.fullname || "";
             token.birthdate = sessionUser.birthdate || "";
+            token.role  = sessionUser.role;
           }
         } catch (error) {
           console.error("Error fetching user for JWT:", error);
@@ -185,6 +188,7 @@ export const options: NextAuthOptions = {
       session.user = {
         id: token.id as string,
         name: token.name as string,
+        email:token.email as string,
         image: token.image as string,
         bio: token.bio as string,
         follower: token.follower as number,

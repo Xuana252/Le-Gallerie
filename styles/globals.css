@@ -178,13 +178,17 @@
   @apply rounded-lg font-semibold py-1 px-2 select-none;
 }
 .Button_variant_1 {
-  @apply Button_base border-2 border-accent  bg-accent min-h-fit text-primary hover:scale-y-110 hover:scale-x-105 transition-transform duration-150 active:text-accent active:bg-primary;
+  @apply Button_base border-2 border-accent  bg-accent min-h-fit text-primary hover:scale-y-105 hover:scale-x-105 transition-transform duration-150 active:text-accent active:bg-primary;
 }
 .Button_variant_1_5 {
   @apply Button_base border-2 border-accent bg-primary min-h-fit text-accent hover:bg-secondary-2 active:text-primary active:bg-accent;
 }
 .Button_variant_2 {
   @apply Button_base text-accent hover:bg-secondary-2;
+}
+
+.Button_variant_2_5 {
+  @apply Button_base text-accent bg-primary shadow-md active:bg-primary/80;
 }
 
 .Invalid_input {
@@ -210,8 +214,9 @@
   @apply flex select-none items-center justify-center px-2 py-1 bg-accent text-primary font-semibold rounded-xl gap-2 whitespace-nowrap;
 }
 .Nav_bar {
-  @apply sticky z-50 top-0 left-0 w-full h-[60px] bg-gradient-to-r from-secondary-1 via-primary to-secondary-2 text-accent  shadow-md border-b-2 border-accent/50;
+  @apply sticky z-50 top-0 left-0 w-full h-[60px] bg-gradient-to-r from-secondary-1 via-primary to-secondary-2 text-accent  shadow-md border-b-2 border-accent/50 ;
 }
+
 
 .Buttons_container {
   @apply hidden;
@@ -250,6 +255,14 @@
 
 .ReactionItem {
   @apply hover:scale-150 transition-all duration-200 ease-in-out active:scale-90;
+}
+
+.panel {
+  @apply shadow-md rounded-md bg-primary p-2 
+}
+
+.panel_2 {
+  @apply shadow-md rounded-md bg-accent text-primary p-2 
 }
 
 .text_panel {

@@ -38,6 +38,7 @@ export const GET = async (
     const postIds = likedPostsIds.map((postId) => postId.post.toString());
 
     const likedPosts = await Post.find({
+      privacy: { $ne: "private" },
       _id: { $in: postIds },
       $or: [
         { privacy: "public" },
