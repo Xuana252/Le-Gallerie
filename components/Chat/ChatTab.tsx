@@ -38,10 +38,20 @@ export default function ChatTab({
   const router = useRouter();
 
   const { setChatInfo } = useContext(ChatContext);
+  const { data: session } = useSession();
 
   const handleSelectFriend = (user: User) => {
     startChat(user, setChatInfo, router);
   };
+
+  const handleAi=()=>{
+    setChatInfo({
+      admin: session?.user.id,
+      type:"ai",
+      log:[],
+      message:[]
+    })
+  }
 
   return (
     <>
@@ -55,7 +65,7 @@ export default function ChatTab({
               </div>
             </PopupButton>
             <div className="Icon_smaller">
-              <FontAwesomeIcon icon={faRobot} title="Chat with AI" />
+              <FontAwesomeIcon icon={faRobot} title="Chat with AI" onClick={handleAi}/>
             </div>
           </div>
         </div>

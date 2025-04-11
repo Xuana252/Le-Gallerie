@@ -23,6 +23,9 @@ import { text } from "stream/consumers";
 import TextAreaInput from "@components/Input/TextAreaInput";
 import { sendMessage } from "@lib/Chat/chat";
 
+import { v4 as uuidv4 } from "uuid";
+import { getAIResponse } from "@actions/chatGemini";
+
 export default function ChatBar({
   chatInfo,
   isBlocked,
@@ -31,12 +34,17 @@ export default function ChatBar({
   chatInfo: any;
   isBlocked: boolean;
   blocked: boolean;
+ 
 }) {
   const { data: session } = useSession();
   const [text, setText] = useState("");
+
   const [imageQueue, setImageQueue] = useState<UploadImage[]>([]);
 
+  const [isWaiting, setIsWaiting] = useState(false);
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    e.preventDefault();
+
     setText(e.target.value);
   };
 
@@ -55,10 +63,17 @@ export default function ChatBar({
     setText("");
     setImageQueue([]);
 
+    if (chatInfo.type === "ai") {
+      
+      setIsWaiting(true);
+      getAIResponse(text, session.user.id);
+      setIsWaiting(false);
+      return;
+    }
+
     sendMessage(messageText, uploadImageQueue, chatInfo.chatId);
   };
 
-  
   return (
     <div className="grid grid-cols-[auto_1fr_auto_auto] items-center bg-secondary-1 p-1 min-h-[50px] grow fixed bottom-0 shadow-md gap-2 w-full z-40">
       {!(isBlocked || blocked) ? (

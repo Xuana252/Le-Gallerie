@@ -62,12 +62,12 @@ import { ChatBoxView } from "@enum/chatBoxView";
 import AddMemberView from "./Views/AddMemberView";
 import ImageGroupDisplay from "@components/UI/Image/ImageGroupDisplay";
 import MemberView from "./Views/MemberView";
+import { getAiMessage } from "@actions/chatGemini";
 
 export default function ChatBox() {
   const { chatInfo, setChatInfo } = useContext(ChatContext);
   const [chat, setChat] = useState<any>(null);
   const [chatBoxView, setChatBoxView] = useState<ChatBoxView>(ChatBoxView.CHAT);
-
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const { data: session, update } = useSession();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -113,6 +113,19 @@ export default function ChatBox() {
   };
 
   useEffect(() => {
+    if (chatInfo.type === "ai") {
+      setChatBoxView(ChatBoxView.CHAT);
+      getAiMessage(session?.user.id).then((messages)=>{
+        setChat({
+          admin: session?.user.id,
+          type: "ai",
+          log: [],
+          message: messages
+        });
+      })
+      return
+    }
+
     const unSub = onSnapshot(doc(db, "chat", chatInfo.chatId), (res) => {
       if (res.exists()) {
         const data = res.data();
@@ -140,14 +153,12 @@ export default function ChatBox() {
         setChatInfo(null);
       }
     });
-    
 
     setChatBoxView(ChatBoxView.CHAT);
     return () => {
       unSub();
     };
-  }, [chatInfo]);
-
+  }, [chatInfo.admin]);
 
   return (
     <>
@@ -161,12 +172,31 @@ export default function ChatBox() {
             <div className="flex flex-row items-center  bg-secondary-2/70 p-2 gap-4 shadow-md h-[50px] rounded-t-2xl ">
               <label className="flex flex-row items-center gap-2 bg-primary rounded-full pr-4">
                 <div className={`size-9`}>
-                              <ImageGroupDisplay images={chat.type==="group"?chat.image?[chat.image]:chatInfo.users.filter((user:User)=>chat.memberIds.findIndex((id:string)=>id===user._id)!==-1).map(((u:User)=>u.image)):[chatInfo.users[0].image]} />
-                            </div>
+                  <ImageGroupDisplay
+                    images={
+                      chatInfo.type==="ai"? [chat.image="https://img.freepik.com/premium-vector/ai-logo-template-vector-with-white-background_1023984-15069.jpg"]
+                      :chat.type === "group"
+                        ? chat.image
+                          ? [chat.image]
+                          : chatInfo?.users
+                              .filter(
+                                (user: User) =>
+                                  chat.memberIds.findIndex(
+                                    (id: string) => id === user._id
+                                  ) !== -1
+                              )
+                              .map((u: User) => u.image)
+                        : [chatInfo.users[0].image]
+                    }
+                  />
+                </div>
                 <h1 className="font-semibold max-w-[150px] overflow-x-hidden overflow-ellipsis whitespace-nowrap">
                   {chat.type === "single"
                     ? chatInfo.users[0].username
-                    : chat.name}
+                    :chat.type === "ai"
+                    ?chat.name="Le Gallarie bot"
+                    : chat.name
+                    }
                 </h1>
               </label>
               <div className="ml-auto flex flex-row rounded-xl bg-primary gap-2 p-1 h-full items-center">
