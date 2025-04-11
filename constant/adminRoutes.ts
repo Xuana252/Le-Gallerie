@@ -1,4 +1,4 @@
-import { faChartPie, faClipboard, faComment, faGear, faIdCard, faImage, faImagePortrait, faUser, faUsers } from "@node_modules/@fortawesome/free-solid-svg-icons";
+import { faChartPie, faClipboard, faComment, faFileImage, faGear, faIdCard, faImage, faImagePortrait, faImages, faUser, faUsers, faUserSlash } from "@node_modules/@fortawesome/free-solid-svg-icons";
 
 export const adminRoutes = [
   {
@@ -9,7 +9,7 @@ export const adminRoutes = [
         name: "Dashboard",
         icon: faChartPie,
         description: "Overall",
-        subPath: [],
+        subPath: ["Posts","Categories","Users","Reports","New Report"],
       },
     ],
   },
@@ -23,6 +23,33 @@ export const adminRoutes = [
         description: "System users",
         subPath: [],
       },
+      {
+        path: "/admin/banned",
+        name: "Banned Users",
+        icon: faUserSlash,
+        description: "Banned users",
+        subPath: [],
+      },
+      {
+        path: "/admin/reports/users/:id",
+        name: "User Detail",
+        icon: faIdCard,
+        description: "User Detail",
+        subPath: [],
+      },
+    ],
+    
+  },
+  {
+    section: "Posts",
+    items: [
+      {
+        path: "/admin/reports/posts/:id",
+        name: "Post Detail",
+        icon: faImages,
+        description: "Post Detail",
+        subPath: [],
+      },
     ],
     
   },
@@ -33,21 +60,21 @@ export const adminRoutes = [
         path: "/admin/reports/posts",
         name: "Posts",
         icon: faImage,
-        description: "Overall",
+        description: "Manage Posts Reports",
         subPath: [],
       },
       {
         path: "/admin/reports/comments",
         name: "Comments",
         icon: faComment,
-        description: "Overall",
+        description: "Manage Comments Reports",
         subPath: [],
       },
       {
         path: "/admin/reports/users",
         name: "Users",
         icon: faUser,
-        description: "Overall",
+        description: "Manage Users Reports",
         subPath: [],
       },
     ],

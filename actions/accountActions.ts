@@ -130,6 +130,22 @@ export const fetchUsers = async (
   return { users: [], counts: 0 };
 };
 
+export const fetchSystemUsers = async (
+  limit: number,
+  currentPage: number,
+  searchText: string
+) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/admin/users/search?searchText=${searchText}&page=${currentPage}&limit=${limit}`,
+    {
+      headers: new Headers(headers()),
+    }
+  );
+  const data = await response.json();
+  if (response.ok) return { users: data.users, counts: data.counts };
+  return { users: [], counts: 0 };
+};
+
 export const fetchSystemUserData = async () => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/admin/users`,

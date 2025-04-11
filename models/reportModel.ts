@@ -4,7 +4,6 @@ import User from "./userModel";
 import { Reaction } from "@enum/reactionEnum";
 import Comment from "./commentModel";
 
-
 const ReportSchema = new Schema(
   {
     reportId: {
@@ -19,20 +18,23 @@ const ReportSchema = new Schema(
     },
     type: {
       type: String,
-      enum: ["Post","Comment"], 
+      enum: ["Post", "Comment"],
       required: true,
     },
     content: {
-        type: String,
-        required: true,
-      }
+      type: String,
+      required: true,
+    },
+    state: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-
 const Report = models.Report || model("Report", ReportSchema);
 
-export default Report ;
+export default Report;

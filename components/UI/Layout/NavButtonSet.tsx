@@ -16,6 +16,7 @@ import Link from "@node_modules/next/link";
 import { usePathname } from "@node_modules/next/navigation";
 import ThemeList from "@theme/ThemesList";
 import UserProfileIcon from "../Profile/UserProfileIcon";
+import { UserRole } from "@enum/userRolesEnum";
 
 export const ButtonSet = () => {
   const { data: session } = useSession();
@@ -27,6 +28,7 @@ export const ButtonSet = () => {
   useEffect(() => {
     const handleResize = () => setSize(window.innerWidth);
     window.addEventListener("resize", handleResize);
+
     return () => {
       window.removeEventListener("resize", handleResize);
     };
@@ -49,13 +51,14 @@ export const ButtonSet = () => {
           )}
           <ChatButton returnUnseenCount={setUnseenMessageCount} />
           <NotificationButton returnUnseenCount={setUnseenNotificationCount} />
-          {!pathName.startsWith("/admin") && (
-            <Link href={"/admin"}>
-              <button className="Icon" title="Admin">
-                <FontAwesomeIcon icon={faHammer} />
-              </button>
-            </Link>
-          )}
+          {!pathName.startsWith("/admin") &&
+            session.user.role?.includes(UserRole.ADMIN) && (
+              <Link href={"/admin"}>
+                <button className="Icon" title="Admin">
+                  <FontAwesomeIcon icon={faHammer} />
+                </button>
+              </Link>
+            )}
         </>
       )}
       <DropDownButton dropDownList={<ThemeList />}>

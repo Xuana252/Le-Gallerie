@@ -35,6 +35,7 @@ const PostSchema = new Schema(
     privacy: {
       type: String,
       enum: Object.values(PostPrivacy),
+      default: PostPrivacy.PUBLIC,
     },
   },
   {
