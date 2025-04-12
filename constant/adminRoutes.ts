@@ -31,7 +31,7 @@ export const adminRoutes = [
         subPath: [],
       },
       {
-        path: "/admin/reports/users/:id",
+        path: `/admin/reports/users/userId`,
         name: "User Detail",
         icon: faIdCard,
         description: "User Detail",

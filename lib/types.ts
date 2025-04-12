@@ -17,6 +17,7 @@ declare module "next-auth" {
     fullname?: string;
     birthdate?: string;
     role?: UserRole[];
+    banned?: boolean;
   }
 
   interface Session {
@@ -61,6 +62,7 @@ export type User = {
   role?: UserRole[];
   banned?: boolean;
   createdAt?: Date;
+  updatedAt?:Date;
 };
 export type UploadUser = {
   _id: string;

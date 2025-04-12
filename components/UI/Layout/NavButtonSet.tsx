@@ -17,6 +17,7 @@ import { usePathname } from "@node_modules/next/navigation";
 import ThemeList from "@theme/ThemesList";
 import UserProfileIcon from "../Profile/UserProfileIcon";
 import { UserRole } from "@enum/userRolesEnum";
+import { User } from "@lib/types";
 
 export const ButtonSet = () => {
   const { data: session } = useSession();
@@ -71,7 +72,10 @@ export const ButtonSet = () => {
           <FontAwesomeIcon icon={faRightFromBracket} />
         </button>
       ) : (
-        <UserProfileIcon currentUser={true} />
+        <UserProfileIcon
+          user={{ ...session?.user, _id: session?.user.id } as User}
+          size={"Icon_small"}
+        />
       )}
     </>
   );

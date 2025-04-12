@@ -47,11 +47,11 @@ export const GET = async (req: Request) => {
         { creator: session?.user.id },
         {
           $and: [{ privacy: "friend" }, { creator: { $in: currentFriendIds } }],
-        }, // Include private posts only if friend
+        }, 
       ],
     };
 
-    if (relatedPostId&& mongoose.Types.ObjectId.isValid(relatedPostId)) {
+    if (relatedPostId && mongoose.Types.ObjectId.isValid(relatedPostId)) {
       const relatedPost = await Post.findById(relatedPostId);
 
       if (relatedPost) {
@@ -59,10 +59,17 @@ export const GET = async (req: Request) => {
         const relatedPostCategoryIds = relatedPost.categories.map(
           (category: any) => category._id.toString()
         );
-        query.$or = [
-          { creator: relatedPostCreatorId },
-          { categories: { $in: relatedPostCategoryIds } },
-        ];
+        Object.assign(query, {
+          $and: [
+            { privacy: { $ne: "private" } },
+            {
+              $or: [
+                { creator: relatedPostCreatorId },
+                { categories: { $in: relatedPostCategoryIds } },
+              ],
+            },
+          ],
+        });
       }
     }
 
@@ -70,12 +77,12 @@ export const GET = async (req: Request) => {
     const categoryIds = categoryIdsParam.split(",").filter((id) => id);
 
     if (searchText) {
-      // Step 2: Fetch matching users
+     
       const userQuery = { username: { $regex: searchText, $options: "i" } };
       const matchingUsers = await User.find(userQuery).select("_id");
       userIds.push(...matchingUsers.map((user) => user._id));
 
-      // Build the $or query
+      
       query.$or = [
         { title: { $regex: searchText, $options: "i" } },
         { creator: { $in: userIds } },

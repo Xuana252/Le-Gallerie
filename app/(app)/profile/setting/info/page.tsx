@@ -1,6 +1,7 @@
 "use client";
 import CustomImage from "@components/UI/Image/Image";
-import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { UserRole } from "@enum/userRolesEnum";
+import { faCheck, faHammer, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { formatTimeAgo } from "@lib/dateFormat";
 import { useSession } from "next-auth/react";
@@ -15,38 +16,65 @@ export default function Info() {
           User information
         </h1>
         <div className="flex items-center justify-center my-2">
-          <div className="User_Profile_Page_Picture ">
-            {session?.user?.image ? (
-              <CustomImage
-                src={session.user.image}
-                alt={"profile picture"}
-                className="size-full"
-                width={0}
-                height={0}
-                style={{ objectFit: "cover" }}
-                transformation={[{ quality: 80 }]}
-                lqip={{ active: true, quality: 20 }}
-              />
-            ) : (
-              <FontAwesomeIcon icon={faUser} size="xl" className="size-full" />
-            )}
+          <div className="relative">
+            <div
+              className={`${
+                session?.user.role?.includes(UserRole.ADMIN)
+                  ? "User_Profile_Page_Picture_Admin"
+                  : "User_Profile_Page_Picture"
+              }`}
+            >
+              {session?.user?.image ? (
+                <CustomImage
+                  src={session.user.image}
+                  alt={"profile picture"}
+                  className="size-full"
+                  width={0}
+                  height={0}
+                  style={{ objectFit: "cover" }}
+                  transformation={[{ quality: 80 }]}
+                  lqip={{ active: true, quality: 20 }}
+                />
+              ) : (
+                <FontAwesomeIcon icon={faUser} className="grow" />
+              )}
+            </div>
+            {session?.user?.role?.includes(UserRole.ADMIN) ? (
+              <div className="absolute bottom-0 right-0 z-50 text-white rounded-full bg-blue-500 p-[1px] aspect-square w-[30%] flex items-center justify-center">
+                <FontAwesomeIcon icon={faHammer} className="size-[70%]" />
+              </div>
+            ) : session?.user?.role?.includes(UserRole.CREATOR) ? (
+              <div className="absolute bottom-0 right-0 z-50 text-white rounded-full bg-blue-500 p-[1px] aspect-square w-[30%] flex items-center justify-center">
+                <FontAwesomeIcon icon={faCheck} className="size-[70%]" />
+              </div>
+            ) : null}
           </div>
         </div>
         <div className="flex flex-col text-xl bg-secondary-2/40 py-2 px-1 text-accent rounded-lg">
           <div className="w-full py-2 flex flex-row">
-            <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">Username</div>
+            <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">
+              Username
+            </div>
             <p className="break-words w-[70%]">{session?.user.name}</p>
           </div>
           <div className="w-full py-2 flex flex-row">
-            <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">Bio</div>
-            <p className="whitespace-pre-wrap w-[70%]">{session?.user.bio}</p>
+            <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">
+              Bio
+            </div>
+            <p className="whitespace-pre-wrap w-[70%] text-xs">
+              {session?.user.bio}
+            </p>
           </div>
           <div className="w-full py-2 flex flex-row">
-            <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">Fullname</div>
+            <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">
+              Fullname
+            </div>
             <p className="break-words w-[70%]">{session?.user.fullname}</p>
           </div>
           <div className="w-full py-2 flex flex-row">
-            <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">Birth</div>
+            <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">
+              Birth
+            </div>
             <p className="break-words w-[70%]">{session?.user.birthdate}</p>
           </div>
         </div>
@@ -64,7 +92,12 @@ export default function Info() {
           <h1 className="text-accent font-semibold">
             joined:{" "}
             <span className="text-accent/90 font-bold">
-              {session?.user?.createdAt?.toString().split("T")[0].split("-").reverse().join("-")}
+              {session?.user?.createdAt
+                ?.toString()
+                .split("T")[0]
+                .split("-")
+                .reverse()
+                .join("-")}
             </span>
           </h1>
           <h1 className="text-accent font-semibold">

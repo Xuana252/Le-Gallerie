@@ -35,11 +35,6 @@ import NewReportSection from "./dashboardSection/NewReportSection";
 
 export default function Dashboard() {
   const { subPath, setSubPath } = useContext(SubPathContext);
-  const [postData, setPostData] = useState<PostData | null>(null);
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [reportData, setReportData] = useState<ReportData | null>(null);
-  const [categoryData, setCategoryData] = useState<CategoryData | null>(null);
-  const [newReportData, setNewReportData] = useState<Report[]|null>(null);
 
   const sectionsRef = useRef<Record<string, HTMLDivElement | null>>({
     "Posts": null,
@@ -50,51 +45,6 @@ export default function Dashboard() {
   });
 
   const sectionKeys = Object.keys(sectionsRef.current);
-
-  const fetchPostData = async () => {
-    const res = await fetchSystemPostData();
-    
-    setPostData(res);
-  };
-
-  const fetchUserData = async () => {
-    const res = await fetchSystemUserData();
-   
-    setUserData(res);
-  };
-
-  const fetchCategoryData = async () => {
-    const res = await fetchSystemCategoryData();
-   
-    setCategoryData(res);
-  };
-
-  const fetchReportData = async () => {
-    const res = await fetchSystemReportData();
-   
-    setReportData(res);
-  };
-
-  
-  const fetchNewReportData = async () => {
-    const res = await fetchReport(10,1,"");
-    console.log(res);
-    setNewReportData(res?.reports);
-  };
-
-  const fetchData = async () => {
-    await Promise.all([
-      fetchPostData(),
-      fetchCategoryData(),
-      fetchUserData(),
-      fetchReportData(),
-      fetchNewReportData()
-    ]);
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -143,7 +93,7 @@ export default function Dashboard() {
           }}
           className="grow basis-[500px] h-full"
         >
-          <PostSection postData={postData} />
+          <PostSection />
         </div>
 
         <div
@@ -152,7 +102,7 @@ export default function Dashboard() {
           }}
           className="grow basis-[500px] h-full"
         >
-          <CategorySection categoryData={categoryData} />
+          <CategorySection  />
         </div>
 
         <div
@@ -161,7 +111,7 @@ export default function Dashboard() {
           }}
           className="grow basis-[500px] h-full"
         >
-          <UsersSection userData={userData} />
+          <UsersSection />
         </div>
 
         <div
@@ -170,7 +120,7 @@ export default function Dashboard() {
           }}
           className="grow basis-[500px] h-full"
         >
-          <ReportsSection reportData={reportData} />
+          <ReportsSection />
         </div>
 
         <div
@@ -179,7 +129,7 @@ export default function Dashboard() {
           }}
           className="grow basis-[500px] h-full"
         >
-          <NewReportSection newReportData={newReportData} />
+          <NewReportSection  />
         </div>
       </div>
     </section>

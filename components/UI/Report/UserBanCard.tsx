@@ -5,13 +5,19 @@ import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import {
   faAt,
   faCalendar,
+  faCameraRetro,
+  faHammer,
   faIdBadge,
+  faLock,
   faUser,
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { formatDate } from "@lib/dateFormat";
 import Link from "@node_modules/next/link";
+import { UserRole } from "@enum/userRolesEnum";
+import { renderRole } from "@lib/Admin/render";
+import UserProfileIcon from "../Profile/UserProfileIcon";
 
-export default function UserReportCard({
+export default function UserBanCard({
   user,
   isLoading = false,
 }: {
@@ -43,32 +49,21 @@ export default function UserReportCard({
         <div className="bg-secondary-2 text-xs  text-transparent rounded-lg animate-pulse">
           joined
         </div>
+        <div className="bg-secondary-2 text-xs  text-transparent rounded-lg animate-pulse">
+          banned
+        </div>
       </div>
     );
   return (
-    <Link
-      href={`/admin/users/${user?._id}`}
-      className="flex flex-col grow rounded-md bg-secondary-2 gap-1 p-1 overflow-hidden text-sm shadow-sm"
-    >
+    <div className="flex flex-col grow rounded-md bg-secondary-2 gap-1 p-1 overflow-hidden text-sm shadow-sm">
       <div className="text-xs bg-accent/50 text-primary p-1 rounded-lg ">
-        <FontAwesomeIcon icon={faIdBadge} /> {user?._id}
+        <span className="flex flex-row gap-1 items-center">
+          {renderRole(user?.role || [])}
+          {user?._id}
+        </span>
       </div>
       <div className="flex flex-row gap-2 items-center">
-        <div className={`bg-secondary-2 relative Icon_small`}>
-          {user?.image ? (
-            <CustomImage
-              src={user.image}
-              alt="profile picture"
-              className="size-full"
-              width={0}
-              height={0}
-              transformation={[{ quality: 10 }]}
-              style={{ objectFit: "cover" }}
-            />
-          ) : (
-            <FontAwesomeIcon icon={faUser} className="m-0" />
-          )}
-        </div>
+        <UserProfileIcon user={user} size="Icon_small" redirect={false} />
 
         <div className="flex flex-col items-start overflow-hidden whitespace-nowrap text-ellipsis">
           <div className="font-semibold underline ">{user?.username}</div>
@@ -83,6 +78,10 @@ export default function UserReportCard({
         {user?.createdAt && formatDate(user.createdAt.toString())}{" "}
         <FontAwesomeIcon icon={faCalendar} />
       </div>
-    </Link>
+      <div className="text-xs text-right italic text-accent/80">
+        {user?.updatedAt && formatDate(user.updatedAt.toString())}{" "}
+        <FontAwesomeIcon icon={faLock} />
+      </div>
+    </div>
   );
 }

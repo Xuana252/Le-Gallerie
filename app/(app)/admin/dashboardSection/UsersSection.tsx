@@ -125,10 +125,10 @@ export default function UsersSection() {
                     <span
                       className={`inline-block text-xs ${
                         diff > 0
-                          ? "text-green-600"
+                          ? "text-green-400"
                           : diff < 0
-                          ? "text-red-600"
-                          : "text-yellow-600"
+                          ? "text-red-400"
+                          : "text-yellow-400"
                       } p-1 rounded-lg bg-black `}
                     >
                       <FontAwesomeIcon

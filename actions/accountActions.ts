@@ -1,17 +1,20 @@
 "use server";
 
+import { UserRole } from "@enum/userRolesEnum";
 import { User } from "@lib/types";
 import { headers } from "next/headers";
 
-
 export const signUp = async (user: any) => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/new`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(user),
-  });
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/new`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(user),
+    }
+  );
   const data = await response.json();
   if (response.ok) {
     return { status: true, message: "account created" };
@@ -35,9 +38,18 @@ export const updateUser = async (user: User) => {
 };
 
 export const fetchUserWithId = async (user: string) => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user}`);
-  const data = await response.json();
-  return data;
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user}`,
+    {
+      headers: new Headers(headers()),
+    }
+  );
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+
+  return null;
 };
 
 export const blockUser = async (user: string, blockUser: string) => {
@@ -113,7 +125,6 @@ export const changeUserPassword = async (user: string, newpassword: string) => {
   return false;
 };
 
-
 export const fetchUsers = async (
   limit: number,
   currentPage: number,
@@ -133,10 +144,38 @@ export const fetchUsers = async (
 export const fetchSystemUsers = async (
   limit: number,
   currentPage: number,
-  searchText: string
+  searchText: string,
+  nameSort: -1 | 0 | 1,
+  joinSort: -1 | 0 | 1,
+  roleFilter: UserRole,
+  startDate: Date | string,
+  endDate: Date | string
 ) => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/admin/users/search?searchText=${searchText}&page=${currentPage}&limit=${limit}`,
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/admin/users/search?searchText=${searchText}&page=${currentPage}&limit=${limit}&nameSort=${nameSort}&joinSort=${joinSort}&roleFilter=${roleFilter}&startDate=${startDate}&endDate=${endDate}`,
+    {
+      headers: new Headers(headers()),
+    }
+  );
+  const data = await response.json();
+  if (response.ok) return { users: data.users, counts: data.counts };
+  return { users: [], counts: 0 };
+};
+
+export const fetchBannedUsers = async (
+  limit: number,
+  currentPage: number,
+  searchText: string,
+  nameSort: -1 | 0 | 1,
+  joinSort: -1 | 0 | 1,
+  roleFilter: UserRole,
+  startDate: Date | string,
+  endDate: Date | string,
+  startDateBan: Date | string,
+  endDateBan: Date | string
+) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/admin/users/banned?searchText=${searchText}&page=${currentPage}&limit=${limit}&nameSort=${nameSort}&joinSort=${joinSort}&roleFilter=${roleFilter}&startDate=${startDate}&endDate=${endDate}&startDateBan=${startDateBan}&endDateBan=${endDateBan}`,
     {
       headers: new Headers(headers()),
     }
@@ -159,4 +198,3 @@ export const fetchSystemUserData = async () => {
   }
   return null;
 };
-

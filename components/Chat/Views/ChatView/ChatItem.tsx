@@ -12,7 +12,9 @@ import {
   faEllipsisVertical,
   faL,
   faMapPin,
+  faRobot,
   faTrash,
+  faUser,
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { useSession } from "@node_modules/next-auth/react";
@@ -25,6 +27,7 @@ import {
 
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { ChatContext } from "@components/UI/Layout/Nav";
+import { faUber } from "@node_modules/@fortawesome/free-brands-svg-icons";
 
 export default function ChatItem({
   message,
@@ -112,15 +115,8 @@ export default function ChatItem({
           key={index}
           className="grid grid-cols-[auto_1fr_auto] gap-1 items-center"
         >
-          {reaction.user._id === session?.user.id ? (
-            <UserProfileIcon currentUser={true} size="Icon_smaller" />
-          ) : (
-            <UserProfileIcon
-              currentUser={false}
-              user={reaction.user}
-              size="Icon_smaller"
-            />
-          )}
+          <UserProfileIcon user={reaction.user} size="Icon_smaller" />
+
           <p className="text-xs font-bold text-accent">
             {reaction.user.username}
           </p>
@@ -165,15 +161,21 @@ export default function ChatItem({
         {profileRenderClasses.some(
           (className) => className === messageClass
         ) ? (
-          <div className="self-end">
-            {message.senderId === session?.user.id ? (
-              <UserProfileIcon currentUser={true} size="Icon_message" />
-            ) : (
-              <UserProfileIcon
-                currentUser={false}
-                user={user}
-                size="Icon_message"
+          <div className="self-end Icon_message">
+            {chatInfo.type === "ai" ? (
+              <FontAwesomeIcon icon={faRobot} />
+            ) : user?.image ? (
+              <CustomImage
+                src={user.image}
+                alt="profile picture"
+                className="size-full"
+                width={0}
+                height={0}
+                transformation={[{ quality: 10 }]}
+                style={{ objectFit: "cover" }}
               />
+            ) : (
+              <FontAwesomeIcon icon={faUser} className="m-0" />
             )}
           </div>
         ) : messageClass.includes("Other_message") ? (
@@ -260,7 +262,7 @@ export default function ChatItem({
             </div>
           )}
         </div>
-        {isHovering && (
+        {chatInfo.type !== "ai" && isHovering && (
           <>
             <ReactionButton
               style="vertical"

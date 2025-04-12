@@ -16,7 +16,7 @@ export default function CommentProps({
   if (comment)
     return (
       <div className="flex flex-row gap-1 items-start justify-center"> 
-        <UserProfileIcon currentUser={false} user={comment.user} size="Icon_small" />
+        <UserProfileIcon  user={comment.user} size="Icon_small" redirect={false} />
         <div className="rounded-xl bg-secondary-2 w-fit px-2 py-1 text-sm">
           <span
             className={`font-semibold break-all whitespace-normal  text-sm`}

@@ -82,8 +82,17 @@
 .User_Profile_Page_Picture_Container {
   @apply flex flex-row sm:flex-col items-center justify-center gap-2 w-full h-fit;
 }
+
+.User_Profile_Page_Picture_Base {
+  @apply flex flex-col  w-20 aspect-square sm:w-32 lg:w-44 bg-secondary-2 relative overflow-hidden;
+}
+
 .User_Profile_Page_Picture {
-  @apply flex flex-col rounded-full w-20 aspect-square sm:w-32 lg:w-44 overflow-hidden bg-secondary-2 relative shadow-xl ;
+  @apply User_Profile_Page_Picture_Base   shadow-xl rounded-full;
+}
+
+.User_Profile_Page_Picture_Admin {
+  @apply User_Profile_Page_Picture_Base  rounded-[15%] border-2 border-white;
 }
 .User_Profile_Page_Username {
   @apply text-xl sm:text-4xl w-full text-accent text-center font-bold break-words underline;
@@ -122,11 +131,11 @@
   @apply flex flex-row transition-all text-sm duration-150 ease-in-out origin-bottom-left hover:border-l-4 hover:border-b-4 border-primary active:border-none rounded-lg gap-2 items-center w-full text-left px-4 py-2 text-accent hover:bg-accent/50 hover:text-primary active:bg-accent active:text-primary font-bold;
 }
 .Side_bar_sub_item {
-  @apply text-xs p-2 border-l-2 border-accent ml-2 text-accent/50 hover:text-accent hover:pl-3 transition-all duration-150 ease-in-out hover:bg-primary/20 rounded-r-xl
+  @apply text-xs p-2 border-l-2 border-accent ml-2 text-accent/50 hover:text-accent hover:pl-3 transition-all duration-150 ease-in-out hover:bg-primary/20 rounded-r-xl;
 }
 
 .Side_bar_selected_sub_item {
-  @apply text-xs p-2 border-l-2 border-primary ml-2 text-accent pl-3 transition-all duration-150 ease-in-out bg-primary/30 rounded-r-xl
+  @apply text-xs p-2 border-l-2 border-primary ml-2 text-accent pl-3 transition-all duration-150 ease-in-out bg-primary/30 rounded-r-xl;
 }
 
 .Side_bar_selected_item {
@@ -158,8 +167,6 @@
     @apply text-accent grid grid-cols-2 rounded-3xl w-full max-w-[1080px] min-h-[400px] shadow-xl m-auto bg-secondary-1/30 border-2 border-accent/50 backdrop-blur-sm overflow-hidden h-[80%]  relative;
   }
 }
-
-
 
 .Sign_In_Form_Mobile {
   @apply size-full grid grid-rows-2 text-accent  relative overflow-hidden shadow-xl bg-secondary-1/30 border-2 border-accent/50 backdrop-blur-sm;
@@ -214,9 +221,8 @@
   @apply flex select-none items-center justify-center px-2 py-1 bg-accent text-primary font-semibold rounded-xl gap-2 whitespace-nowrap;
 }
 .Nav_bar {
-  @apply sticky z-50 top-0 left-0 w-full h-[60px] bg-gradient-to-r from-secondary-1 via-primary to-secondary-2 text-accent  shadow-md border-b-2 border-accent/50 ;
+  @apply sticky z-50 top-0 left-0 w-full h-[60px] bg-gradient-to-r from-secondary-1 via-primary to-secondary-2 text-accent  shadow-md border-b-2 border-accent/50;
 }
-
 
 .Buttons_container {
   @apply hidden;
@@ -258,15 +264,15 @@
 }
 
 .panel {
-  @apply shadow-md rounded-md bg-primary p-2 
+  @apply shadow-md rounded-md bg-primary p-2;
 }
 
 .panel_2 {
-  @apply shadow-md rounded-md bg-accent text-primary p-2 
+  @apply shadow-md rounded-md bg-accent text-primary p-2;
 }
 
 .text_panel {
-  @apply p-2 rounded-md shadow-md bg-gradient-to-br from-primary/40 to-secondary-1/40 border-2 border-accent/20 backdrop-blur-sm size-fit
+  @apply p-2 rounded-md shadow-md bg-gradient-to-br from-primary/40 to-secondary-1/40 border-2 border-accent/20 backdrop-blur-sm size-fit;
 }
 
 .title {
@@ -344,7 +350,6 @@
   background: radial-gradient(circle at 50% 90%, white 1%, transparent);
   filter: blur(50px);
 }
-
 
 @layer base {
   /* Hide scrollbar for Chrome, Safari and Opera */
@@ -540,7 +545,7 @@
   flex-direction: column;
   width: fit-content;
   font-weight: bold;
-  animation: scrollNumbersUp 2s linear infinite ;
+  animation: scrollNumbersUp 2s linear infinite;
 }
 
 .number-scroll-up span {
@@ -548,18 +553,20 @@
 }
 
 @keyframes scrollNumbersUp {
-  0% { transform: translateY(0%); }
-  100% { transform: translateY(-400%); } /* Moves up by 5 numbers */
-
+  0% {
+    transform: translateY(0%);
+  }
+  100% {
+    transform: translateY(-400%);
+  } /* Moves up by 5 numbers */
 }
-
 
 .number-scroll-down {
   display: flex;
   flex-direction: column;
   width: fit-content;
   font-weight: bold;
-  animation: scrollNumbersDown 2s linear infinite ;
+  animation: scrollNumbersDown 2s linear infinite;
 }
 
 .number-scroll-down span {
@@ -567,7 +574,10 @@
 }
 
 @keyframes scrollNumbersDown {
-  0% { transform: translateY(-400%); }
-  100% { transform: translateY(0%); } /* Moves up by 5 numbers */
-
+  0% {
+    transform: translateY(-400%);
+  }
+  100% {
+    transform: translateY(0%);
+  } /* Moves up by 5 numbers */
 }

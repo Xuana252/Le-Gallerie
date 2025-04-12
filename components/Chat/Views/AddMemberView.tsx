@@ -1,4 +1,10 @@
-import React, { Dispatch, FormEvent, SetStateAction, useState } from "react";
+import React, {
+  Dispatch,
+  FormEvent,
+  SetStateAction,
+  useContext,
+  useState,
+} from "react";
 import FriendSearchSection from "../ChatTabComponent/FriendSearchSection";
 import { User } from "@lib/types";
 import { ChatBoxView } from "@enum/chatBoxView";
@@ -16,18 +22,18 @@ import { SubmitButtonState } from "@enum/submitButtonState";
 import { joinChat } from "@lib/Chat/chat";
 import { toast } from "@node_modules/sonner/dist";
 import { toastMessage } from "@components/Notification/Toaster";
+import { ChatContext } from "@components/UI/Layout/Nav";
+import { ChatBoxContext } from "../ChatBox";
 
 export default function AddMemberView({
-  chat,
-  chatInfo,
   setChatBoxView,
-  setIsLoading
+  setIsLoading,
 }: {
-  chat: any;
-  chatInfo: any;
   setChatBoxView: Dispatch<SetStateAction<ChatBoxView>>;
   setIsLoading: (state: boolean) => void;
 }) {
+  const { chat } = useContext(ChatBoxContext);
+  const { chatInfo } = useContext(ChatContext);
   const [members, setMembers] = useState<User[]>([]);
   const [addMemberState, setAddMemberState] = useState<SubmitButtonState>(
     SubmitButtonState.IDLE
@@ -61,8 +67,8 @@ export default function AddMemberView({
       );
 
       setAddMemberState(SubmitButtonState.SUCCESS);
-      setChatBoxView(ChatBoxView.SETTING)
-      toastMessage(`New member added to chat`)
+      setChatBoxView(ChatBoxView.SETTING);
+      toastMessage(`New member added to chat`);
     } catch (error) {
       console.log(error);
       setAddMemberState(SubmitButtonState.FAILED);
@@ -100,7 +106,7 @@ export default function AddMemberView({
                 key={index}
               >
                 <UserProfileIcon
-                  currentUser={false}
+          
                   user={member}
                   size="Icon_small"
                 />

@@ -82,7 +82,7 @@ export default function SignUpForm() {
       alertError(["Sign up limit exceeded please return in an hour"]);
       return;
     }
-    if(verificationCodeText.trim() !== verificationCode.trim()) {
+    if (verificationCodeText.trim() !== verificationCode.trim()) {
       setSubmitState(SubmitButtonState.FAILED);
       alertError(["Invalid verification code. Please check again"]);
       return;

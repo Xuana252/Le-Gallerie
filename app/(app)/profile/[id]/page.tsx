@@ -4,7 +4,9 @@ import Feed from "@components/UI/Layout/Feed";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBorderAll,
+  faCheck,
   faComment,
+  faHammer,
   faLineChart,
   faLinesLeaning,
   faUser,
@@ -42,6 +44,7 @@ import {
 import UserStatBar from "@components/UI/Profile/UserStatBar";
 import UserInteractionBar from "@components/UI/Profile/UserInteractionBar";
 import MultiTabContainer from "@components/UI/Layout/MultiTabContainer";
+import { UserRole } from "@enum/userRolesEnum";
 
 export default function UserProfile({ params }: { params: { id: string } }) {
   const { data: session, status } = useSession();
@@ -49,12 +52,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
   const [blocked, setBlocked] = useState<boolean>(false); //us blocking the other user
   const [interactFlag, setInteractFlag] = useState(true);
 
-  const [user, setUser] = useState<User | null>({
-    _id: "",
-    username: "",
-    image: "",
-    bio: "",
-  });
+  const [user, setUser] = useState<User | null>();
 
   const fetchUser = async () => {
     try {
@@ -141,9 +139,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
             <div className="User_Profile_Page_Fullname text-transparent bg-secondary-2 rounded-lg animate-pulse ">
               UserInfoLong
             </div>
-            <div className="User_Profile_Page_Bio text-transparent h-10 animate-pulse">
-              
-            </div>
+            <div className="User_Profile_Page_Bio text-transparent h-10 animate-pulse"></div>
 
             <div className="User_Profile_Page_Interactive_Bar">
               <div className="rounded-lg bg-accent animate-pulse p-2 ">
@@ -170,21 +166,44 @@ export default function UserProfile({ params }: { params: { id: string } }) {
           <div className="User_Info_Container">
             <h1 className="User_Profile_Page_Username">{user?.username}</h1>
             <div className="User_Profile_Page_Picture_Container">
-              <div className=" User_Profile_Page_Picture ">
-                {user?.image ? (
-                  <CustomImage
-                    src={user?.image}
-                    alt={"profile picture"}
-                    className="size-full"
-                    width={0}
-                    height={0}
-                    style={{ objectFit: "cover" }}
-                    transformation={[{ quality: 80 }]}
-                    lqip={{ active: true, quality: 20 }}
-                  />
-                ) : (
-                  <FontAwesomeIcon icon={faUser} className="grow" />
-                )}
+              <div className="relative">
+                <div
+                  className={`${
+                    user.role?.includes(UserRole.ADMIN)
+                      ? "User_Profile_Page_Picture_Admin"
+                      : "User_Profile_Page_Picture"
+                  }`}
+                >
+                  {user?.image ? (
+                    <CustomImage
+                      src={user?.image}
+                      alt={"profile picture"}
+                      className="size-full"
+                      width={0}
+                      height={0}
+                      style={{ objectFit: "cover" }}
+                      transformation={[{ quality: 80 }]}
+                      lqip={{ active: true, quality: 20 }}
+                    />
+                  ) : (
+                    <FontAwesomeIcon icon={faUser} className="grow" />
+                  )}
+                </div>
+                {user?.role?.includes(UserRole.ADMIN) ? (
+                  <div
+                    className="absolute bottom-0 right-0 z-50 text-white rounded-full bg-blue-500 p-[1px] aspect-square w-[30%] flex items-center justify-center"
+                   
+                  >
+                    <FontAwesomeIcon icon={faHammer} className="size-[70%]"/>
+                  </div>
+                ) : user?.role?.includes(UserRole.CREATOR) ? (
+                  <div
+                    className="absolute bottom-0 right-0 z-50 text-white rounded-full bg-blue-500 p-[1px] aspect-square w-[30%] flex items-center justify-center"
+                    
+                  >
+                    <FontAwesomeIcon icon={faCheck} className="size-[70%]"/>
+                  </div>
+                ) : null}
               </div>
               <UserStatBar userId={params.id} updateFlag={interactFlag} />
             </div>
@@ -198,27 +217,25 @@ export default function UserProfile({ params }: { params: { id: string } }) {
           </div>
 
           <MultiTabContainer
-                tabs={[
-                  {
-                    head: (
-                      <>
-                        <FontAwesomeIcon icon={faBorderAll} /> All
-                      </>
-                    ),
-                    body: <Feed userIdFilter={user._id} />,
-                  },
-                  {
-                    head: (
-                      <>
-                        <FontAwesomeIcon icon={faHeart} /> Liked
-                      </>
-                    ),
-                    body: (
-                      <Feed userIdFilter={user._id} userIdLikedFilter={true} />
-                    ),
-                  },
-                ]}
-              />
+            tabs={[
+              {
+                head: (
+                  <>
+                    <FontAwesomeIcon icon={faBorderAll} /> All
+                  </>
+                ),
+                body: <Feed userIdFilter={user._id} />,
+              },
+              {
+                head: (
+                  <>
+                    <FontAwesomeIcon icon={faHeart} /> Liked
+                  </>
+                ),
+                body: <Feed userIdFilter={user._id} userIdLikedFilter={true} />,
+              },
+            ]}
+          />
         </section>
       )}
     </>

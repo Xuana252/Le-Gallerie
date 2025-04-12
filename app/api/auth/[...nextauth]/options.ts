@@ -56,6 +56,10 @@ export const options: NextAuthOptions = {
             throw new Error("Account not found.");
           }
 
+          if (user.banned) {
+            throw new Error("Your account has been banned.");
+          }
+
           if (user && user.password) {
             const isMatch = await bcrypt.compare(
               credentials?.password,
@@ -97,12 +101,18 @@ export const options: NextAuthOptions = {
       try {
         await connectToDB();
 
-        const userExists = await User.findOne({
+        const existingUser  = await User.findOne({
           email: user.email,
         });
 
-        if (!userExists) {
-          //create a random string then hash it
+        console.log(existingUser)
+        if (existingUser ) {
+          if (existingUser.banned) {
+           
+            throw new Error("Your account has been banned.");
+          }
+        } else {
+
           const characters =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
           let result = "";
@@ -126,6 +136,7 @@ export const options: NextAuthOptions = {
             follower: 0,
             following: 0,
             blocked: [],
+            banned: false,
             role: [UserRole.USER],
           });
 
@@ -159,13 +170,14 @@ export const options: NextAuthOptions = {
         token.fullname = user.fullname || "";
         token.birthdate = user.birthdate || "";
         token.role = user.role || [UserRole.USER];
+        token.banned = user.banned || false;
       }
 
-      // If token already contains user data, avoid DB query
       if (token.id) {
         try {
           const sessionUser = await User.findOne({ email: token.email });
           if (sessionUser) {
+    
             token.id = sessionUser._id.toString();
             token.name = sessionUser.username || "";
             token.email = sessionUser.email || "";
@@ -179,6 +191,7 @@ export const options: NextAuthOptions = {
             token.fullname = sessionUser.fullname || "";
             token.birthdate = sessionUser.birthdate || "";
             token.role = sessionUser.role || [UserRole.USER];
+            token.banned = sessionUser.banned || false;
           }
         } catch (error) {
           console.error("Error fetching user for JWT:", error);
@@ -201,6 +214,7 @@ export const options: NextAuthOptions = {
         fullname: token.fullname as string,
         birthdate: token.birthdate as string,
         role: token.role as UserRole[],
+        banned: token.banned as boolean,
       };
       return session;
     },

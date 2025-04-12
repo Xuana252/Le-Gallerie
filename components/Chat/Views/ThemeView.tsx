@@ -1,3 +1,4 @@
+import { ChatContext } from "@components/UI/Layout/Nav";
 import ChatBoxProps from "@components/UI/Props/ChatBoxProps";
 import { ChatBoxView } from "@enum/chatBoxView";
 import { changeChatTheme } from "@lib/Chat/chat";
@@ -5,18 +6,17 @@ import { faAngleLeft } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { useSession } from "@node_modules/next-auth/react";
 import { themeCategories } from "@theme/ThemesList";
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useContext } from "react";
+import { ChatBoxContext } from "../ChatBox";
 
 export default function ThemeView({
-  chat,
-  chatInfo,
   setChatBoxView,
 }: {
-  chat: any;
-  chatInfo: any;
   setChatBoxView: Dispatch<SetStateAction<ChatBoxView>>;
 }) {
   const { data: session } = useSession();
+  const { chat } = useContext(ChatBoxContext);
+  const { chatInfo } = useContext(ChatContext);
   return (
     <div className="size-full">
       <div className="w-full justify-center grid grid-cols-[auto_1fr_auto] h-[30px] bg-secondary-2/50 items-center px-2">
@@ -65,7 +65,9 @@ export default function ThemeView({
                   >
                     <ChatBoxProps theme={theme} />
                   </div>
-                  <div className={`${theme} text-xs p-1 font-mono w-full text-center rounded-md overflow-hidden text-ellipsis whitespace-nowrap break-all`}>
+                  <div
+                    className={`${theme} text-xs p-1 font-mono w-full text-center rounded-md overflow-hidden text-ellipsis whitespace-nowrap break-all`}
+                  >
                     {theme.replace(/-/g, " ").replace("theme", "")}
                   </div>
                 </div>

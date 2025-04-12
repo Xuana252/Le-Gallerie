@@ -108,7 +108,7 @@ export default function SharePostForm({ post }: { post: Post }) {
     }
   };
   return (
-    <div className="flex flex-col gap-2  max-w-[300px] sm:max-w-[400px] ">
+    <div className="flex flex-col gap-2  max-w-[300px] sm:max-w-[400px]  ">
       <div>Share</div>
       <ul className="p-2 bg-primary/50 flex flex-row gap-4 items-end justify-around w-full overflow-x-auto rounded-lg ">
         <li className="cursor-pointer flex flex-col gap-1 items-center ">

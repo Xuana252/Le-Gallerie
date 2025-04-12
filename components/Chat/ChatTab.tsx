@@ -46,6 +46,7 @@ export default function ChatTab({
 
   const handleAi=()=>{
     setChatInfo({
+      chatId: session?.user.id,
       admin: session?.user.id,
       type:"ai",
       log:[],

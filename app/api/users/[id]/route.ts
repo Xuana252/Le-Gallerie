@@ -3,20 +3,21 @@ import User from "@models/userModel";
 import { NextRequest, NextResponse } from "next/server";
 import { knock } from "@lib/knock";
 import { getServerSession } from "next-auth";
+import { options } from "@app/api/auth/[...nextauth]/options";
 
 export const PATCH = async (
   req: Request,
   { params }: { params: { id: string } }
 ) => {
-  const { username, image, bio, fullname,birthdate } = await req.json();
+  const { username, image, bio, fullname, birthdate } = await req.json();
   try {
     connectToDB();
     const updateInfo = {
       username: username,
       image: image,
       bio: bio,
-      fullname:fullname,
-      birthdate:birthdate,
+      fullname: fullname,
+      birthdate: birthdate,
     };
     const user = await User.findByIdAndUpdate(params.id, updateInfo, {
       new: true,
@@ -46,8 +47,17 @@ export const GET = async (
   try {
     connectToDB();
 
+    await connectToDB();
+    const session = await getServerSession(options);
+
+    const currentUser = await User.findById(session?.user.id);
+
+    const isAdmin = currentUser && currentUser.role.includes("admin");
+
     const user = await User.findById(params.id).select(
-      "-email -password -createdAt -updatedAt -__v"
+      isAdmin
+        ? "-password   -__v" // Include email for admin
+        : "-email -password  -updatedAt -__v" // Hide email for others
     );
     if (!user)
       return NextResponse.json({ message: "User not found" }, { status: 404 });

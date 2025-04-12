@@ -60,9 +60,9 @@ export default function PostProps({ post }: { post?: Post | null }) {
           <div className="h-fit w-full flex flex-row gap-2 items-center justify-start">
             <div className="transition-transform duration-200 hover:scale-110">
               <UserProfileIcon
-                currentUser={false}
                 user={post.creator}
                 size={"Icon_small"}
+                redirect={false}
               />
             </div>
             <div>

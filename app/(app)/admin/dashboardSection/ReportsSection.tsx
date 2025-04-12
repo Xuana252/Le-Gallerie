@@ -199,10 +199,10 @@ export default function ReportsSection() {
                       <span
                         className={`inline-block text-xs ${
                           monthdiff < 0
-                            ? "text-green-600"
+                            ? "text-green-400"
                             : monthdiff > 0
-                            ? "text-red-600"
-                            : "text-yellow-600"
+                            ? "text-red-400"
+                            : "text-yellow-400"
                         } p-1 rounded-lg bg-black `}
                       >
                         <FontAwesomeIcon
@@ -233,13 +233,13 @@ export default function ReportsSection() {
                             className={`inline-block text-xs ${
                               change < 0
                                 ? key !== "resolved"
-                                  ? "text-green-600"
-                                  : "text-red-600"
+                                  ? "text-green-400"
+                                  : "text-red-400"
                                 : change > 0
                                 ? key !== "resolved"
-                                  ? "text-red-600"
-                                  : "text-green-600"
-                                : "text-yellow-600"
+                                  ? "text-red-400"
+                                  : "text-green-400"
+                                : "text-yellow-400"
                             } p-1 rounded-lg bg-black`}
                           >
                             <FontAwesomeIcon

@@ -17,31 +17,32 @@ import {
   increment,
 } from "firebase/firestore";
 import { useSession } from "@node_modules/next-auth/react";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { text } from "stream/consumers";
 
 import TextAreaInput from "@components/Input/TextAreaInput";
 import { sendMessage } from "@lib/Chat/chat";
 
 import { v4 as uuidv4 } from "uuid";
-import { getAIResponse } from "@actions/chatGemini";
+import { getAIResponse } from "@actions/aiChatActions";
+import { ChatBoxContext } from "@components/Chat/ChatBox";
+import { ChatContext } from "@components/UI/Layout/Nav";
 
 export default function ChatBar({
-  chatInfo,
   isBlocked,
   blocked,
 }: {
-  chatInfo: any;
   isBlocked: boolean;
   blocked: boolean;
- 
 }) {
   const { data: session } = useSession();
   const [text, setText] = useState("");
+  const { chat, setChat, setIsReplying } = useContext(ChatBoxContext);
+  const { chatInfo } = useContext(ChatContext);
 
   const [imageQueue, setImageQueue] = useState<UploadImage[]>([]);
 
-  const [isWaiting, setIsWaiting] = useState(false);
+  const [isWaiting, setIsWaiting] = useState(true);
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     e.preventDefault();
 
@@ -64,10 +65,34 @@ export default function ChatBar({
     setImageQueue([]);
 
     if (chatInfo.type === "ai") {
-      
-      setIsWaiting(true);
-      getAIResponse(text, session.user.id);
-      setIsWaiting(false);
+      const userMessage = {
+        senderId: "user",
+        text: text,
+        createdAt: new Date(),
+        reactions: [],
+        image: [],
+        delete: false,
+      };
+
+      setChat((prev: any) => ({
+        ...prev!,
+        message: [userMessage,...prev!.message, ],
+      }));
+      setIsReplying(true);
+      const reply = await getAIResponse(text, session.user.id);
+      const aiResponse = {
+        senderId: "gemini-ai",
+        text: reply,
+        createdAt: new Date(),
+        reactions: [],
+        image: [],
+        delete: false,
+      };
+      setIsReplying(false);
+      setChat((prev: any) => ({
+        ...prev!,
+        message: [ aiResponse,...prev!.message,],
+      }));
       return;
     }
 
@@ -75,10 +100,18 @@ export default function ChatBar({
   };
 
   return (
-    <div className="grid grid-cols-[auto_1fr_auto_auto] items-center bg-secondary-1 p-1 min-h-[50px] grow fixed bottom-0 shadow-md gap-2 w-full z-40">
+    <div
+      className={`grid ${
+        chatInfo.type === "ai"
+          ? "grid-cols-[1fr_auto_auto]"
+          : "grid-cols-[auto_1fr_auto_auto]"
+      } items-center bg-secondary-1 p-1 min-h-[50px] grow fixed bottom-0 shadow-md gap-2 w-full z-40`}
+    >
       {!(isBlocked || blocked) ? (
         <>
-          <ImageInput image={[]} type="TextImage" setImage={handleAddImage} />
+          {chatInfo.type !== "ai" && (
+            <ImageInput image={[]} type="TextImage" setImage={handleAddImage} />
+          )}
           <div className="flex flex-col gap-2 bg-secondary-2/30 rounded-2xl">
             {imageQueue.length > 0 && (
               <ul className="flex flex-wrap gap-2 p-1 overflow-scroll no-scrollbar max-h-[100px]">

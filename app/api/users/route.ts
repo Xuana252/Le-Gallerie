@@ -36,9 +36,7 @@ export const GET = async (req: Request) => {
       return Response.json({ users: [], counts: 0 }, { status: 400 });
     }
 
-    // Step 3: Filter by category IDs if any
     const count = await User.countDocuments(query);
-    console.log("Total matching users:", count);
 
     const users = await User.find(query)
       .select("-email -password -createdAt -updatedAt -__v")

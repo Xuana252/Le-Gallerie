@@ -2,19 +2,19 @@ import { ChatBoxView } from "@enum/chatBoxView";
 import CustomImage from "@components/UI/Image/Image";
 import { faAngleLeft } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useContext } from "react";
+import { ChatBoxContext } from "../ChatBox";
 
 export default function MediaView({
-  chat,
   setChatBoxView,
   isBlocked,
   blocked,
 }: {
-  chat: any;
   setChatBoxView: Dispatch<SetStateAction<ChatBoxView>>;
   isBlocked: boolean;
   blocked: boolean;
 }) {
+  const { chat } = useContext(ChatBoxContext);
   return (
     <>
       <div className="w-full justify-center grid grid-cols-3 h-[30px] bg-secondary-2/50 items-center px-2">

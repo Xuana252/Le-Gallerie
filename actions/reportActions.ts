@@ -128,32 +128,38 @@ export const fetchUserReport = async () => {
 export const fetchUserReportId = async (id: string) => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/user/${id}`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/user/${id}`,
+      {
+        headers: new Headers(headers()),
+      }
     );
     if (response.ok) {
       const data = await response.json();
-      return data;
+      return { reports: data.reports, counts: data.counts };
     }
-    return [];
+    return { reports: [], counts: 0 };
   } catch (error) {
     console.log(error);
-    return [];
+    return { reports: [], counts: 0 };
   }
 };
 
-export const fetchUserReportMade = async (id: string) => {
+export const fetchUsersReportId = async (id: string) => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/${id}/made`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/user/${id}/made`,
+      {
+        headers: new Headers(headers()),
+      }
     );
     if (response.ok) {
       const data = await response.json();
-      return data;
+      return { reports: data.reports, counts: data.counts };
     }
-    return [];
+    return { reports: [], counts: 0 };
   } catch (error) {
     console.log(error);
-    return [];
+    return { reports: [], counts: 0 };
   }
 };
 

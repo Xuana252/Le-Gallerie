@@ -8,6 +8,8 @@ import {
   faPen,
   faBorderAll,
   faGear,
+  faCheck,
+  faHammer,
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { getSession, useSession } from "next-auth/react";
@@ -25,6 +27,7 @@ import {
 } from "@actions/followsActions";
 import UserStatBar from "@components/UI/Profile/UserStatBar";
 import MultiTabContainer from "@components/UI/Layout/MultiTabContainer";
+import { UserRole } from "@enum/userRolesEnum";
 
 export default function MyProfile() {
   const { data: session, update } = useSession();
@@ -34,21 +37,44 @@ export default function MyProfile() {
       <div className="User_Info_Container">
         <h1 className="User_Profile_Page_Username">{session?.user?.name}</h1>
         <div className="User_Profile_Page_Picture_Container">
-          <div className="User_Profile_Page_Picture ">
-            {session?.user?.image ? (
-              <CustomImage
-                src={session.user.image}
-                alt={"profile picture"}
-                className="size-full"
-                width={0}
-                height={0}
-                style={{ objectFit: "cover" }}
-                transformation={[{ quality: 80 }]}
-                lqip={{ active: true, quality: 20 }}
-              />
-            ) : (
-              <FontAwesomeIcon icon={faUser} className="grow" />
-            )}
+          <div className="relative">
+            <div
+              className={`${
+                session?.user.role?.includes(UserRole.ADMIN)
+                  ? "User_Profile_Page_Picture_Admin"
+                  : "User_Profile_Page_Picture"
+              }`}
+            >
+              {session?.user?.image ? (
+                <CustomImage
+                  src={session.user.image}
+                  alt={"profile picture"}
+                  className="size-full"
+                  width={0}
+                  height={0}
+                  style={{ objectFit: "cover" }}
+                  transformation={[{ quality: 80 }]}
+                  lqip={{ active: true, quality: 20 }}
+                />
+              ) : (
+                <FontAwesomeIcon icon={faUser} className="grow" />
+              )}
+            </div>
+            {session?.user?.role?.includes(UserRole.ADMIN) ? (
+              <div
+                className="absolute bottom-0 right-0 z-50 text-white rounded-full bg-blue-500 p-[1px] aspect-square w-[30%] flex items-center justify-center"
+               
+              >
+                <FontAwesomeIcon icon={faHammer} className="size-[70%]" />
+              </div>
+            ) : session?.user?.role?.includes(UserRole.CREATOR) ? (
+              <div
+                className="absolute bottom-0 right-0 z-50 text-white rounded-full bg-blue-500 p-[1px] aspect-square w-[30%] flex items-center justify-center"
+               
+              >
+                <FontAwesomeIcon icon={faCheck} className="size-[70%]" />
+              </div>
+            ) : null}
           </div>
           <UserStatBar userId={session?.user.id || ""} updateFlag={true} />
         </div>
