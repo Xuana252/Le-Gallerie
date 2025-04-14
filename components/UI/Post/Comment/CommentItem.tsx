@@ -203,7 +203,10 @@ export const CommentItem = ({
         </div>
         {isReplying && (
           <div className="flex flex-row items-start gap-2 border-l-2 border-accent p-2">
-            <UserProfileIcon user={{_id:session?.user.id,...session?.user} as User} size="Icon_smaller" />
+            <UserProfileIcon
+              user={{ _id: session?.user.id, ...session?.user } as User}
+              size="Icon_smaller"
+            />
             <textarea
               ref={replyBlock}
               value={replyContent}
