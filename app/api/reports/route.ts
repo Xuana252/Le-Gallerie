@@ -50,13 +50,14 @@ export const GET = async (req: NextRequest) => {
 };
 
 export const PATCH = async (req: NextRequest) => {
-  const { user, reportId, type, content } = await req.json();
+  const { user, reportId,targetUserId, type, content } = await req.json();
   try {
     await connectToDB();
 
     const newReport = {
       user: user._id,
       reportId,
+      targetUserId,
       type,
       content,
     };

@@ -37,16 +37,25 @@ export default function ReportForm({
       return;
     }
 
+    if (!content._id) {
+      toastError("There is nothing to report");
+      return;
+    }
+
     try {
       setSubmitState(SubmitButtonState.PROCESSING);
 
       const newReport: Report = {
         _id: "",
         user: { _id: session.user.id || "" },
-        reportId: content._id || "",
+        targetUserId:
+          type === "Post"
+            ? (content as Post).creator._id
+            : (content as Comment).user._id,
+        reportId: content._id,
         type,
         content: "[" + prompt.join(", ") + "] " + details,
-        state:false,
+        state: false,
       };
       const res = await updateReport(newReport);
 

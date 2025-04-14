@@ -116,6 +116,7 @@ export type Category = {
 export type Report = {
   _id: string;
   user: User;
+  targetUserId: string;
   reportId: string;
   type: "Post" | "Comment";
   content: string;

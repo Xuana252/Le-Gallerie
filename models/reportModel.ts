@@ -11,6 +11,11 @@ const ReportSchema = new Schema(
       refPath: "type",
       required: true,
     },
+    targetUserId: {
+      type: Schema.Types.ObjectId,
+      ref: User,
+      required: true,
+    },
     user: {
       type: Schema.Types.ObjectId,
       ref: User,

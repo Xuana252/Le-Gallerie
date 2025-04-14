@@ -4,7 +4,7 @@ import {
   updateUserBanState,
   updateUserCreatorState,
 } from "@actions/accountActions";
-import { deletePost, fetchPostWithId } from "@actions/postActions";
+import { deletePost, fetchPostWithId, revivePost } from "@actions/postActions";
 import InputBox from "@components/Input/InputBox";
 import SubmitButton from "@components/Input/SubmitButton";
 import toastError, {
@@ -47,6 +47,67 @@ export default function PostDetails({ params }: { params: { id: string } }) {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [post, setPost] = useState<Post | null>(null);
+  const [hideState, setHideState] = useState<SubmitButtonState>(
+    SubmitButtonState.IDLE
+  );
+
+  const handleShow = async () => {
+    if (!post?._id) {
+      toastMessage("Unavailable");
+      return;
+    }
+    
+    setHideState(SubmitButtonState.PROCESSING)
+    try {
+      const res = await revivePost(post._id);
+
+      if (res) {
+        setHideState(SubmitButtonState.SUCCESS)
+        toastMessage("Post revived")
+        setPost({...post,isDeleted:false})
+        return 
+      } else {
+        setHideState(SubmitButtonState.FAILED)
+        toastMessage("Failed to revive post")
+      }
+    } catch (error) {
+      setHideState(SubmitButtonState.FAILED)
+      toastError("Failed to revive post")
+      console.log(error)
+    }
+  };
+
+  const handleHide = async () => {
+    if (!post?.isDeleted) {
+      const result = await confirm("Do you want to hide this post?");
+      if (!result) return;
+    }
+
+    if (!post?._id) {
+      toastMessage("Unavailable");
+      return;
+    }
+
+    
+    setHideState(SubmitButtonState.PROCESSING)
+    try {
+      const res = await deletePost(post._id);
+      
+      if (res) {
+        setHideState(SubmitButtonState.SUCCESS)
+        toastMessage("Post hidden")
+        setPost({...post,isDeleted:true})
+        return 
+      } else {
+        setHideState(SubmitButtonState.FAILED)
+        toastMessage("Failed to hide post")
+      }
+    } catch (error) {
+      setHideState(SubmitButtonState.FAILED)
+      toastError("Failed to hide post")
+      console.log(error)
+    }
+  };
 
   const handleKeydown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -78,6 +139,23 @@ export default function PostDetails({ params }: { params: { id: string } }) {
           placeholder="postId"
         />
       </div>
+
+      {post && !isLoading && (
+        <div className="panel_2 flex flex-wrap items-center gap-2 ">
+          <span className="subtitle">Action</span>
+
+          <div className="ml-auto flex flex-row gap-1">
+            <SubmitButton
+              state={hideState}
+              changeState={setHideState}
+              variant="Button_variant_1_5"
+              onClick={()=>post.isDeleted?handleShow():handleHide()}
+            >
+              {post.isDeleted ? "Show Post" : "Hide Post"}
+            </SubmitButton>
+          </div>
+        </div>
+      )}
 
       <PostDetail
         available={true}

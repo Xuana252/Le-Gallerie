@@ -179,6 +179,20 @@ export const deletePost = async (post: string) => {
   }
   return false;
 };
+export const revivePost = async (post: string) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}/revive`,
+    {
+      method: "PATCH",
+      headers: new Headers(headers()),
+    }
+  );
+
+  if (response.ok) {
+    return true;
+  }
+  return false;
+};
 
 export const fetchSystemPostData = async () => {
   const response = await fetch(

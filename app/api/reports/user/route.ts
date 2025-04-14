@@ -22,39 +22,15 @@ export const GET = async (
 
     const reports = await Report.aggregate([
       {
-        $match: { type: { $in: ["Post", "Comment"] } },
-      },
-      {
-        $lookup: {
-          from: "posts",
-          localField: "reportId",
-          foreignField: "_id",
-          as: "post",
-        },
-      },
-      {
-        $lookup: {
-          from: "comments",
-          localField: "reportId",
-          foreignField: "_id",
-          as: "comment",
-        },
-      },
-      {
-        $addFields: {
-          ownerId: {
-            $cond: [
-              { $eq: ["$type", "Post"] },
-              { $arrayElemAt: ["$post.creator", 0] },
-              { $arrayElemAt: ["$comment.user", 0] },
-            ],
-          },
+        $match: {
+          type: { $in: ["Post", "Comment"] },
+          targetUserId: { $exists: true },
         },
       },
       {
         $lookup: {
           from: "users",
-          localField: "ownerId",
+          localField: "targetUserId",
           foreignField: "_id",
           as: "targetedUser",
         },
@@ -64,26 +40,26 @@ export const GET = async (
       },
       {
         $lookup: {
-          from: "users", // Lookup the user who made the report
-          localField: "user", // Assuming "user" field exists in Report schema
+          from: "users",
+          localField: "user",
           foreignField: "_id",
           as: "userDetails",
         },
       },
       {
-        $unwind: "$userDetails", // Unwind the populated userDetails array
+        $unwind: "$userDetails",
       },
       {
         $addFields: {
-            user: {
-              _id: "$userDetails._id",
-              email: "$userDetails.email",
-            },
+          user: {
+            _id: "$userDetails._id",
+            email: "$userDetails.email",
           },
+        },
       },
       {
         $group: {
-          _id: "$targetedUser._id",
+          _id: "$targetUserId",
           user: { $first: "$targetedUser" },
           reports: {
             $push: {
@@ -93,17 +69,11 @@ export const GET = async (
               createdAt: "$createdAt",
               reportId: "$reportId",
               state: "$state",
+              user: "$user", // reporter info
             },
           },
           count: { $sum: 1 },
-        },
-      },
-      {
-        $project: {
-          userDetails: 0, // Remove the whole userDetails object, keeping only relevant data
-          post: 0,
-          comment: 0,
-        },
+        }
       },
     ]);
 
