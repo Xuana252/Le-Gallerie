@@ -14,13 +14,13 @@ export const GET = async (
       .lean<AiChatBoxType>();
 
     if (!chatBox || !chatBox.messages) {
-      return [];
+      return NextResponse.json({ messages: [] }, { status: 200 });
     }
     const messages = chatBox.messages.reverse().map((msg: any) => ({
       ...msg,
-      reactions: [], 
-      image: [], 
-      delete: false, 
+      reactions: [],
+      image: [],
+      delete: false,
     }));
 
     return NextResponse.json({ messages: messages }, { status: 200 });
