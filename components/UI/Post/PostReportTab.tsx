@@ -164,7 +164,7 @@ export default function PostReportTab({ post }: { post: Post | null }) {
 
   const visibleReports = report
     .filter((r) => {
-      const reportDate = new Date(r.createdAt.toString());
+      const reportDate = new Date(r.createdAt?.toString()||"");
       const start = startCreatedAt
         ? new Date(formatDateFromString(startCreatedAt))
         : null;
@@ -184,8 +184,8 @@ export default function PostReportTab({ post }: { post: Post | null }) {
     })
     .sort((a, b) => {
       if (createdAtSort === 0) return 0;
-      const dateA = new Date(a.createdAt.toString());
-      const dateB = new Date(b.createdAt.toString());
+      const dateA = new Date(a.createdAt?.toString()||"");
+      const dateB = new Date(b.createdAt?.toString()||"");
       return createdAtSort === 1
         ? dateB.getTime() - dateA.getTime()
         : dateA.getTime() - dateB.getTime();

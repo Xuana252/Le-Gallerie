@@ -41,10 +41,12 @@ export default function ReportForm({
       setSubmitState(SubmitButtonState.PROCESSING);
 
       const newReport: Report = {
+        _id: "",
         user: { _id: session.user.id || "" },
         reportId: content._id || "",
         type,
         content: "[" + prompt.join(", ") + "] " + details,
+        state:false,
       };
       const res = await updateReport(newReport);
 

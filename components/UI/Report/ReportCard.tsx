@@ -57,7 +57,7 @@ export default function ReportCard({ report }: { report: Report }) {
           <span className="text-xs font-semibold">{report.user.email}</span>
           <div className="text-sm whitespace-pre-wrap">{details}</div>
           <div className="text-xs opacity-80 text-right italic">
-            {formatDate(report.createdAt.toString())}
+            {formatDate(report.createdAt?.toString()||"")}
           </div>
         </div>
       </div>

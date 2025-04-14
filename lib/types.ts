@@ -120,7 +120,7 @@ export type Report = {
   type: "Post" | "Comment";
   content: string;
   state: boolean;
-  createdAt: Date;
+  createdAt?: Date;
 };
 
 export type SidebarSection = {
