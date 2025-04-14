@@ -12,7 +12,7 @@ import { useRef, useState, useEffect } from "react";
 import { useSession } from "@node_modules/next-auth/react";
 import { useSearchParams } from "@node_modules/next/navigation";
 import UserProfileIcon from "../../Profile/UserProfileIcon";
-import { Comment, Like } from "@lib/types";
+import { Comment, Like, User } from "@lib/types";
 import ReactionButton from "@components/Input/ReactionInput";
 import { Reaction } from "@enum/reactionEnum";
 import { getTop3Reactions, renderReaction } from "@lib/Emoji/render";
@@ -142,15 +142,8 @@ export const CommentItem = ({
       className="flex items-start gap-2 p-1"
       ref={[commentId, replyId].includes(comment._id) ? commentRef : null}
     >
-      {session?.user.id === comment.user._id ? (
-        <UserProfileIcon currentUser={true} size={`Icon_${size}`} />
-      ) : (
-        <UserProfileIcon
-          currentUser={false}
-          user={comment.user}
-          size={`Icon_${size}`}
-        />
-      )}
+      <UserProfileIcon user={comment.user} size={`Icon_${size}`} />
+
       <div className="flex flex-col w-[80%] gap-2">
         <div className="rounded-xl bg-secondary-2 w-fit px-2 py-1 text-sm">
           <span
@@ -210,7 +203,7 @@ export const CommentItem = ({
         </div>
         {isReplying && (
           <div className="flex flex-row items-start gap-2 border-l-2 border-accent p-2">
-            <UserProfileIcon currentUser={true} size="Icon_smaller" />
+            <UserProfileIcon user={{_id:session?.user.id,...session?.user} as User} size="Icon_smaller" />
             <textarea
               ref={replyBlock}
               value={replyContent}
