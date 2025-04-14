@@ -4,6 +4,7 @@ import { connectToDB } from "@utils/database";
 import { getServerSession } from "next-auth";
 import { options } from "../auth/[...nextauth]/options";
 import Report from "@models/reportModel";
+import { UserRole } from "@enum/userRolesEnum";
 
 export const GET = async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
@@ -14,11 +15,10 @@ export const GET = async (req: NextRequest) => {
     await connectToDB();
     const session = await getServerSession(options);
 
-    const user = await User.findById(session?.user.id);
 
-    if (!user)
+    if (!session?.user)
       return NextResponse.json({ message: "User not found" }, { status: 404 });
-    if (!user.role.includes("admin"))
+    if (!session.user.role?.includes(UserRole.ADMIN))
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
     const query: any = {};
@@ -32,7 +32,7 @@ export const GET = async (req: NextRequest) => {
     }
 
     const reports = await Report.find(query)
-      .populate("user", "_id username")
+      .populate("user", "_id email")
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);

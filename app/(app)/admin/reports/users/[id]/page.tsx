@@ -1,21 +1,40 @@
 "use client";
-import { fetchUserWithId } from "@actions/accountActions";
+import {
+  fetchUserWithId,
+  updateUserBanState,
+  updateUserCreatorState,
+} from "@actions/accountActions";
 import InputBox from "@components/Input/InputBox";
+import SubmitButton from "@components/Input/SubmitButton";
+import toastError, {
+  confirm,
+  toastMessage,
+} from "@components/Notification/Toaster";
 import Feed from "@components/UI/Layout/Feed";
 import MultiTabContainer from "@components/UI/Layout/MultiTabContainer";
 import UserProfileIcon from "@components/UI/Profile/UserProfileIcon";
 import UserStatBar from "@components/UI/Profile/UserStatBar";
 import UserReportTab from "@components/UI/Report/UserReportTab";
 import UsersReportTab from "@components/UI/Report/UsersReportTab";
+import { PostPrivacy } from "@enum/postPrivacyEnum";
+import { SubmitButtonState } from "@enum/submitButtonState";
+import { UserRole } from "@enum/userRolesEnum";
 import { renderRole } from "@lib/Admin/render";
 import { formatDate } from "@lib/dateFormat";
+import { renderPrivacy } from "@lib/Post/post";
 import { User } from "@lib/types";
 import {
   faAt,
   faBirthdayCake,
   faBorderAll,
   faCalendar,
+  faCameraRetro,
   faHeart,
+  faLock,
+  faLockOpen,
+  faTrash,
+  faUnlock,
+  faUserSlash,
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
@@ -27,6 +46,78 @@ export default function UserDetails({ params }: { params: { id: string } }) {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [banningState, setBanningState] = useState<SubmitButtonState>(
+    SubmitButtonState.IDLE
+  );
+  const [creatorState, setCreatorState] = useState<SubmitButtonState>(
+    SubmitButtonState.IDLE
+  );
+
+  const handleVerifyCreator = async () => {
+    if (!user || user._id === process.env.NEXT_PUBLIC_ADMIN_ID) {
+      toastError("Unavailable");
+      return;
+    }
+
+    try {
+      setCreatorState(SubmitButtonState.PROCESSING);
+
+      const res = await updateUserCreatorState(user._id);
+
+      if (res) {
+        setCreatorState(SubmitButtonState.SUCCESS);
+        toastMessage("User creator state update successfully");
+        setUser((prev) => {
+          if (!prev) return prev;
+
+          const currentRoles = prev.role ?? []; // fallback to empty array
+          const hasCreator = currentRoles.includes(UserRole.CREATOR);
+          const newRoles = hasCreator
+            ? currentRoles.filter((r) => r !== UserRole.CREATOR)
+            : [...currentRoles, UserRole.CREATOR];
+
+          return { ...prev, role: newRoles };
+        });
+      } else {
+        setCreatorState(SubmitButtonState.FAILED);
+        toastError("Failed to update user creator state");
+      }
+    } catch (error) {
+      setCreatorState(SubmitButtonState.FAILED);
+      toastError("Failed to update user creator state");
+    }
+  };
+
+  const handleBan = async () => {
+    if (!user || user._id === process.env.NEXT_PUBLIC_ADMIN_ID) {
+      toastError("Unavailable");
+      return;
+    }
+
+    if (!user.banned) {
+      const result = await confirm(`Do you want to ban ${user.username}?`);
+      if (!result) {
+        return;
+      }
+    }
+    try {
+      setBanningState(SubmitButtonState.PROCESSING);
+
+      const res = await updateUserBanState(user._id);
+
+      if (res) {
+        setBanningState(SubmitButtonState.SUCCESS);
+        toastMessage("User ban state update successfully");
+        setUser((prev) => ({ ...prev, banned: !prev?.banned } as User));
+      } else {
+        setBanningState(SubmitButtonState.FAILED);
+        toastError("Failed to update user ban state");
+      }
+    } catch (error) {
+      setBanningState(SubmitButtonState.FAILED);
+      toastError("Failed to update user ban state");
+    }
+  };
 
   const handleKeydown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -46,7 +137,7 @@ export default function UserDetails({ params }: { params: { id: string } }) {
   }, [userId]);
 
   return (
-    <section className="size-full flex flex-col gap-4">
+    <section className="w-full flex flex-col gap-4">
       <div className="title">Users Detail</div>
 
       <div className="panel">
@@ -59,18 +150,46 @@ export default function UserDetails({ params }: { params: { id: string } }) {
         />
       </div>
 
+      {user?._id !== process.env.NEXT_PUBLIC_ADMIN_ID && !isLoading && (
+        <div className="panel_2 flex items-center">
+          <span className="mr-auto subtitle">Actions</span>
+          <div className={"ml-auto flex items-center gap-2"}>
+            <SubmitButton
+              state={creatorState}
+              changeState={setCreatorState}
+              variant="Button_variant_2_5"
+              onClick={handleVerifyCreator}
+            >
+              <FontAwesomeIcon icon={faCameraRetro} />{" "}
+              {user?.role?.includes(UserRole.CREATOR)
+                ? "Revoke User"
+                : "Verify User"}{" "}
+            </SubmitButton>
+            <SubmitButton
+              state={banningState}
+              changeState={setBanningState}
+              variant="Button_variant_2_5"
+              onClick={handleBan}
+            >
+              <FontAwesomeIcon icon={user?.banned ? faUnlock : faLock} />{" "}
+              {user?.banned ? "UnBan" : "Ban"}{" "}
+            </SubmitButton>
+          </div>
+        </div>
+      )}
+
       <div
-        className="panel h-fit User_Profile_Layout"
-        style={{ height: "fit-content" }}
+        className="panel  User_Profile_Layout"
+        style={{ height: "100vh", minHeight: "fit-content" }}
       >
         {user && !isLoading ? (
           <>
             <div className="User_Info_Container">
               <div className="User_Profile_Page_Username">{user.username}</div>
-              <UserProfileIcon user={user} size="Icon_bigger" />
+              <UserProfileIcon user={user} size="Icon_bigger" redirect={false} />
 
               <div className="flex flex-row gap-1">
-                {renderRole(user.role||[])}
+                {renderRole(user.role || [])}
               </div>
               <div className="italic flex flex-row items-center gap-1">
                 <FontAwesomeIcon icon={faAt} />
@@ -82,7 +201,9 @@ export default function UserDetails({ params }: { params: { id: string } }) {
               </div>
               <div className="flex flex-row items-center gap-1">
                 <FontAwesomeIcon icon={faCalendar} />
-                <span className="opacity-80">{user?.createdAt && formatDate(user.createdAt.toString())}</span>
+                <span className="opacity-80">
+                  {user?.createdAt && formatDate(user.createdAt.toString())}
+                </span>
               </div>
               <div className="User_Profile_Page_Fullname">{user.fullname}</div>
               <div className="User_Profile_Page_Bio">{user.bio}</div>
@@ -95,16 +216,16 @@ export default function UserDetails({ params }: { params: { id: string } }) {
                       <FontAwesomeIcon icon={faBorderAll} /> All
                     </>
                   ),
-                  body: <Feed userIdFilter={user._id} />,
+                  body: <Feed userIdFilter={user._id} adminPage={true}/>,
                 },
                 {
                   head: (
                     <>
-                      <FontAwesomeIcon icon={faHeart} /> Liked
+                      <FontAwesomeIcon icon={faTrash} /> Deleted
                     </>
                   ),
                   body: (
-                    <Feed userIdFilter={user._id} userIdLikedFilter={true} />
+                    <Feed userIdFilter={user._id} userIdDeletedFilter={true} adminPage={true} />
                   ),
                 },
               ]}

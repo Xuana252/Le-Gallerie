@@ -7,6 +7,7 @@ import { connectToDB } from "@utils/database";
 import Friend from "@models/friendModel";
 import { FriendState } from "@enum/friendStateEnum";
 import mongoose from "mongoose";
+import { UserRole } from "@enum/userRolesEnum";
 
 export const GET = async (req: Request) => {
   const { searchParams } = new URL(req.url);
@@ -23,33 +24,35 @@ export const GET = async (req: Request) => {
 
     const currentUser = await User.findById(session?.user.id);
 
-    const currentFriend = await Friend.find({
-      $or: [{ user1: session?.user.id }, { user2: session?.user.id }],
-      state: FriendState.FRIEND,
-    });
-
-    const currentFriendIds = currentFriend.map((friend) =>
-      friend.user1.toString() === session?.user.id
-        ? friend.user2.toString()
-        : friend.user1.toString()
-    );
+    const isAdmin = currentUser?.role.includes(UserRole.ADMIN);
 
     const skip = (page - 1) * limit;
 
-    // Build the query object
-    const query: any = {
-      privacy: { $ne: "private" },
-      creator: {
-        $nin: currentUser?.blocked,
-      },
-      $or: [
+    const query: any = { isDeleted: false };
+
+    if (!isAdmin) {
+      // Get all friend relationships
+      const currentFriend = await Friend.find({
+        $or: [{ user1: session?.user.id }, { user2: session?.user.id }],
+        state: FriendState.FRIEND,
+      });
+
+      const currentFriendIds = currentFriend.map((friend) =>
+        friend.user1.toString() === session?.user.id
+          ? friend.user2.toString()
+          : friend.user1.toString()
+      );
+
+      query.creator = { $nin: currentUser?.blocked };
+
+      query.$or = [
         { privacy: "public" },
         { creator: session?.user.id },
         {
           $and: [{ privacy: "friend" }, { creator: { $in: currentFriendIds } }],
-        }, 
-      ],
-    };
+        },
+      ];
+    }
 
     if (relatedPostId && mongoose.Types.ObjectId.isValid(relatedPostId)) {
       const relatedPost = await Post.findById(relatedPostId);
@@ -61,7 +64,7 @@ export const GET = async (req: Request) => {
         );
         Object.assign(query, {
           $and: [
-            { privacy: { $ne: "private" } },
+            ...(query.$and || []),
             {
               $or: [
                 { creator: relatedPostCreatorId },
@@ -77,12 +80,10 @@ export const GET = async (req: Request) => {
     const categoryIds = categoryIdsParam.split(",").filter((id) => id);
 
     if (searchText) {
-     
       const userQuery = { username: { $regex: searchText, $options: "i" } };
       const matchingUsers = await User.find(userQuery).select("_id");
       userIds.push(...matchingUsers.map((user) => user._id));
 
-      
       query.$or = [
         { title: { $regex: searchText, $options: "i" } },
         { creator: { $in: userIds } },

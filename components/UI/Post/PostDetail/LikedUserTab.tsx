@@ -53,7 +53,6 @@ export default function LikedUserTab({likes}:{likes:Like[]} ) {
               className="grid grid-cols-[auto_1fr_auto] items-center gap-2"
             >
               <UserProfileIcon
-                currentUser={false}
                 user={like.user || { _id: "" }}
                 size={"Icon_smaller"}
               />

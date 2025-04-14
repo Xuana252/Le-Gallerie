@@ -1,6 +1,7 @@
 "use server";
 import { Reaction } from "@enum/reactionEnum";
 import { checkLikeRateLimit } from "./checkRateLimit";
+import { headers } from "@node_modules/next/headers";
 
 export const handleLike = async (
   user: string,
@@ -10,13 +11,16 @@ export const handleLike = async (
   const isRateLimited = await checkLikeRateLimit();
   if (isRateLimited) return;
   try {
-    await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}/likes`, {
-      method: "PATCH",
-      body: JSON.stringify({
-        userId: user,
-        reaction: reaction,
-      }),
-    });
+    await fetch(
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}/likes`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({
+          userId: user,
+          reaction: reaction,
+        }),
+      }
+    );
   } catch (error) {
     console.error("Failed to update post likes", error);
   }
@@ -67,5 +71,22 @@ export const fetchUserPostsLikes = async (userId: string) => {
   } catch (error) {
     console.error("Failed to fetch for user posts likes", error);
     return { likes: [], counts: 0 };
+  }
+};
+
+export const fetchPostLikeSummarize = async (postId: string) => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${postId}/likes/summarize`,
+      {
+        headers: new Headers(headers()),
+      }
+    );
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Failed to fetch for post comments", error);
+    return {};
   }
 };

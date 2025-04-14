@@ -37,6 +37,10 @@ const PostSchema = new Schema(
       enum: Object.values(PostPrivacy),
       default: PostPrivacy.PUBLIC,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

@@ -36,18 +36,30 @@ import PostImageSlider from "../Image/PostImageSlider";
 import { fetchPostLikedUser, handleLike } from "@actions/likesAction";
 import PostInteractionBarr from "./PostDetail/PostInteractionBar";
 import { renderPrivacy } from "@lib/Post/post";
+import ImageSlider from "../Image/ImageSlider";
+import CommentSummarize from "./PostDetail/CommentSummarize";
+import LikeSummarize from "./PostDetail/LikeSummarize";
 
 export default function PostDetail({
   available = true,
   isLoading,
   post,
+  slider = 1,
+  interactBar = true,
+  commentBar = true,
+  commentSummarize = false,
+  likeSummarize = false,
 }: {
   available?: boolean;
   isLoading?: boolean;
   post: Post | null;
+  slider?: 1 | 2;
+  interactBar?: boolean;
+  commentBar?: boolean;
+  commentSummarize?: boolean;
+  likeSummarize?: boolean;
 }) {
   const { handleSetCategory } = useContext(SearchContext);
-  const { data: session } = useSession();
 
   return (
     <>
@@ -64,7 +76,7 @@ export default function PostDetail({
             <>
               <div className="size-full bg-secondary-2 animate-pulse relative sm:rounded-l-3xl sm:rounded-tr-none rounded-t-3xl overflow-hidden"></div>
               <div className="w-full p-4 flex flex-col gap-0 ">
-                <div className="flex-row py-2 h-fit z-20 flex sticky bg-secondary-1 items-center top-[59px] gap-2">
+                <div className="flex-row py-2 h-fit z-20 flex bg-secondary-1 items-center gap-2">
                   <div className="flex justify-start items-center gap-1">
                     <button className="Icon_small animate-pulse bg-secondary-2">
                       <FontAwesomeIcon
@@ -107,10 +119,22 @@ export default function PostDetail({
           ) : (
             <>
               <div className="flex items-center size-full relative sm:rounded-l-3xl sm:rounded-tr-none rounded-t-3xl overflow-hidden bg-secondary-2">
-                {post.image && <PostImageSlider images={post.image} />}
+                {post.image ? (
+                  slider === 1 ? (
+                    <PostImageSlider images={post.image} />
+                  ) : (
+                    <ImageSlider
+                      images={post.image}
+                      onClick={() => {}}
+                      onChangeIndex={() => {}}
+                    />
+                  )
+                ) : (
+                  ""
+                )}
               </div>
-              <div className="w-full p-4 flex flex-col gap-0 ">
-                <PostInteractionBarr post={post} />
+              <div className="w-full p-4 flex flex-col gap-0  ">
+                {interactBar && <PostInteractionBarr post={post} />}
                 <div className="grow flex-col flex gap-2">
                   <div className="grid grid-cols-[1fr_auto] items-center gap-2">
                     <label className="grid grid-cols-[auto_1fr] items-center gap-2">
@@ -143,8 +167,16 @@ export default function PostDetail({
                     {post?.description}
                   </p>
                 </div>
+                {post._id && likeSummarize && (
+                  <LikeSummarize postId={post._id} />
+                )}
+                {post._id && commentSummarize && (
+                  <CommentSummarize postId={post._id} />
+                )}
                 <div className="mt-auto">
-                  {post._id && <CommentSection postId={post._id} />}
+                  {post._id && commentBar && (
+                    <CommentSection postId={post._id} />
+                  )}
                 </div>
               </div>
             </>

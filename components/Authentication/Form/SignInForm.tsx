@@ -46,7 +46,7 @@ export default function SignInForm() {
   const handleSignInCredentialsChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    e.target.classList.remove("Invalid_input");
+    e.target.classList?.remove("Invalid_input");
     const { name, value } = e.target;
     setSignInCredentials((c) => ({ ...c, [name]: value }));
   };
@@ -89,13 +89,13 @@ export default function SignInForm() {
       <form
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            e.preventDefault(); // Prevent default form submission
-            handleCredentialsSignIn(); // Manually handle sign-in
+            e.preventDefault(); 
+            handleCredentialsSignIn(); 
           }
         }}
         onSubmit={(e) => {
-          e.preventDefault(); // Prevent the default form behavior
-          handleCredentialsSignIn(); // Call the sign-in logic
+          e.preventDefault();
+          handleCredentialsSignIn(); 
         }}
         className="flex flex-col w-full p-2 gap-6 items-center"
       >

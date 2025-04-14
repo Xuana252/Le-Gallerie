@@ -62,7 +62,7 @@ export type User = {
   role?: UserRole[];
   banned?: boolean;
   createdAt?: Date;
-  updatedAt?:Date;
+  updatedAt?: Date;
 };
 export type UploadUser = {
   _id: string;
@@ -119,6 +119,8 @@ export type Report = {
   reportId: string;
   type: "Post" | "Comment";
   content: string;
+  state: boolean;
+  createdAt: Date;
 };
 
 export type SidebarSection = {

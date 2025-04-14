@@ -46,7 +46,7 @@ export default function SignUpForm() {
   const handleSignUpCredentialsChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    e.target.classList.remove("Invalid_input");
+    e.target.classList?.remove("Invalid_input");
     const { name, value } = e.target;
     setSignUpCredentials((c) => ({ ...c, [name]: value }));
   };

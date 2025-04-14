@@ -198,3 +198,34 @@ export const fetchSystemUserData = async () => {
   }
   return null;
 };
+
+export const updateUserBanState = async (userId: string) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${userId}/ban`,
+    {
+      method: "PATCH",
+      headers: new Headers(headers()),
+    }
+  );
+
+  if (response.ok) {
+    return true;
+  }
+
+  return false;
+};
+export const updateUserCreatorState = async (userId: string) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${userId}/creator`,
+    {
+      method: "PATCH",
+      headers: new Headers(headers()),
+    }
+  );
+
+  if (response.ok) {
+    return true;
+  }
+
+  return false;
+};

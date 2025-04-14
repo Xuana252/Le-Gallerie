@@ -7,11 +7,14 @@ import { toastMessage } from "@components/Notification/Toaster";
 
 export function AuthGate({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
     if (status === "authenticated" && session?.user?.banned) {
-        signOut();
-        toastMessage("Sorry, your account has been banned");
+      toastMessage("Sorry, your account has been banned");
+      signOut({ redirect: false }).then(() => {
+        router.push("/sign-in");
+      });
     }
   }, [session, status]);
 

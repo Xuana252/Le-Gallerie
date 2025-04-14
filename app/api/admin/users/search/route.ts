@@ -21,11 +21,10 @@ export const GET = async (req: NextRequest) => {
     await connectToDB();
     const session = await getServerSession(options);
 
-    const user = await User.findById(session?.user.id);
 
-    if (!user)
+    if (!session?.user)
       return NextResponse.json({ message: "User not found" }, { status: 404 });
-    if (!user.role.includes("admin"))
+    if (!session.user.role?.includes(UserRole.ADMIN))
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
     const isObjectId = mongoose.Types.ObjectId.isValid(searchText);

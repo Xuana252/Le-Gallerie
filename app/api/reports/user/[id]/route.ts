@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import Report from "@models/reportModel";
 import { options } from "@app/api/auth/[...nextauth]/options";
 import mongoose from "mongoose";
+import { UserRole } from "@enum/userRolesEnum";
 
 export const GET = async (
   req: NextRequest,
@@ -14,11 +15,9 @@ export const GET = async (
     await connectToDB();
     const session = await getServerSession(options);
 
-    const user = await User.findById(session?.user.id);
-
-    if (!user)
+    if (!session?.user)
       return NextResponse.json({ message: "User not found" }, { status: 404 });
-    if (!user.role.includes("admin"))
+    if (!session.user.role?.includes(UserRole.ADMIN))
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
     const reports = await Report.aggregate([
@@ -58,6 +57,33 @@ export const GET = async (
             { "target.creator": new mongoose.Types.ObjectId(params.id) },
             { "target.user": new mongoose.Types.ObjectId(params.id) },
           ],
+        },
+      },
+      {
+        $lookup: {
+          from: "users", // Assuming "users" is the name of your user collection
+          localField: "user", // Field to join with the user collection, assuming this is where the reporter's user ID is stored
+          foreignField: "_id",
+          as: "userDetails", // This will store the populated data
+        },
+      },
+      {
+        $unwind: "$userDetails", // To get rid of the array, since we expect only one user
+      },
+      {
+        $addFields: {
+          user: {
+            _id: "$userDetails._id",
+            email: "$userDetails.email",
+          },
+        },
+      },
+      {
+        $project: {
+          target: 0,
+          userDetails: 0, 
+          post: 0,
+          comment: 0,
         },
       },
     ]);

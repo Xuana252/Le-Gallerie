@@ -167,7 +167,7 @@ export default function ActivitiesHighlightsSection({
                   <div style={{ scale: person.scale }}>
                     {users[index] ? (
                       <UserProfileIcon
-                        currentUser={false}
+                      
                         user={users[index].user}
                         size="Icon_bigger"
                       />

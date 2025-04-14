@@ -1,5 +1,5 @@
 export const formatNumber = (num: number |null) => {
-  if (!num) return null;
+  if (num===null) return null;
   let display = num.toString();
 
   if (num >= 1_000_000_000) {

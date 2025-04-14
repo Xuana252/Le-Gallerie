@@ -1,5 +1,6 @@
 "use server";
 import { Reaction } from "@enum/reactionEnum";
+import { headers } from "@node_modules/next/headers";
 
 export const fetchPostComment = async (post: string) => {
   try {
@@ -15,17 +16,15 @@ export const fetchPostComment = async (post: string) => {
 };
 
 export const fetchCommentWithId = async (commentId: string) => {
- 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/comments/${commentId}`
-    );
-    if (response.ok) {
-      const data = await response.json();
-      return { status: 200, data: data }
-    } else {
-      return { status: response.status, data: null };
-    }
-
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/comments/${commentId}`
+  );
+  if (response.ok) {
+    const data = await response.json();
+    return { status: 200, data: data };
+  } else {
+    return { status: response.status, data: null };
+  }
 };
 export const fetchCommentReplies = async (comment: string) => {
   try {
@@ -150,5 +149,22 @@ export const fetchUserPostsComments = async (userId: string) => {
   } catch (error) {
     console.error("Failed to fetch for user posts comments", error);
     return { comments: [], counts: 0 };
+  }
+};
+
+export const fetchPostCommentSummarize = async (postId: string) => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${postId}/comments/summarize`,
+      {
+        headers: new Headers(headers()),
+      }
+    );
+
+    const data = await response.json();
+    return { message: data.message, counts: data.counts ?? 0 };
+  } catch (error) {
+    console.error("Failed to fetch for post comments", error);
+    return { message: "Error", counts: 0 };
   }
 };

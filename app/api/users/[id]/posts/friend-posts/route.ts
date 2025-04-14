@@ -7,6 +7,7 @@ import { FriendState } from "@enum/friendStateEnum";
 import Friend from "@models/friendModel";
 import { options } from "@app/api/auth/[...nextauth]/options";
 import { getServerSession } from "next-auth";
+import { UserRole } from "@enum/userRolesEnum";
 
 export const GET = async (
   req: Request,
@@ -21,6 +22,7 @@ export const GET = async (
     const skip = (page - 1) * limit;
 
     const session = await getServerSession(options);
+    const isAdmin = session?.user.role?.includes(UserRole.ADMIN);
 
     const currentFriend = await Friend.find({
       $or: [{ user1: session?.user.id }, { user2: session?.user.id }],
@@ -33,29 +35,25 @@ export const GET = async (
         : friend.user1.toString()
     );
 
-    const friendPostCount = await Post.countDocuments({
-      privacy: { $ne: "private" },
+    const query: any = {
+      isDeleted: false,
       creator: { $in: currentFriendIds },
-      $or: [
-        { privacy: "public" },
-        { creator: session?.user.id },
-        {
-          $and: [{ privacy: "friend" }, { creator: { $in: currentFriendIds } }],
-        }, // Include private posts only if friend
-      ],
-    });
+    };
 
-    const friendPosts = await Post.find({
-      privacy: { $ne: "private" },
-      creator: { $in: currentFriendIds },
-      $or: [
+    if (!isAdmin) {
+      query.privacy = { $ne: "private" };
+      query.$or = [
         { privacy: "public" },
         { creator: session?.user.id },
         {
           $and: [{ privacy: "friend" }, { creator: { $in: currentFriendIds } }],
-        }, // Include private posts only if friend
-      ],
-    })
+        },
+      ];
+    }
+
+    const friendPostCount = await Post.countDocuments(query);
+
+    const friendPosts = await Post.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)

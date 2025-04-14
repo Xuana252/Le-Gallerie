@@ -16,6 +16,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       image: image,
       likes: 0,
       privacy: privacy,
+      isDeleted: false,
     });
 
     await newPost.save();

@@ -44,7 +44,7 @@ export const adminRoutes = [
     section: "Posts",
     items: [
       {
-        path: "/admin/reports/posts/:id",
+        path: "/admin/reports/posts/postId",
         name: "Post Detail",
         icon: faImages,
         description: "Post Detail",

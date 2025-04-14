@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import {
   faBoxArchive,
   faCameraRetro,
+  faCheck,
   faComment,
   faHammer,
   faIdBadge,
@@ -21,6 +22,8 @@ import { fetchPostWithId } from "@actions/postActions";
 import { fetchCommentWithId } from "@actions/commentAction";
 import PostProps from "../Props/PostProps";
 import CommentProps from "../Props/ComentProps";
+import { faCircle } from "@node_modules/@fortawesome/free-regular-svg-icons";
+import { formatNumber } from "@lib/format";
 
 export default function UserReportTab({ user }: { user: User | null }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -40,6 +43,8 @@ export default function UserReportTab({ user }: { user: User | null }) {
   const fetchUserReport = async (id: string) => {
     setIsLoading(true);
     const res = await fetchUserReportId(id);
+
+    console.log(res);
     const grouped = res.reports.reduce(
       (acc: Record<string, Report[]>, report: Report) => {
         if (!acc[report.reportId]) {
@@ -165,13 +170,27 @@ export default function UserReportTab({ user }: { user: User | null }) {
                   </div>
                 )}
 
-                <div className="text-left font-mono">
-                  {detail.reports.length} reports
+                <div className="text-left text-xs font-mono panel w-fit flex flex-row gap-2 items-center mx-auto">
+                  {detail.reports.length} reports [
+                  <span className="flex flex-row gap-1 items-center font-bold w-fit">
+                    {formatNumber(detail.reports.filter((rp) => rp.state).length)}{" "}
+                    <FontAwesomeIcon icon={faCheck} />
+                  </span>
+                  <span className="flex flex-row gap-1 items-center font-bold w-fit">
+                    {formatNumber(detail.reports.filter((rp) => !rp.state).length)}{" "}
+                    <FontAwesomeIcon icon={faCircle} />
+                  </span>
+                  ]
                 </div>
-                <div className="flex flex-row gap-2 w-full overflow-x-auto bg-primary rounded-md">
-                  {detail.reports.map((reportItem, idx) => (
-                    <ReportCard key={idx} report={reportItem} />
-                  ))}
+
+                <div className="flex max-h-[400px] overflow-y-auto flex-wrap gap-2 bg-primary p-2 rounded-md">
+                  {detail.reports
+                    .sort((a, b) =>
+                      a.state === b.state ? 0 : a.state ? 1 : -1
+                    )
+                    .map((reportItem, idx) => (
+                      <ReportCard key={idx} report={reportItem} />
+                    ))}
                 </div>
               </li>
             ))

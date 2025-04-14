@@ -154,7 +154,7 @@ export default function SideBar({menu, children }: {menu:SidebarSection[], child
         </div>
 
         <div
-          className="grow overflow-y-scroll p-4 overflow-x-hidden z-30 relative bg-gradient-to-b from-secondary-1/30  to-secondary-2 "
+          className="grow overflow-y-scroll p-2 overflow-x-hidden z-30 relative bg-gradient-to-b from-secondary-1/30  to-secondary-2 "
           style={{
             maxHeight: `${windowHeight - 60}px`,
             height: `${windowHeight - 60}px`,

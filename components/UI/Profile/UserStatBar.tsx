@@ -165,11 +165,9 @@ export default function UserStatBar({
               key={item._id}
               className="grid grid-cols-[auto_1fr_auto] items-center gap-2 h-fit w-full border-l-4 border-accent pl-1 rounded-md"
             >
-              {item._id === session?.user.id ? (
-                <UserProfileIcon currentUser={true} />
-              ) : (
-                <UserProfileIcon currentUser={false} user={item} />
-              )}
+           
+                <UserProfileIcon user={item} />
+       
               <p className="font-bold break-all whitespace-normal">
                 {item.username}
               </p>

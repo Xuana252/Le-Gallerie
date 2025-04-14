@@ -10,6 +10,7 @@ import { FriendState } from "@enum/friendStateEnum";
 import Friend from "@models/friendModel";
 import { PostPrivacy } from "@enum/postPrivacyEnum";
 import { checkFriendState } from "@actions/friendActions";
+import { UserRole } from "@enum/userRolesEnum";
 
 export const GET = async (
   req: NextRequest,
@@ -21,8 +22,15 @@ export const GET = async (
     const session = await getServerSession(options);
 
     const currentUser = await User.findById(session?.user.id);
+    const isAdmin = currentUser?.role.includes(UserRole.ADMIN);
 
-    const post = await Post.findById(params.id)
+    const query: any = { _id: params.id };
+
+    if (!isAdmin) {
+      query.isDeleted = false;
+    }
+
+    const post = await Post.findOne(query)
       .select("-updatedAt -__v")
       .populate({
         path: "creator",
@@ -34,19 +42,27 @@ export const GET = async (
       return NextResponse.json({ message: "Post not found" }, { status: 404 });
     }
 
+    if (isAdmin) {
+      return NextResponse.json(post, { status: 200 });
+    }
+
     if (post.creator._id.toString() === session?.user.id) {
       return NextResponse.json(post, { status: 200 });
-    } else if (
-      post.privacy === PostPrivacy.PRIVATE ||
-      (currentUser &&
-        (currentUser.blocked.includes(post.creator._id.toString()) ||
-          post.creator.blocked.includes(currentUser._id.toString())))
-    ) {
+    }
+
+    const isBlocked =
+      currentUser &&
+      (currentUser.blocked.includes(post.creator._id.toString()) ||
+        post.creator.blocked.includes(currentUser._id.toString()));
+
+    if (post.privacy === PostPrivacy.PRIVATE || isBlocked) {
       return NextResponse.json(
         { message: "Post not available" },
         { status: 403 }
       );
-    } else if (post.privacy === PostPrivacy.FRIEND) {
+    }
+
+    if (post.privacy === PostPrivacy.FRIEND) {
       const state = await checkFriendState(
         post.creator._id.toString(),
         session?.user.id || ""
@@ -56,12 +72,12 @@ export const GET = async (
           { message: "Post not available" },
           { status: 403 }
         );
-      } else {
-        return NextResponse.json(post, { status: 200 });
-      }
-    } else {
-      return NextResponse.json(post, { status: 200 });
+      } 
+  
     }
+
+    return NextResponse.json(post, { status: 200 });
+    
   } catch (error) {
     console.log(error);
     return NextResponse.json(
@@ -95,28 +111,6 @@ export const PATCH = async (
   } catch (error) {
     return NextResponse.json(
       { message: "failed to update post" },
-      { status: 500 }
-    );
-  }
-};
-
-export const DELETE = async (
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) => {
-  try {
-    await connectToDB();
-    const post = await Post.findByIdAndDelete(params.id);
-    if (!post) {
-      return NextResponse.json({ message: "Post not found" }, { status: 404 });
-    }
-
-    await Like.deleteMany({ post: params.id });
-
-    return NextResponse.json({ message: "Post deleted" }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json(
-      { message: "failed to delete post" },
       { status: 500 }
     );
   }

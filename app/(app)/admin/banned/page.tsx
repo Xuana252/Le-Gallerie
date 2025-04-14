@@ -73,7 +73,7 @@ export default function Banned() {
   }, [searchText, page, nameSort, joinSort, roleFilter, start, end,startBan,endBan]);
 
   return (
-    <section className="size-full flex flex-col gap-2">
+    <section className="w-full flex flex-col gap-2">
       <div className="title">Banned Users</div>
 
       <div className="grid grid-cols-1 gap-2 xl:grid-cols-[60%_auto]">
@@ -91,7 +91,7 @@ export default function Banned() {
               name="username"
               icon={faSignature}
               option={[
-                { text: "None", value: 0, icon: faSignature },
+                { text: "All", value: 0, icon: faSignature },
                 { text: "A to Z", value: 1, icon: faArrowDownAZ },
                 { text: "Z to A", value: -1, icon: faArrowUpAZ },
               ]}
@@ -102,7 +102,7 @@ export default function Banned() {
               name="joined date"
               icon={faCalendar}
               option={[
-                { text: "None", value: 0, icon: faCalendar },
+                { text: "All", value: 0, icon: faCalendar },
                 { text: "Oldest", value: 1, icon: faArrowDownAZ },
                 { text: "Latest", value: -1, icon: faArrowUpAZ },
               ]}

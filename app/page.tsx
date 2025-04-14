@@ -148,8 +148,18 @@ export default function Website() {
           </button>
           <HoverButton
             buttonSet={[
-              { name: "Sign Up", func: () => {router.push("/sign-in?signUp=true")} },
-              { name: "Sign In", func: () => {router.push("/sign-in")} },
+              {
+                name: "Sign Up",
+                func: () => {
+                  router.push("/sign-in?signUp=true");
+                },
+              },
+              {
+                name: "Sign In",
+                func: () => {
+                  router.push("/sign-in");
+                },
+              },
             ]}
           />
         </div>
@@ -384,12 +394,18 @@ export default function Website() {
         </div>
 
         <div className="text_panel mx-auto">
-          We’re a team of two university students 🧑‍💻 from <b>UIT</b>, passionate about
-          building a platform where artists and art lovers can connect, share,
-          and explore creativity together. <br /> <br /> Our goal is to create a dedicated
-          space for artists, designers, and creatives to showcase their work and
-          form meaningful connections. <br /> <br />Join us and be part of this growing
-          community! 🥰
+          We’re a team of two university students 🧑‍💻 from <b>UIT</b>, passionate
+          about building a platform where artists and art lovers can connect,
+          share, and explore creativity together. <br /> <br /> Our goal is to
+          create a dedicated space for artists, designers, and creatives to
+          showcase their work and form meaningful connections. <br /> <br />
+          Join us and be part of this growing community! 🥰
+          <a
+            href="mailto:legallerieteam@gmail.com"
+            className="text-center font-bold italic block"
+          >
+            contact@:legallerieteam@gmail.com
+          </a>
         </div>
       </div>
     </div>

@@ -1,13 +1,17 @@
+import { formatDate } from "@lib/dateFormat";
 import { Report } from "@lib/types";
 import {
+  faCheck,
   faComment,
   faImage,
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import Link from "@node_modules/next/link";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 export default function ReportCard({ report }: { report: Report }) {
+  const router = useRouter();
   const match = report.content.match(/\[(.*?)\]([\s\S]*)/);
 
   const prompts =
@@ -16,14 +20,23 @@ export default function ReportCard({ report }: { report: Report }) {
       .map((p) => p.trim())
       .filter(Boolean) || [];
   const details = match?.[2]?.trim() || report.content;
+
+  const handleClick = () => {
+    router.push(
+      `/admin/reports/${report.type.toLowerCase()}s/${report.reportId}`
+    );
+  };
+
   return (
-    <Link
-      href={`/admin/reports/${report.type.toLowerCase()}/${report.reportId}`}
-      className="text_panel"
+    <div
+      className={`text_panel ${report.state && "opacity-50"} w-fit`}
+      onClick={handleClick}
     >
       <div className="flex flex-col gap-2 sm:flex-row">
         <div className="text-lg">
-          {report.type === "Post" ? (
+          {report.state ? (
+            <FontAwesomeIcon icon={faCheck} />
+          ) : report.type === "Post" ? (
             <FontAwesomeIcon icon={faImage} />
           ) : (
             <FontAwesomeIcon icon={faComment} />
@@ -41,10 +54,13 @@ export default function ReportCard({ report }: { report: Report }) {
               </li>
             ))}
           </ul>
-          <span className="text-xs font-semibold">{report.user.username}</span>
+          <span className="text-xs font-semibold">{report.user.email}</span>
           <div className="text-sm whitespace-pre-wrap">{details}</div>
+          <div className="text-xs opacity-80 text-right italic">
+            {formatDate(report.createdAt.toString())}
+          </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

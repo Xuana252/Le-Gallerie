@@ -10,11 +10,14 @@ export const GET = async (
   try {
     connectToDB();
 
-    const likes = await Like.find({ user: params.id }).populate({
+    const rawLikes = await Like.find({ user: params.id }).populate({
       path: "post",
-      select: "creator categories",
+      select: "creator categories isDeleted",
       populate: { path: "categories" },
     });
+    
+    const likes = rawLikes.filter(like => like.post && !like.post.isDeleted);
+    
 
     return NextResponse.json(
       { likes: likes, counts: likes.length },

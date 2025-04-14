@@ -37,20 +37,22 @@ export const GET = async (
 
     const postIds = likedPostsIds.map((postId) => postId.post.toString());
 
-    const likedPosts = await Post.find({
+    const query = {
+      isDeleted: false,
       privacy: { $ne: "private" },
       _id: { $in: postIds },
       $or: [
         { privacy: "public" },
         { creator: session?.user.id },
         {
-          $and: [
-            { privacy: "friend" },
-            { creator: { $in: currentFriendIds } },
-          ],
+          $and: [{ privacy: "friend" }, { creator: { $in: currentFriendIds } }],
         }, // Include private posts only if friend
       ],
-    })
+    };
+
+    const likedPostsCounts = await Post.countDocuments(query)
+
+    const likedPosts = await Post.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -62,11 +64,11 @@ export const GET = async (
       .populate("categories");
 
     return NextResponse.json(
-      { posts: likedPosts, counts: likedPostsIds.length },
+      { posts: likedPosts, counts: likedPostsCounts },
       { status: 200 }
     );
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return NextResponse.json(
       { message: "Failed to fetch for user liked posts" },
       { status: 500 }

@@ -21,9 +21,10 @@ import { UserRole } from "@enum/userRolesEnum";
 type PostCardProps = {
   post?: Post;
   isLoading: boolean;
+  adminPage?: boolean
 };
 
-export default function PostCard({ post, isLoading }: PostCardProps) {
+export default function PostCard({ post, isLoading, adminPage=false }: PostCardProps) {
   const { data: session } = useSession();
 
   // const getRandomColor = () => {
@@ -82,7 +83,7 @@ export default function PostCard({ post, isLoading }: PostCardProps) {
   else
     return (
       <Link
-        href={`/post/${post._id}`}
+        href={adminPage?`/admin/reports/posts/${post._id}`:`/post/${post._id}`}
         onClick={handlePostCardClick}
         className={`w-full h-fit relative `}
       >

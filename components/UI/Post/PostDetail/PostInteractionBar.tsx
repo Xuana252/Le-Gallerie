@@ -18,7 +18,7 @@ import { useSession } from "@node_modules/next-auth/react";
 import React, { useEffect, useState } from "react";
 import LikedUserTab from "./LikedUserTab";
 import { useRouter } from "@node_modules/next/navigation";
-import { confirm } from "@components/Notification/Toaster";
+import { confirm, toastMessage } from "@components/Notification/Toaster";
 import SharePostForm from "@components/Forms/SharePostFrom";
 import ReportForm from "@components/Forms/ReportForm";
 
@@ -119,13 +119,15 @@ export default function PostInteractionBarr({ post }: { post: Post }) {
 
     if (hasConfirmed && post._id) {
       try {
-        await Promise.all(
-          post.image.map(async (img: string) => await removeImage(img))
-        );
-        await deletePost(post._id);
-        router.back();
-        console.log("Post deleted");
+        const res = await deletePost(post._id);
+        if (res) {
+          toastMessage("Post deleted");
+          router.back();
+        } else {
+          toastMessage("Failed to delete post");
+        }
       } catch (error) {
+        toastMessage("Failed to delete post");
         console.log(error);
       }
     }
@@ -186,7 +188,9 @@ export default function PostInteractionBarr({ post }: { post: Post }) {
                   </button>
                 </>
               )}
-              <PopupButton popupItem={<ReportForm type="Post" content={post}/>}>
+              <PopupButton
+                popupItem={<ReportForm type="Post" content={post} />}
+              >
                 <button className="hover:bg-secondary-2 Icon_smaller ">
                   <FontAwesomeIcon icon={faFlag} title="Report Post" />
                 </button>

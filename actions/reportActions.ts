@@ -48,7 +48,10 @@ export const updateReport = async (report: Report) => {
 export const fetchCommentReport = async () => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/comment`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/comment`,
+      {
+        headers: new Headers(headers()),
+      }
     );
     if (response.ok) {
       const data = await response.json();
@@ -64,7 +67,10 @@ export const fetchCommentReport = async () => {
 export const fetchCommentReportId = async (id: string) => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/${id}`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/${id}`,
+      {
+        headers: new Headers(headers()),
+      }
     );
     if (response.ok) {
       const data = await response.json();
@@ -80,7 +86,10 @@ export const fetchCommentReportId = async (id: string) => {
 export const fetchPostReport = async () => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/post`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/post`,
+      {
+        headers: new Headers(headers()),
+      }
     );
     if (response.ok) {
       const data = await response.json();
@@ -96,7 +105,10 @@ export const fetchPostReport = async () => {
 export const fetchPostReportId = async (id: string) => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/post/${id}`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/post/${id}`,
+      {
+        headers: new Headers(headers()),
+      }
     );
     if (response.ok) {
       const data = await response.json();
@@ -112,7 +124,10 @@ export const fetchPostReportId = async (id: string) => {
 export const fetchUserReport = async () => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/user`
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/user`,
+      {
+        headers: new Headers(headers()),
+      }
     );
     if (response.ok) {
       const data = await response.json();
@@ -176,3 +191,38 @@ export const fetchSystemReportData = async () => {
   }
   return null;
 };
+
+export const approveReport = async (reportIds:string[]) => {
+
+  const params = new URLSearchParams();
+  reportIds.forEach((id) => params.append("ids", id));
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/approve?${params.toString()}`,
+    {
+      method: "PATCH",
+      headers: new Headers(headers()),
+    }
+  );
+  if (response.ok) {
+    return true;
+  }
+  return false;
+}
+
+export const deleteReport = async (reportIds:string[]) => {
+  const params = new URLSearchParams();
+  reportIds.forEach((id) => params.append("ids", id));
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/reject?${params.toString()}`,
+    {
+      method: "DELETE",
+      headers: new Headers(headers()),
+    }
+  );
+  if (response.ok) {
+    return true;
+  }
+  return false;
+}

@@ -4,7 +4,6 @@ import { Category, type Post } from "@lib/types";
 
 import { checkLikeRateLimit } from "./checkRateLimit";
 
-
 import { headers, cookies } from "next/headers";
 import { Reaction } from "@enum/reactionEnum";
 
@@ -84,6 +83,24 @@ export const fetchUserFollowPost = async (
   return { posts: [], counts: 0 };
 };
 
+export const fetchUserDeletedPost = async (
+  user: string,
+  currentPage: number,
+  limit: number
+) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user}/posts/deleted?page=${currentPage}&limit=${limit}`,
+    {
+      headers: new Headers(headers()),
+    }
+  );
+  if (response.ok) {
+    const data = await response.json();
+    return { posts: data.posts, counts: data.counts };
+  }
+  return { posts: [], counts: 0 };
+};
+
 export const fetchUserFriendPost = async (
   user: string,
   currentPage: number,
@@ -149,9 +166,18 @@ export const updatePost = async (post: Post) => {
 };
 
 export const deletePost = async (post: string) => {
-  await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}`, {
-    method: "DELETE",
-  });
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}/delete`,
+    {
+      method: "PATCH",
+      headers: new Headers(headers()),
+    }
+  );
+
+  if (response.ok) {
+    return true;
+  }
+  return false;
 };
 
 export const fetchSystemPostData = async () => {

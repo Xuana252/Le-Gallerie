@@ -21,6 +21,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {
   fetchAllPost,
+  fetchUserDeletedPost,
   fetchUserFollowPost,
   fetchUserFriendPost,
   fetchUserLikedPost,
@@ -34,6 +35,7 @@ type FeedProps = {
   userIdLikedFilter?: boolean;
   userIdFollowFilter?: boolean;
   userIdFriendFilter?: boolean;
+  userIdDeletedFilter?: boolean;
   relatePostFilter?: string;
   setPostCount?: Dispatch<SetStateAction<number | null>>;
   showCateBar?: boolean;
@@ -41,6 +43,7 @@ type FeedProps = {
   searchFeed?: boolean;
   state?: any;
   updatestate?: (newState: any) => void;
+  adminPage?:boolean
 };
 
 export default function Feed({
@@ -48,6 +51,7 @@ export default function Feed({
   userIdFollowFilter,
   userIdFriendFilter,
   userIdLikedFilter,
+  userIdDeletedFilter,
   showCateBar = false,
   relatePostFilter,
   setPostCount,
@@ -55,6 +59,7 @@ export default function Feed({
   searchFeed = false,
   state,
   updatestate,
+  adminPage = false
 }: FeedProps) {
   const { searchText, category } = useContext(SearchContext);
   const [categoriesFilter, setCategoriesFilter] = useState<Category[]>([]);
@@ -136,6 +141,8 @@ export default function Feed({
         ? await fetchUserFollowPost(userIdFilter, currentPage, limit)
         : userIdFriendFilter
         ? await fetchUserFriendPost(userIdFilter, currentPage, limit)
+        : userIdDeletedFilter
+        ? await fetchUserDeletedPost(userIdFilter, currentPage, limit)
         : await fetchUserPost(userIdFilter, currentPage, limit);
 
       setPostCount && setPostCount(response.counts);
@@ -180,7 +187,7 @@ export default function Feed({
   }, []);
 
   useEffect(() => {
-    if (!isMount && Object.keys(state || {}).length !== 0 ) return;
+    if (!isMount && Object.keys(state || {}).length !== 0) return;
 
     setPage(1);
     setSearchCount(0);
@@ -283,7 +290,7 @@ export default function Feed({
                             : "animate-slideUp"
                         } `}
                       >
-                        <PostCard post={post} isLoading={false} />
+                        <PostCard post={post} isLoading={false}  adminPage={adminPage}/>
                       </div>
                     );
                   }

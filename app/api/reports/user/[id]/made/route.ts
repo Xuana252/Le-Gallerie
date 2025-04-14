@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import Report from "@models/reportModel";
 import { options } from "@app/api/auth/[...nextauth]/options";
 import mongoose from "mongoose";
+import { UserRole } from "@enum/userRolesEnum";
 
 export const GET = async (
   req: NextRequest,
@@ -14,16 +15,15 @@ export const GET = async (
     await connectToDB();
     const session = await getServerSession(options);
 
-    const user = await User.findById(session?.user.id);
 
-    if (!user)
+    if (!session?.user)
       return NextResponse.json({ message: "User not found" }, { status: 404 });
-    if (!user.role.includes("admin"))
+    if (!session.user.role?.includes(UserRole.ADMIN))
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
     const reports = await Report.find({ user: params.id }).populate(
       "user",
-      "_id username"
+      "_id email"
     );
 
     return NextResponse.json(
