@@ -14,15 +14,12 @@ import { UserRole } from "@enum/userRolesEnum";
 import { fetchUserReportId, fetchUsersReportId } from "@actions/reportActions";
 import ReportCard from "./ReportCard";
 import Link from "@node_modules/next/link";
+import { renderRole } from "@lib/Admin/render";
 
 export default function UsersReportTab({ user }: { user: User | null }) {
   const [isLoading, setIsLoading] = useState(false);
   const [report, setReport] = useState<Report[]>([]);
-  const rolePriority = {
-    [UserRole.ADMIN]: 0,
-    [UserRole.CREATOR]: 1,
-    [UserRole.USER]: 2,
-  };
+
 
   const fetchUserReport = async (id: string) => {
     setIsLoading(true);
@@ -39,22 +36,7 @@ export default function UsersReportTab({ user }: { user: User | null }) {
   return (
     <div className="panel flex flex-col gap-2 grow">
       <div className="text-primary bg-accent rounded p-1 w-full flex flex-row gap-1 items-center ">
-        {user?.role
-          ?.sort((a, b) => rolePriority[a] - rolePriority[b])
-          .map((r) => (
-            <FontAwesomeIcon
-              key={r}
-              icon={
-                r === UserRole.USER
-                  ? faIdBadge
-                  : r === UserRole.CREATOR
-                  ? faCameraRetro
-                  : r === UserRole.ADMIN
-                  ? faHammer
-                  : faIdBadge
-              }
-            />
-          ))}{" "}
+        {renderRole(user?.role||[])}
         {user?._id || "user id"}
       </div>
       <div className="flex flex-wrap items-center gap-2 panel_2 p-2">

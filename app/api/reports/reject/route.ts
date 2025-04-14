@@ -1,7 +1,10 @@
+import { options } from "@app/api/auth/[...nextauth]/options";
+import { UserRole } from "@enum/userRolesEnum";
 import { knock } from "@lib/knock";
 import Report from "@models/reportModel";
 import { NextRequest, NextResponse } from "@node_modules/next/server";
 import { connectToDB } from "@utils/database";
+import { getServerSession } from "next-auth";
 
 export const DELETE = async (req: NextRequest) => {
   const searchParams = req.nextUrl.searchParams;
@@ -9,14 +12,18 @@ export const DELETE = async (req: NextRequest) => {
   try {
     await connectToDB();
 
+    const session = await getServerSession(options);
+
+    if (!session?.user)
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    if (!session.user.role?.includes(UserRole.ADMIN))
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
     const reportsWithUsers = await Report.find({ _id: { $in: ids } }).populate(
-        "user"
-      );
+      "user"
+    );
 
     const updatedReports = await Report.deleteMany({ _id: { $in: ids } });
-
-   
 
     const recipients = reportsWithUsers.map((report) => ({
       id: report.user._id.toString(),

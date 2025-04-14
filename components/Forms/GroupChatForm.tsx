@@ -90,14 +90,14 @@ export default function GroupChatForm() {
       <div>Members</div>
       <ul className="flex flex-col w-full h-[200px] overflow-scroll no-scrollbar bg-primary/80 rounded-lg p-1 gap-2">
         <div className="flex flex-row justify-between items-center gap-2">
-          <UserProfileIcon currentUser={true} size="Icon_small" />
+          <UserProfileIcon  size="Icon_small" />
           <div className="grow font-bold text-accent">You</div>
         </div>
         {members.length>0
                   ?members.map((member, index) => (
                     <li className="flex flex-row justify-between items-center gap-2" key={index}>
                       <UserProfileIcon
-                        currentUser={false}
+                    
                         user={member}
                         size="Icon_small"
                       />
