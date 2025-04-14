@@ -100,7 +100,6 @@ export default function ActivitiesHighlightsSection({
         }));
 
       setTop3Category(top3Categories);
-
     };
 
     getTop3();
@@ -163,11 +162,14 @@ export default function ActivitiesHighlightsSection({
                     </span>
                   </div>
                 )}
-                <div className={`${animated ? "animate-slideUp" : ""} flex flex-col items-center`}>
+                <div
+                  className={`${
+                    animated ? "animate-slideUp" : ""
+                  } flex flex-col items-center`}
+                >
                   <div style={{ scale: person.scale }}>
                     {users[index] ? (
                       <UserProfileIcon
-                      
                         user={users[index].user}
                         size="Icon_bigger"
                       />
@@ -177,7 +179,11 @@ export default function ActivitiesHighlightsSection({
                       </div>
                     )}
                   </div>
-                  {users[index] && <div className="font-bold">{users[index].user.username}</div>}
+                  {users[index] && (
+                    <div className="font-bold">
+                      {users[index].user.username}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -215,10 +221,12 @@ export default function ActivitiesHighlightsSection({
                     }`}
                   >
                     <span>
-                      {categories[index].reaction} <FontAwesomeIcon icon={faHeart} />
+                      {categories[index].reaction}{" "}
+                      <FontAwesomeIcon icon={faHeart} />
                     </span>{" "}
                     <span>
-                    {categories[index].comment} <FontAwesomeIcon icon={faComment} />
+                      {categories[index].comment}{" "}
+                      <FontAwesomeIcon icon={faComment} />
                     </span>
                   </div>
                 )}
@@ -227,7 +235,7 @@ export default function ActivitiesHighlightsSection({
                     className="bg-secondary-2 shadow-md p-2 rounded-xl italic text-xl"
                     style={{ scale: category.scale }}
                   >
-                    #{categories[index]?.category||"Hashtag"}
+                    #{categories[index]?.category || "Hashtag"}
                   </div>
                 </div>
               </div>

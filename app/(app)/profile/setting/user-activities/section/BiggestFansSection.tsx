@@ -157,7 +157,7 @@ export default function BiggestFansSection({
                 <div style={{ scale: person.scale }}>
                   {users[index] ? (
                     <UserProfileIcon
-                      currentUser={false}
+                    
                       user={users[index].user}
                       size="Icon_bigger"
                     />
