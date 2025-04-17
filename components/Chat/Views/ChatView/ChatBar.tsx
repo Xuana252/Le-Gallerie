@@ -76,7 +76,7 @@ export default function ChatBar({
 
       setChat((prev: any) => ({
         ...prev!,
-        message: [userMessage,...prev!.message, ],
+        message: [userMessage, ...prev!.message],
       }));
       setIsReplying(true);
       const reply = await getAIResponse(text, session.user.id);
@@ -88,11 +88,14 @@ export default function ChatBar({
         image: [],
         delete: false,
       };
-      setIsReplying(false);
-      setChat((prev: any) => ({
-        ...prev!,
-        message: [ aiResponse,...prev!.message,],
-      }));
+      setTimeout(() => {
+        setIsReplying(false);
+        setChat((prev: any) => ({
+          ...prev!,
+          message: [aiResponse, ...prev!.message],
+        }));
+      }, 1000);
+
       return;
     }
 

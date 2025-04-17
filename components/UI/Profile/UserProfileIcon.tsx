@@ -89,11 +89,11 @@ export default function UserProfileIcon({
         )}
       </button>
       {user?.role?.includes(UserRole.ADMIN) ? (
-        <div className="absolute bottom-0 right-0 z-50 text-white rounded-full bg-blue-500 p-[1px] aspect-square w-[40%] max-w-[50px] flex items-center justify-center">
+        <div className="absolute bottom-0 right-0 z-40 text-white rounded-full bg-blue-500 p-[1px] aspect-square w-[40%] max-w-[50px] flex items-center justify-center">
           <FontAwesomeIcon icon={faHammer} className="size-[70%]" />
         </div>
       ) : user?.role?.includes(UserRole.CREATOR) ? (
-        <div className="absolute bottom-0 right-0 z-50 text-white rounded-full bg-blue-500 p-[1px] aspect-square w-[40%] max-w-[50px] flex items-center justify-center">
+        <div className="absolute bottom-0 right-0 z-40 text-white rounded-full bg-blue-500 p-[1px] aspect-square w-[40%] max-w-[50px] flex items-center justify-center">
           <FontAwesomeIcon icon={faCheck} className="size-[70%]" />
         </div>
       ) : null}

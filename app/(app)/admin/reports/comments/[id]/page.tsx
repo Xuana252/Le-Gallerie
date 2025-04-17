@@ -57,7 +57,7 @@ export default function CommentDetails({ params }: { params: { id: string } }) {
 
   const handleDelete = async () => {
 
-      const result = await confirm("Do you want to hide this comment?");
+      const result = await confirm("Do you want to delete this comment?");
       if (!result) return;
     
     if (!comment?._id) {

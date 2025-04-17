@@ -226,7 +226,7 @@ export default function ReportTab({
   return (
     <div className="panel flex flex-col gap-2 grow">
       <div className="text-primary bg-accent rounded p-1 w-full flex flex-row gap-1 items-center ">
-        {target?._id || "post id"}
+        {target?._id || "target id"}
       </div>
       <div className="flex flex-wrap items-center gap-2 panel_2 p-2">
         <span className="subtitle">Action</span>{" "}

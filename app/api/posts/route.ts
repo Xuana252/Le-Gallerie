@@ -30,10 +30,11 @@ export const GET = async (req: Request) => {
 
     const query: any = { isDeleted: false };
 
-    query.privacy = {}
+
+   
 
     if (!isAdmin) {
-      // Get all friend relationships
+
       query.privacy = { $ne: "private" };
       const currentFriend = await Friend.find({
         $or: [{ user1: session?.user.id }, { user2: session?.user.id }],

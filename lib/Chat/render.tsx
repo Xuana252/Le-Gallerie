@@ -4,7 +4,10 @@ import { fetchPostWithId } from "@actions/postActions";
 
 export const renderAppLink = async (text: string, index = 1) => {
   try {
-    const url = new URL(text);
+
+    const cleanedText = text.endsWith('.') ? text.slice(0, -1) : text;
+
+    const url = new URL(cleanedText);
     const pathname = url.pathname;
 
     const postRegex = /^\/post\/[a-zA-Z0-9_-]+$/;
@@ -12,7 +15,9 @@ export const renderAppLink = async (text: string, index = 1) => {
       const postId = pathname.split("/")[2];
       const post = await fetchPostWithId(postId);
       if (post.data !== null) {
-        return <PostCard key={index} isLoading={false} post={post.data} />;
+        return <div className="max-w-[200px]">
+          <PostCard key={index} isLoading={false} post={post.data} />
+        </div>;
       }
     }
   } catch (error) {

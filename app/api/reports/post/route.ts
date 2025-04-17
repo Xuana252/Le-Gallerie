@@ -94,10 +94,8 @@ export const GET = async (req: NextRequest) => {
         path: "categories",
       });
 
-    // Create map of reports for faster lookup
     const reportMap = new Map(aggregated.map((r) => [r._id.toString(), r]));
 
-    // Join and enrich post data with report info
     const joined = posts.map((post) => {
       const report = reportMap.get(post._id.toString());
       return {
@@ -109,7 +107,7 @@ export const GET = async (req: NextRequest) => {
       };
     });
 
-    // Now apply sort logic on `joined` array
+
     if (reportSortParam !== 0) {
       joined.sort((a, b) => {
         const aTotal = a.falseCount + a.trueCount;
@@ -130,7 +128,6 @@ export const GET = async (req: NextRequest) => {
       );
     }
 
-    // Apply pagination to final sorted list
     const reports = joined.slice(skip, skip + limit);
 
     return NextResponse.json(
