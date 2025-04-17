@@ -24,7 +24,7 @@ import { SubmitButtonState } from "@enum/submitButtonState";
 import { UserRole } from "@enum/userRolesEnum";
 import { renderRole } from "@lib/Admin/render";
 import { formatDate } from "@lib/dateFormat";
-import { Post, User } from "@lib/types";
+import { Comment, Post, User } from "@lib/types";
 import {
   faAt,
   faBirthdayCake,
@@ -39,92 +39,68 @@ import {
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
+import CommentProps from "@components/UI/Props/ComentProps";
+import { deleteComment, fetchCommentWithId } from "@actions/commentAction";
 import ReportTab from "@components/UI/Report/ReportTab";
 
-export default function PostDetails({ params }: { params: { id: string } }) {
-  const [postId, setPostId] = useState(params.id !== "postId" ? params.id : "");
+export default function CommentDetails({ params }: { params: { id: string } }) {
+  const [commentId, setCommentId] = useState(params.id );
   const [pendingText, setPendingText] = useState(
     params.id !== "postId" ? params.id : ""
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [post, setPost] = useState<Post | null>(null);
+  const [comment, setComment] = useState<Comment| null>(null);
   const [hideState, setHideState] = useState<SubmitButtonState>(
     SubmitButtonState.IDLE
   );
 
-  const handleShow = async () => {
-    if (!post?._id) {
-      toastMessage("Unavailable");
-      return;
-    }
 
-    setHideState(SubmitButtonState.PROCESSING);
-    try {
-      const res = await revivePost(post._id);
+  const handleDelete = async () => {
 
-      if (res) {
-        setHideState(SubmitButtonState.SUCCESS);
-        toastMessage("Post revived");
-        setPost({ ...post, isDeleted: false });
-        return;
-      } else {
-        setHideState(SubmitButtonState.FAILED);
-        toastMessage("Failed to revive post");
-      }
-    } catch (error) {
-      setHideState(SubmitButtonState.FAILED);
-      toastError("Failed to revive post");
-      console.log(error);
-    }
-  };
-
-  const handleHide = async () => {
-    if (!post?.isDeleted) {
-      const result = await confirm("Do you want to hide this post?");
+      const result = await confirm("Do you want to hide this comment?");
       if (!result) return;
-    }
-
-    if (!post?._id) {
+    
+    if (!comment?._id) {
       toastMessage("Unavailable");
       return;
     }
 
-    setHideState(SubmitButtonState.PROCESSING);
+    
+    setHideState(SubmitButtonState.PROCESSING)
     try {
-      const res = await deletePost(post._id);
-
+      const res = await deleteComment(comment._id);
+      
       if (res) {
-        setHideState(SubmitButtonState.SUCCESS);
-        toastMessage("Post hidden");
-        setPost({ ...post, isDeleted: true });
-        return;
+        setHideState(SubmitButtonState.SUCCESS)
+        toastMessage("Comment deleted")
+        return 
       } else {
-        setHideState(SubmitButtonState.FAILED);
-        toastMessage("Failed to hide post");
+        setHideState(SubmitButtonState.FAILED)
+        toastMessage("Failed to delete comment")
       }
     } catch (error) {
-      setHideState(SubmitButtonState.FAILED);
-      toastError("Failed to hide post");
-      console.log(error);
+      setHideState(SubmitButtonState.FAILED)
+      toastError("Failed to delete comment")
+      console.log(error)
     }
   };
 
   const handleKeydown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      setPostId(pendingText);
+        setCommentId(pendingText);
     }
   };
 
   const fetchPost = async () => {
     setIsLoading(true);
-    const res = await fetchPostWithId(postId);
-    setPost(res.data);
+    const res = await fetchCommentWithId(commentId);
+    setComment(res.data);
     setIsLoading(false);
   };
 
   useEffect(() => {
-    postId.trim() && fetchPost();
-  }, [postId]);
+    commentId.trim() && fetchPost();
+  }, [commentId]);
 
   return (
     <section className="w-full flex flex-col gap-4">
@@ -140,7 +116,7 @@ export default function PostDetails({ params }: { params: { id: string } }) {
         />
       </div>
 
-      {post && !isLoading && (
+      {comment && !isLoading && (
         <div className="panel_2 flex flex-wrap items-center gap-2 ">
           <span className="subtitle">Action</span>
 
@@ -149,28 +125,23 @@ export default function PostDetails({ params }: { params: { id: string } }) {
               state={hideState}
               changeState={setHideState}
               variant="Button_variant_1_5"
-              onClick={() => (post.isDeleted ? handleShow() : handleHide())}
+              onClick={handleDelete}
             >
-              {post.isDeleted ? "Show Post" : "Hide Post"}
+             Delete Comment
             </SubmitButton>
           </div>
         </div>
       )}
 
-      <PostDetail
-        available={true}
-        post={post}
-        isLoading={isLoading}
-        interactBar={false}
-        commentBar={false}
-        likeSummarize={true}
-        commentSummarize={true}
-        slider={2}
-      />
+      <div className="panel flex items-center justify-center">
+          <CommentProps
+           comment={comment}
+          />
+      </div>
 
-      <div className="mx-auto">See post's reports</div>
+      <div className="mx-auto">See comment's reports</div>
       <div className="flex flex-wrap gap-4">
-        <ReportTab target={post} type="Post" />
+        <ReportTab target={comment} type="Comment" />
       </div>
     </section>
   );

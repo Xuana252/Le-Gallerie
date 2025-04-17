@@ -30,26 +30,6 @@ export const adminRoutes = [
         description: "Banned users",
         subPath: [],
       },
-      {
-        path: `/admin/reports/users/userId`,
-        name: "User Detail",
-        icon: faIdCard,
-        description: "User Detail",
-        subPath: [],
-      },
-    ],
-    
-  },
-  {
-    section: "Posts",
-    items: [
-      {
-        path: "/admin/reports/posts/postId",
-        name: "Post Detail",
-        icon: faImages,
-        description: "Post Detail",
-        subPath: [],
-      },
     ],
     
   },

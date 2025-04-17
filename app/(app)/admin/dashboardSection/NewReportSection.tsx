@@ -17,7 +17,6 @@ export default function NewReportSection() {
 
   const fetchNewReportData = async () => {
     const res = await fetchReport(10, 1, "");
-    console.log(res);
     setData(res?.reports);
   };
 

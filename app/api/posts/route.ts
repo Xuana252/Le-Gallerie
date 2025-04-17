@@ -30,8 +30,11 @@ export const GET = async (req: Request) => {
 
     const query: any = { isDeleted: false };
 
+    query.privacy = {}
+
     if (!isAdmin) {
       // Get all friend relationships
+      query.privacy = { $ne: "private" };
       const currentFriend = await Friend.find({
         $or: [{ user1: session?.user.id }, { user2: session?.user.id }],
         state: FriendState.FRIEND,
@@ -44,6 +47,7 @@ export const GET = async (req: Request) => {
       );
 
       query.creator = { $nin: currentUser?.blocked };
+
 
       query.$or = [
         { privacy: "public" },
@@ -96,7 +100,7 @@ export const GET = async (req: Request) => {
     }
     const count = await Post.countDocuments(query);
 
-    const posts = await Post.find(query)
+    let posts = await Post.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -106,6 +110,16 @@ export const GET = async (req: Request) => {
         select: "-email -password -createdAt -updatedAt -__v",
       })
       .populate("categories");
+
+    posts = posts.sort((a, b) => {
+      const aIsCreator = a.creator.role.includes(UserRole.CREATOR) ? 1 : 0;
+      const bIsCreator = b.creator.role.includes(UserRole.CREATOR) ? 1 : 0;
+      if (aIsCreator !== bIsCreator) {
+        return bIsCreator - aIsCreator;
+      }
+      // Otherwise keep the original date order (newest first)
+      return b.createdAt.getTime() - a.createdAt.getTime();
+    });
 
     return NextResponse.json({ posts: posts, counts: count }, { status: 200 });
   } catch (error) {

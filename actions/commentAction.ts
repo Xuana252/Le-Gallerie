@@ -168,3 +168,18 @@ export const fetchPostCommentSummarize = async (postId: string) => {
     return { message: "Error", counts: 0 };
   }
 };
+
+export const deleteComment = async (commentId:string) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/comments/${commentId}/delete`,
+    {
+      method: "DELETE",
+      headers: new Headers(headers()),
+    }
+  );
+
+  if (response.ok) {
+    return true;
+  }
+  return false;
+}

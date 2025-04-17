@@ -127,7 +127,7 @@ export default function CategoryBar({
     onCategoriesChange(updatedSelectedCategories);
   };
   return (
-    <div className="sticky top-0 z-10 bg-primary h-[50px] flex justify-center animate-fadeIn">
+    <div className="sticky top-0 z-10 bg-primary rounded h-[50px] flex justify-center animate-fadeIn">
       <ul
         className="pointer-events-auto flex px-2 justify-start w-full h-fit gap-2 overflow-x-scroll no-scrollbar"
         onMouseDown={handleMouseDown}

@@ -65,11 +65,12 @@ export default function UsersReportTab({ user }: { user: User | null }) {
           </>
         )}
       </div>
-      <div className="font-semibold">User's Reports</div>
-      <ul className="flex flex-col gap-2 max-h-[400px] overflow-y-auto bg-secondary-1 p-2 rounded-lg">
+      <div className="font-semibold font-mono">User's Reports</div>
+
+      <ul className="flex flex-wrap gap-2 max-h-[400px] overflow-y-auto bg-secondary-1 p-2 rounded-lg">
         {!isLoading && user ? (
           report.length > 0 ? (
-            report.map((reportItem, idx) => (
+            report?.map((reportItem, idx) => (
               <ReportCard key={idx} report={reportItem} />
             ))
           ) : (
@@ -82,7 +83,7 @@ export default function UsersReportTab({ user }: { user: User | null }) {
           Array.from({ length: 10 }).map((_, index) => (
             <div
               key={index}
-              className="rounded-lg animate-pulse bg-secondary-2 w-full min-h-[200px] "
+              className="rounded-lg animate-pulse bg-secondary-2 grow min-w-[250px] min-h-[200px] "
             ></div>
           ))
         )}

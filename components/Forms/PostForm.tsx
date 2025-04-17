@@ -80,6 +80,7 @@ export default function PostForm({ type, editPost }: PostFormProps) {
           categories: post.categories,
           image: imageUrlList,
           privacy: post.privacy,
+          isDeleted:false,
         };
         switch (type) {
           case "Create":
@@ -92,6 +93,7 @@ export default function PostForm({ type, editPost }: PostFormProps) {
         if (response) {
           setTimeout(() => {
             setSubmitState(SubmitButtonState.SUCCESS);
+            setSubmitState(SubmitButtonState.PROCESSING);
             console.log(`Attempted to ${type} successfully`);
 
             type === "Edit"

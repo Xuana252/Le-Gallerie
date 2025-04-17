@@ -1,6 +1,6 @@
 import { fetchUserWithId } from "@actions/accountActions";
-import { Post, Report, User } from "@lib/types";
-import React, { useEffect, useState } from "react";
+import { Comment, Post, Report, User } from "@lib/types";
+import React, { useEffect, useMemo, useState } from "react";
 import UserProfileIcon from "../Profile/UserProfileIcon";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import {
@@ -18,11 +18,14 @@ import {
   faList,
   faSquare,
   faSquareCheck,
+  faTrash,
+  IconDefinition,
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { UserRole } from "@enum/userRolesEnum";
 import {
   approveReport,
   deleteReport,
+  fetchCommentReportId,
   fetchPostReportId,
   fetchUserReportId,
   fetchUsersReportId,
@@ -30,7 +33,7 @@ import {
 
 import Link from "@node_modules/next/link";
 import { renderRole } from "@lib/Admin/render";
-import ReportCard from "../Report/ReportCard";
+import ReportCard from "./ReportCard";
 import FilterButton from "@components/Input/FilterButton";
 import { faCircle } from "@node_modules/@fortawesome/free-regular-svg-icons";
 import DateTimePicker from "@components/Input/DateTimePicker";
@@ -38,8 +41,16 @@ import { formatDateFromString } from "@lib/dateFormat";
 import SubmitButton from "@components/Input/SubmitButton";
 import { SubmitButtonState } from "@enum/submitButtonState";
 import { confirm, toastMessage } from "@components/Notification/Toaster";
+import MultipleChoiceButton from "@components/Input/MultipleChoiceButton";
+import { reportIcons, ReportPrompt } from "@enum/reportPromptEnum";
 
-export default function PostReportTab({ post }: { post: Post | null }) {
+export default function ReportTab({
+  target,
+  type,
+}: {
+  target: Post | Comment | null;
+  type: "Post" | "Comment";
+}) {
   const [isLoading, setIsLoading] = useState(false);
   const [report, setReport] = useState<Report[]>([]);
   const [stateFilter, setStateFilter] = useState<-1 | 0 | 1>(0);
@@ -48,6 +59,7 @@ export default function PostReportTab({ post }: { post: Post | null }) {
   const [endCreatedAt, setEndDateCreatedAt] = useState("");
   const [reportIds, setReportIds] = useState<string[]>([]);
   const [isSelecting, setIsSelecting] = useState(false);
+  const [prompt, setPrompt] = useState<ReportPrompt[]>([]);
   const [approveState, setApproveState] = useState<SubmitButtonState>(
     SubmitButtonState.IDLE
   );
@@ -69,7 +81,7 @@ export default function PostReportTab({ post }: { post: Post | null }) {
       return;
     }
 
-    const result = await confirm("Do you want to reject selected reports?");
+    const result = await confirm("Do you want to delete selected reports? ");
 
     if (!result) return;
 
@@ -150,54 +162,74 @@ export default function PostReportTab({ post }: { post: Post | null }) {
     });
   };
 
-  const fetchPostReport = async (id: string) => {
+  const fetchReport = async (id: string) => {
     setIsLoading(true);
-    const res = await fetchPostReportId(id);
+    const res =
+      type === "Post"
+        ? await fetchPostReportId(id)
+        : type === "Comment"
+        ? await fetchCommentReportId(id)
+        : { reports: [], counts: 0 };
 
     setReport(res.reports);
     setIsLoading(false);
   };
 
   useEffect(() => {
-    post?._id && fetchPostReport(post._id);
-  }, [post?._id]);
+    target?._id && fetchReport(target._id);
+  }, [target?._id]);
 
-  const visibleReports = report
-    .filter((r) => {
-      const reportDate = new Date(r.createdAt?.toString()||"");
-      const start = startCreatedAt
-        ? new Date(formatDateFromString(startCreatedAt))
-        : null;
-      const end = endCreatedAt
-        ? new Date(formatDateFromString(endCreatedAt))
-        : null;
+  const visibleReports = useMemo(() => {
+    if (!Array.isArray(report)) return [];
 
-      const inDateRange =
-        (!start || reportDate >= start) && (!end || reportDate <= end);
+    return report
+      .filter((r) => {
+        const reportDate = new Date(r.createdAt?.toString() || "");
+        const start = startCreatedAt
+          ? new Date(formatDateFromString(startCreatedAt))
+          : null;
+        const end = endCreatedAt
+          ? new Date(formatDateFromString(endCreatedAt))
+          : null;
 
-      if (!inDateRange) return false;
+        if (prompt.length > 0 && !prompt.some((p) => r.content.includes(p)))
+          return false;
 
-      if (stateFilter === 0) return true;
-      if (stateFilter === 1) return r.state === true;
-      if (stateFilter === -1) return r.state === false;
-      return true;
-    })
-    .sort((a, b) => {
-      if (createdAtSort === 0) return 0;
-      const dateA = new Date(a.createdAt?.toString()||"");
-      const dateB = new Date(b.createdAt?.toString()||"");
-      return createdAtSort === 1
-        ? dateB.getTime() - dateA.getTime()
-        : dateA.getTime() - dateB.getTime();
-    });
+        const inDateRange =
+          (!start || reportDate >= start) && (!end || reportDate <= end);
+
+        if (!inDateRange) return false;
+
+        if (stateFilter === 0) return true;
+        if (stateFilter === 1) return r.state === true;
+        if (stateFilter === -1) return r.state === false;
+
+        return true;
+      })
+      .sort((a, b) => {
+        if (createdAtSort === 0) return 0;
+        const dateA = new Date(a.createdAt?.toString() || "");
+        const dateB = new Date(b.createdAt?.toString() || "");
+        return createdAtSort === 1
+          ? dateB.getTime() - dateA.getTime()
+          : dateA.getTime() - dateB.getTime();
+      });
+  }, [
+    report,
+    stateFilter,
+    createdAtSort,
+    startCreatedAt,
+    endCreatedAt,
+    prompt,
+  ]);
 
   return (
     <div className="panel flex flex-col gap-2 grow">
       <div className="text-primary bg-accent rounded p-1 w-full flex flex-row gap-1 items-center ">
-        {post?._id || "post id"}
+        {target?._id || "post id"}
       </div>
       <div className="flex flex-wrap items-center gap-2 panel_2 p-2">
-        <span className="subtitle">Actions</span>{" "}
+        <span className="subtitle">Action</span>{" "}
         <div className="ml-auto flex flex-row text-sm items-center">
           {isSelecting && (
             <>
@@ -209,7 +241,7 @@ export default function PostReportTab({ post }: { post: Post | null }) {
                     variant={"Button_variant_1_5"}
                     onClick={handleReject}
                   >
-                    Reject <FontAwesomeIcon icon={faClose} />
+                    Reject <FontAwesomeIcon icon={faTrash} />
                   </SubmitButton>
                   <SubmitButton
                     state={approveState}
@@ -234,7 +266,7 @@ export default function PostReportTab({ post }: { post: Post | null }) {
           </button>
         </div>
       </div>
-      <div className="panel flex flex-wrap gap-x-4 gap-2 ">
+      <div className="panel flex flex-wrap items-center gap-x-4 gap-2 ">
         <FilterButton
           name="state"
           icon={faCheck}
@@ -254,6 +286,18 @@ export default function PostReportTab({ post }: { post: Post | null }) {
             { text: "Oldest", value: -1, icon: faArrowUpAZ },
           ]}
           onChange={setCreatedAtSort}
+        />
+
+        <MultipleChoiceButton
+          name="Prompt"
+          option={[
+            ...Object.entries(ReportPrompt).map(([key, text]) => ({
+              text: text,
+              value: text,
+              icon: reportIcons[key as keyof typeof ReportPrompt],
+            })),
+          ]}
+          onChange={setPrompt}
         />
 
         <div className="flex grow flex-wrap p-1 items-center gap-2 justify-around rounded-md border-2 border-secondary-1/50 w-fit">
@@ -279,7 +323,7 @@ export default function PostReportTab({ post }: { post: Post | null }) {
         </div>
       </div>
       <ul className="flex flex-wrap gap-2 max-h-[400px] overflow-y-auto bg-secondary-1 p-2 rounded-lg">
-        {!isLoading && post ? (
+        {!isLoading && target ? (
           report?.length > 0 ? (
             visibleReports.map((reportItem, idx) =>
               isSelecting ? (

@@ -47,10 +47,10 @@ export default function SideBar({menu, children }: {menu:SidebarSection[], child
 
   // Handle touch end (detect swipe direction)
   const handleTouchEnd = () => {
-    if (touchStartX < touchEndX - 50) {
-      setIsMinimize(false); // Swipe Down → Minimize
+    if (touchStartX < touchEndX - 50 && touchStartX < 50) {
+      setIsMinimize(false); 
     } else if (touchEndX < touchStartX - 50) {
-      setIsMinimize(true); // Swipe Down → Minimize
+      setIsMinimize(true); 
     }
   };
 

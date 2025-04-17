@@ -4,7 +4,7 @@ import {
   faAngleRight,
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useEffect } from "react";
 
 export default function Pagination({
   limit,
@@ -24,6 +24,11 @@ export default function Pagination({
       onPageChange(page);
     }
   };
+
+  useEffect(()=> {
+    if(current>totalPages) 
+      onPageChange(1)
+  },[totalPages])
 
   const getPagesToDisplay = () => {
     const pages: (number | string)[] = [];

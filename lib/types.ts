@@ -97,6 +97,7 @@ export type Post = {
   privacy: PostPrivacy;
   likes?: number;
   createdAt?: Date;
+  isDeleted: boolean;
 };
 export type UploadPost = {
   _id?: string;
@@ -169,4 +170,16 @@ export type CategoryDataItem = {
 export type CategoryData = {
   category: CategoryDataItem[];
   thisMonth: CategoryDataItem[];
+};
+
+export type ReportItem = {
+  _id: string;
+  reportTarget: Post | Comment;
+  falseCount: number;
+  trueCount: number;
+  type: "Post" | "Comment";
+};
+export type ReportSearch = {
+  counts: number;
+  reports: ReportItem[];
 };

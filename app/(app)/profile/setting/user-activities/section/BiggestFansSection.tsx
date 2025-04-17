@@ -16,8 +16,8 @@ export default function BiggestFansSection({
   postsComments,
 }: {
   isVisible: boolean;
-  postsLikes: Like[];
-  postsComments: Comment[];
+  postsLikes: Like[]|null;
+  postsComments: Comment[]|null;
 }) {
   const [animated, setAnimate] = useState(isVisible);
   const [users, setTop3User] = useState<
@@ -31,13 +31,14 @@ export default function BiggestFansSection({
   }, [isVisible]);
 
   useEffect(() => {
+    if(!postsLikes||!postsComments) return 
     const getTop3 = async () => {
       const interactions = [
-        ...(postsLikes?.map((like) => ({
+        ...(postsLikes.map((like) => ({
           userId: like.user.toString(),
           type: "reaction" as const,
         })) || []),
-        ...(postsComments?.map((comment) => ({
+        ...(postsComments.map((comment) => ({
           userId: comment.user.toString(),
           type: "comment" as const,
         })) || []),

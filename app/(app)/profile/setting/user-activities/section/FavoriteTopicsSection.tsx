@@ -9,7 +9,7 @@ export default function FavoriteTopicsSection({
   posts,
 }: {
   isVisible: boolean;
-  posts: Post[];
+  posts: Post[]|null;
 }) {
   const [animated, setAnimate] = useState(isVisible);
   const [displayNumber, setIsDisplayNumber] = useState("");
@@ -18,6 +18,7 @@ export default function FavoriteTopicsSection({
   useEffect(() => setAnimate(isVisible), [isVisible]);
 
   useEffect(() => {
+    if(!posts) return
     const getTop3 = async () => {
       const categoryCounts = posts.reduce((acc, post) => {
         post.categories.forEach((category: Category) => {

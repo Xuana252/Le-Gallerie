@@ -67,7 +67,7 @@ export default function Feed({
   const [isLoading, setLoading] = useState<boolean>(true);
 
   const [isMount, setIsMount] = useState(false);
-  const [gridColStyle, setGridColStyle] = useState("grid-colds-2");
+  const [gridColStyle, setGridColStyle] = useState("grid-cols-2");
   const [colsNum, setColsNum] = useState(2);
 
   const [searchCount, setSearchCount] = useState(0);

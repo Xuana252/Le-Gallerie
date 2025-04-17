@@ -17,8 +17,8 @@ export default function ActivitiesHighlightsSection({
   likes,
   comments,
 }: {
-  likes: Like[];
-  comments: Comment[];
+  likes: Like[]|null;
+  comments: Comment[]|null;
   isVisible: boolean;
 }) {
   const [animated, setAnimate] = useState(isVisible);
@@ -36,14 +36,15 @@ export default function ActivitiesHighlightsSection({
   }, [isVisible]);
 
   useEffect(() => {
+    if(!likes||!comments) return
     const getTop3 = async () => {
       const interactions = [
-        ...(likes?.map((like) => ({
+        ...(likes.map((like) => ({
           creator: like.post.creator.toString(),
           categories: like.post.categories,
           type: "reaction" as const,
         })) || []),
-        ...(comments?.map((comment) => ({
+        ...(comments.map((comment) => ({
           creator: comment.post.creator.toString(),
           categories: comment.post.categories,
           type: "comment" as const,

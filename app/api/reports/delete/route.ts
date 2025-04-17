@@ -19,9 +19,10 @@ export const DELETE = async (req: NextRequest) => {
     if (!session.user.role?.includes(UserRole.ADMIN))
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-    const reportsWithUsers = await Report.find({ _id: { $in: ids } }).populate(
-      "user"
-    );
+    const reportsWithUsers = await Report.find({
+      _id: { $in: ids },
+      state: false,
+    }).populate("user");
 
     const updatedReports = await Report.deleteMany({ _id: { $in: ids } });
 

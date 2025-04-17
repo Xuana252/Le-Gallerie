@@ -15,8 +15,12 @@ export default function CommentProps({
 
   if (comment)
     return (
-      <div className="flex flex-row gap-1 items-start justify-center"> 
-        <UserProfileIcon  user={comment.user} size="Icon_small" redirect={false} />
+      <div className="flex flex-row gap-1 items-start justify-center ">
+        <UserProfileIcon
+          user={comment.user}
+          size="Icon_small"
+          redirect={false}
+        />
         <div className="rounded-xl bg-secondary-2 w-fit px-2 py-1 text-sm">
           <span
             className={`font-semibold break-all whitespace-normal  text-sm`}
@@ -25,10 +29,10 @@ export default function CommentProps({
           </span>
           <div className="relative">
             <p
-              className={`max-h-[100px] whitespace-pre-line overflow-ellipsis overflow-y-hidden break-words
+              className={`max-h-[200px] overflow-auto whitespace-pre-line  break-words
             text-sm`}
             >
-              {comment.content}
+              {comment.content} 
             </p>
           </div>
         </div>

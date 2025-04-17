@@ -1,7 +1,7 @@
 import { blockUser } from "@actions/accountActions";
 import { checkFollowState, followUser } from "@actions/followsActions";
 import MultipleOptionsButton from "@components/Input/MultipleOptionsButton";
-import toastError, { confirm } from "@components/Notification/Toaster";
+import toastError, { confirm, toastMessage } from "@components/Notification/Toaster";
 import { startChat } from "@lib/Chat/chat";
 import {
   faUserPlus,
@@ -40,6 +40,15 @@ export default function UserInteractionBar({
   const [followTimeOut, setFollowTimeout] = useState(false);
   const [friendState, setFriendState] = useState<FriendState | null>(null);
   const { setChatInfo } = useContext(ChatContext);
+
+  const handleMessage = () => {
+    if(friendState!==FriendState.FRIEND) {
+      toastMessage("Only friends can chat with each other")
+      return
+    }
+
+    startChat(user, setChatInfo, router)
+  }
 
   const handleFriendButtonAction = async () => {
     if (friendState === null) return;
@@ -220,7 +229,7 @@ export default function UserInteractionBar({
           </MultipleOptionsButton>
           <button
             className="Button_variant_1"
-            onClick={() => startChat(user, setChatInfo, router)}
+            onClick={handleMessage}
           >
             Message <FontAwesomeIcon icon={faComment} />
           </button>

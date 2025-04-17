@@ -40,15 +40,15 @@ export default function UserActivities() {
     Record<string, boolean>
   >({});
 
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [likes, setLikes] = useState<Like[]>([]);
-  const [postsLikes, setPostsLikes] = useState<Like[]>([]);
-  const [postsComments, setPostsComments] = useState<Comment[]>([]);
-  const [commentLikes, setCommentLikes] = useState<Like[]>([]);
-  const [followers, setFollowers] = useState<User[]>([]);
-  const [following, setFollowing] = useState<User[]>([]);
-  const [friends, setFriends] = useState<User[]>([]);
+  const [posts, setPosts] = useState<Post[]|null>(null);
+  const [comments, setComments] = useState<Comment[]|null>(null);
+  const [likes, setLikes] = useState<Like[]|null>(null);
+  const [postsLikes, setPostsLikes] = useState<Like[]|null>(null);
+  const [postsComments, setPostsComments] = useState<Comment[]|null>(null);
+  const [commentLikes, setCommentLikes] = useState<Like[]|null>(null);
+  const [followers, setFollowers] = useState<User[]|null>(null);
+  const [following, setFollowing] = useState<User[]|null>(null);
+  const [friends, setFriends] = useState<User[]|null>(null);
 
   const sectionsRef = useRef<Record<string, HTMLDivElement | null>>({
     "Total Post": null,
@@ -185,7 +185,7 @@ export default function UserActivities() {
       >
         <PostSection
           isVisible={animatedSections["Total Post"]}
-          postCount={posts.length}
+          postCount={posts?.length??null}
         />
       </div>
       <div
@@ -196,8 +196,8 @@ export default function UserActivities() {
       >
         <ReactionSection
           isVisible={animatedSections["Total Reaction"]}
-          likesCount={likes.length}
-          commentLikesCount={commentLikes.length}
+          likesCount={likes?.length??null}
+          commentLikesCount={commentLikes?.length??null}
         />
       </div>
       <div
@@ -208,7 +208,7 @@ export default function UserActivities() {
       >
         <CommentSection
           isVisible={animatedSections["Total Comment"]}
-          commentCount={comments.length}
+          commentCount={comments?.length??null}
         />
       </div>
       <div

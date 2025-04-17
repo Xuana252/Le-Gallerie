@@ -4,6 +4,7 @@ import TextAreaInput from "@components/Input/TextAreaInput";
 import toastError, { toastMessage } from "@components/Notification/Toaster";
 import CommentProps from "@components/UI/Props/ComentProps";
 import PostProps from "@components/UI/Props/PostProps";
+import { ReportPrompt } from "@enum/reportPromptEnum";
 import { SubmitButtonState } from "@enum/submitButtonState";
 import { Comment, Post, Report } from "@lib/types";
 import { useSession } from "@node_modules/next-auth/react";
@@ -16,13 +17,7 @@ export default function ReportForm({
   type: "Post" | "Comment";
   content: Post | Comment;
 }) {
-  const reportReasons = [
-    "Spam",
-    "Harassment or bullying",
-    "Inappropriate or offensive content",
-    "False information",
-    "Intellectual property violation",
-  ];
+
   const [submitState, setSubmitState] = useState<SubmitButtonState>(
     SubmitButtonState.IDLE
   );
@@ -113,7 +108,7 @@ export default function ReportForm({
         </div>
 
         <ul className="flex flex-wrap gap-2 bg-primary/70 p-1 rounded-lg">
-          {reportReasons.map((reason, index) => (
+          {Object.values(ReportPrompt).map((reason, index) => (
             <li
               key={index}
               className={`px-2 py-1  bg-muted text-sm rounded-full cursor-pointer   font-semibold border-2 border-accent transition-colors ${

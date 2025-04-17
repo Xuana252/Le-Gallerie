@@ -163,7 +163,7 @@ export default function UserStatBar({
           {list?.map((item) => (
             <li
               key={item._id}
-              className="grid grid-cols-[auto_1fr_auto] items-center gap-2 h-fit w-full border-l-4 border-accent pl-1 rounded-md"
+              className="grid grid-cols-[auto_1fr_auto] items-center gap-2 h-fit w-full  pl-1 rounded-md"
             >
            
                 <UserProfileIcon user={item} />

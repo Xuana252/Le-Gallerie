@@ -1,5 +1,12 @@
 import { fetchUserWithId } from "@actions/accountActions";
-import { Comment, Post, Report, User } from "@lib/types";
+import {
+  Comment,
+  Post,
+  Report,
+  ReportItem,
+  ReportSearch,
+  User,
+} from "@lib/types";
 import React, { useEffect, useState } from "react";
 import UserProfileIcon from "../Profile/UserProfileIcon";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
@@ -24,19 +31,14 @@ import PostProps from "../Props/PostProps";
 import CommentProps from "../Props/ComentProps";
 import { faCircle } from "@node_modules/@fortawesome/free-regular-svg-icons";
 import { formatNumber } from "@lib/format";
+import { count } from "console";
+import { useRouter } from "next/navigation";
+import MasonryLayout from "../Layout/MansonryLayout";
 
 export default function UserReportTab({ user }: { user: User | null }) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [report, setReport] = useState<
-    Record<
-      string,
-      {
-        reports: Report[];
-        type: "Post" | "Comment";
-        targetData: Post | Comment;
-      }
-    >
-  >({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [userReport, setUserReport] = useState<ReportSearch | null>(null);
+  const router = useRouter();
 
   const [typeCount, setTypeCount] = useState<Record<string, number>>({});
 
@@ -44,58 +46,27 @@ export default function UserReportTab({ user }: { user: User | null }) {
     setIsLoading(true);
     const res = await fetchUserReportId(id);
 
+    const counts: Record<string, number> = { Post: 0, Comment: 0 };
+
+    res.reports.forEach((reportItem: ReportItem) => {
+      if (reportItem.type === "Post") {
+        counts.Post += 1;
+        if (user) {
+          (reportItem.reportTarget as Post).creator = user;
+        }
+      } else if (reportItem.type === "Comment") {
+        counts.Comment += 1;
+        if (user) {
+          (reportItem.reportTarget as Comment).user = user;
+        }
+      }
+    });
+
     console.log(res);
-    const grouped = res.reports.reduce(
-      (acc: Record<string, Report[]>, report: Report) => {
-        if (!acc[report.reportId]) {
-          acc[report.reportId] = [];
-        }
-        acc[report.reportId].push(report);
-        return acc;
-      },
-      {}
-    );
 
-    // For each group, fetch related post/comment
-    const entries = await Promise.all(
-      Object.entries(grouped as Record<string, Report[]>).map(
-        async ([reportId, reports]) => {
-          const type = reports[0]?.type; // e.g. 'post' or 'comment'
+    setTypeCount(counts);
 
-          let targetData = null;
-          try {
-            if (type === "Post") {
-              const res = await fetchPostWithId(reportId);
-              targetData = res.data;
-            } else if (type === "Comment") {
-              const res = await fetchCommentWithId(reportId);
-              targetData = res.data;
-            }
-          } catch (err) {
-            console.error(`Failed to fetch ${type} with ID ${reportId}`, err);
-          }
-
-          return [reportId, { reports, type, targetData }];
-        }
-      )
-    );
-
-    const detailsMap = Object.fromEntries(entries);
-
-    const typeCount = (
-      Object.values(detailsMap) as {
-        reports: Report[];
-        type: string;
-        targetData: any;
-      }[]
-    ).reduce((acc: Record<string, number>, { type }) => {
-      acc[type] = (acc[type] || 0) + 1;
-      return acc;
-    }, {});
-
-    setTypeCount(typeCount);
-
-    setReport(detailsMap);
+    setUserReport(res);
     setIsLoading(false);
   };
 
@@ -135,80 +106,56 @@ export default function UserReportTab({ user }: { user: User | null }) {
           </>
         )}
       </div>
-      <div className="font-semibold">
+      <div className="font-semibold font-mono">
         User Reports (
-        {typeCount["Post"] && (
+        {typeCount["Post"] > 0 && (
           <span>
-            {typeCount["Post"]} <FontAwesomeIcon icon={faImage} />
+            {formatNumber(typeCount["Post"])} <FontAwesomeIcon icon={faImage} />
           </span>
-        )}
-        {typeCount["Comment"] && (
+        )}{" "}
+        {typeCount["Comment"] > 0 && (
           <span>
-            {typeCount["Comment"]} <FontAwesomeIcon icon={faComment} />
+            {formatNumber(typeCount["Comment"])}{" "}
+            <FontAwesomeIcon icon={faComment} />
           </span>
         )}
         )
       </div>
-      <ul className="flex flex-col gap-2 max-h-[400px] overflow-y-auto bg-secondary-1 p-2 rounded-lg">
-        {!isLoading && user ? (
-          Object.entries(report).length > 0 ? (
-            Object.entries(report).map(([reportId, detail], index) => (
-              <li
-                key={reportId}
-                className="w-full bg-secondary-2/50 rounded-md p-1 flex flex-col gap-2 "
-              >
-                <h3 className="text-sm opacity-80 mb-1">
-                  Report ID: {reportId}
-                </h3>
-                {detail.type === "Post" ? (
-                  <div className="w-[200px] mx-auto">
-                    <PostProps post={detail.targetData as Post} />
-                  </div>
-                ) : (
-                  <div className="mx-auto">
-                    <CommentProps comment={detail.targetData as Comment} />
-                  </div>
-                )}
+      <div className="bg-secondary-1 rounded p-1">
+        <MasonryLayout
+          height={"400px"}
+          items={userReport?.reports || []}
+          isLoading={isLoading}
+          holder={(item) => (
+            <div
+              className="flex flex-col gap-1 p-1 rounded-md bg-primary/50 hover:bg-primary/80 cursor-pointer"
+              onClick={() => router.push(`/admin/reports/${item.type.toLowerCase()}s/${item._id}`)}
+            >
+              {item.type === "Post" ? (
+                <PostProps post={item.reportTarget as Post} />
+              ) : (
+                <CommentProps comment={item.reportTarget as Comment} />
+              )}
 
-                <div className="text-left text-xs font-mono panel w-fit flex flex-row gap-2 items-center mx-auto">
-                  {detail.reports.length} reports [
+              <div className="text-xs font-mono panel w-fit flex flex-wrap gap-2 items-center justify-center mx-auto">
+                {item.falseCount + item.trueCount} reports
+                <span className="flex flex-row gap-1">
+                  [
                   <span className="flex flex-row gap-1 items-center font-bold w-fit">
-                    {formatNumber(detail.reports.filter((rp) => rp.state).length)}{" "}
+                    {formatNumber(item.trueCount)}{" "}
                     <FontAwesomeIcon icon={faCheck} />
                   </span>
                   <span className="flex flex-row gap-1 items-center font-bold w-fit">
-                    {formatNumber(detail.reports.filter((rp) => !rp.state).length)}{" "}
+                    {formatNumber(item.falseCount)}{" "}
                     <FontAwesomeIcon icon={faCircle} />
                   </span>
                   ]
-                </div>
-
-                <div className="flex max-h-[400px] overflow-y-auto flex-wrap gap-2 bg-primary p-2 rounded-md">
-                  {detail.reports
-                    .sort((a, b) =>
-                      a.state === b.state ? 0 : a.state ? 1 : -1
-                    )
-                    .map((reportItem, idx) => (
-                      <ReportCard key={idx} report={reportItem} />
-                    ))}
-                </div>
-              </li>
-            ))
-          ) : (
-            <div className="size-full flex flex-col items-center justify-center">
-              <FontAwesomeIcon icon={faBoxArchive} size="2xl" />
-              <p>No report found:/</p>
+                </span>
+              </div>
             </div>
-          )
-        ) : (
-          Array.from({ length: 10 }).map((_, index) => (
-            <div
-              key={index}
-              className="rounded-lg animate-pulse bg-secondary-2 w-full min-h-[200px] "
-            ></div>
-          ))
-        )}
-      </ul>
+          )}
+        />
+      </div>
     </div>
   );
 }

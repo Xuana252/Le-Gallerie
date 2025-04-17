@@ -59,10 +59,10 @@ export default function FilterButton({
             <div
               key={index}
               onMouseDown={() => handleSelect(index)}
-              className=" grid grid-cols-2 text-right p-1 gap-2 text-xs hover:bg-accent hover:text-primary rounded-md items-center"
+              className=" grid grid-cols-2 text-right p-1 gap-2  text-xs hover:bg-accent hover:text-primary rounded-md items-center"
             >
-              <span>{item.text}</span>
-              <FontAwesomeIcon icon={option[index].icon ?? icon} />
+              <span className="text-end">{item.text}</span>
+              <FontAwesomeIcon icon={option[index].icon ?? icon} className="ml-auto" />
             </div>
           ) : null
         )}

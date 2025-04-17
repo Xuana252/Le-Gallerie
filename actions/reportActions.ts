@@ -1,5 +1,5 @@
 "use server";
-import { Report } from "@lib/types";
+import { Category, Report } from "@lib/types";
 import { headers, cookies } from "next/headers";
 
 export const fetchReport = async (
@@ -45,29 +45,37 @@ export const updateReport = async (report: Report) => {
   }
 };
 
-export const fetchCommentReport = async () => {
+export const fetchCommentReport = async (
+  currentPage: number,
+  limit: number,
+  searchText: string,
+  resolvedFilter: -1 | 0 | 1,
+  reportSort: -1 | 0 | 1,
+  approvedSort: -1 | 0 | 1,
+  pendingSort: -1 | 0 | 1
+) => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/comment`,
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/comment?page=${currentPage}&limit=${limit}&searchText=${searchText}&resolvedFilter=${resolvedFilter}&reportSort=${reportSort}&approvedSort=${approvedSort}&pendingSort=${pendingSort}`,
       {
         headers: new Headers(headers()),
       }
     );
     if (response.ok) {
       const data = await response.json();
-      return data;
+      return { reports: data.reports, counts: data.counts };
     }
-    return [];
+    return { reports: [], counts: 0 };
   } catch (error) {
     console.log(error);
-    return [];
+    return { reports: [], counts: 0 };
   }
 };
 
 export const fetchCommentReportId = async (id: string) => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/${id}`,
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/comment/${id}`,
       {
         headers: new Headers(headers()),
       }
@@ -83,22 +91,34 @@ export const fetchCommentReportId = async (id: string) => {
   }
 };
 
-export const fetchPostReport = async () => {
+export const fetchPostReport = async (
+  currentPage: number,
+  limit: number,
+  searchText: string,
+  categoryFilter: Category[],
+  visibilityFilter: -1 | 0 | 1,
+  resolvedFilter: -1 | 0 | 1,
+  reportSort: -1 | 0 | 1,
+  approvedSort: -1 | 0 | 1,
+  pendingSort: -1 | 0 | 1
+) => {
+  const categoryIds = categoryFilter.map((category) => category._id).join(",");
+
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/post`,
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/post?page=${currentPage}&limit=${limit}&searchText=${searchText}&categoryIds=${categoryIds}&visibilityFilter=${visibilityFilter}&resolvedFilter=${resolvedFilter}&reportSort=${reportSort}&approvedSort=${approvedSort}&pendingSort=${pendingSort}`,
       {
         headers: new Headers(headers()),
       }
     );
     if (response.ok) {
       const data = await response.json();
-      return data;
+      return { reports: data.reports, counts: data.counts };
     }
-    return [];
+    return { reports: [], counts: 0 };
   } catch (error) {
     console.log(error);
-    return [];
+    return { reports: [], counts: 0 };
   }
 };
 
@@ -121,22 +141,30 @@ export const fetchPostReportId = async (id: string) => {
   }
 };
 
-export const fetchUserReport = async () => {
+export const fetchUserReport = async (
+  currentPage: number,
+  limit: number,
+  searchText: string,
+  resolvedFilter: -1 | 0 | 1,
+  reportSort: -1 | 0 | 1,
+  approvedSort: -1 | 0 | 1,
+  pendingSort: -1 | 0 | 1
+) => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/user`,
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/user?page=${currentPage}&limit=${limit}&searchText=${searchText}&resolvedFilter=${resolvedFilter}&reportSort=${reportSort}&approvedSort=${approvedSort}&pendingSort=${pendingSort}`,
       {
         headers: new Headers(headers()),
       }
     );
     if (response.ok) {
       const data = await response.json();
-      return data;
+      return { reports: data.reports, counts: data.counts };
     }
-    return [];
+    return { reports: [], counts: 0 };
   } catch (error) {
     console.log(error);
-    return [];
+    return { reports: [], counts: 0 };
   }
 };
 
@@ -192,13 +220,14 @@ export const fetchSystemReportData = async () => {
   return null;
 };
 
-export const approveReport = async (reportIds:string[]) => {
-
+export const approveReport = async (reportIds: string[]) => {
   const params = new URLSearchParams();
   reportIds.forEach((id) => params.append("ids", id));
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/approve?${params.toString()}`,
+    `${
+      process.env.NEXT_PUBLIC_DOMAIN_NAME
+    }/api/reports/approve?${params.toString()}`,
     {
       method: "PATCH",
       headers: new Headers(headers()),
@@ -208,14 +237,16 @@ export const approveReport = async (reportIds:string[]) => {
     return true;
   }
   return false;
-}
+};
 
-export const deleteReport = async (reportIds:string[]) => {
+export const deleteReport = async (reportIds: string[]) => {
   const params = new URLSearchParams();
   reportIds.forEach((id) => params.append("ids", id));
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/reports/reject?${params.toString()}`,
+    `${
+      process.env.NEXT_PUBLIC_DOMAIN_NAME
+    }/api/reports/delete?${params.toString()}`,
     {
       method: "DELETE",
       headers: new Headers(headers()),
@@ -225,4 +256,4 @@ export const deleteReport = async (reportIds:string[]) => {
     return true;
   }
   return false;
-}
+};

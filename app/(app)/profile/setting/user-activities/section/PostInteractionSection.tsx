@@ -4,7 +4,6 @@ import CommentProps from "@components/UI/Props/ComentProps";
 import PostProps from "@components/UI/Props/PostProps";
 import { Reaction } from "@enum/reactionEnum";
 import { renderReaction } from "@lib/Emoji/render";
-import { getRandomColor } from "@lib/Post/post";
 import { Comment, Like } from "@lib/types";
 import {
   faComment,
@@ -17,24 +16,24 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 export default function PostInteractionSection({
   isVisible,
   postsLikes,
-  postsComments
+  postsComments,
 }: {
   isVisible: boolean;
-  postsLikes: Like[],
-  postsComments: Comment[],
+  postsLikes: Like[] | null;
+  postsComments: Comment[] | null;
 }) {
   const [likes, setLikes] = useState(postsLikes);
-  const [comments,setComments] = useState(postsComments);
+  const [comments, setComments] = useState(postsComments);
   const [animated, setAnimate] = useState(isVisible);
   const [displayNumber, setIsDisplayNumber] = useState("");
 
-  useEffect(()=> {
-    setLikes(postsLikes)
-  },[postsLikes])
+  useEffect(() => {
+    setLikes(postsLikes);
+  }, [postsLikes]);
 
-  useEffect(()=> {
-    setComments(postsComments)
-  },[postsComments])
+  useEffect(() => {
+    setComments(postsComments);
+  }, [postsComments]);
 
   useEffect(() => {
     setAnimate(isVisible);
@@ -76,7 +75,13 @@ export default function PostInteractionSection({
       }}
     >
       <div className={`title ${animated ? "animate-slideLeft" : ""} ml-auto`}>
-        Your posts have received {postsLikes.length + postsComments.length || <NumberLoader />} interactions
+        Your posts have received{" "}
+        {postsLikes && postsComments ? (
+          postsLikes.length + postsComments.length
+        ) : (
+          <NumberLoader />
+        )}{" "}
+        interactions
       </div>
 
       <div className="relative self-center mt-[100px] w-full m-auto max-w-[700px] max-h-[500px]">
@@ -113,7 +118,10 @@ export default function PostInteractionSection({
                     : "hidden"
                 }`}
               >
-                {postsLikes.filter(likes => likes.reaction === reaction.type).length}
+                {
+                  postsLikes?.filter((likes) => likes.reaction === reaction.type)
+                    .length
+                }
               </div>
             </div>
           ))}
@@ -150,7 +158,10 @@ export default function PostInteractionSection({
                     : "hidden"
                 }`}
               >
-                {postsLikes.filter(likes => likes.reaction === reaction.type).length}
+                {
+                  postsLikes?.filter((likes) => likes.reaction === reaction.type)
+                    .length
+                }
               </div>
             </div>
           ))}
@@ -186,7 +197,7 @@ export default function PostInteractionSection({
                   : "hidden"
               }`}
             >
-              {postsComments.length}
+              {postsComments?.length}
             </div>
           </div>
         ))}
