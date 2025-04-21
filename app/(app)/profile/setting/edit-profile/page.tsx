@@ -1,7 +1,12 @@
 "use client";
 import InputBox from "@components/Input/InputBox";
 import SubmitButton from "@components/Input/SubmitButton";
-import { faCheck, faL, faUser } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCheck,
+  faHammer,
+  faL,
+  faUser,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { UploadImage, UploadUser, User } from "@lib/types";
 import { getSession, useSession } from "next-auth/react";
@@ -16,6 +21,7 @@ import DateTimePicker from "@components/Input/DateTimePicker";
 import toastError from "@components/Notification/Toaster";
 import { SubmitButtonState } from "@enum/submitButtonState";
 import TextAreaInput from "@components/Input/TextAreaInput";
+import { UserRole } from "@enum/userRolesEnum";
 
 export default function EditPage() {
   const router = useRouter();
@@ -162,6 +168,7 @@ export default function EditPage() {
               name="bio"
               onTextChange={handleInfoChange}
               value={updateInfo.bio}
+              style={{ fontSize: "0.8em" }}
             >
               Bio
             </TextAreaInput>
@@ -197,23 +204,40 @@ export default function EditPage() {
               {updateInfo.username || "username"}
             </h1>
             <div className="User_Profile_Page_Picture_Container">
-              <div className="User_Profile_Page_Picture ">
-                {updateInfo.image?.url ? (
-                  <img
-                    src={updateInfo.image?.url}
-                    alt={"profile picture"}
-                    className="size-full"
-                    width={0}
-                    height={0}
-                    style={{ objectFit: "cover" }}
-                  />
-                ) : (
-                  <FontAwesomeIcon
-                    icon={faUser}
-                    size="xl"
-                    className="size-full"
-                  />
-                )}
+              <div className="relative">
+                <div
+                  className={`${
+                    session?.user.role?.includes(UserRole.ADMIN)
+                      ? "User_Profile_Page_Picture_Admin"
+                      : "User_Profile_Page_Picture"
+                  }`}
+                >
+                  {updateInfo.image?.url ? (
+                    <img
+                      src={updateInfo.image?.url}
+                      alt={"profile picture"}
+                      className="size-full"
+                      width={0}
+                      height={0}
+                      style={{ objectFit: "cover" }}
+                    />
+                  ) : (
+                    <FontAwesomeIcon
+                      icon={faUser}
+                      size="xl"
+                      className="size-full"
+                    />
+                  )}
+                </div>
+                {session?.user?.role?.includes(UserRole.ADMIN) ? (
+                  <div className="absolute bottom-0 right-0 z-50 text-white rounded-full bg-blue-500 p-[1px] aspect-square w-[30%] flex items-center justify-center">
+                    <FontAwesomeIcon icon={faHammer} className="size-[70%]" />
+                  </div>
+                ) : session?.user?.role?.includes(UserRole.CREATOR) ? (
+                  <div className="absolute bottom-0 right-0 z-50 text-white rounded-full bg-blue-500 p-[1px] aspect-square w-[30%] flex items-center justify-center">
+                    <FontAwesomeIcon icon={faCheck} className="size-[70%]" />
+                  </div>
+                ) : null}
               </div>
               <div className="User_Profile_Page_Stat_Bar">
                 <h1 className="flex flex-col items-center justify-start">
@@ -244,19 +268,40 @@ export default function EditPage() {
           User information preview
         </h1>
         <div className="flex items-center justify-center my-2">
-          <div className="User_Profile_Page_Picture ">
-            {updateInfo.image?.url ? (
-              <img
-                src={updateInfo.image?.url}
-                alt={"profile picture"}
-                className="size-full"
-                width={0}
-                height={0}
-                style={{ objectFit: "cover" }}
-              />
-            ) : (
-              <FontAwesomeIcon icon={faUser} size="xl" className="size-full" />
-            )}
+          <div className="relative">
+            <div
+              className={`${
+                session?.user.role?.includes(UserRole.ADMIN)
+                  ? "User_Profile_Page_Picture_Admin"
+                  : "User_Profile_Page_Picture"
+              }`}
+            >
+              {updateInfo.image?.url ? (
+                <img
+                  src={updateInfo.image?.url}
+                  alt={"profile picture"}
+                  className="size-full"
+                  width={0}
+                  height={0}
+                  style={{ objectFit: "cover" }}
+                />
+              ) : (
+                <FontAwesomeIcon
+                  icon={faUser}
+                  size="xl"
+                  className="size-full"
+                />
+              )}
+            </div>
+            {session?.user?.role?.includes(UserRole.ADMIN) ? (
+              <div className="absolute bottom-0 right-0 z-50 text-white rounded-full bg-blue-500 p-[1px] aspect-square w-[30%] flex items-center justify-center">
+                <FontAwesomeIcon icon={faHammer} className="size-[70%]" />
+              </div>
+            ) : session?.user?.role?.includes(UserRole.CREATOR) ? (
+              <div className="absolute bottom-0 right-0 z-50 text-white rounded-full bg-blue-500 p-[1px] aspect-square w-[30%] flex items-center justify-center">
+                <FontAwesomeIcon icon={faCheck} className="size-[70%]" />
+              </div>
+            ) : null}
           </div>
         </div>
         <div className="flex flex-col text-xl bg-secondary-2/40 py-2 px-1 text-accent rounded-lg">
@@ -270,7 +315,7 @@ export default function EditPage() {
             <div className="w-[30%] text-left px-2 font-semibold text-sm sm:text-lg break-words">
               Bio
             </div>
-            <p className="w-[70%] whitespace-pre-wrap">
+            <p className="w-[70%] whitespace-pre-wrap text-xs">
               {updateInfo.bio || "bio"}
             </p>
           </div>

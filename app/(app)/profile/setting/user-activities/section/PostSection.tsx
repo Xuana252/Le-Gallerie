@@ -1,7 +1,6 @@
 import { NumberLoader } from "@components/UI/Loader";
 import PostCard from "@components/UI/Post/PostCard";
 import PostProps from "@components/UI/Props/PostProps";
-import { getRandomColor } from "@lib/Post/post";
 import { faHeart } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import {
@@ -15,7 +14,7 @@ export default function PostSection({
   postCount,
 }: {
   isVisible: boolean;
-  postCount: number;
+  postCount: number|null;
 }) {
   const [count, setCount] = useState(postCount)
   const [animated, setAnimate] = useState(isVisible);
@@ -43,7 +42,7 @@ export default function PostSection({
       }}
     >
       <div className={`title ${animated ? "animate-slideRight" : ""} mr-auto`}>
-        You've made {count || <NumberLoader />} posts
+        You've made {count?? <NumberLoader />} posts
       </div>
 
       <div className="relative  min-w-[300px] w-full sm:w-[50%]  rounded-lg ">

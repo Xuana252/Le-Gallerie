@@ -12,7 +12,7 @@ import { useRef, useState, useEffect } from "react";
 import { useSession } from "@node_modules/next-auth/react";
 import { useSearchParams } from "@node_modules/next/navigation";
 import UserProfileIcon from "../../Profile/UserProfileIcon";
-import { Comment, Like } from "@lib/types";
+import { Comment, Like, User } from "@lib/types";
 import ReactionButton from "@components/Input/ReactionInput";
 import { Reaction } from "@enum/reactionEnum";
 import { getTop3Reactions, renderReaction } from "@lib/Emoji/render";
@@ -22,13 +22,19 @@ import {
   fetchCommentLikes,
   handleComment,
 } from "@actions/commentAction";
+import PopupButton from "@components/Input/PopupButton";
+import ReportForm from "@components/Forms/ReportForm";
 
 export const CommentItem = ({
   comment,
   size = "small",
+  parent,
+  callback
 }: {
   comment: Comment;
+  parent?: Comment | null;
   size?: "small" | "smaller";
+  callback?: () => Promise<void>;
 }) => {
   const { data: session } = useSession();
   const commentRef = useRef<HTMLDivElement>(null);
@@ -59,6 +65,7 @@ export const CommentItem = ({
   };
 
   const fetchReplies = async () => {
+    if (parent) return;
     try {
       const replies = await fetchCommentReplies(comment._id);
       setReplies(replies);
@@ -98,7 +105,8 @@ export const CommentItem = ({
       replyContent
     );
     setReplyContent("");
-    fetchReplies();
+    fetchReplies()
+    callback&&callback()
   };
 
   useEffect(() => {
@@ -140,15 +148,8 @@ export const CommentItem = ({
       className="flex items-start gap-2 p-1"
       ref={[commentId, replyId].includes(comment._id) ? commentRef : null}
     >
-      {session?.user.id === comment.user._id ? (
-        <UserProfileIcon currentUser={true} size={`Icon_${size}`} />
-      ) : (
-        <UserProfileIcon
-          currentUser={false}
-          user={comment.user}
-          size={`Icon_${size}`}
-        />
-      )}
+      <UserProfileIcon user={comment.user} size={`Icon_${size}`} />
+
       <div className="flex flex-col w-[80%] gap-2">
         <div className="rounded-xl bg-secondary-2 w-fit px-2 py-1 text-sm">
           <span
@@ -199,11 +200,19 @@ export const CommentItem = ({
             reaction={myReaction}
             action={(r: Reaction | null) => handleLikeState(r)}
           />
-          <button className="ml-auto hover:text-accent">Report</button>
+          <PopupButton
+            className="ml-auto"
+            popupItem={<ReportForm type="Comment" content={comment} />}
+          >
+            <button className="hover:text-accent">Report</button>
+          </PopupButton>
         </div>
         {isReplying && (
           <div className="flex flex-row items-start gap-2 border-l-2 border-accent p-2">
-            <UserProfileIcon currentUser={true} size="Icon_smaller" />
+            <UserProfileIcon
+              user={{ _id: session?.user.id, ...session?.user } as User}
+              size="Icon_smaller"
+            />
             <textarea
               ref={replyBlock}
               value={replyContent}
@@ -226,16 +235,9 @@ export const CommentItem = ({
         )}
         {isRepliesView && (
           <ul className="flex flex-col gap-2 border-l-2 border-accent/50 pl-2 pt-2 pb-2">
-            {replies
-              .sort((a, b) => {
-                const dateA = new Date(a.createdAt.toString());
-                const dateB = new Date(b.createdAt.toString());
-
-                return dateB.getTime() - dateA.getTime();
-              })
-              .map((reply) => (
-                <CommentItem key={reply._id} comment={reply} size="smaller" />
-              ))}
+            {replies.map((reply) => (
+              <CommentItem key={reply._id} comment={reply} size="smaller" parent={comment} callback={fetchReplies} />
+            ))}
           </ul>
         )}
         {replies.length > 0 && (

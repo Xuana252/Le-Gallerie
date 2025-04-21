@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 import SideBar from "@components/UI/Layout/SideBar";
 import { useEffect, useState } from "react";
+import { settingRoutes } from "@constant/settingRoutes";
 
 export const metadata: Metadata = {
   title: "Setting",
@@ -21,7 +22,8 @@ export default function SettingLayout({
 
   return (
       <div className={inter.className}>
-        <SideBar>{children}</SideBar>
+       
+        <SideBar menu={settingRoutes}>{children}</SideBar>
       </div>
   );
 }

@@ -7,6 +7,7 @@ import { getServerSession } from "next-auth";
 import { FriendState } from "@enum/friendStateEnum";
 import Friend from "@models/friendModel";
 import { checkFriendState } from "@actions/friendActions";
+import { UserRole } from "@enum/userRolesEnum";
 
 export const GET = async (
   req: Request,
@@ -25,18 +26,30 @@ export const GET = async (
       session?.user.id || ""
     );
 
-    const skip = (page - 1) * limit;
-
     // Privacy filter
-    const privacyFilter: any = [{ privacy: "public" }];
-    if (session?.user.id === params.id) {
-      privacyFilter.push({ privacy: { $exists: true } }); // Fetch all if user is viewing their own posts
+    let privacyFilter: any[] = [{ privacy: "public" }];
+
+    const isAdmin = session?.user.role?.includes(UserRole.ADMIN);
+    const isSelf = session?.user.id === params.id;
+
+    if (isAdmin || isSelf) {
+      // Admins or profile owners can see all posts
+      privacyFilter = [{ privacy: { $exists: true } }];
     } else if (friendState === FriendState.FRIEND) {
-      privacyFilter.push({ privacy: "friend" }); // Include friend-only posts
+      // Friends can also see friend-only posts
+      privacyFilter.push({ privacy: "friend" });
     }
 
+    const skip = (page - 1) * limit;
+
     // Query posts
-    const query = { creator: params.id, $or: privacyFilter };
+    const query = {
+      $and: [
+        { creator: params.id },
+        { isDeleted: false },
+        { $or: privacyFilter },
+      ],
+    };
 
     const counts = await Post.countDocuments(query);
 

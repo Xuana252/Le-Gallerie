@@ -4,10 +4,7 @@ import PopupButton from "@components/Input/PopupButton";
 import ReactionButton from "@components/Input/ReactionInput";
 import CustomImage from "@components/UI/Image/Image";
 import UserProfileIcon from "@components/UI/Profile/UserProfileIcon";
-import {
-  addChatItemReaction,
-  isLink,
-} from "@lib/Chat/chat";
+import { addChatItemReaction, isLink } from "@lib/Chat/chat";
 import { formatDateTime } from "@lib/dateFormat";
 import { getTop3Reactions, renderReaction } from "@lib/Emoji/render";
 import { User } from "@lib/types";
@@ -15,14 +12,22 @@ import {
   faEllipsisVertical,
   faL,
   faMapPin,
+  faRobot,
   faTrash,
+  faUser,
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { useSession } from "@node_modules/next-auth/react";
 
-import React, { useEffect, useRef, useState } from "react";
-import { render } from "@node_modules/@types/react-dom";
-import { renderTextWithLinks, renderAppLink, renderLink } from "@lib/Chat/render";
+import {
+  renderTextWithLinks,
+  renderAppLink,
+  renderLink,
+} from "@lib/Chat/render";
+
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { ChatContext } from "@components/UI/Layout/Nav";
+import { faUber } from "@node_modules/@fortawesome/free-brands-svg-icons";
 
 export default function ChatItem({
   message,
@@ -42,15 +47,16 @@ export default function ChatItem({
   handlePin: any;
 }) {
   const { data: session } = useSession();
+  const { chatInfo, setChatInfo } = useContext(ChatContext);
   const [isHovering, setIsHovering] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const [isSetting, setIsSetting] = useState(false);
   const [dropDirection, setDropDirection] = useState<"left" | "right">("left");
   const messageRef = useRef<HTMLDivElement>(null);
 
-  const [processedMessage, setProcessMessage] = useState<string | JSX.Element[]>(
-    message.text
-  );
+  const [processedMessage, setProcessMessage] = useState<
+    string | JSX.Element[]
+  >(message.text);
 
   useEffect(() => {
     const processLinks = async () => {
@@ -109,15 +115,8 @@ export default function ChatItem({
           key={index}
           className="grid grid-cols-[auto_1fr_auto] gap-1 items-center"
         >
-          {reaction.user._id === session?.user.id ? (
-            <UserProfileIcon currentUser={true} size="Icon_smaller" />
-          ) : (
-            <UserProfileIcon
-              currentUser={false}
-              user={reaction.user}
-              size="Icon_smaller"
-            />
-          )}
+          <UserProfileIcon user={reaction.user} size="Icon_smaller" />
+
           <p className="text-xs font-bold text-accent">
             {reaction.user.username}
           </p>
@@ -146,11 +145,15 @@ export default function ChatItem({
           isClicked ? "max-h-10 opacity-100" : "max-h-0  opacity-0"
         }`}
       >
-        {formatDateTime(message.createdAt.toDate())}
+        {formatDateTime(
+          message.senderId === "user" || message.senderId === "gemini-ai"
+            ? message.createdAt // Nếu từ AI (MongoDB)
+            : message.createdAt.toDate() // Nếu từ người dùng (Firestore)
+        )}
       </div>
       <div
         className={`${
-          message.senderId === session?.user.id
+          message.senderId === session?.user.id || message.senderId === "user"
             ? "MyMessageRow"
             : "OtherMessageRow"
         }`}
@@ -158,15 +161,21 @@ export default function ChatItem({
         {profileRenderClasses.some(
           (className) => className === messageClass
         ) ? (
-          <div className="self-end">
-            {message.senderId === session?.user.id ? (
-              <UserProfileIcon currentUser={true} size="Icon_message" />
-            ) : (
-              <UserProfileIcon
-                currentUser={false}
-                user={user}
-                size="Icon_message"
+          <div className="self-end Icon_message">
+            {chatInfo.type === "ai" ? (
+              <FontAwesomeIcon icon={faRobot} />
+            ) : user?.image ? (
+              <CustomImage
+                src={user.image}
+                alt="profile picture"
+                className="size-full"
+                width={0}
+                height={0}
+                transformation={[{ quality: 10 }]}
+                style={{ objectFit: "cover" }}
               />
+            ) : (
+              <FontAwesomeIcon icon={faUser} className="m-0" />
             )}
           </div>
         ) : messageClass.includes("Other_message") ? (
@@ -216,8 +225,17 @@ export default function ChatItem({
                     ))}
                   </ul>
                 )}
+
                 {message.text && (
-                  <div className="whitespace-pre-wrap break-words px-3 py-1 ">
+                  <div
+                    className="whitespace-pre-wrap break-words px-3 py-1 "
+                    style={{
+                      width: "100%",
+                      whiteSpace: "pre-line",
+                      overflowWrap: "break-word",
+                      wordBreak: "normal",
+                    }}
+                  >
                     {processedMessage}
                   </div>
                 )}
@@ -244,7 +262,7 @@ export default function ChatItem({
             </div>
           )}
         </div>
-        {isHovering && (
+        {chatInfo.type !== "ai" && isHovering && (
           <>
             <ReactionButton
               style="vertical"

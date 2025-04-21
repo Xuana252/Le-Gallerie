@@ -1,4 +1,5 @@
 "use server";
+
 import { Category, type Post } from "@lib/types";
 
 import { checkLikeRateLimit } from "./checkRateLimit";
@@ -11,7 +12,7 @@ export const fetchAllPost = async (
   limit: number,
   searchText: string,
   categoryFilter: Category[],
-  relatedPostFilter: string,
+  relatedPostFilter: string
 ) => {
   const categoryIds = categoryFilter.map((category) => category._id).join(",");
 
@@ -28,8 +29,6 @@ export const fetchAllPost = async (
   return { posts: [], counts: 0 };
 };
 
-
-
 export const fetchUserPost = async (
   user: string,
   currentPage: number,
@@ -42,7 +41,7 @@ export const fetchUserPost = async (
     }
   );
   if (response.ok) {
-    const {posts,counts} = await response.json();
+    const { posts, counts } = await response.json();
     return { posts, counts };
   }
   return { posts: [], counts: 0 };
@@ -84,6 +83,24 @@ export const fetchUserFollowPost = async (
   return { posts: [], counts: 0 };
 };
 
+export const fetchUserDeletedPost = async (
+  user: string,
+  currentPage: number,
+  limit: number
+) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/users/${user}/posts/deleted?page=${currentPage}&limit=${limit}`,
+    {
+      headers: new Headers(headers()),
+    }
+  );
+  if (response.ok) {
+    const data = await response.json();
+    return { posts: data.posts, counts: data.counts };
+  }
+  return { posts: [], counts: 0 };
+};
+
 export const fetchUserFriendPost = async (
   user: string,
   currentPage: number,
@@ -103,9 +120,12 @@ export const fetchUserFriendPost = async (
 };
 
 export const fetchPostWithId = async (post: string) => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}`, {
-    headers: new Headers(headers()),
-  });
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}`,
+    {
+      headers: new Headers(headers()),
+    }
+  );
 
   const data = await response.json();
 
@@ -116,10 +136,15 @@ export const fetchPostWithId = async (post: string) => {
 };
 
 export const createPost = async (post: Post, user: string) => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/new`, {
-    method: "POST",
-    body: JSON.stringify({ ...post, creator: user }),
-  });
+
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/new`,
+    {
+      method: "POST",
+      body: JSON.stringify({ ...post, creator: user }),
+    }
+  );
   if (response.ok) {
     const data = await response.json();
     return data;
@@ -128,11 +153,13 @@ export const createPost = async (post: Post, user: string) => {
 };
 
 export const updatePost = async (post: Post) => {
+ 
+
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post._id}`,
     {
       method: "PATCH",
-      body: JSON.stringify(post),
+      body: JSON.stringify({ ...post }),
     }
   );
   if (response.ok) {
@@ -143,7 +170,44 @@ export const updatePost = async (post: Post) => {
 };
 
 export const deletePost = async (post: string) => {
-  await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}`, {
-    method: "DELETE",
-  });
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}/delete`,
+    {
+      method: "PATCH",
+      headers: new Headers(headers()),
+    }
+  );
+
+  if (response.ok) {
+    return true;
+  }
+  return false;
+};
+export const revivePost = async (post: string) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post}/revive`,
+    {
+      method: "PATCH",
+      headers: new Headers(headers()),
+    }
+  );
+
+  if (response.ok) {
+    return true;
+  }
+  return false;
+};
+
+export const fetchSystemPostData = async () => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/admin/posts`,
+    {
+      headers: new Headers(headers()),
+    }
+  );
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+  return null;
 };

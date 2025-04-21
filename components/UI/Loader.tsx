@@ -10,7 +10,7 @@ export default function Loader() {
 export function Spinner() {
   return (
     <div className="size-full flex justify-center items-center px-2">
-      <div className="spinner"></div>
+      <div className="spinner border-current border-4"></div>
     </div>
   );
 }

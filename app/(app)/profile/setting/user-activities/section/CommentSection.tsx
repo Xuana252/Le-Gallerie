@@ -9,7 +9,7 @@ export default function CommentSection({
   commentCount,
 }: {
   isVisible: boolean;
-  commentCount: number;
+  commentCount: number|null;
 }) {
   const { data: session } = useSession();
   const [count, setCount] = useState(commentCount);
@@ -37,7 +37,7 @@ export default function CommentSection({
   return (
     <section className="flex flex-col" style={{ opacity: animated ? 1 : 0 }}>
       <span className={`title ${animated ? "animate-slideRight" : ""} mr-auto`}>
-        You've made {count || <NumberLoader />} comments
+        You've made {count ?? <NumberLoader />} comments
       </span>
 
       <div className="relative min-w-[300px]  h-[200px]">

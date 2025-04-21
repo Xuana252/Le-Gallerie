@@ -6,11 +6,12 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   if (data.status === 200 && data.data) {
     const post = data.data;
     return {
-      title: post.title,
+      title:  post.title?.trim() ? post.title : `${post.creator.username}'s post`,
       openGraph: {
         siteName: "Le Gallerie",
-        title: post.title,
-        description: post.description,
+        title:  post.title?.trim() ? post.title : `${post.creator.username}'s post`,
+        description:
+          post.description || "Check out this amazing photo on Le Gallerie!",
         images: [
           {
             url: post.image[0],

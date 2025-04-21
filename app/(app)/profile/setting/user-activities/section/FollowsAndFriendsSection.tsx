@@ -11,9 +11,9 @@ export default function FollowsAndFriendsSection({
   friends,
 }: {
   isVisible: boolean;
-  followers: User[];
-  following: User[];
-  friends: User[];
+  followers: User[]|null;
+  following: User[]|null;
+  friends: User[]|null;
 }) {
   const [animated, setAnimate] = useState(isVisible);
 

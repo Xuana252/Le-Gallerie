@@ -1,6 +1,6 @@
 import { ChatContext } from "@components/UI/Layout/Nav";
 import { db } from "@lib/firebase";
-import { User } from "@lib/types";
+import { UploadImage, User } from "@lib/types";
 import {
   collection,
   doc,
@@ -16,6 +16,7 @@ import {
   limit,
   orderBy,
   where,
+  increment,
 } from "firebase/firestore";
 import { useContext } from "react";
 import { getSession } from "next-auth/react";
@@ -23,6 +24,8 @@ import { useRouter } from "next/navigation";
 import { Reaction } from "@enum/reactionEnum";
 import { fetchPostWithId } from "@actions/postActions";
 import PostCard from "@components/UI/Post/PostCard";
+import { uploadImage } from "@lib/upload";
+import { v4 as uuidv4 } from "uuid";
 
 const chatRef = collection(db, "chat");
 const usersChatRef = collection(db, "usersChat");
@@ -41,7 +44,79 @@ export const extractDomain = (url: string) => {
   }
 };
 
+export const sendMessage = async (
+  text: string,
+  imageQueue: UploadImage[],
+  chatId: string
+) => {
+  if (!text && imageQueue.length === 0) return;
+  const session = await getSession();
+  if (!session) return;
+  try {
+    const chatDocSnap = await getDoc(doc(chatRef, chatId));
 
+    if (chatDocSnap.exists()) {
+      const imageURLList = await Promise.all(
+        imageQueue
+          .filter((image) => image.file) // Remove items without `file`
+          .map((image) => image.file && uploadImage(image.file)) // Upload concurrently
+      );
+
+      await updateDoc(doc(db, "chat", chatId), {
+        message: arrayUnion({
+          id: uuidv4(),
+          senderId: session.user.id,
+          text,
+          image: imageURLList || [],
+          delete: false,
+          reactions: [],
+          createdAt: new Date(),
+        }),
+        count: increment(1),
+      });
+
+      const chatData = chatDocSnap.data();
+      const userIds = chatData.memberIds || [];
+
+      userIds.forEach(async (id: string) => {
+        const usersChatSnapShot = await getDoc(doc(usersChatRef, id));
+
+        if (usersChatSnapShot.exists()) {
+          const usersChatData = usersChatSnapShot.data();
+
+          const chatIndex = usersChatData.chat.findIndex(
+            (c: any) => c.chatId === chatId
+          );
+
+          if (chatIndex !== -1) {
+            usersChatData.chat[chatIndex].lastMessage = text
+              ? text
+              : "new image";
+            usersChatData.chat[chatIndex].isSeen = id === session.user.id;
+            usersChatData.chat[chatIndex].updatedAt = Date.now();
+
+            await updateDoc(doc(usersChatRef, id), {
+              chat: usersChatData.chat,
+            });
+          }
+        }
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getUsersChat = async (userId: string) => {
+  const userChatDoc = await getDoc(doc(usersChatRef, userId));
+
+  if (!userChatDoc.exists()) return null;
+
+  const userChatData = userChatDoc.data();
+  const chatArray = userChatData.chat || [];
+
+  return chatArray;
+};
 
 export const getLongestChat = async (userId: string) => {
   const userChatSnap = await getDoc(doc(usersChatRef, userId));

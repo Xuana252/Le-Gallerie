@@ -10,11 +10,13 @@ export const GET = async (
   try {
     connectToDB();
 
-    const comments = await Comment.find({ user: params.id }).populate({
+    const rawComments = await Comment.find({ user: params.id }).populate({
       path: "post",
-      select: "creator categories",
+      select: "creator categories isDeleted",
       populate: { path: "categories" },
     });
+    
+    const comments = rawComments.filter(comment => comment.post && !comment.post.isDeleted);
 
     return NextResponse.json(
       { comments: comments, counts: comments.length },

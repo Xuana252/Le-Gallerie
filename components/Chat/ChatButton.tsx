@@ -21,7 +21,9 @@ export default function ChatButton({
   const { data: session } = useSession();
 
   useEffect(() => {
+
     if (!session?.user?.id) return;
+
     setIsLoading(true);
     const unSub = onSnapshot(
       doc(db, "usersChat", session.user.id),
@@ -40,10 +42,10 @@ export default function ChatButton({
             if (!item.isSeen) count++;
             return {
               ...item,
-              memberIds:chatData.memberIds||[],
-              type:chatData.type,
-              image:chatData.image||"",
-              name:chatData.name||"",
+              memberIds: chatData.memberIds || [],
+              type: chatData.type,
+              image: chatData.image || "",
+              name: chatData.name || "",
               users: [
                 ...users,
                 {
@@ -54,7 +56,7 @@ export default function ChatButton({
               ],
             };
           } else {
-            return null
+            return null;
           }
         });
         const chatData = promises ? await Promise.all(promises) : [];
@@ -74,7 +76,7 @@ export default function ChatButton({
       dropDownList={<ChatTab  isLoading={isLoading} />}
       Zindex={50}
     >
-      <div className="relative Icon">
+      <div className="relative Icon" title="Chat">
         <div
           className={`${
             unseenMessageCount > 0 ? "" : "hidden"

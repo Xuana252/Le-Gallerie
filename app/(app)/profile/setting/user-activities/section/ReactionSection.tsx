@@ -3,17 +3,26 @@ import { Reaction } from "@enum/reactionEnum";
 import { renderReaction } from "@lib/Emoji/render";
 import React, { useEffect, useRef, useState } from "react";
 
-export default function ReactionSection({ isVisible,likesCount,commentLikesCount }: { isVisible: boolean, likesCount:number,commentLikesCount:number }) {
+export default function ReactionSection({
+  isVisible,
+  likesCount,
+  commentLikesCount,
+}: {
+  isVisible: boolean;
+  likesCount: number | null;
+  commentLikesCount: number | null;
+}) {
   const [count1, setCount1] = useState(likesCount);
   const [count2, setCount2] = useState(commentLikesCount);
   const [animated, setAnimate] = useState(isVisible);
-  useEffect (()=>{setAnimate(isVisible)},[isVisible])
+  useEffect(() => {
+    setAnimate(isVisible);
+  }, [isVisible]);
 
-
-  useEffect(()=>{
-    setCount1(likesCount)
-    setCount2(commentLikesCount)
-  },[likesCount,commentLikesCount])
+  useEffect(() => {
+    setCount1(likesCount);
+    setCount2(commentLikesCount);
+  }, [likesCount, commentLikesCount]);
 
   const reactionStyles = [
     {
@@ -102,20 +111,23 @@ export default function ReactionSection({ isVisible,likesCount,commentLikesCount
     },
   ];
 
-
   return (
-    <section className="flex flex-col"  style={{ opacity: animated ? 1 : 0 }}>
-      <span className={`title animate-slideLeft ml-auto ${animated ? "animate-slideLeft" : ""}`}>
-        You've reacted {" "}
-        {count1 + count2 || (
-          <NumberLoader/>
-        )}{" "}
+    <section className="flex flex-col" style={{ opacity: animated ? 1 : 0 }}>
+      <span
+        className={`title animate-slideLeft ml-auto ${
+          animated ? "animate-slideLeft" : ""
+        }`}
+      >
+        You've reacted{" "}
+        {count1 == null || count2 == null ? <NumberLoader /> : count1 + count2}{" "}
         times
       </span>
 
       <div className="relative w-full h-[200px]">
         <div className="bloom_right absolute size-full"></div>
-        <ul className={`size-full relative ${animated ? "animate-slideUp" : ""}`}>
+        <ul
+          className={`size-full relative ${animated ? "animate-slideUp" : ""}`}
+        >
           {reactionStyles.map(
             ({ reaction, top, right, rotate, scale }, index) => (
               <div

@@ -7,7 +7,7 @@ import {
   faChartSimple,
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 
-export const menuItems = [
+export const settingRoutes = [
   {
     section: "General",
     items: [

@@ -11,14 +11,16 @@ export const GET = async (
   try {
     connectToDB();
 
+    const posts = await Post.find({ creator: params.id, isDeleted: false });
 
-    const posts = await Post.find({creator:params.id})
+    const postIds = posts.map((post) => post._id);
 
-    const postIds=  posts.map(post => post._id)
+    const comments = await Comment.find({ post: { $in: postIds } });
 
-    const comments = await Comment.find({ post : {$in: postIds}})
-
-    return NextResponse.json({comments:comments,counts:comments.length},{status:200})
+    return NextResponse.json(
+      { comments: comments, counts: comments.length },
+      { status: 200 }
+    );
   } catch (error) {
     console.log("Failed to fetch for users posts comments", error);
     return NextResponse.json(

@@ -13,7 +13,7 @@ export default function LikedUserTab({likes}:{likes:Like[]} ) {
       <div className="flex flex-row justify-between items-center">
         <div className="rounded-full w-fit flex flex-row p-1 pr-2 items-center bg-primary/50">
           {getTop3Reactions(likes).map((reaction, index) => (
-            <div className={`size-5 -mr-1 `} style={{ zIndex: 3 - index }}>
+            <div key={index} className={`size-5 -mr-1 `} style={{ zIndex: 3 - index }}>
               {renderReaction(reaction)}
             </div>
           ))}
@@ -53,7 +53,6 @@ export default function LikedUserTab({likes}:{likes:Like[]} ) {
               className="grid grid-cols-[auto_1fr_auto] items-center gap-2"
             >
               <UserProfileIcon
-                currentUser={false}
                 user={like.user || { _id: "" }}
                 size={"Icon_smaller"}
               />

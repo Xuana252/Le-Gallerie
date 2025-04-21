@@ -99,7 +99,7 @@ export default function SignInPage() {
 
       if(response) {
         setVerificationCode(response.code.toString().trim())
-        setUserId(response.id.toString().trim())
+        setUserId(response.id?.toString().trim())
       } else {
         toastError("Account with that email doesn't exist");
       }

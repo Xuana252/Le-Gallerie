@@ -15,10 +15,16 @@ import UserCard from "../Profile/UserCard";
 import { faArchive } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 
-export default function UsersTab() {
+type UserTabProps = {
+  state?: any;
+  updatestate?: (newState: any) => void;
+};
+
+export default function UsersTab({ state, updatestate }: UserTabProps) {
   const { searchText } = useContext(SearchContext);
   const [usersList, setUsersList] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMount, setIsMount] = useState(false);
 
   const [searchCount, setSearchCount] = useState(0);
   const [page, setPage] = useState(1);
@@ -37,42 +43,60 @@ export default function UsersTab() {
     } catch (error) {
       console.log(error);
     }
-    setTimeout(()=>setIsLoading(false),1000);
+    setIsLoading(false)
   };
 
   useEffect(() => {
+    if (!isMount && Object.keys(state || {}).length !== 0) return;
     fetchUser(1, searchText);
   }, [searchText]);
 
   useEffect(() => {
+    return () => {
+      updatestate &&
+        !isLoading &&
+        updatestate({
+          usersList,
+          count: searchCount,
+          hasMore,
+          page,
+        });
+    };
+  }, [usersList, searchCount, hasMore, page]);
+
+  useEffect(() => {
+    setIsLoading(Object.keys(state || {}).length === 0);
+    setIsMount(true);
+
+    if (!isMount && Object.keys(state || {}).length !== 0) {
+      setUsersList(state.usersList || []);
+      setSearchCount(state.count || 0);
+      setPage(state.page || 1);
+      setHasMore(state.hasMore || false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isMount && Object.keys(state || {}).length !== 0) return;
+
     setPage(1);
     setSearchCount(0);
     setUsersList([]);
     setHasMore(true);
   }, [searchText]);
 
-  const debounce = useCallback((func: Function, delay: number) => {
-    let timeoutId: NodeJS.Timeout;
-    return (...args: any) => {
-      if (timeoutId) clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func(...args), delay);
-    };
-  }, []);
-
   const lastUserRef = (node: HTMLDivElement) => {
     if (isLoading || !hasMore) return;
     if (observerRef.current) observerRef.current.disconnect();
 
-    observerRef.current = new IntersectionObserver(
-      debounce((entries: any) => {
-        entries.forEach((entry: any) => {
-          if (entry.isIntersecting && hasMore) {
-            fetchUser(page + 1, searchText);
-            setPage((prevPage) => prevPage + 1);
-          }
-        });
-      }, 500)
-    );
+    observerRef.current = new IntersectionObserver((entries) => {
+      entries.forEach((entry: any) => {
+        if (entry.isIntersecting && hasMore) {
+          fetchUser(page + 1, searchText);
+          setPage((prevPage) => prevPage + 1);
+        }
+      });
+    });
 
     if (node) observerRef.current.observe(node);
   };

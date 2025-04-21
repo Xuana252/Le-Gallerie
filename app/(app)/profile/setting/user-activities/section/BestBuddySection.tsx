@@ -86,7 +86,7 @@ export default function BestBuddySection({
           {user ? (
             <>
               <UserProfileIcon
-                currentUser={false}
+             
                 user={user}
                 size="Icon_bigger"
               />

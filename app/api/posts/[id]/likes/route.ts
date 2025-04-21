@@ -42,7 +42,7 @@ export const PATCH = async (
     const creator = await User.findById(post.creator)
 
     if (liked) {
-      if(liked.reaction === reaction) {
+      if(!reaction) {
         await Like.findOneAndDelete({ post: params.id, user: userId });
         post.likes -= 1;
       } else {

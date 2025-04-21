@@ -13,7 +13,7 @@ export const GET = async (
     connectToDB();
 
 
-    const posts = await Post.find({creator:params.id})
+    const posts = await Post.find({creator:params.id,  isDeleted: false,})
 
     const postIds=  posts.map(post => post._id)
 

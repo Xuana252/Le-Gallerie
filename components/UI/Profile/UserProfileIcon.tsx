@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
+  faCheck,
   faDownload,
   faHammer,
   faPenToSquare,
@@ -13,13 +14,14 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { type User } from "@lib/types";
 import CustomImage from "../Image/Image";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { checkFollowState } from "@actions/followsActions";
+
 import { UserRole } from "@enum/userRolesEnum";
 
 // Define the base type for the props
-type BaseUserProfileIconProps = {
-  currentUser: boolean;
+type UserProfileIconProps = {
+  user?: User;
   size?:
     | "Icon"
     | "Icon_small"
@@ -27,39 +29,27 @@ type BaseUserProfileIconProps = {
     | "Icon_smaller"
     | "Icon_message"
     | "Icon_bigger";
+  redirect?: boolean;
 };
-
-// Define the type for when currentUser is false
-type UserProfileIconPropsWhenNotCurrentUser = BaseUserProfileIconProps & {
-  currentUser: false;
-  user: User;
-};
-
-// Define the type for when currentUser is true
-type UserProfileIconPropsWhenCurrentUser = BaseUserProfileIconProps & {
-  currentUser: true;
-  user?: never;
-};
-type UserProfileIconProps =
-  | UserProfileIconPropsWhenCurrentUser
-  | UserProfileIconPropsWhenNotCurrentUser;
 
 export default function UserProfileIcon({
-  currentUser,
   user,
   size = "Icon",
+  redirect = true,
 }: UserProfileIconProps) {
   const router = useRouter();
   const { data: session } = useSession();
 
   const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (currentUser || session?.user.id === user._id) {
+
+    if (!redirect || !user) return;
+    if (session?.user.id === user._id) {
       router.push("/profile");
     } else {
       let storeUser = { ...user };
       if (session?.user.id) {
-        const followed = await checkFollowState(user?._id, session?.user.id);
+        const followed = await checkFollowState(user._id, session?.user.id);
         storeUser = { ...user, followed: followed };
         if (
           !!!user.blocked?.find((userId) => userId === session.user.id) &&
@@ -71,14 +61,17 @@ export default function UserProfileIcon({
     }
   };
 
-  const userImg = currentUser ? session?.user.image ?? "" : user?.image ?? "";
+  const userImg = user?.image ?? "";
 
   return (
-    <div className="relative">
+    <div className="relative size-fit">
       <button
         className={`bg-secondary-2 relative ${size} ${
           user?.role?.includes(UserRole.ADMIN) ? "border-2 border-white" : ""
         }`}
+        style={{
+          borderRadius: user?.role?.includes(UserRole.ADMIN) ? "15%" : "50%",
+        }}
         onClick={handleClick}
       >
         {userImg ? (
@@ -95,11 +88,15 @@ export default function UserProfileIcon({
           <FontAwesomeIcon icon={faUser} className="m-0" />
         )}
       </button>
-      {user?.role?.includes(UserRole.ADMIN) && (
-        <div className="absolute text-xs bottom-0 right-0 z-50 text-white rounded-full bg-black">
-          <FontAwesomeIcon icon={faHammer} />
+      {user?.role?.includes(UserRole.ADMIN) ? (
+        <div className="absolute bottom-0 right-0  text-white rounded-full bg-blue-500 p-[1px] aspect-square w-[40%] max-w-[50px] flex items-center justify-center">
+          <FontAwesomeIcon icon={faHammer} className="size-[70%]" />
         </div>
-      )}
+      ) : user?.role?.includes(UserRole.CREATOR) ? (
+        <div className="absolute bottom-0 right-0 text-white rounded-full bg-blue-500 p-[1px] aspect-square w-[40%] max-w-[50px] flex items-center justify-center">
+          <FontAwesomeIcon icon={faCheck} className="size-[70%]" />
+        </div>
+      ) : null}
     </div>
   );
 }

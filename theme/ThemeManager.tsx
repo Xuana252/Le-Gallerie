@@ -12,7 +12,7 @@ export async function getStoredTheme() {
   const storedTheme = cookies().get("Theme");
   return storedTheme
     ? storedTheme.value
-    : "theme1";
+    : "theme-light-elegant";
 }
 
 export default async function ThemeManager({

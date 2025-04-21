@@ -23,7 +23,7 @@ import {
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { useSession } from "@node_modules/next-auth/react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import UserProfileIcon from "@components/UI/Profile/UserProfileIcon";
 import { User } from "@lib/types";
 import ReactionButton from "@components/Input/ReactionInput";
@@ -37,27 +37,37 @@ import {
 import { faUsb } from "@node_modules/@fortawesome/free-brands-svg-icons";
 import { v4 as uuidv4 } from "uuid";
 import ChatBar from "./ChatBar";
+
 import { AppLogoLoader } from "@components/UI/Loader";
 import { RenderBackground, RenderLog } from "@lib/Chat/render";
 
+import { getAiMessage } from "@actions/aiChatActions";
+import { ChatBoxContext } from "@components/Chat/ChatBox";
+import { ChatContext } from "@components/UI/Layout/Nav";
+
 export default function ChatView({
-  chat,
-  chatInfo,
   isBlocked,
   blocked,
 }: {
-  chat: any;
-  chatInfo: any;
   isBlocked: boolean;
   blocked: boolean;
 }) {
   const { data: session, update } = useSession();
+
+  const { chat, isReplying } = useContext(ChatBoxContext);
+  const { chatInfo } = useContext(ChatContext);
+
   const messageListRef = useRef<HTMLUListElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
-  const prevChatInfo = useRef(chatInfo); // Store previous value
+
+  const [messages, setMessages] = useState(chat?.message || []);
 
   const chatItemRef = useRef<{ [key: string]: HTMLLIElement | null }>({});
+
+  useEffect(() => {
+    setMessages(chat?.message || []);
+  }, [chat?.message]);
 
   const handleMoveToPin = () => {
     chatItemRef.current[chat.pinned] &&
@@ -84,13 +94,6 @@ export default function ChatView({
     });
   };
 
-  useEffect(() => {
-    if (prevChatInfo.current !== chatInfo) {
-      setIsLoading(true);
-      setTimeout(() => setIsLoading(false), 1000);
-    }
-    prevChatInfo.current = chatInfo;
-  }, [chatInfo?.chatId]);
 
   useEffect(() => {
     messageListRef.current?.scrollTo({
@@ -99,8 +102,12 @@ export default function ChatView({
     });
   }, [chat?.message?.length, chatInfo]);
 
+  
+
+
   const getMessageClass = (message: any) => {
-    const isMine = message.senderId === session?.user.id;
+    const isMine =
+      message.senderId === session?.user.id || message.senderId === "user";
     const baseClass = isMine ? "My_message" : "Other_message";
 
     const currentIndex = chat.message.findIndex(
@@ -181,112 +188,131 @@ export default function ChatView({
         {isLoading ? (
           <AppLogoLoader />
         ) : (
-          [
-            ...chat.message.map((message: any) => ({
-              ...message,
-              variant: "message",
-            })),
-            ...chat.log.map((log: any) => ({ ...log, variant: "log" })),
-          ]
-            .sort((a: any, b: any) => b.createdAt - a.createdAt)
-            .map((message: any, index: number) =>
-              message.variant === "message" ? (
-                <li
-                  ref={(el) => {
-                    chatItemRef.current[message.id] = el;
-                  }}
-                  key={index}
-                  className="flex flex-col"
-                  style={{ zIndex: 99 - index }}
-                >
-                  <ChatItem
-                    message={{
-                      ...message,
-                      reactions: message.reactions.map((reaction: any) => ({
-                        ...reaction,
-                        user: chatInfo.users.find(
-                          (user: User) => user._id === reaction.userId
-                        ),
-                      })),
+          <>
+            {isReplying && (
+              <div className="OtherMessageRow">
+                <div className="Other_message_upper px-2 py-1 animate-pulse">
+                  . . .
+                </div>
+              </div>
+            )}
+            {[
+              ...messages.map((message: any) => ({
+                ...message,
+                variant: "message",
+              })),
+              ...chat.log.map((log: any) => ({ ...log, variant: "log" })),
+            ]
+              .sort((a: any, b: any) => b.createdAt - a.createdAt)
+              .map((message: any, index: number) =>
+                message.variant === "message" ? (
+                  <li
+                    ref={(el) => {
+                      chatItemRef.current[message.id] = el;
                     }}
-                    isPinned={chat.pinned === message.id}
-                    user={chatInfo.users.find(
-                      (user: User) => user._id === message.senderId
+                    key={message.createdAt}
+                    className="flex flex-col"
+                    style={{ zIndex: 99 - index }}
+                  >
+                    <ChatItem
+                      message={{
+                        ...message,
+                        reactions: message.reactions.map((reaction: any) => ({
+                          ...reaction,
+                          user: chatInfo.users.find(
+                            (user: User) => user._id === reaction.userId
+                          ),
+                        })),
+                      }}
+                      isPinned={
+                        !!chat.pinned &&
+                        !!message.id &&
+                        chat.pinned === message.id
+                      }
+                      user={chatInfo.users?.find(
+                        (user: User) => user._id === message.senderId
+                      )}
+                      messageClass={getMessageClass(message)}
+                      handleDelete={() =>
+                        removeChatItem(chatInfo.chatId, message.id)
+                      }
+                      handleAddReaction={(reaction: Reaction) =>
+                        addChatItemReaction(
+                          chatInfo.chatId,
+                          message.id,
+                          reaction,
+                          session?.user.id || ""
+                        )
+                      }
+                      handlePin={() =>
+                        pinMessage(
+                          chatInfo.chatId,
+                          message.id,
+                          session?.user.id || ""
+                        )
+                      }
+                    />
+                    {index === 0 && (
+                      <span
+                        className={`${
+                          message.senderId === session?.user.id ||
+                          message.senderId === "user"
+                            ? "text-right"
+                            : "text-left"
+                        } text-xs`}
+                      >
+                        {formatTimeAgoWithoutAgo(
+                          chatInfo.type === "ai"
+                            ? message.createdAt // Nếu từ AI (MongoDB)
+                            : message.createdAt?.toDate?.() ||
+                                new Date(message.createdAt) // Nếu từ người dùng (Firestore)
+                        )}
+                      </span>
                     )}
-                    messageClass={getMessageClass(message)}
-                    handleDelete={() =>
-                      removeChatItem(chatInfo.chatId, message.id)
-                    }
-                    handleAddReaction={(reaction: Reaction) =>
-                      addChatItemReaction(
-                        chatInfo.chatId,
-                        message.id,
-                        reaction,
-                        session?.user.id || ""
+                  </li>
+                ) : (
+                  <li
+                    key={index}
+                    className="text-xs text-center opacity-70 rounded-lg py-[2px] px-[6px] bg-secondary-2 w-fit mx-auto my-2"
+                  >
+                    {
+                      //0: create chat
+                      //1: pin message
+                      //2: leave chat
+                      //3: join chat
+                      //4: kick user
+                      //5: change theme
+                      message.type === 0 ? (
+                        <FontAwesomeIcon icon={faPuzzlePiece} />
+                      ) : message.type === 1 ? (
+                        <FontAwesomeIcon icon={faMapPin} />
+                      ) : message.type === 2 ? (
+                        <FontAwesomeIcon icon={faRightFromBracket} />
+                      ) : message.type === 3 ? (
+                        <FontAwesomeIcon icon={faRightToBracket} />
+                      ) : message.type === 4 ? (
+                        <FontAwesomeIcon icon={faHandPointRight} />
+                      ) : message.type === 5 ? (
+                        <FontAwesomeIcon icon={faPalette} />
+                      ) : message.type === 6 ? (
+                        <FontAwesomeIcon icon={faUserTie} />
+                      ) : (
+                        ""
                       )
-                    }
-                    handlePin={() =>
-                      pinMessage(
-                        chatInfo.chatId,
-                        message.id,
-                        session?.user.id || ""
-                      )
-                    }
-                  />
-                  {index === 0 && (
-                    <span
-                      className={`${
-                        message.senderId === session?.user.id
-                          ? "text-right"
-                          : "text-left"
-                      } text-xs`}
-                    >
-                      {formatTimeAgoWithoutAgo(message.createdAt.toDate())}
-                    </span>
-                  )}
-                </li>
-              ) : (
-                <li
-                  key={index}
-                  className="text-xs text-center opacity-70 rounded-lg py-[2px] px-[6px] bg-secondary-2 w-fit mx-auto my-2"
-                >
-                  {
-                    //0: create chat
-                    //1: pin message
-                    //2: leave chat
-                    //3: join chat
-                    //4: kick user
-                    //5: change theme
-                    message.type === 0 ? (
-                      <FontAwesomeIcon icon={faPuzzlePiece} />
-                    ) : message.type === 1 ? (
-                      <FontAwesomeIcon icon={faMapPin} />
-                    ) : message.type === 2 ? (
-                      <FontAwesomeIcon icon={faRightFromBracket} />
-                    ) : message.type === 3 ? (
-                      <FontAwesomeIcon icon={faRightToBracket} />
-                    ) : message.type === 4 ? (
-                      <FontAwesomeIcon icon={faHandPointRight} />
-                    ) : message.type === 5 ? (
-                      <FontAwesomeIcon icon={faPalette} />
-                    ) : message.type === 6 ? (
-                      <FontAwesomeIcon icon={faUserTie} />
-                    ) : (
-                      ""
-                    )
-                  }{" "}
-                  {RenderLog(
-                    message.type,
-                    chatInfo.users.find(
-                      (user: User) => user._id === message.userId
-                    )?.username
-                  )}
-                </li>
-              )
-            )
+                    }{" "}
+                    {RenderLog(
+                      message.type,
+                      chatInfo.users?.find(
+                        (user: User) => user._id === message.userId
+                      )?.username
+                    )}
+                  </li>
+                )
+              )}
+          </>
         )}
       </ul>
-      <ChatBar chatInfo={chatInfo} isBlocked={isBlocked} blocked={blocked} />
+      <ChatBar isBlocked={isBlocked} blocked={blocked} setMessage={setMessages} />
     </div>
   );
 }

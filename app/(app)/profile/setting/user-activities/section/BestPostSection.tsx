@@ -15,9 +15,9 @@ export default function BestPostSection({
   posts,
 }: {
   isVisible: boolean;
-  postsLikes: Like[];
-  postsComments: Comment[];
-  posts: Post[];
+  postsLikes: Like[]|null;
+  postsComments: Comment[]|null;
+  posts: Post[]|null;
 }) {
   const [mostLikedPost, setMostLiked] = useState<Post>();
   const [mostCommentedPost, setMostCommented] = useState<Post>();
@@ -26,7 +26,7 @@ export default function BestPostSection({
   const [animated, setAnimate] = useState(isVisible);
 
   useEffect(() => {
-    if (posts.length === 0) return;
+    if ( !posts || !postsComments|| !postsLikes) return;
 
     const likeCounts = postsLikes.reduce((acc, { post }) => {
       acc[post.toString()] = (acc[post.toString()] || 0) + 1;

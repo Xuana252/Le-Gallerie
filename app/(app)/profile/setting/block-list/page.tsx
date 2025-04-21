@@ -102,7 +102,7 @@ export default function BlockList() {
               className="grid grid-cols-[auto_1fr_auto] items-center gap-2 h-fit w-full bg-secondary-2/30 p-2 rounded-lg"
             >
               <div className="">
-                <UserProfileIcon currentUser={false} user={user} />
+                <UserProfileIcon user={user} />
               </div>
               <h1 className="break-all whitespace-normal font-bold">
                 {user.username}

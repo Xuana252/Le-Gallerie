@@ -1,20 +1,23 @@
-import { PostPrivacy } from '@enum/postPrivacyEnum';
-import { Reaction } from '@enum/reactionEnum';
-import { UserRole } from '@enum/userRolesEnum';
-import { Date } from 'mongoose';
-import NextAuth from 'next-auth';
-import { DefaultUser } from 'next-auth';
+import { PostPrivacy } from "@enum/postPrivacyEnum";
+import { Reaction } from "@enum/reactionEnum";
+import { UserRole } from "@enum/userRolesEnum";
+import { IconDefinition } from "@node_modules/@fortawesome/fontawesome-svg-core";
+import { Date } from "mongoose";
+import NextAuth from "next-auth";
+import { DefaultUser } from "next-auth";
 
-declare module 'next-auth' {
+declare module "next-auth" {
   interface User extends DefaultUser {
     id?: string;
-    bio?: string
-    follower?:number,
-    following?:number,
-    blocked?:string[],
-    createdAt?:Date,
-    fullname?:string,
-    birthdate?:string,
+    bio?: string;
+    follower?: number;
+    following?: number;
+    blocked?: string[];
+    createdAt?: Date;
+    fullname?: string;
+    birthdate?: string;
+    role?: UserRole[];
+    banned?: boolean;
   }
 
   interface Session {
@@ -22,58 +25,59 @@ declare module 'next-auth' {
   }
 }
 
-
-
 export type RateLimitObject = {
-  windowStart: any,
-  windowDuration: number, 
-  maxRequests: number,
-} 
+  windowStart: any;
+  windowDuration: number;
+  maxRequests: number;
+};
 
 export type Comment = {
-  _id:string,
-  post:Post,
-  user:User,
-  content:string,
-  parent?:Comment,
-  likes:number,
-  createdAt:Date,
-}
+  _id: string;
+  post: Post;
+  user: User;
+  content: string;
+  parent?: Comment;
+  likes: number;
+  createdAt: Date;
+};
 export type Like = {
-  _id:string,
-  user:User,
-  post:Post,
-  reaction: Reaction,
-}
+  _id: string;
+  user: User;
+  post: Post;
+  reaction: Reaction;
+};
 
 export type User = {
-  _id:string,
-  email?:string,
-  username?:string,
-  fullname?:string,
-  birthdate?:string,
-  image?:string,
-  bio?:string,
-  follower?:number,
-  following?:number,
-  followed?:boolean,
-  blocked?:string[],
-  role?:UserRole,
-}
+  _id: string;
+  email?: string;
+  username?: string;
+  fullname?: string;
+  birthdate?: string;
+  image?: string;
+  bio?: string;
+  follower?: number;
+  following?: number;
+  followed?: boolean;
+  blocked?: string[];
+  role?: UserRole[];
+  banned?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
 export type UploadUser = {
-  _id:string,
-  email?:string,
-  username?:string,
-  fullname?:string,
-  birthdate?:string,
-  image?: UploadImage,
-  bio?:string,
-}
+  _id: string;
+  email?: string;
+  username?: string;
+  fullname?: string;
+  birthdate?: string;
+  image?: UploadImage;
+  bio?: string;
+};
 
 export type UploadImage = {
-  file:File|null,
-  url:string,
-}
+  file: File | null;
+  url: string;
+};
 
 export type SignUpCredentials = {
   email: string;
@@ -84,28 +88,98 @@ export type SignUpCredentials = {
 };
 
 export type Post = {
-    _id?: string,
-    creator: User,
-    title: string,
-    description: string,
-    categories: Category[],
-    image: string[],
-    privacy: PostPrivacy,
-    likes?:number,
-    createdAt?: Date,
-}
+  _id?: string;
+  creator: User;
+  title: string;
+  description: string;
+  categories: Category[];
+  image: string[];
+  privacy: PostPrivacy;
+  likes?: number;
+  createdAt?: Date;
+  isDeleted: boolean;
+};
 export type UploadPost = {
-    _id?: string,
-    creator: User,
-    title: string,
-    description: string,
-    categories: Category[],
-    image:UploadImage[],
-    likes?:number,
-    privacy:PostPrivacy,
-}
+  _id?: string;
+  creator: User;
+  title: string;
+  description: string;
+  categories: Category[];
+  image: UploadImage[];
+  likes?: number;
+  privacy: PostPrivacy;
+};
 export type Category = {
-    _id: string,
-    name:string,
-}
+  _id: string;
+  name: string;
+};
 
+export type Report = {
+  _id: string;
+  user: User;
+  targetUserId: string;
+  reportId: string;
+  type: "Post" | "Comment";
+  content: string;
+  state: boolean;
+  createdAt?: Date;
+};
+
+export type SidebarSection = {
+  section: string;
+  items: SidebarItem[];
+};
+
+export type SidebarItem = {
+  path: string;
+  name: string;
+  icon: IconDefinition;
+  description: string;
+  subPath: string[];
+};
+
+export type PostData = {
+  total: number;
+  today: number;
+  monthly: { _id: { year: number; month: number }; count: number }[];
+};
+
+export type ReportData = {
+  today: number;
+  todayResolved: number;
+  post: number;
+  comment: number;
+  resolved: number;
+  monthly: {
+    _id: { year: number; month: number };
+    count: { post: number; comment: number; resolved: number };
+  }[];
+};
+
+export type UserData = {
+  total: number;
+  today: number;
+  banned: number;
+  monthly: { _id: { year: number; month: number }; count: number }[];
+};
+export type CategoryDataItem = {
+  categoryId: string;
+  count: number;
+  name: string;
+};
+export type CategoryData = {
+  category: CategoryDataItem[];
+  thisMonth: CategoryDataItem[];
+};
+
+export type ReportItem = {
+  _id: string;
+  reportTarget: Post | Comment;
+  falseCount: number;
+  trueCount: number;
+  type: "Post" | "Comment";
+};
+export type ReportSearch = {
+  counts: number;
+  reports: ReportItem[];
+};

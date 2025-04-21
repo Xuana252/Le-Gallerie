@@ -21,6 +21,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {
   fetchAllPost,
+  fetchUserDeletedPost,
   fetchUserFollowPost,
   fetchUserFriendPost,
   fetchUserLikedPost,
@@ -34,6 +35,7 @@ type FeedProps = {
   userIdLikedFilter?: boolean;
   userIdFollowFilter?: boolean;
   userIdFriendFilter?: boolean;
+  userIdDeletedFilter?: boolean;
   relatePostFilter?: string;
   setPostCount?: Dispatch<SetStateAction<number | null>>;
   showCateBar?: boolean;
@@ -41,6 +43,7 @@ type FeedProps = {
   searchFeed?: boolean;
   state?: any;
   updatestate?: (newState: any) => void;
+  adminPage?:boolean
 };
 
 export default function Feed({
@@ -48,6 +51,7 @@ export default function Feed({
   userIdFollowFilter,
   userIdFriendFilter,
   userIdLikedFilter,
+  userIdDeletedFilter,
   showCateBar = false,
   relatePostFilter,
   setPostCount,
@@ -55,6 +59,7 @@ export default function Feed({
   searchFeed = false,
   state,
   updatestate,
+  adminPage = false
 }: FeedProps) {
   const { searchText, category } = useContext(SearchContext);
   const [categoriesFilter, setCategoriesFilter] = useState<Category[]>([]);
@@ -62,7 +67,7 @@ export default function Feed({
   const [isLoading, setLoading] = useState<boolean>(true);
 
   const [isMount, setIsMount] = useState(false);
-  const [gridColStyle, setGridColStyle] = useState("grid-colds-2");
+  const [gridColStyle, setGridColStyle] = useState("grid-cols-2");
   const [colsNum, setColsNum] = useState(2);
 
   const [searchCount, setSearchCount] = useState(0);
@@ -136,6 +141,8 @@ export default function Feed({
         ? await fetchUserFollowPost(userIdFilter, currentPage, limit)
         : userIdFriendFilter
         ? await fetchUserFriendPost(userIdFilter, currentPage, limit)
+        : userIdDeletedFilter
+        ? await fetchUserDeletedPost(userIdFilter, currentPage, limit)
         : await fetchUserPost(userIdFilter, currentPage, limit);
 
       setPostCount && setPostCount(response.counts);
@@ -237,7 +244,7 @@ export default function Feed({
   };
 
   return (
-    <section className="w-full h-fit min-h-screen ">
+    <section className="w-full  min-h-fit h-auto">
       {showCateBar && (
         <CategoryBar
           onCategoriesChange={handleCategoriesFilerChange}
@@ -254,13 +261,13 @@ export default function Feed({
           {showResults &&
             searchCount > 0 &&
             (searchText || categoriesFilter.length > 0) && (
-              <div className="text-left animate-slideRight text-2xl p-2 text-accent font-bold">
+              <div className="text-left text-2xl p-2 text-accent font-bold">
                 Found {searchCount} posts
               </div>
             )}
           <ul
             ref={feedRef}
-            className={`grid ${gridColStyle} gap-x-3 h-fit min-w-full p-5 justify-center `}
+            className={`grid ${gridColStyle} gap-x-3 min-w-full h-auto p-5 justify-center `}
           >
             {Array.from(Array(colsNum).keys()).map((columnIndex) => (
               <ul
@@ -277,9 +284,13 @@ export default function Feed({
                             ? lastPostRef
                             : null
                         }
-                        className="hover:scale-105 transition-all duration-300 ease-out animate-slideUp "
+                        className={`hover:scale-105 transition-all duration-300 ease-out ${
+                          state?.posts?.some((p: Post) => p._id === post._id)
+                            ? ""
+                            : "animate-slideUp"
+                        } `}
                       >
-                        <PostCard post={post} isLoading={false} />
+                        <PostCard post={post} isLoading={false}  adminPage={adminPage}/>
                       </div>
                     );
                   }

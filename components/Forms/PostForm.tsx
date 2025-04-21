@@ -12,7 +12,7 @@ import ImageInput from "@components/Input/ImageInput";
 import { createPost, updatePost } from "@actions/postActions";
 import { getCategories } from "@actions/categoriesActions";
 import { checkPostRateLimit } from "@actions/checkRateLimit";
-import toastError from "@components/Notification/Toaster";
+import toastError, { toastMessage } from "@components/Notification/Toaster";
 import { uploadImage, updateImage } from "@lib/upload";
 import withAuth from "@middleware";
 import { SubmitButtonState } from "@enum/submitButtonState";
@@ -22,6 +22,7 @@ import { PostPrivacy } from "@enum/postPrivacyEnum";
 import MultipleOptionsButton from "@components/Input/MultipleOptionsButton";
 import { renderPrivacy } from "@lib/Post/post";
 import TextAreaInput from "@components/Input/TextAreaInput";
+
 
 type BasePostFormProps = {
   type: "Create" | "Edit";
@@ -72,6 +73,8 @@ export default function PostForm({ type, editPost }: PostFormProps) {
         let response;
         let imageUrlList = await handleUpdateImage(post.image, imageToUpdate);
 
+       
+
         const postToUpload: Post = {
           _id: post._id,
           creator: post.creator,
@@ -80,6 +83,7 @@ export default function PostForm({ type, editPost }: PostFormProps) {
           categories: post.categories,
           image: imageUrlList,
           privacy: post.privacy,
+          isDeleted:false,
         };
         switch (type) {
           case "Create":
@@ -91,7 +95,8 @@ export default function PostForm({ type, editPost }: PostFormProps) {
         }
         if (response) {
           setTimeout(() => {
-            setSubmitState(SubmitButtonState.SUCCESS);
+            toastMessage(`Post ${type}ed successfully`)
+            setSubmitState(SubmitButtonState.PROCESSING);
             console.log(`Attempted to ${type} successfully`);
 
             type === "Edit"
@@ -163,7 +168,7 @@ export default function PostForm({ type, editPost }: PostFormProps) {
       <div>
         <ImageInput image={post.image} setImage={handleImageChange} />
       </div>
-      <div className=" p-4 flex flex-col gap-2">
+      <div className=" p-4 flex flex-col gap-4">
         <div className="flex flex-row justify-between items-center">
           <h2 className="uppercase font-semibold text-xl text-primary bg-accent p-1 px-2 rounded-lg">
             {type} form{" "}
@@ -207,6 +212,8 @@ export default function PostForm({ type, editPost }: PostFormProps) {
             </button>
           </MultipleOptionsButton>
         </div>
+
+        <p className="text-sm italic opacity-80">Adding title, description and categories to help others find your post easier</p>
         <label>
           <b>Title</b>
           <InputBox
@@ -236,6 +243,7 @@ export default function PostForm({ type, editPost }: PostFormProps) {
             height={"full"}
             onTextChange={handleTextChange}
             spellCheck={false}
+            showName={false}
           />
         </label>
         <div className="flex justify-end gap-3 mt-auto">

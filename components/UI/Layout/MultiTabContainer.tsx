@@ -26,8 +26,6 @@ export default function MultiTabContainer({
   );
 
   const updateTabState = useCallback((index: number, newState: any) => {
-    // Update the tab state in the ref
-
     tabsStateRef.current[index] = {
       ...tabsStateRef.current[index],
       ...newState,
@@ -39,10 +37,9 @@ export default function MultiTabContainer({
   );
 
   const viewRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const scrollRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
-
-
 
   useEffect(() => {
     viewRefs.current = tabs.map((_, i) => viewRefs.current[i] || null);
@@ -52,16 +49,18 @@ export default function MultiTabContainer({
     if (!tabIndex) return;
     const index = parseInt(tabIndex);
     setSelectedIndex(index >= tabs.length ? 0 : index);
-    scrollToView(index);
   }, [tabIndex, tabs.length]);
 
   const handleSelectTab = (index: number) => {
     const scrollTop = viewRefs.current[selectedIndex]?.scrollTop;
+    const scrollHeight = scrollRefs.current[selectedIndex]?.clientHeight;
 
     updateTabState(selectedIndex, {
+      scrollHeight: scrollHeight ,
       scrollTop: scrollTop || 0,
     });
-    scrollToView(index);
+
+    setSelectedIndex(index);
     const newParams = new URLSearchParams(searchParams.toString());
     newParams.set("tab", index.toString());
 
@@ -69,47 +68,19 @@ export default function MultiTabContainer({
   };
 
   useEffect(() => {
-    if (viewRefs.current[selectedIndex]) {
+    if (viewRefs.current[selectedIndex] && scrollRefs.current[selectedIndex]) {
       const scrollTop = tabsStateRef.current[selectedIndex]?.scrollTop || 0;
+      const scrollHeight = tabsStateRef.current[selectedIndex]?.scrollHeight;
 
-      setTimeout(() => {
-        viewRefs.current[selectedIndex]?.scrollTo({
-          top: scrollTop,
-          behavior: "smooth",
-        });
-      }, 500);
+      scrollRefs.current[selectedIndex].style.height = `${scrollHeight}px`;
+
+
+      viewRefs.current[selectedIndex].scrollTo({
+        top: scrollTop,
+        behavior: "smooth",
+      });
     }
   }, [selectedIndex]);
-
-  useEffect(() => {
-    if (scrollContainerRef.current) {
-      const handleScroll = () => {
-        const scrollLeft = scrollContainerRef.current?.scrollLeft ?? 0;
-        const tabWidth = scrollContainerRef.current?.clientWidth ?? 1;
-
-        const currentIndex = Math.round(scrollLeft / tabWidth);
-        const gap = Math.abs(scrollLeft -currentIndex - selectedIndex );
-
-        if (gap > tabWidth * 0.3) {
-          setSelectedIndex(currentIndex);
-        }
-      };
-
-      const container = scrollContainerRef.current;
-      container.addEventListener("scroll", handleScroll);
-
-      // Clean up the event listener
-      return () => {
-        container.removeEventListener("scroll", handleScroll);
-      };
-    }
-  }, []);
-
-  const scrollToView = (index: number) => {
-    viewRefs.current[index]?.scrollIntoView({
-      behavior: "auto",
-    });
-  };
 
   return (
     <div
@@ -142,24 +113,30 @@ export default function MultiTabContainer({
         ref={scrollContainerRef}
         className="shadow-inner grow overflow-x-scroll flex flex-row snap-x snap-mandatory no-scrollbar"
       >
-        {tabs.map((tab: any, index) => (
-          <div
-            key={index}
-            ref={(el) => {
-              viewRefs.current[index] = el;
-            }}
-            className="snap-start min-w-full overflow-y-scroll no-scrollbar"
-          >
-            {index === selectedIndex ? (
-              React.cloneElement(tab.body, {
-                state: tabsStateRef.current[index],
-                updatestate: (newState: any) => updateTabState(index, newState),
-              })
-            ) : (
-              <div className="size-full"></div>
-            )}
-          </div>
-        ))}
+        {tabs.map((tab: any, index) =>
+          index === selectedIndex ? (
+            <div
+              key={index}
+              ref={(el) => {
+                viewRefs.current[index] = el;
+              }}
+              className="snap-start min-w-full overflow-y-scroll no-scrollbar"
+            >
+              <div
+                ref={(el) => {
+                  scrollRefs.current[index] = el;
+                }}
+                className="size-full"
+              >
+                {React.cloneElement(tab.body, {
+                  state: tabsStateRef.current[index],
+                  updatestate: (newState: any) =>
+                    updateTabState(index, newState),
+                })}
+              </div>
+            </div>
+          ) : null
+        )}
       </div>
     </div>
   );

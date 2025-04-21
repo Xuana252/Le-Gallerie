@@ -6,6 +6,7 @@ import { NextApiRequest } from "next";
 import { db } from "@lib/firebase";
 import { setDoc,doc } from "firebase/firestore";
 import { knock } from "@lib/knock";
+import { UserRole } from "@enum/userRolesEnum";
 
 export const POST = async (req: NextRequest) => {
   
@@ -33,6 +34,8 @@ export const POST = async (req: NextRequest) => {
       bio: '',
       follower:0,
       following:0,
+      banned:false,
+      role: [UserRole.USER]
     });
 
     const knockUser = await knock.users.identify(newUser._id.toString(),{

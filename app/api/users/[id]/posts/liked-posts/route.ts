@@ -7,6 +7,7 @@ import { FriendState } from "@enum/friendStateEnum";
 import Friend from "@models/friendModel";
 import { options } from "@app/api/auth/[...nextauth]/options";
 import { getServerSession } from "next-auth";
+import { UserRole } from "@enum/userRolesEnum";
 
 export const GET = async (
   req: Request,
@@ -21,6 +22,7 @@ export const GET = async (
     const skip = (page - 1) * limit;
 
     const session = await getServerSession(options);
+    const isAdmin = session?.user.role?.includes(UserRole.ADMIN);
 
     const currentFriend = await Friend.find({
       $or: [{ user1: session?.user.id }, { user2: session?.user.id }],
@@ -37,19 +39,25 @@ export const GET = async (
 
     const postIds = likedPostsIds.map((postId) => postId.post.toString());
 
-    const likedPosts = await Post.find({
+    const query: any = {
+      isDeleted: false,
       _id: { $in: postIds },
-      $or: [
+    };
+
+    if (!isAdmin) {
+      query.privacy = { $ne: "private" };
+      query.$or = [
         { privacy: "public" },
         { creator: session?.user.id },
         {
-          $and: [
-            { privacy: "friend" },
-            { creator: { $in: currentFriendIds } },
-          ],
-        }, // Include private posts only if friend
-      ],
-    })
+          $and: [{ privacy: "friend" }, { creator: { $in: currentFriendIds } }],
+        },
+      ];
+    }
+
+    const likedPostsCounts = await Post.countDocuments(query)
+
+    const likedPosts = await Post.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -61,11 +69,11 @@ export const GET = async (
       .populate("categories");
 
     return NextResponse.json(
-      { posts: likedPosts, counts: likedPostsIds.length },
+      { posts: likedPosts, counts: likedPostsCounts },
       { status: 200 }
     );
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return NextResponse.json(
       { message: "Failed to fetch for user liked posts" },
       { status: 500 }

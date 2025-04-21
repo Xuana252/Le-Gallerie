@@ -10,23 +10,30 @@ import {
   faRightFromBracket,
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import FriendSearchSection from "../ChatTabComponent/FriendSearchSection";
 import { User } from "@lib/types";
 import { useSession } from "@node_modules/next-auth/react";
 import { confirm } from "@components/Notification/Toaster";
 import { kickFromChat, updateAdmin } from "@lib/Chat/chat";
+import { ChatContext } from "@components/UI/Layout/Nav";
+import { ChatBoxContext } from "../ChatBox";
 
 export default function MemberView({
-  chat,
-  chatInfo,
   setChatBoxView,
 }: {
-  chat: any;
-  chatInfo: any;
   setChatBoxView: Dispatch<SetStateAction<ChatBoxView>>;
 }) {
   const { data: session } = useSession();
+  const { chat } = useContext(ChatBoxContext);
+  const { chatInfo } = useContext(ChatContext);
+
   const [members, setMembers] = useState<User[]>([]);
   const [admin, setAdmin] = useState<User>();
 
@@ -81,7 +88,7 @@ export default function MemberView({
             <div className="flex flex-row justify-between items-center gap-2">
               {admin && (
                 <UserProfileIcon
-                  currentUser={false}
+              
                   user={admin}
                   size="Icon_small"
                 />
@@ -103,7 +110,7 @@ export default function MemberView({
                 key={index}
               >
                 <UserProfileIcon
-                  currentUser={false}
+                
                   user={member}
                   size="Icon_small"
                 />

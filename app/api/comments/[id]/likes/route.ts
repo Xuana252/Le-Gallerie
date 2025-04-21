@@ -52,7 +52,7 @@ export const PATCH = async (
     });
 
     if (liked) {
-      if (liked.reaction === reaction) {
+      if (!reaction) {
         await CommentLike.findOneAndDelete({
           comment: params.id,
           user: userId,

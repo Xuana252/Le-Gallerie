@@ -4,7 +4,10 @@ import { fetchPostWithId } from "@actions/postActions";
 
 export const renderAppLink = async (text: string, index = 1) => {
   try {
-    const url = new URL(text);
+
+    const cleanedText = text.endsWith('.') ? text.slice(0, -1) : text;
+
+    const url = new URL(cleanedText);
     const pathname = url.pathname;
 
     const postRegex = /^\/post\/[a-zA-Z0-9_-]+$/;
@@ -12,7 +15,9 @@ export const renderAppLink = async (text: string, index = 1) => {
       const postId = pathname.split("/")[2];
       const post = await fetchPostWithId(postId);
       if (post.data !== null) {
-        return <PostCard key={index} isLoading={false} post={post.data} />;
+        return <div className="max-w-[200px]">
+          <PostCard key={index} isLoading={false} post={post.data} />
+        </div>;
       }
     }
   } catch (error) {
@@ -86,7 +91,7 @@ export const RenderBackground = (theme: string) => {
         <div
           className="size-full"
           style={{
-            background: `url(backgrounds/Games/Spiderman.png)`,
+            background: `url(/backgrounds/Games/Spiderman.png)`,
             backgroundSize: "auto 100%",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
@@ -98,7 +103,7 @@ export const RenderBackground = (theme: string) => {
         <div
           className="size-full"
           style={{
-            background: `url(backgrounds/Games/MilesMorales.jpg)`,
+            background: `url(/backgrounds/Games/MilesMorales.jpg)`,
             backgroundSize: "100%",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
@@ -110,7 +115,7 @@ export const RenderBackground = (theme: string) => {
         <div
           className="size-full"
           style={{
-            background: `url(backgrounds/Games/Spiderman2099.jpg)`,
+            background: `url(/backgrounds/Games/Spiderman2099.jpg)`,
             backgroundSize: "100%",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
@@ -122,7 +127,7 @@ export const RenderBackground = (theme: string) => {
         <div
           className="size-full"
           style={{
-            background: `url(backgrounds/Games/Venom.jpg)`,
+            background: `url(/backgrounds/Games/Venom.jpg)`,
             backgroundSize: "100%",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
@@ -133,7 +138,7 @@ export const RenderBackground = (theme: string) => {
       return <div
       className="size-full"
       style={{
-        background: `url(backgrounds/Games/SpiderGwen.jpg)`,
+        background: `url(/backgrounds/Games/SpiderGwen.jpg)`,
         backgroundSize: "auto 100%",
         backgroundPosition: "60% 0%",
         backgroundRepeat: "no-repeat",
@@ -144,7 +149,7 @@ export const RenderBackground = (theme: string) => {
         <div
           className="size-full"
           style={{
-            background: `url(backgrounds/Games/Playstation.jpg)`,
+            background: `url(/backgrounds/Games/Playstation.jpg)`,
             backgroundSize: "auto 100%",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
@@ -156,7 +161,7 @@ export const RenderBackground = (theme: string) => {
         <div
           className="size-full"
           style={{
-            background: `url(backgrounds/Games/TheWitcher3.jpg)`,
+            background: `url(/backgrounds/Games/TheWitcher3.jpg)`,
             backgroundSize: "100%",
             backgroundPosition: "0% 60%",
             backgroundRepeat: "no-repeat",
@@ -168,7 +173,7 @@ export const RenderBackground = (theme: string) => {
         <div
           className="size-full"
           style={{
-            background: `url(backgrounds/Games/BOTW.jpg)`,
+            background: `url(/backgrounds/Games/BOTW.jpg)`,
             backgroundSize: "100%",
             backgroundPosition: "0% 50%",
             backgroundRepeat: "no-repeat",
@@ -180,7 +185,7 @@ export const RenderBackground = (theme: string) => {
         <div
           className="size-full"
           style={{
-            background: `url(backgrounds/Games/Animal_Crossing.jpg)`,
+            background: `url(/backgrounds/Games/Animal_Crossing.jpg)`,
             backgroundSize: "auto 100%",
             backgroundPosition: "right",
             backgroundRepeat: "no-repeat",
@@ -192,7 +197,7 @@ export const RenderBackground = (theme: string) => {
         <div
           className="size-full"
           style={{
-            background: `url(backgrounds/Games/Red_Dead_Redemption_2.jpg)`,
+            background: `url(/backgrounds/Games/Red_Dead_Redemption_2.jpg)`,
             backgroundSize: "100%",
             backgroundPosition: "bottom",
             backgroundRepeat: "no-repeat",
@@ -204,7 +209,7 @@ export const RenderBackground = (theme: string) => {
         <div
           className="size-full"
           style={{
-            background: `url(backgrounds/Games/Cyberpunk_2077.png)`,
+            background: `url(/backgrounds/Games/Cyberpunk_2077.png)`,
             backgroundSize: "auto 100%",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
@@ -216,7 +221,7 @@ export const RenderBackground = (theme: string) => {
         <div
           className="size-full"
           style={{
-            background: `url(backgrounds/Games/LifeisStrange.jpg)`,
+            background: `url(/backgrounds/Games/LifeisStrange.jpg)`,
             backgroundSize: "auto 100%",
             backgroundPosition: "35% 0%",
             backgroundRepeat: "no-repeat",
@@ -228,7 +233,7 @@ export const RenderBackground = (theme: string) => {
         <div
           className="size-full"
           style={{
-            background: `url(backgrounds/Games/GodofWar.jpg)`,
+            background: `url(/backgrounds/Games/GodofWar.jpg)`,
             backgroundSize: "auto 100%",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
@@ -240,7 +245,7 @@ export const RenderBackground = (theme: string) => {
         <div
           className="size-full"
           style={{
-            background: `url(backgrounds/Games/EldenRing.png)`,
+            background: `url(/backgrounds/Games/EldenRing.png)`,
             backgroundSize: "100%",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
@@ -252,7 +257,7 @@ export const RenderBackground = (theme: string) => {
         <div
           className="size-full"
           style={{
-            background: `url(backgrounds/Games/FFVII.png)`,
+            background: `url(/backgrounds/Games/FFVII.png)`,
             backgroundSize: "100%",
             backgroundPosition: "bottom",
             backgroundRepeat: "no-repeat",
@@ -265,7 +270,7 @@ export const RenderBackground = (theme: string) => {
           <div
             className="size-full"
             style={{
-              background: `url(backgrounds/Games/DarkSouls.jpg)`,
+              background: `url(/backgrounds/Games/DarkSouls.jpg)`,
               backgroundSize: "auto 100%",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
@@ -278,7 +283,7 @@ export const RenderBackground = (theme: string) => {
         <div
           className="size-full"
           style={{
-            background: `url(backgrounds/Games/Minecraft.jpg)`,
+            background: `url(/backgrounds/Games/Minecraft.jpg)`,
             backgroundSize: "auto 100%",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",

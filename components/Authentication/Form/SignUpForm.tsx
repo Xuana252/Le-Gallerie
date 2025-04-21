@@ -46,7 +46,7 @@ export default function SignUpForm() {
   const handleSignUpCredentialsChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    e.target.classList.remove("Invalid_input");
+    e.target.classList?.remove("Invalid_input");
     const { name, value } = e.target;
     setSignUpCredentials((c) => ({ ...c, [name]: value }));
   };
@@ -82,7 +82,7 @@ export default function SignUpForm() {
       alertError(["Sign up limit exceeded please return in an hour"]);
       return;
     }
-    if(verificationCodeText.trim() !== verificationCode.trim()) {
+    if (verificationCodeText.trim() !== verificationCode.trim()) {
       setSubmitState(SubmitButtonState.FAILED);
       alertError(["Invalid verification code. Please check again"]);
       return;

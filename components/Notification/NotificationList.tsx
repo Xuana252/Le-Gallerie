@@ -19,7 +19,7 @@ import {
 
 // Required CSS import, unless you're overriding the styling
 import "@knocklabs/react/dist/index.css";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import DropDownButton from "../Input/DropDownButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -42,6 +42,7 @@ export default function NotificationList({
 }: {
   returnUnseenCount: Dispatch<SetStateAction<number>>;
 }) {
+  const { update } = useSession();
   const knockClient = useKnockClient();
   const feedClient = useNotifications(
     knockClient,
@@ -129,7 +130,7 @@ export default function NotificationList({
     feedClient.markAsSeen(items);
     playNotificationSound();
 
-    items.forEach((item: any) => {
+    items.forEach(async (item: any) => {
       toast.custom((t) => (
         <div className="Toast_item">
           {item ? (
@@ -176,6 +177,15 @@ export default function NotificationList({
           )}
         </div>
       ));
+
+      if (
+        ["ban-user", "revoke-creator", "grant-creator"].includes(
+          item.source.key
+        )
+      ) {
+        const newSession = await getSession();
+        await update(newSession);
+      }
     });
   };
 
@@ -383,7 +393,11 @@ export default function NotificationList({
 
   return (
     <DropDownButton dropDownList={notificationList} Zindex={40}>
-      <div className="relative Icon" onClick={() => feedClient.markAllAsSeen()}>
+      <div
+        className="relative Icon"
+        onClick={() => feedClient.markAllAsSeen()}
+        title="Notification"
+      >
         <div
           className={`${
             metadata.unseen_count > 0 ? "" : "hidden"

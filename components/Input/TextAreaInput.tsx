@@ -79,8 +79,8 @@ export default function TextAreaInput({
         />
         <div className="flex items-center size-8 justify-center Input_box_base cursor-pointer">
           {value !== "" && (
-            <button onClick={handleClearText} tabIndex={-1}>
-              <FontAwesomeIcon icon={faClose} size="sm" />
+            <button onClick={handleClearText} className="text-sm"  tabIndex={-1}>
+              <FontAwesomeIcon icon={faClose} />
             </button>
           )}
         </div>

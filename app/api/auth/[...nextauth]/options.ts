@@ -1,6 +1,7 @@
 import { NextAuthOptions, Session } from "next-auth";
 import GoogleProvider, { GoogleProfile } from "next-auth/providers/google";
 import GithubProvider, { GithubProfile } from "next-auth/providers/github";
+import FacebookProvider from "next-auth/providers/facebook";
 import { connectToDB } from "@utils/database";
 import User from "@models/userModel";
 import CredentialsProvider, {
@@ -10,12 +11,17 @@ import bcrypt from "bcrypt";
 import { db } from "@lib/firebase";
 import { setDoc, doc } from "firebase/firestore";
 import { knock } from "@lib/knock";
+import { UserRole } from "@enum/userRolesEnum";
 
 export const options: NextAuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENTID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    }),
+    FacebookProvider({
+      clientId: process.env.FACEBOOK_CLIENTID as string,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
     }),
     GithubProvider({
       clientId: process.env.GITHUB_CLIENTID as string,
@@ -50,6 +56,10 @@ export const options: NextAuthOptions = {
             throw new Error("Account not found.");
           }
 
+          if (user.banned) {
+            throw new Error("Your account has been banned.");
+          }
+
           if (user && user.password) {
             const isMatch = await bcrypt.compare(
               credentials?.password,
@@ -74,7 +84,7 @@ export const options: NextAuthOptions = {
     }),
   ],
   pages: {
-    signIn: "/sign-in", 
+    signIn: "/sign-in",
     signOut: "/",
     error: "/",
   },
@@ -82,7 +92,7 @@ export const options: NextAuthOptions = {
     async redirect({ url, baseUrl }) {
       return url.startsWith(baseUrl) ? url : `${baseUrl}/home`;
     },
-    
+
     async signIn({ user, account, profile, email, credentials }) {
       if (credentials) {
         if (credentials?.error) return false;
@@ -91,12 +101,18 @@ export const options: NextAuthOptions = {
       try {
         await connectToDB();
 
-        const userExists = await User.findOne({
+        const existingUser  = await User.findOne({
           email: user.email,
         });
 
-        if (!userExists) {
-          //create a random string then hash it
+        console.log(existingUser)
+        if (existingUser ) {
+          if (existingUser.banned) {
+           
+            throw new Error("Your account has been banned.");
+          }
+        } else {
+
           const characters =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
           let result = "";
@@ -120,6 +136,8 @@ export const options: NextAuthOptions = {
             follower: 0,
             following: 0,
             blocked: [],
+            banned: false,
+            role: [UserRole.USER],
           });
 
           const knockUser = await knock.users.identify(newUser._id.toString(), {
@@ -143,6 +161,7 @@ export const options: NextAuthOptions = {
         token.id = user.id;
         token.name = user.name || "";
         token.image = user.image || "";
+        token.email = user.email || "";
         token.bio = user.bio || "";
         token.follower = user.follower || 0;
         token.following = user.following || 0;
@@ -150,15 +169,18 @@ export const options: NextAuthOptions = {
         token.createdAt = user.createdAt || null;
         token.fullname = user.fullname || "";
         token.birthdate = user.birthdate || "";
+        token.role = user.role || [UserRole.USER];
+        token.banned = user.banned || false;
       }
 
-      // If token already contains user data, avoid DB query
       if (token.id) {
         try {
           const sessionUser = await User.findOne({ email: token.email });
           if (sessionUser) {
+    
             token.id = sessionUser._id.toString();
             token.name = sessionUser.username || "";
+            token.email = sessionUser.email || "";
             token.image = sessionUser.image || "";
             token.bio = sessionUser.bio || "";
             token.follower = sessionUser.follower || 0;
@@ -168,6 +190,8 @@ export const options: NextAuthOptions = {
             token.createdAt = sessionUser.createdAt || null;
             token.fullname = sessionUser.fullname || "";
             token.birthdate = sessionUser.birthdate || "";
+            token.role = sessionUser.role || [UserRole.USER];
+            token.banned = sessionUser.banned || false;
           }
         } catch (error) {
           console.error("Error fetching user for JWT:", error);
@@ -180,7 +204,8 @@ export const options: NextAuthOptions = {
       session.user = {
         id: token.id as string,
         name: token.name as string,
-        image: token.image as string ,
+        email: token.email as string,
+        image: token.image as string,
         bio: token.bio as string,
         follower: token.follower as number,
         following: token.following as number,
@@ -188,6 +213,8 @@ export const options: NextAuthOptions = {
         createdAt: token.createdAt as any,
         fullname: token.fullname as string,
         birthdate: token.birthdate as string,
+        role: token.role as UserRole[],
+        banned: token.banned as boolean,
       };
       return session;
     },

@@ -24,16 +24,17 @@ import {
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import { getSession, signIn, useSession } from "@node_modules/next-auth/react";
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { Dispatch, SetStateAction, useContext, useState } from "react";
 import { useRouter } from "@node_modules/next/navigation";
 import { deleteChat, leaveChat } from "@lib/Chat/chat";
 import { User } from "@lib/types";
 import { ChatBoxView } from "@enum/chatBoxView";
 import ImageGroupDisplay from "@components/UI/Image/ImageGroupDisplay";
+import { ChatBoxContext } from "../ChatBox";
+import { ChatContext } from "@components/UI/Layout/Nav";
 
 export default function SettingView({
-  chatInfo,
-  chat,
+ 
   isBlocked,
   blocked,
   isLoading,
@@ -42,8 +43,7 @@ export default function SettingView({
   setChatBoxView,
   setIsLoading,
 }: {
-  chatInfo: any;
-  chat: any;
+  
   isBlocked: boolean;
   blocked: boolean;
   isLoading: boolean;
@@ -52,6 +52,8 @@ export default function SettingView({
   setChatBoxView: Dispatch<SetStateAction<ChatBoxView>>;
   setIsLoading: (state: boolean) => void;
 }) {
+  const {chat} = useContext(ChatBoxContext)
+  const {chatInfo} = useContext(ChatContext)
   const { data: session, update } = useSession();
   const router = useRouter();
 
@@ -71,7 +73,7 @@ export default function SettingView({
     }
     try {
       const response = await blockUser(session.user.id, userId);
-      update()
+      update();
       if (!response) {
         setBlocked(!blocked);
       }
@@ -116,7 +118,12 @@ export default function SettingView({
         <div className="size-28">
           <ImageGroupDisplay
             images={
-              chat.type === "group"
+              chat.type === "ai"
+                ? [
+                    (chat.image =
+                      "https://img.freepik.com/premium-vector/ai-logo-template-vector-with-white-background_1023984-15069.jpg"),
+                  ]
+                : chat.type === "group"
                 ? chat.image
                   ? [chat.image]
                   : chatInfo.users
