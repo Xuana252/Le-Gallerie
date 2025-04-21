@@ -37,8 +37,8 @@ import { fetchPostLikedUser, handleLike } from "@actions/likesAction";
 import PostInteractionBarr from "./PostDetail/PostInteractionBar";
 import { renderPrivacy } from "@lib/Post/post";
 import ImageSlider from "../Image/ImageSlider";
-import CommentSummarize from "./PostDetail/CommentSummarize";
-import LikeSummarize from "./PostDetail/LikeSummarize";
+import CommentSummarize from "./Summarizer/CommentSummarize";
+import LikeSummarize from "./Summarizer/LikeSummarize";
 
 export default function PostDetail({
   available = true,
@@ -168,10 +168,10 @@ export default function PostDetail({
                   </p>
                 </div>
                 {post._id && likeSummarize && (
-                  <LikeSummarize postId={post._id} />
+                  <LikeSummarize targetId={post._id} type="Post"/>
                 )}
                 {post._id && commentSummarize && (
-                  <CommentSummarize postId={post._id} />
+                  <CommentSummarize targetId={post._id} type="Comments" />
                 )}
                 <div className="mt-auto">
                   {post._id && commentBar && (

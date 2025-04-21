@@ -61,9 +61,13 @@ export default function ChatView({
   const [isLoading, setIsLoading] = useState(false);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
+  const [messages, setMessages] = useState(chat?.message || []);
+
   const chatItemRef = useRef<{ [key: string]: HTMLLIElement | null }>({});
 
-  const [refreshTrigger, setRefreshTrigger] = useState(false); // Thêm state này
+  useEffect(() => {
+    setMessages(chat?.message || []);
+  }, [chat?.message]);
 
   const handleMoveToPin = () => {
     chatItemRef.current[chat.pinned] &&
@@ -90,9 +94,6 @@ export default function ChatView({
     });
   };
 
-  const handleload = () => {
-    setRefreshTrigger((prev) => !prev);
-  };
 
   useEffect(() => {
     messageListRef.current?.scrollTo({
@@ -101,21 +102,8 @@ export default function ChatView({
     });
   }, [chat?.message?.length, chatInfo]);
 
-  const [messages, setMessages] = useState(chat?.message || []);
+  
 
-  useEffect(() => {
-    const fetchMessages = async () => {
-      if (chatInfo.type === "ai") {
-        const newMessages = await getAiMessage(chatInfo.admin);
-
-        if (JSON.stringify(newMessages) !== JSON.stringify(messages)) {
-          chat.message = newMessages;
-          setMessages(newMessages);
-        }
-      }
-    };
-    fetchMessages();
-  }, [refreshTrigger]); // Gọi lại khi refreshTrigger thay đổi
 
   const getMessageClass = (message: any) => {
     const isMine =
@@ -209,7 +197,7 @@ export default function ChatView({
               </div>
             )}
             {[
-              ...chat.message.map((message: any) => ({
+              ...messages.map((message: any) => ({
                 ...message,
                 variant: "message",
               })),
@@ -222,7 +210,7 @@ export default function ChatView({
                     ref={(el) => {
                       chatItemRef.current[message.id] = el;
                     }}
-                    key={index}
+                    key={message.createdAt}
                     className="flex flex-col"
                     style={{ zIndex: 99 - index }}
                   >
@@ -324,7 +312,7 @@ export default function ChatView({
           </>
         )}
       </ul>
-      <ChatBar isBlocked={isBlocked} blocked={blocked} />
+      <ChatBar isBlocked={isBlocked} blocked={blocked} setMessage={setMessages} />
     </div>
   );
 }

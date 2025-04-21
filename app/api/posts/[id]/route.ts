@@ -11,6 +11,7 @@ import Friend from "@models/friendModel";
 import { PostPrivacy } from "@enum/postPrivacyEnum";
 import { checkFriendState } from "@actions/friendActions";
 import { UserRole } from "@enum/userRolesEnum";
+import { generateAndUpsertEmbedding } from "@lib/pinecone";
 
 export const GET = async (
   req: NextRequest,
@@ -105,6 +106,7 @@ export const PATCH = async (
       new: true,
     });
     if (post) {
+      await generateAndUpsertEmbedding(params.id,title,description,categories)
       return NextResponse.json(post, { status: 200 });
     }
     return NextResponse.json({ message: "Post not found" }, { status: 404 });

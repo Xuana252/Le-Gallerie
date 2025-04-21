@@ -136,6 +136,8 @@ export const fetchPostWithId = async (post: string) => {
 };
 
 export const createPost = async (post: Post, user: string) => {
+
+
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/new`,
     {
@@ -151,11 +153,13 @@ export const createPost = async (post: Post, user: string) => {
 };
 
 export const updatePost = async (post: Post) => {
+ 
+
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/posts/${post._id}`,
     {
       method: "PATCH",
-      body: JSON.stringify(post),
+      body: JSON.stringify({ ...post }),
     }
   );
   if (response.ok) {

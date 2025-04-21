@@ -3,6 +3,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import AiChatBox from "@models/aiChatBoxModel";
 import { connectToDB } from "@utils/database";
 import Post from "@models/postModel";
+import { queryPosts } from "@lib/pinecone";
+import { PostPrivacy } from "@enum/postPrivacyEnum";
 
 export async function POST(req: Request) {
   try {
@@ -47,7 +49,9 @@ export async function POST(req: Request) {
 
     await connectToDB();
 
-    const posts = await Post.find({})
+    const postIds = await queryPosts( message.content)
+
+    const posts = await Post.find({_id: {$in: postIds}})
       .populate({
         path: "creator",
         select: "-email -password -createdAt -updatedAt -__v",
@@ -86,7 +90,7 @@ export async function POST(req: Request) {
       ],
     };
 
-    let chat = await AiChatBox.findOne({ chatId: userId });
+    let chat = await AiChatBox.findOne({ chatId: userId , isDeleted: false , privacy: PostPrivacy.PUBLIC });
 
     if (!chat) {
       chat = new AiChatBox({

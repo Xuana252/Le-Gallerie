@@ -28,9 +28,13 @@ import ReportForm from "@components/Forms/ReportForm";
 export const CommentItem = ({
   comment,
   size = "small",
+  parent,
+  callback
 }: {
   comment: Comment;
+  parent?: Comment | null;
   size?: "small" | "smaller";
+  callback?: () => Promise<void>;
 }) => {
   const { data: session } = useSession();
   const commentRef = useRef<HTMLDivElement>(null);
@@ -61,6 +65,7 @@ export const CommentItem = ({
   };
 
   const fetchReplies = async () => {
+    if (parent) return;
     try {
       const replies = await fetchCommentReplies(comment._id);
       setReplies(replies);
@@ -100,7 +105,8 @@ export const CommentItem = ({
       replyContent
     );
     setReplyContent("");
-    fetchReplies();
+    fetchReplies()
+    callback&&callback()
   };
 
   useEffect(() => {
@@ -229,16 +235,9 @@ export const CommentItem = ({
         )}
         {isRepliesView && (
           <ul className="flex flex-col gap-2 border-l-2 border-accent/50 pl-2 pt-2 pb-2">
-            {replies
-              .sort((a, b) => {
-                const dateA = new Date(a.createdAt.toString());
-                const dateB = new Date(b.createdAt.toString());
-
-                return dateB.getTime() - dateA.getTime();
-              })
-              .map((reply) => (
-                <CommentItem key={reply._id} comment={reply} size="smaller" />
-              ))}
+            {replies.map((reply) => (
+              <CommentItem key={reply._id} comment={reply} size="smaller" parent={comment} callback={fetchReplies} />
+            ))}
           </ul>
         )}
         {replies.length > 0 && (

@@ -17,7 +17,7 @@ import {
   increment,
 } from "firebase/firestore";
 import { useSession } from "@node_modules/next-auth/react";
-import React, { useContext, useState } from "react";
+import React, { Dispatch, SetStateAction, useContext, useState } from "react";
 import { text } from "stream/consumers";
 
 import TextAreaInput from "@components/Input/TextAreaInput";
@@ -31,9 +31,11 @@ import { ChatContext } from "@components/UI/Layout/Nav";
 export default function ChatBar({
   isBlocked,
   blocked,
+  setMessage,
 }: {
   isBlocked: boolean;
   blocked: boolean;
+  setMessage: Dispatch<SetStateAction<any>>;
 }) {
   const { data: session } = useSession();
   const [text, setText] = useState("");
@@ -74,10 +76,7 @@ export default function ChatBar({
         delete: false,
       };
 
-      setChat((prev: any) => ({
-        ...prev!,
-        message: [userMessage, ...prev!.message],
-      }));
+      setMessage((prev: any) => [userMessage, ...prev]);
       setIsReplying(true);
       const reply = await getAIResponse(text, session.user.id);
       const aiResponse = {
@@ -90,10 +89,7 @@ export default function ChatBar({
       };
       setTimeout(() => {
         setIsReplying(false);
-        setChat((prev: any) => ({
-          ...prev!,
-          message: [aiResponse, ...prev!.message],
-        }));
+        setMessage((prev: any) => [aiResponse, ...prev]);
       }, 1000);
 
       return;

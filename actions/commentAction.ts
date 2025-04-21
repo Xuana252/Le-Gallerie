@@ -169,6 +169,23 @@ export const fetchPostCommentSummarize = async (postId: string) => {
   }
 };
 
+export const fetchCommentRepliesSummarize = async (commentId: string) => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/comments/${commentId}/summarize`,
+      {
+        headers: new Headers(headers()),
+      }
+    );
+
+    const data = await response.json();
+    return { message: data.message, counts: data.counts ?? 0 };
+  } catch (error) {
+    console.error("Failed to fetch for comments replies", error);
+    return { message: "Error", counts: 0 };
+  }
+};
+
 export const deleteComment = async (commentId:string) => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/comments/${commentId}/delete`,

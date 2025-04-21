@@ -86,7 +86,24 @@ export const fetchPostLikeSummarize = async (postId: string) => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Failed to fetch for post comments", error);
+    console.error("Failed to fetch for posts likes summarize", error);
+    return {};
+  }
+};
+
+export const fetchCommentLikeSummarize = async (postId: string) => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_DOMAIN_NAME}/api/comments/${postId}/likes/summarize`,
+      {
+        headers: new Headers(headers()),
+      }
+    );
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Failed to fetch for comments likes comments", error);
     return {};
   }
 };

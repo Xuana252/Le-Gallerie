@@ -1,5 +1,8 @@
 "use client";
-import { fetchPostCommentSummarize } from "@actions/commentAction";
+import {
+  fetchCommentRepliesSummarize,
+  fetchPostCommentSummarize,
+} from "@actions/commentAction";
 import Typewriter from "@components/UI/Typewriter";
 import { formatNumber } from "@lib/format";
 import {
@@ -9,7 +12,13 @@ import {
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import React, { useEffect, useRef, useState } from "react";
 
-export default function CommentSummarize({ postId }: { postId: string }) {
+export default function CommentSummarize({
+  targetId,
+  type,
+}: {
+  targetId: string;
+  type: "Comments" | "Replies";
+}) {
   const [summarize, setSummarize] = useState("");
   const [count, setCount] = useState(0);
   const [isFetching, setIsFetching] = useState(true);
@@ -17,7 +26,10 @@ export default function CommentSummarize({ postId }: { postId: string }) {
   const fetchSummarize = async (id: string) => {
     setIsFetching(true);
     try {
-      const res = await fetchPostCommentSummarize(id);
+      const res =
+        type === "Comments"
+          ? await fetchPostCommentSummarize(id)
+          : await fetchCommentRepliesSummarize(id);
 
       setSummarize(res.message);
       setCount(res.counts);
@@ -27,9 +39,8 @@ export default function CommentSummarize({ postId }: { postId: string }) {
     setIsFetching(false);
   };
   useEffect(() => {
-    postId && fetchSummarize(postId);
-  }, [postId]);
-
+    targetId && fetchSummarize(targetId);
+  }, [targetId]);
 
   return (
     <div>
@@ -39,7 +50,7 @@ export default function CommentSummarize({ postId }: { postId: string }) {
         </div>
 
         <span className="italic text-xs rounded-full bg-accent text-primary py-1 px-2 font-semibold">
-          Comment Summarize
+          {type} Summarize
         </span>
 
         {!isFetching && (
@@ -53,7 +64,11 @@ export default function CommentSummarize({ postId }: { postId: string }) {
           isFetching ? "animate-pulse" : ""
         } bg-secondary-2 p-2`}
       >
-        {isFetching ? "Calculating" : <Typewriter text={summarize} speed={50} />}
+        {isFetching ? (
+          "Calculating"
+        ) : (
+          <Typewriter text={summarize} speed={50} />
+        )}
       </div>
     </div>
   );

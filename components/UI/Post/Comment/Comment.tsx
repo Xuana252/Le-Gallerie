@@ -105,13 +105,6 @@ export const CommentSection = ({ postId }: { postId: string }) => {
             : comments.length > 0
             ? comments
                 .filter((comment) => comment.parent === null)
-                .sort((a, b) => {
-                  // Convert ISO strings to Date objects
-                  const dateA = new Date(a.createdAt.toString());
-                  const dateB = new Date(b.createdAt.toString());
-                  // Compare the Date objects
-                  return dateB.getTime() - dateA.getTime();
-                })
                 .map((comment) => (
                   <div key={comment._id}>
                     <CommentItem comment={comment} />

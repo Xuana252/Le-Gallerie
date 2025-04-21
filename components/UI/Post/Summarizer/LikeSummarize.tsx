@@ -1,6 +1,6 @@
 "use client";
 import { fetchPostCommentSummarize } from "@actions/commentAction";
-import { fetchPostLikeSummarize } from "@actions/likesAction";
+import { fetchCommentLikeSummarize, fetchPostLikeSummarize } from "@actions/likesAction";
 import { Reaction } from "@enum/reactionEnum";
 import { renderReaction } from "@lib/Emoji/render";
 import { formatNumber } from "@lib/format";
@@ -12,7 +12,13 @@ import {
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
 
-export default function LikeSummarize({ postId }: { postId: string }) {
+export default function LikeSummarize({
+  targetId,
+  type,
+}: {
+  targetId: string;
+  type: "Post" | "Comments";
+}) {
   const [summarize, setSummarize] = useState<Record<Reaction, number>>();
   const [count, setCount] = useState(0);
   const [isFetching, setIsFetching] = useState(true);
@@ -20,7 +26,10 @@ export default function LikeSummarize({ postId }: { postId: string }) {
   const fetchSummarize = async (id: string) => {
     setIsFetching(true);
     try {
-      const res = await fetchPostLikeSummarize(id);
+      const res =
+        type === "Post"
+          ? await fetchPostLikeSummarize(id)
+          : await fetchCommentLikeSummarize(id);
 
       const totalCount = Object.values(res as Record<Reaction, number>).reduce(
         (acc, val) => acc + val,
@@ -36,8 +45,8 @@ export default function LikeSummarize({ postId }: { postId: string }) {
   };
 
   useEffect(() => {
-    postId && fetchSummarize(postId);
-  }, [postId]);
+    targetId && fetchSummarize(targetId);
+  }, [targetId]);
 
   return (
     <div>

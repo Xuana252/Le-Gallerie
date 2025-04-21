@@ -42,6 +42,9 @@ import React, { useEffect, useState } from "react";
 import CommentProps from "@components/UI/Props/ComentProps";
 import { deleteComment, fetchCommentWithId } from "@actions/commentAction";
 import ReportTab from "@components/UI/Report/ReportTab";
+import CommentSummarize from "@components/UI/Post/Summarizer/CommentSummarize";
+import LikeSummarize from "@components/UI/Post/Summarizer/LikeSummarize";
+
 
 export default function CommentDetails({ params }: { params: { id: string } }) {
   const [commentId, setCommentId] = useState(params.id );
@@ -133,10 +136,12 @@ export default function CommentDetails({ params }: { params: { id: string } }) {
         </div>
       )}
 
-      <div className="panel flex items-center justify-center">
+      <div className="panel flex flex-col gap-4 items-center justify-center">
           <CommentProps
            comment={comment}
           />
+          <LikeSummarize targetId={params.id} type="Comments"/>
+          <CommentSummarize targetId={params.id} type="Replies"/>
       </div>
 
       <div className="mx-auto">See comment's reports</div>
