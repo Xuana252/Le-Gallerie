@@ -10,8 +10,8 @@ import Link from "next/link";
 export default function Info() {
   const { data: session } = useSession();
   return (
-    <section className="flex flex-col gap-4">
-      <div className="bg-secondary-1/70 rounded-lg p-4 flex flex-col gap-4">
+    <section className="flex flex-col gap-4 w-full">
+      <div className="bg-secondary-1/70 rounded-lg p-4 flex flex-col gap-4 w-full">
         <h1 className="text-primary font-bold text-2xl bg-accent/30 rounded-md px-2 py-1">
           User information
         </h1>

@@ -33,7 +33,7 @@ export default function MediaView({
           message.image.length > 0 && !message.delete
             ? message.image.map((url: string) => (
                 <div
-                  key={index}
+                  key={index+message.createdAt.toString()}
                   className="aspect-square cursor-zoom-in size-full"
                 >
                   <CustomImage

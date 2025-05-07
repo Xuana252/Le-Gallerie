@@ -62,7 +62,6 @@ export default function UserReportTab({ user }: { user: User | null }) {
       }
     });
 
-    console.log(res);
 
     setTypeCount(counts);
 

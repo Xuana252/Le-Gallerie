@@ -60,6 +60,7 @@ export const handleCopyImage = async (image: string) => {
   }
 };
 
+
 export const handleUpdateImage = async (
   imageList: UploadImage[],
   imageToUpdate: string[]
@@ -92,3 +93,5 @@ export const handleUpdateImage = async (
 
   return imageUrlList;
 };
+
+

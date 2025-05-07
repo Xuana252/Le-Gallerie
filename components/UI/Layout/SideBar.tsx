@@ -75,7 +75,7 @@ export default function SideBar({menu, children }: {menu:SidebarSection[], child
   return (
     <SubPathContext.Provider value={{ subPath, setSubPath }}>
       <div
-        className="grid grid-cols-[auto_1fr] text-accent"
+        className="grid sm:grid-cols-[auto_1fr] grid-cols-[1fr] text-accent"
         style={{
           height: `calc(100vh - 60px)`,
         }}
@@ -154,7 +154,7 @@ export default function SideBar({menu, children }: {menu:SidebarSection[], child
         </div>
 
         <div
-          className="grow overflow-y-scroll p-2 overflow-x-hidden z-30 relative bg-gradient-to-b from-secondary-1/30  to-secondary-2 "
+          className="overflow-y-scroll p-2 overflow-x-hidden z-30 relative bg-gradient-to-b from-secondary-1/30  to-secondary-2 "
           style={{
             maxHeight: `${windowHeight - 60}px`,
             height: `${windowHeight - 60}px`,
