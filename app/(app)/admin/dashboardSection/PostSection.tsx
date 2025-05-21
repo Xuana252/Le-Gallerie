@@ -68,8 +68,8 @@ export default function PostSection() {
   }
 
   useEffect(() => {
-    // fetchPostData()
-    setData(generateMockPostData(12));
+    fetchPostData()
+    // setData(generateMockPostData(12));
   }, []);
   return (
     <div className="panel flex flex-col gap-2  ">

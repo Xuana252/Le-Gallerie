@@ -85,8 +85,8 @@ export default function ReportsSection() {
   }
 
   useEffect(() => {
-    // fetchReportData();
-    setData(generateMockReportData(12));
+    fetchReportData();
+    // setData(generateMockReportData(12));
   }, []);
 
   return (

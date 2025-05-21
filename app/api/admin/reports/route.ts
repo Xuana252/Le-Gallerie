@@ -11,12 +11,11 @@ export const GET = async (req: NextRequest) => {
     await connectToDB();
     const session = await getServerSession(options);
 
-
     if (!session?.user)
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     if (!session.user.role?.includes(UserRole.ADMIN))
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    
+
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
 
@@ -82,7 +81,44 @@ export const GET = async (req: NextRequest) => {
         },
       },
     ]);
-    return NextResponse.json(result[0], { status: 200 });
+
+    const data = result[0];
+
+
+    const start = new Date(2024, 7); 
+    const now = new Date();
+    const current = new Date(now.getFullYear(), now.getMonth());
+
+
+    const monthlyMap = new Map(
+      data.monthly.map((entry: any) => [
+        `${entry._id.year}-${entry._id.month}`,
+        entry.count,
+      ])
+    );
+
+    // Fill in months from August 2024 to now
+    const fullMonthly = [];
+    let iter = new Date(start);
+
+    while (iter <= current) {
+      const year = iter.getFullYear();
+      const month = iter.getMonth() + 1; // 1-indexed for Mongo results
+      const key = `${year}-${month}`;
+      const count = monthlyMap.get(key) || { post: 0, comment: 0, resolved: 0 };
+
+      fullMonthly.push({
+        _id: { year, month },
+        count,
+      });
+
+      iter.setMonth(iter.getMonth() + 1);
+    }
+
+    // Replace monthly with the full padded array
+    data.monthly = fullMonthly;
+
+    return NextResponse.json(data, { status: 200 });
   } catch (error) {
     console.log(error);
     return NextResponse.json(

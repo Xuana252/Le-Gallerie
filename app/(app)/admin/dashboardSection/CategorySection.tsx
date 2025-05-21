@@ -55,8 +55,8 @@ export default function CategorySection() {
   }
 
   useEffect(() => {
-    // fetchCategoryData();
-    setData(generateMockCategoryData());
+    fetchCategoryData();
+    // setData(generateMockCategoryData());
   }, []);
   return (
     <div className="panel flex flex-col gap-2 ">

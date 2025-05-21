@@ -33,7 +33,8 @@ export default function Chart({
     ...item.value,
   }));
 
-  const keys = Object.keys(data ? data[0]?.value : {});
+  const keys =
+    data && data[0] && data[0].value ? Object.keys(data[0].value) : [];
 
   const colors = [
     "#87cefa",

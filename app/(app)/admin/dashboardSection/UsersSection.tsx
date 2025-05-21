@@ -61,8 +61,8 @@ export default function UsersSection() {
   }
 
   useEffect(() => {
-    // fetchUserData;
-    setData(generateMockUserData());
+    fetchUserData();
+    // setData(generateMockUserData());
   }, []);
 
   return (
